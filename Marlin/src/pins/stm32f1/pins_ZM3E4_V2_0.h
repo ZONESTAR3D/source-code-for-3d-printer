@@ -230,7 +230,6 @@
 #define E3_DIR_PIN         PD9
 #define E3_ENABLE_PIN      PD11
 #endif
-
 //
 // Temperature Sensors
 //
@@ -308,17 +307,44 @@
 #define DOGLCD_CS           -1
 #define DOGLCD_MOSI         -1
 #define DOGLCD_SCK          -1
-
 #endif
 
+#if ENABLED(ZONESTAR_LCD2004_KNOB)
+#define	LCDSCREEN_NAME	"LCD2004 KNOB"
+#define LCD_PINS_RS         PE12    
+#define LCD_PINS_ENABLE     PE10    
+#define LCD_PINS_D4         PE9    
+#define LCD_PINS_D5         PE14    
+#define LCD_PINS_D6         PE8    
+#define LCD_PINS_D7         PE15
+
+#define BTN_EN1 			PA10
+#define BTN_EN2 			PB4
+#define BTN_ENC 			PE13
+#define BEEPER_PIN 			PE11
+#define KILL_PIN 			PB5
+#endif
+
+
+#if ENABLED(ZONESTAR_LCD2004_ADCKEY)
+#define	LCDSCREEN_NAME	"LCD2004 5KEY"
+#define LCD_PINS_RS         PE12    
+#define LCD_PINS_ENABLE     PE10    
+#define LCD_PINS_D4         PE9    
+#define LCD_PINS_D5         PE14    
+#define LCD_PINS_D6         PE8    
+#define LCD_PINS_D7         PE15 
+
+#define ADC_KEYPAD_PIN		PE13//PC0			//PIN6 of AUX1
+#endif
 #if ENABLED(ZONESTAR_DWIN_LCD)
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
 
 #define BEEPER_PIN          PA15    //PE11
 #define KILL_PIN          	-1		//PE13
-#define BTN_EN2 			PB5    	//PE8
 #define BTN_EN1 			PB3    	//PE14
+#define BTN_EN2 			PB5    	//PE8
 #define BTN_ENC 			PB4   	//PE15
 #endif
 

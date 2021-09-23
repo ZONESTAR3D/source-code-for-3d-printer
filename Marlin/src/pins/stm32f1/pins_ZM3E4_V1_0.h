@@ -270,29 +270,22 @@
 #define WIFI_RST          	PC15
 #define WIFI_EN          	PC14
 
-//
-// LCD / Controller
-//
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#define FPRWARD_PIN         PA13    
+#define BACK_PIN          	PA14
+#endif
+
 #if ENABLED(ZONESTAR_12864LCD)
 #define	LCDSCREEN_NAME		"ZONESTAR LCD12864"
-#define LCD_PINS_RS 		PE12	//7 CS make sure for zonestar zm3e4!
-#define LCD_PINS_ENABLE 	PE9		//6 DATA make sure for zonestar zm3e4!
-#define LCD_PINS_D4 		PE10    //8 SCK make sure for zonestar zm3e4!
-#define LCD_PINS_D5 		-1    	//mosi
-#define LCD_PINS_D6 		-1      
-#define LCD_PINS_D7 		-1
-#define LCD_RESET_PIN       -1
 
-#define BEEPER_PIN          PE11
+#define LCD_PINS_RS 			PE12		//7 CS make sure for zonestar zm3e4!
+#define LCD_PINS_ENABLE 	PE9			//6 DATA make sure for zonestar zm3e4!
+#define LCD_PINS_D4 			PE10    //8 SCK make sure for zonestar zm3e4!
+#define BEEPER_PIN        PE11
 #define KILL_PIN          	-1//PE13
-#define BTN_EN1 			PE8
-#define BTN_EN2 			PE14
-#define BTN_ENC 			PE15
-	
-#define DOGLCD_A0           -1
-#define DOGLCD_CS           -1
-#define DOGLCD_MOSI         -1
-#define DOGLCD_SCK          -1
+#define BTN_EN1 					PE8
+#define BTN_EN2 					PE14
+#define BTN_ENC 					PE15
 #endif
 
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
@@ -322,8 +315,8 @@
 #define LCD_PINS_RS         PE12    
 #define LCD_PINS_ENABLE     PE10    
 #define LCD_PINS_D4         PE9    
-#define LCD_PINS_D5         PE8    
-#define LCD_PINS_D6         PE14    
+#define LCD_PINS_D5         PE14    
+#define LCD_PINS_D6         PE8    
 #define LCD_PINS_D7         PE15
 
 #define BTN_EN1 			PA10
@@ -333,32 +326,33 @@
 #define KILL_PIN 			PB5
 #endif
 
+
 #if ENABLED(ZONESTAR_LCD2004_ADCKEY)
 #define	LCDSCREEN_NAME	"LCD2004 5KEY"
 #define LCD_PINS_RS         PE12    
 #define LCD_PINS_ENABLE     PE10    
 #define LCD_PINS_D4         PE9    
-#define LCD_PINS_D5         PE8    
-#define LCD_PINS_D6         PE14    
+#define LCD_PINS_D5         PE14    
+#define LCD_PINS_D6         PE8    
 #define LCD_PINS_D7         PE15 
-#define ADC_KEYPAD_PIN		PC0			//PIN6 of AUX1
-#endif
 
+#define ADC_KEYPAD_PIN		PE13//PC0			//PIN6 of AUX1
+#endif
 #if ENABLED(ZONESTAR_DWIN_LCD)
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
-#define BEEPER_PIN          PA15
-#define KILL_PIN          	PC0
-#define BTN_EN1 			PB3
-#define BTN_EN2 			PB5
-#define BTN_ENC 			PB4
+
+#define BEEPER_PIN          PA15    //PE11
+#define KILL_PIN          	-1		//PE13
+#define BTN_EN1 			PB3    	//PE14
+#define BTN_EN2 			PB5    	//PE8
+#define BTN_ENC 			PB4   	//PE15
 #endif
 
-
 #if HAS_MARLINUI_U8GLIB
-#define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-#define BOARD_ST7920_DELAY_2 DELAY_NS(250)
-#define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+#define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
+#define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
+#define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
 #endif
 
 //SERVO

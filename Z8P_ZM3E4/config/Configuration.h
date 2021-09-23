@@ -76,8 +76,8 @@
 
 //#define	OPTION_Z8PM3 				//M3 + LCD12864
 //#define	OPTION_Z8PM4 				//M4 + LCD12864
-#define	OPTION_Z8PM3_PRO 			//M3 + DWIN LCD 
-//#define	OPTION_Z8PM4_PRO 				//M4 + DWIN LCD 
+//#define	OPTION_Z8PM3_PRO 			//M3 + DWIN LCD 
+#define	OPTION_Z8PM4_PRO 				//M4 + DWIN LCD 
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
@@ -91,8 +91,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V1.2.6"
-#define	STRING_DISTRIBUTION_DATE  "2021-07-28"
+#define	FIRMWARE_VERSION		  		"V1.2.7"
+#define	STRING_DISTRIBUTION_DATE  "2021-08-25"
 #define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -101,7 +101,7 @@
 #if EITHER(OPTION_Z8PM3_PRO, OPTION_Z8PM4_PRO)
 #define OPTION_LCDDWIN							//
 #endif
-//#define OPTION_TITAN								//TITAN Extruder
+#define OPTION_TITAN								//TITAN Extruder
 #define	OPTION_AUTOPOWEROFF					//Power off after printer
 #define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to Z2- connector)
@@ -115,8 +115,8 @@
 //optional, need to open it if you upgrade these parts
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
-#define OPTION_BGM								//BGM Extruder
-#define	OPTION_TMC2225_EXTRUDER 	//TMC2225 be used to Extruder motor drivers
+//#define OPTION_BGM								//BGM Extruder
+//#define	OPTION_TMC2225_EXTRUDER 	//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 				//TMC220X be used to XYZ axis motor drivers
 //#define	OPTION_TMC220X_EXTRUDER 	//TMC220X be used to Extruder motor drivers
 //#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
