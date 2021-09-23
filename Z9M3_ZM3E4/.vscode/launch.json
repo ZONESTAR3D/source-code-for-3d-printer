@@ -1,0 +1,36 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+//
+// PIO Unified Debugger
+//
+// Documentation: https://docs.platformio.org/page/plus/debugging.html
+// Configuration: https://docs.platformio.org/page/projectconf/section_env_debug.html
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug",
+            "executable": "m:/Working/Code210/Z9M3_ZM3E4/.pio/build/STM32F103VE_ZM3E4V2_USB/firmware.elf",
+            "projectEnvName": "STM32F103VE_ZM3E4V2_USB",
+            "toolchainBinDir": "C:/Users/Administrator/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/Administrator/.platformio/platforms/ststm32@6.1.1/misc/svd/STM32F103xx.svd",
+            "preLaunchTask": {
+                "type": "PlatformIO",
+                "task": "Pre-Debug (STM32F103VE_ZM3E4V2_USB)"
+            }
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (skip Pre-Debug)",
+            "executable": "m:/Working/Code210/Z9M3_ZM3E4/.pio/build/STM32F103VE_ZM3E4V2_USB/firmware.elf",
+            "projectEnvName": "STM32F103VE_ZM3E4V2_USB",
+            "toolchainBinDir": "C:/Users/Administrator/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/Administrator/.platformio/platforms/ststm32@6.1.1/misc/svd/STM32F103xx.svd"
+        }
+    ]
+}
