@@ -57,6 +57,8 @@
 #include "../../../D805S_ZRIB/config/Configuration.h"
 #elif defined(__D805S_ZM3E4__)
 #include "../../../D805S_ZM3E4/config/Configuration.h"
+#elif defined(__Z10M2_ZM3E4__)
+#include "../../../Z10M2_ZM3E4/config/Configuration.h"
 #else
 #include "../../Configuration.h"
 #endif
@@ -97,6 +99,8 @@
 #include "../../../D805S_ZRIB/config/Configuration_adv.h"
 #elif defined(__D805S_ZM3E4__)
 #include "../../../D805S_ZM3E4/config/Configuration_adv.h"
+#elif defined(__Z10M2_ZM3E4__)
+#include "../../../Z10M2_ZM3E4/config/Configuration_adv.h"
 #else
 #include "../../Configuration_adv.h"
 #endif
