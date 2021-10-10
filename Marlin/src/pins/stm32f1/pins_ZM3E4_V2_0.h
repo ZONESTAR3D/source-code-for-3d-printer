@@ -368,10 +368,10 @@
 #define	SERVO0_PIN		  			PA15
 #else
 #define	SERVO0_PIN		  			PB9	
-#define	BLTOUCH_PROBE_PIN 		PB13
+#define	BLTOUCH_PROBE_PIN 		PB6//PB13//PB6//PB7
 #endif
 
 #define	SERVO2_PIN		  PB7
-#define	SERVO3_PIN		  PB6
+//#define	SERVO3_PIN		  PB6
 
 
