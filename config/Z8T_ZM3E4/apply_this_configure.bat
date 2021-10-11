@@ -5,6 +5,6 @@
 
 copy /Y .\Configuration.h ..\..\Marlin\.
 copy /Y .\Configuration_adv.h ..\..\Marlin\.
-copy /Y .\platformio.ini ..\.
+copy /Y .\platformio.ini ..\..\.
 
 @PAUSE
