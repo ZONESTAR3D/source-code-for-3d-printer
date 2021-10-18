@@ -92,8 +92,8 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #endif
-#define	FIRMWARE_VERSION					"V1.2.6"
-#define	STRING_DISTRIBUTION_DATE  "2021-07-27"
+#define	FIRMWARE_VERSION					"V1.3.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-10-16"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -104,7 +104,7 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-#define	OPTION_PL08N 			    				//Probe use PL_08N
+//#define	OPTION_PL08N 			    			//Probe use PL_08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //===========================================================================
 
@@ -116,7 +116,7 @@
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
-//#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
+#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
 //#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //==========================================================================
 //Bed coating
@@ -124,7 +124,7 @@
 #if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
 #define	BED_COATING_THICKNESS	3.5			//glass thickness
 #else
-#define	BED_COATING_THICKNESS	0.2			//stikcer thickness
+#define	BED_COATING_THICKNESS	0.0			//stikcer thickness
 #endif
 #endif
 //===========================================================================

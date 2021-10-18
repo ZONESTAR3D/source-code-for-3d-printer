@@ -2947,6 +2947,41 @@ void Stepper::report_positions() {
 
 #endif // BABYSTEPPING
 
+#if ENABLED(ZONESTAR_DWIN_LCD)
+void Stepper::do_Zaxis_step(const bool LorR, const bool direction){		
+#if DISABLED(INTEGRATED_BABYSTEPPING)
+	cli();
+#endif
+	const uint8_t old_dir = Z_DIR_READ();          			
+	ENABLE_AXIS_Z();                             			
+	DIR_WAIT_BEFORE();                                
+	Z_APPLY_DIR(direction, true);      								
+	DIR_WAIT_AFTER();                                 
+	_SAVE_START();                                    
+    
+#if NUM_Z_STEPPER_DRIVERS == 2
+	LorR?Z2_STEP_WRITE(true):Z_STEP_WRITE(true);			
+#else
+	Z_STEP_WRITE(true);
+#endif
+
+	_PULSE_WAIT();                                    
+    
+#if NUM_Z_STEPPER_DRIVERS == 2
+	LorR?Z2_STEP_WRITE(false):Z_STEP_WRITE(false);	
+#else
+	Z_STEP_WRITE(false);
+#endif
+
+	EXTRA_DIR_WAIT_BEFORE();
+	Z_APPLY_DIR(old_dir, true);      								
+	EXTRA_DIR_WAIT_AFTER();
+#if DISABLED(INTEGRATED_BABYSTEPPING)
+	sei();
+#endif
+}
+#endif
+
 /**
  * Software-controlled Stepper Motor Current
  */

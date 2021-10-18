@@ -29,9 +29,6 @@
 #if HAS_DWIN_LCD
 #include "dwin.h"
 
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Info menu
@@ -249,7 +246,8 @@ void HMI_Info() {
 			
 		#if ENABLED(DWIN_AUTO_TEST)
 			case INFO_CASE_DATE:				
-				if(++testmode_click_times >= 5){	
+				if(++testmode_click_times >= 5){
+					testmode_click_times = 0;
 					HMI_flag.auto_test_flag = 0xaa;
 					autotest.HMI_StartTest();
 				}

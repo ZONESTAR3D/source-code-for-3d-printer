@@ -10,6 +10,7 @@
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
 
+#include "../../../module/stepper.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 #include "../../../module/temperature.h"
@@ -21,6 +22,9 @@
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
 #include "../../../libs/buzzer.h"
+#include "../../../HAL/shared/Delay.h"
+
+
 
 _stAutotest_t Autotest::testflag;
 Autotest autotest;
@@ -130,8 +134,8 @@ inline void Autotest::AutoTest_ShowSWStatus(bool bfirst){
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW_STATE), DWIN_WIDTH,  YPOS(ID_LINE_SW_STATE)+ROW_GAP);
 		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_SW), PSTR(" X "));
 		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+1*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" Y "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS(ID_LINE_SW), PSTR("Z1 "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS(ID_LINE_SW), PSTR("Z2 "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS(ID_LINE_SW), PSTR("ZL "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS(ID_LINE_SW), PSTR("ZR "));
 		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+4*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" F "));
 		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+5*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" S "));		
 	}	
@@ -197,10 +201,15 @@ inline void Autotest::AutoTest_Watch_SW(){
 bool Autotest::DWIN_AutoTesting() {
 	static millis_t test_next_rts_update_ms = 0;
 	static uint16_t test_counter = 0;
-	static	uint16_t test_timer = 0;
+	static uint16_t test_timer = 0;
 	static bool test_dir = 0;
+	
+	if(testflag.loops == CHECK_Z_MOTOR){
+		stepper.do_Zaxis_step(test_counter >= 6,test_dir);
+		DELAY_US(150);
+	}
+	
 	Check_Rotary();
-
 	const millis_t test_ms = millis();
 	if (PENDING(test_ms, test_next_rts_update_ms)) return false;
 	test_next_rts_update_ms = test_ms + 10;
@@ -314,21 +323,26 @@ bool Autotest::DWIN_AutoTesting() {
 			}
 			break;
 
+		
 		case CHECK_Z_MOTOR:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
-			DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("Z Axis Motor On..."));
+			if(test_counter >= 6)
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("ZR Axis Motor On..."));
+			else
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("ZL Axis Motor On..."));
 
 			if(test_timer++ >= 100){
 				test_timer = 0;
-				test_dir = !test_dir;
-			  if(test_dir) 
+				test_dir = !test_dir;					
+		#if 0	
+			  if(test_dir)
 					current_position.z += 3;
 				else 
 					current_position.z -= 2;
 				planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_Z), active_extruder);
 				planner.synchronize();
-			
-				if(test_counter++ >=5){
+		#endif
+				if(test_counter++ >= 12){
 					test_counter = 0;					
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
 					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("Z Axis Motor Off"));

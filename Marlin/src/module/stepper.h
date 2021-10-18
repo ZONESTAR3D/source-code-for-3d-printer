@@ -510,6 +510,11 @@ class Stepper {
       static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
+		
+		#if ENABLED(ZONESTAR_DWIN_LCD)
+			static void do_Zaxis_step(const bool LorR = false, const bool direction = false);
+		#endif
+
     #if HAS_MOTOR_CURRENT_PWM
       static void refresh_motor_power();
     #endif

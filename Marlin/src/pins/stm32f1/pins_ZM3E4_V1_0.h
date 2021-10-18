@@ -267,7 +267,7 @@
 #define SS_PIN             PA4
 
 //WiFi. Functions
-#define WIFI_RST          	PC15
+#define WIFI_RST          PC15
 #define WIFI_EN          	PC14
 
 #if ENABLED(OPTION_REPEAT_PRINTING)

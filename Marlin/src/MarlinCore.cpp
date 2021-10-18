@@ -999,9 +999,12 @@ void setup() {
 
 	
 	#if HAS_WIFI_SERIAL
+	#ifndef WIFI_BAUDRATE
+		#define	WIFI_BAUDRATE	115200
+	#endif
 	#if(WIFI_SERIAL_PORT == 2)
 		Uart2_Remap_Enabled();
-	#endif		
+	#endif
 	#if DISABLED(OPTION_WIFI_BAUDRATE)
 		WIFI_SERIAL.begin(WIFI_BAUDRATE);	
 		serial_connect_timeout = millis() + 1000UL;

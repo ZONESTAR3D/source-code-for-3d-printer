@@ -215,11 +215,17 @@
 	#define LCD_PINS_DC     PA10				//DC
 	#define DOGLCD_CS       PA9				//CS
 	#define DOGLCD_A0       LCD_PINS_DC  		//A0 = DC
-	#define DOGLCD_MOSI		PB1				//SDA
+	#define DOGLCD_MOSI			PB1				//SDA
 	#define DOGLCD_SCK	  	PB0				//SCK
   	//Knob
-	#define BTN_EN1		  	PB11
+	#define BTN_EN1		  		PB11
 	#define BTN_EN2 		  	PC5
 	#define BTN_ENC 		  	PB10
 #endif//ENABLED(ZONESTAR_OLED12864)
+
+//WiFi
+#ifdef OPTION_WIFI_MODULE
+#define WIFI_RST          PC10
+#define WIFI_EN          	PA15
+#endif
 

@@ -73,81 +73,55 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
-#define OPTION_Z9V5_PRO				//Dwin LCD, Glass bed
-//#define	OPTION_MAX_SIZE				//500x500x400
+
+#define	D805S
+//#define	D805SM2
+//#define	D805SR2
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		"Marlin-2.0.8"
-#ifdef OPTION_Z9V5_PRO
-#ifdef OPTION_MAX_SIZE
-#define CUSTOM_MACHINE_NAME 		"Z9V5MaxPro"
-#else
-#define CUSTOM_MACHINE_NAME 		"Z9V5Pro"
+#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
+#ifdef D805S
+#define CUSTOM_MACHINE_NAME 	  	"D805S"
 #endif
-#else
-#ifdef OPTION_MAX_SIZE
-#define CUSTOM_MACHINE_NAME 			"Z9V5Max"
-#else
-#define CUSTOM_MACHINE_NAME 			"Z9V5"
+#ifdef D805SM2
+#define CUSTOM_MACHINE_NAME 	  	"D805SM2"
 #endif
+#ifdef D805SR2
+#define CUSTOM_MACHINE_NAME 	  	"D805SR2"
 #endif
-#define	FIRMWARE_VERSION					"V1.3.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-16"
-#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
+#define	FIRMWARE_VERSION		  	  "V4.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-09-22"
+#define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
-#define WEBSITE_URL 							"www.zonestar3d.com"
+#define WEBSITE_URL 			        "www.zonestar3d.com"
 //===========================================================================
-//default feature, usually keep it enable
-#define	SWITCH_EXTRUDER_SQUENCY
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
-#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
-#define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-//#define	OPTION_PL08N 			    			//Probe use PL_08N
-#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+//default, factory default configuration
+#define	DEFAULT_AUTO_LEVELING			true		//Auto leveling feature is on
+//#define	OPTION_PL08N 									//Probe use PL_08N
 //===========================================================================
-
+//Optional feature
+//#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+//#define OPTION_TITAN								//TITAN Extruder
+//#define	OPTION_AUTOPOWEROFF					//Power off after printer
+//#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
+//#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to E0 motor wire )
+//#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen
+//#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob
+//#define OPTION_BGM									//BGM Extruder
+#define	OPTION_TMC220X_XYZ  				//TMC220x be used to XYZ motor
+#define	OPTION_TMC220X_EXTRUDER 		//TMC220x be used to all extruder motor
+//#define	OPTION_TMC2225_XYZ  				//TMC2225 be used to XYZ motor
+//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to all extruder motor
+//#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
+#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //===========================================================================
-//optional feature
-#define	OPTION_WIFI_MODULE			//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE			//Option WiFi baudrate
-//#define	OPTION_BGM								//BGM extruder
-//#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
-//#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
-#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
-//#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
-//==========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
-#define	BED_COATING_THICKNESS	3.5			//glass thickness
-#else
-#define	BED_COATING_THICKNESS	0.0			//stikcer thickness
-#endif
+#define	BED_COATING_THICKNESS	0.2		//stikcer thickness
 #endif
 //===========================================================================
-//UART port
-#if ENABLED(OPTION_WIFI_MODULE)
-#define WIFI_SERIAL_PORT 2
-#endif
 
-#if ENABLED(OPTION_Z9V5_PRO)
-  #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
-  #if ENABLED(OPTION_3DTOUCH)
-  #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
-  #endif
-#else															//LCD12864 connect to EXP1																	
-	#if ENABLED(OPTION_3DTOUCH)
-	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
-	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
-	#else
-  #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
-  #endif
-#endif
-
-//===========================================================================
 /**
  * LCD LANGUAGE
  *
@@ -165,7 +139,7 @@
  */
 #define LCD_LANGUAGE en
 
-#ifdef OPTION_Z9V5_PRO
+#if ENABLED(OPTION_LCDDWIN)
 #undef LCD_LANGUAGE
 #endif
 
@@ -180,15 +154,17 @@
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
  
+#if NONE(OPTION_TFTLCD,OPTION_LCDDWIN)
 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
 #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define	SHOW_MARLIN_BOOTSCREEN
-#define SHOW_CUSTOM_BOOTSCREEN
+//#define SHOW_CUSTOM_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-#define CUSTOM_STATUS_SCREEN_IMAGE
+//#define CUSTOM_STATUS_SCREEN_IMAGE
+#endif
 // @section machine
 
 /**
@@ -205,8 +181,11 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-// #define SERIAL_PORT_2 1
-
+#if EITHER(OPTION_LCD12864, OPTION_DWIN_LCD)
+#define SERIAL_PORT_2 1
+#else
+#define SERIAL_PORT_2 3		// EXP2 be used by LCD2004
+#endif
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -214,11 +193,9 @@
  * you commonly experience drop-outs during host printing.
  * You may try up to 1000000 to speed up SD file transfer.
  *
- * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 921600]
+ * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 				115200
-#define WIFI_BAUDRATE   115200
-
+#define BAUDRATE 115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -234,7 +211,11 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
+#ifdef D805SR2
+#define EXTRUDERS 2
+#else
 #define EXTRUDERS 1
+#endif
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -311,6 +292,7 @@
  *             https://youtu.be/Bqbcs0CU2FE
  */
 //#define MAGNETIC_PARKING_EXTRUDER
+
 #if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
 
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
@@ -391,20 +373,23 @@
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
+#ifdef D805SM2
 #define MIXING_EXTRUDER
-#if ENABLED(MIXING_EXTRUDER)  
-  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
-  #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
+#endif
+#if ENABLED(MIXING_EXTRUDER)
+  #define MIXING_STEPPERS 						2  		// Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 				16  	// Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE							// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE						// show mix rate ICON and data in LCD (only applied in LCD12864)  
+  
+  #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE) && NONE(OPTION_TFTLCD,OPTION_LCDDWIN)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
-  //#define DIRECT_MIXING_IN_G1    		// Allow ABCDHI mix factors in G1 movement commands
-  #define GRADIENT_MIX           		// Support for gradient mixing with M166 and LCD
-  #define RANDOM_MIX					// Support for random mixing with M167 and LCD
+  //#define DIRECT_MIXING_IN_G1    					// Allow ABCDHI mix factors in G1 movement commands
+  #define GRADIENT_MIX           						// Support for gradient mixing with M166 and LCD
+  #define RANDOM_MIX												// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
-    //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+    //#define GRADIENT_VTOOL       					// Add M166 T to use a V-tool index as a Gradient alias
   #endif
 #endif
 
@@ -515,7 +500,11 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
 #define TEMP_SENSOR_0 56
+#if(EXTRUDERS > 1)
+#define TEMP_SENSOR_1 56
+#else
 #define TEMP_SENSOR_1 0
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -592,9 +581,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  30.30
-    #define DEFAULT_Ki   1.41
-    #define DEFAULT_Kd 162.77
+    #define DEFAULT_Kp  22.20
+    #define DEFAULT_Ki   1.08
+    #define DEFAULT_Kd 114.00
   #endif
 #endif // PIDTEMP
 
@@ -617,7 +606,7 @@
  */
 //#define PIDTEMPBED
 
-#define BED_LIMIT_SWITCHING
+//#define BED_LIMIT_SWITCHING
 
 /**
  * Max Bed Power
@@ -657,7 +646,7 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-//#define PREVENT_COLD_EXTRUSION
+#define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP   170
 
 /**
@@ -665,7 +654,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 1000
+#define EXTRUDE_MAXLENGTH 500
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -696,7 +685,7 @@
 
 // Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
 // either in the usual order or reversed
-#define COREXY
+//#define COREXY
 //#define COREXZ
 //#define COREYZ
 //#define COREYX
@@ -835,20 +824,32 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 
-#if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 800 }
-#elif ENABLED(OPTION_TMC2209_ALL_MOTOR)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#if ENABLED(OPTION_TMC2225_XYZ)
+#define	DOUBLE_STEPS_XYZ	2
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 400 }
+#define	DOUBLE_STEPS_XYZ	1
 #endif
+
+#if ENABLED(OPTION_TMC2225_EXTRUDER)
+#define	DOUBLE_STEPS_E		2
+#else
+#define	DOUBLE_STEPS_E		1
+#endif
+
+#if EITHER(OPTION_TITAN,OPTION_BGM)
+#define	STEPS_GEAR_RATIO	5
+#else
+#define	STEPS_GEAR_RATIO	1
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 16, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 8, 100 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -875,9 +876,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION           800    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -962,7 +963,7 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 					//Z_MAX_PIN as probe pin
+#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif
@@ -1094,11 +1095,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 25, 0, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 		45
+#define PROBING_MARGIN 		30
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_SPEED (133*60)
@@ -1194,10 +1195,10 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
-#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_BGM) ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define INVERT_X_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Y_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Z_DIR (false^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define	EXTRUDER_DIR (true ^ ENABLED (OPTION_TITAN) ^ ENABLED(OPTION_TMC220X_EXTRUDER) ^ ENABLED(OPTION_TMC2225_EXTRUDER))
 
 // @section extruder
 
@@ -1232,27 +1233,16 @@
 // @section machine
 
 // The size of the print bed
-#ifdef OPTION_MAX_SIZE
-#define X_BED_SIZE 510
-#define Y_BED_SIZE 510
-#else
-#define X_BED_SIZE 310
-#define Y_BED_SIZE 310
-#endif
+#define X_BED_SIZE 220
+#define Y_BED_SIZE 220
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#ifdef OPTION_MAX_SIZE
-#define X_MIN_POS -5
-#define Y_MIN_POS -18
-#else
-#define X_MIN_POS 0
-#define Y_MIN_POS -18
-#endif
-
+#define X_MIN_POS -10
+#define Y_MIN_POS -20
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 400
+#define Z_MAX_POS 220
 
 /**
  * Software Endstops
@@ -1290,7 +1280,9 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
+#if DISABLED(OPTION_TFTLCD)
 #define FILAMENT_RUNOUT_SENSOR
+#endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   		 1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -1404,14 +1396,10 @@
 #endif
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
+
   // Set the number of grid points per dimension.
-  #ifdef OPTION_MAX_SIZE
-  #define GRID_MAX_POINTS_X 		7
+  #define GRID_MAX_POINTS_X 		4
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#else
-	#define GRID_MAX_POINTS_X 		5
-  #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#endif
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN
   #define PROBING_MARGIN_FRONT	PROBING_MARGIN
@@ -1476,7 +1464,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR) && DISABLED(OPTION_TFTLCD)
 #define LCD_BED_LEVELING
 #endif
 
@@ -1487,13 +1475,11 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
+#if DISABLED(OPTION_TFTLCD)
 #define LEVEL_BED_CORNERS
+#endif
 #if ENABLED(LEVEL_BED_CORNERS)
-	#if ENABLED(OPTION_MAX_SIZE)
-  #define LEVEL_CORNERS_INSET_LFRB { 40, 110, 40, 110 } // (mm) Left, Front, Right, Back insets
-  #else
-  #define LEVEL_CORNERS_INSET_LFRB { 20, 20, 20, 20 } // (mm) Left, Front, Right, Back insets
-	#endif
+  #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.1   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       8.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
@@ -1643,13 +1629,13 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 190
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "PET"
-#define PREHEAT_2_TEMP_HOTEND 220
-#define PREHEAT_2_TEMP_BED     85
+#define PREHEAT_2_LABEL       "ABS"
+#define PREHEAT_2_TEMP_HOTEND 225
+#define PREHEAT_2_TEMP_BED    100
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1664,10 +1650,11 @@
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
 #define NOZZLE_PARK_FEATURE
+
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MIN_POS+5), 20 }
-  //#define NOZZLE_PARK_X_ONLY          // X move only is required to park
+  #define NOZZLE_PARK_X_ONLY          // X move only is required to park
   //#define NOZZLE_PARK_Y_ONLY          // Y move only is required to park
   #define NOZZLE_PARK_Z_RAISE_MIN   2   // (mm) Always raise Z by at least this distance
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
@@ -1938,7 +1925,9 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
+#if DISABLED(OPTION_TFTLCD)
 #define SPEAKER
+#endif
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -1947,8 +1936,10 @@
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 	20
+#if DISABLED(OPTION_TFTLCD)
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 	50
 #define LCD_FEEDBACK_FREQUENCY_HZ 			2000
+#endif
 
 //=============================================================================
 //======================== LCD / Controller Selection =========================
@@ -2013,7 +2004,7 @@
                                   // which scrambles the display.  Pressing any button clears it up.
                                   // This is a LCD2004 display with 5 analog buttons.
 
-//#define ZONESTAR_LCD2004_KNOB
+#define ZONESTAR_LCD2004_KNOB
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
 //
 //#define ULTRA_LCD
@@ -2260,11 +2251,11 @@
 //
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
-#ifndef OPTION_Z9V5_PRO
-#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
-#endif
+#if NONE(OPTION_TFTLCD,OPTION_LCDDWIN)
+//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
+#endif
 
 //
 // Einstart S OLED SSD1306
@@ -2287,6 +2278,7 @@
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
+
 //
 // DGUS Touch Display with DWIN OS. (Choose one.)
 // ORIGIN : https://www.aliexpress.com/item/32993409517.html
@@ -2440,6 +2432,7 @@
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
+
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
@@ -2449,7 +2442,7 @@
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
-#ifdef OPTION_Z9V5_PRO
+#if ENABLED(OPTION_LCDDWIN)
 #define ZONESTAR_DWIN_LCD
 #endif
 
@@ -2475,7 +2468,6 @@
 //
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
-
 
 //=============================================================================
 //=============================== Extra Features ==============================
@@ -2554,10 +2546,6 @@
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
   //#define RGB_LED_W_PIN -1
-  	#define RGB_LED_R_PIN PE9
-  	#define RGB_LED_G_PIN PE14
-  	#define RGB_LED_B_PIN PE15
-  	#define RGB_LED_W_PIN PE8
 #endif
 
 // Support for Adafruit NeoPixel LED driver
@@ -2621,5 +2609,3 @@
 
 // Edit servo angles with M281 and save to EEPROM with M500
 //#define EDITABLE_SERVO_ANGLES
-
-//#define	DEBUG_OUT_TO_WIFI

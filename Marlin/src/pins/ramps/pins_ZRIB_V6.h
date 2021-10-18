@@ -102,17 +102,17 @@ D52   Port: B1		 EXP2_PIN9		AVR_SPI_SCK
 D53   Port: B0		 EXP2_PIN7		AVR_SPI_SS
 D54   Port: F0		 X_STEP_PIN		A0
 D55   Port: F1		 X_DIR_PIN		A1
-D56   Port: F2		 Y_EN_PIN		A2
+D56   Port: F2		 Y_EN_PIN			A2
 D57   Port: F3		 E0_SW_PIN		A3
 D58   Port: F4		 E1_SW_PIN		A4
-D59   Port: F5						A5
+D59   Port: F5									A5
 D60   Port: F6		 Y_STEP_PIN		A6
 D61   Port: F7		 Y_DIR_PIN		A7
-D62   Port: K0		 Z_EN_PIN		A8
-D63   Port: K1						A9
+D62   Port: K0		 Z_EN_PIN			A8
+D63   Port: K1									A9
 D64   Port: K2		 EXP2_PIN1		A10		ADC_KEYPAD_PIN
-D65   Port: K3						A11
-D66   Port: K4						A12
+D65   Port: K3									A11
+D66   Port: K4									A12
 D67   Port: K5		 E0_TEMP		A13				
 D68   Port: K6		 BED_TEMP		A14
 D69   Port: K7		 E1_TEMP		A15
@@ -209,26 +209,37 @@ D69   Port: K7		 E1_TEMP		A15
 // Temperature Sensors
 //
 #define TEMP_0_PIN         13   // Analog Input
+#if EXTRUDERS <= 2
 #define TEMP_BED_PIN       14   // Analog Input
+#endif
 #define TEMP_1_PIN         15   // Analog Input
+#if EXTRUDERS > 2
+#define TEMP_2_PIN         14   // Analog Input
+#endif
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN	   10
+#if EXTRUDERS <= 2
 #define HEATER_BED_PIN		8
+#endif
 #define HEATER_1_PIN 		7
+#if EXTRUDERS > 2
+#define HEATER_2_PIN 		7
+#endif
+
 
 #if ENABLED(OPTION_CHAMBER)
 #undef TEMP_1_PIN
 #undef HEATER_1_PIN
-#define TEMP_CHAMBER_PIN	15
+#define TEMP_CHAMBER_PIN		15
 #define HEATER_CHAMBER_PIN	7
 #endif
 
 
-#define FAN_PIN     9
-#define FAN1_PIN	6
+#define FAN_PIN     				9
+#define FAN1_PIN						6
 
 //
 // Misc. Functions
@@ -241,7 +252,7 @@ D69   Port: K7		 E1_TEMP		A15
 #define FILWIDTH_PIN	   -1  // Analog Input
 
 //Power hold pin
-#define SUICIDE_PIN        	12
+#define SUICIDE_PIN				12
 
 //
 // Servos
