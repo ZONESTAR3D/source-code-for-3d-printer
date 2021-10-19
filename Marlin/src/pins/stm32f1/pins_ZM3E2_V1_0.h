@@ -143,13 +143,13 @@
 //#define	FIL_RUNOUT2_PIN	   PC11			//E1_SW
 
 //BLTouch(3DTouch)
-#define	SERVO0_PIN		   PA15
-#define	Z_MIN_PROBE_PIN	   PC10
+#define	SERVO0_PIN		   		PA15
+#define	Z_MIN_PROBE_PIN	   	PC10
 
 
-#define LED_PIN            PB12
-//#define	KILL_PIN		   PB1			//@EXP1
-#define	SUICIDE_PIN		   PA0
+#define LED_PIN            	PB12
+//#define	KILL_PIN		   		PB1			//@EXP1
+#define	SUICIDE_PIN		   		PA0
 
 //SD card
 #define ENABLE_SPI1
@@ -181,13 +181,13 @@
 #if ENABLED(ZONESTAR_12864LCD)
 	#define	LCDSCREEN_NAME		"ZONESTAR LCD12864"
 	#define LCD_PINS_RS 		PA9
-	#define LCD_PINS_ENABLE		PB2
+	#define LCD_PINS_ENABLE	PB2
 	#define LCD_PINS_D4			PA10
 	//#define KILL_PIN			PB1
 	#define BEEPER_PIN			PB0	
-	#define BTN_EN1				PB11
-	#define BTN_EN2				PC5
-	#define BTN_ENC				PB10
+	#define BTN_EN1					PB11
+	#define BTN_EN2					PC5
+	#define BTN_ENC					PB10
 	
 	#define BOARD_ST7920_DELAY_1 DELAY_NS(125)
 	#define BOARD_ST7920_DELAY_2 DELAY_NS(200)

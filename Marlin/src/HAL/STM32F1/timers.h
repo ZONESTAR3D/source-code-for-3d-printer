@@ -62,6 +62,17 @@ SERVO0: 	 TIMER8
 **/
 
 /**
+* Note: Timers define for ZONESTAR ZM3E2
+SPEAKER: 	 	TIMER1
+TEMP: 		 	TIMER2
+FAN&HEATER: TIMER3
+SOFT_SERIAL:TIMER4
+STEPPER: 	 	TIMER5
+SERVO0: 	 	TIMER8
+**/
+
+
+/**
  * Note: Timers may be used by platforms and libraries
  *
  * FAN PWMs:
@@ -90,7 +101,7 @@ SERVO0: 	 TIMER8
   //#define TEMP_TIMER_NUM      4  // 2->4, Timer 2 for Stepper Current PWM
 #endif
 
-#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE,ZONESTAR_ZM3E4,ZONESTAR_ZM3E4V2)
+#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE,ZONESTAR_ZM3E4,ZONESTAR_ZM3E4V2,ZONESTAR_ZM3E2)
   // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
   #ifdef STM32_HIGH_DENSITY
     #define SERVO0_TIMER_NUM 8  

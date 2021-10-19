@@ -96,11 +96,11 @@
 #define	OPTION_LCD12864
 #define	DEFAULT_AUTO_LEVELING			true		//Auto leveling feature is on
 #define	OPTION_PL08N 											//Probe use PL_08N
-#define	OPTION_MICROSTEP   16  						//32 64 128
+#define	OPTION_MICROSTEP   				16  		//32 64 128
 //===========================================================================
 //Optional feature
-#define	OPTION_WIFI_MODULE
-#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+//#define	OPTION_WIFI_MODULE
+//#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //#define OPTION_TITAN								//TITAN Extruder
 #define OPTION_BGM										//BGM Extruder
 //#define	OPTION_AUTOPOWEROFF					//Power off after printer
@@ -218,6 +218,10 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
+
+// For ZONESTAR R2S or any "multi-extruder" that shares a single heater on hotend.
+//#define SHARE_HOTEND_HEATER
+
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
@@ -650,7 +654,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 500
+#define EXTRUDE_MAXLENGTH 200
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -821,15 +825,15 @@
  */
 
 #if ENABLED(OPTION_TMC2225_XYZ)
-#define	DOUBLE_STEPS_XYZ	2
+#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/8)
 #else
-#define	DOUBLE_STEPS_XYZ	1
+#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/16)
 #endif
 
 #if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define	DOUBLE_STEPS_E		2
+#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/8)
 #else
-#define	DOUBLE_STEPS_E		1
+#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/16)
 #endif
 
 #if EITHER(OPTION_TITAN,OPTION_BGM)
@@ -845,7 +849,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 8, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 8, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -960,9 +964,7 @@
  */
 #ifndef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
-#elif ENABLED(OPTION_3DTOUCH)
-#define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
+#define Z_MIN_PROBE_PIN 	PC10 									//Z_MAX_PIN as probe pin
 #endif
 #endif
 
@@ -1093,7 +1095,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 25, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 30, 0, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
