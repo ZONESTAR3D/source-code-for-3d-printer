@@ -916,12 +916,19 @@ static void Item_Config_WifiBaudrate(const uint8_t row) {
 #endif
 #endif
 
-
 #if ENABLED(OPTION_BED_COATING)
 static void Item_Config_bedcoating(const uint8_t row) { 
 	HMI_Value.coating_thickness = (int16_t)(coating_thickness * MINUNITMULT);
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("HOME Z OFFSET:"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(row), HMI_Value.coating_thickness);
+	Draw_Menu_Line(row,ICON_CURSOR);
+}
+#endif
+
+#if ENABLED(OPTION_HOTENDMAXTEMP)
+static void Item_Config_MaxHotendTemp(const uint8_t row) { 
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT));
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
@@ -975,20 +982,24 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 	
  	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){
-	 #if ENABLED(OPTION_WIFI_MODULE) 
+	#if ENABLED(OPTION_WIFI_MODULE) 
 	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 							// WIFI
 	 #if ENABLED(OPTION_WIFI_BAUDRATE)
 	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));// WIFI Baudrate
 	 #endif
-	 #endif
+	#endif
 
-	 #if ENABLED(OPTION_REPEAT_PRINTING) 
+	#if ENABLED(OPTION_REPEAT_PRINTING) 
 	 if (COVISI(CONFIG_CASE_REPRINT)) 	Item_Config_Reprint(COSCROL(CONFIG_CASE_REPRINT));  	 	// repeat print
-	 #endif
+	#endif
 
-	 #if ENABLED(OPTION_BED_COATING) 
-	 if (COVISI(CONFIG_CASE_COATING)) 	Item_Config_bedcoating(COSCROL(CONFIG_CASE_COATING));  	 	// GLASS LEVELING
-	 #endif
+	#if ENABLED(OPTION_BED_COATING) 
+	 if (COVISI(CONFIG_CASE_COATING)) 	Item_Config_bedcoating(COSCROL(CONFIG_CASE_COATING));  	 	//coating thickness
+	#endif
+	 
+	#if ENABLED(OPTION_HOTENDMAXTEMP) 
+	 if (COVISI(CONFIG_CASE_HOTENDMAXTEMP)) 	Item_Config_MaxHotendTemp(COSCROL(CONFIG_CASE_HOTENDMAXTEMP));  	 	// GLASS LEVELING
+	#endif	 
 
 	 #if ABL_GRID 		
 	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 			// auto LEVELING
@@ -1894,6 +1905,28 @@ void HMI_Adjust_Coating_Thickness() {
 }
 #endif
 
+#if ENABLED(OPTION_HOTENDMAXTEMP)
+void HMI_Adjust_hotend_MaxTemp() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.max_hotendtemp)) {
+			DwinMenuID = DWMENU_CONFIG;
+			EncoderRate.enabled = false;
+			DWIN_Draw_IntValue_Default(3,MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);			
+			dwinLCD.UpdateLCD();
+			thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
+			return;
+		}
+		NOLESS(HMI_Value.max_hotendtemp, 230);
+		NOMORE(HMI_Value.max_hotendtemp, 260);		
+		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif
+
+
+
 #if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE)
 void HMI_Adjust_WiFi_BaudRate(){
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
@@ -1934,12 +1967,10 @@ void HMI_Config() {
 			if (DwinMenu_configure.now > MROWS && DwinMenu_configure.now > DwinMenu_configure.index) {
 				DwinMenu_configure.index = DwinMenu_configure.now;
 				// Scroll up and draw a blank bottom line
-				Scroll_Menu(DWIN_SCROLL_UP);
-				
+				Scroll_Menu(DWIN_SCROLL_UP);				
 			#if ENABLED(OPTION_REPEAT_PRINTING) 
 				if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
 			#endif
-
 			#if ENABLED(OPTION_WIFI_MODULE)
 			if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
 			#if ENABLED(OPTION_WIFI_BAUDRATE) 
@@ -1949,12 +1980,13 @@ void HMI_Config() {
 			#if ENABLED(OPTION_BED_COATING) 
 				if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
 			#endif
-
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+				if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
+			#endif
 			#if ABL_GRID
 				if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
 				if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
 			#endif
-
 			}
 			else 
 				Move_Highlight(1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -1987,6 +2019,9 @@ void HMI_Config() {
 			#if ABL_GRID
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LEVELING) Item_Config_Leveling(0);
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(0);
+			#endif			
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(0);
 			#endif
 
 			}
@@ -2094,6 +2129,16 @@ void HMI_Config() {
 			axis_homed = 0;
 			HMI_Value.coating_thickness = (int16_t)(coating_thickness * MINUNITMULT);
 			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(CONFIG_CASE_COATING + MROWS -DwinMenu_configure.index), HMI_Value.coating_thickness);			
+		break;
+ #endif
+
+ #if ENABLED(OPTION_HOTENDMAXTEMP)
+ 	case CONFIG_CASE_HOTENDMAXTEMP:
+			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
+			
+			DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
+			HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - 15);
+			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);			
 		break;
  #endif
 

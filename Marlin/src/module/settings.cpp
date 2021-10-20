@@ -301,6 +301,10 @@ typedef struct SettingsDataStruct {
 	float bed_coating_thickness;
 	#endif
 
+	#if ENABLED(OPTION_HOTENDMAXTEMP)
+	uint16_t max_hotendtemp;
+	#endif
+
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
   //
@@ -885,6 +889,17 @@ void MarlinSettings::postprocess() {
 			const float bed_coating_thickness = coating_thickness;
 			EEPROM_WRITE(bed_coating_thickness);
 		}	
+		#endif
+
+		//
+		//maxiums hotend temp
+		//
+		#if ENABLED(OPTION_HOTENDMAXTEMP)
+		{
+			_FIELD_TEST(max_hotendtemp);
+			const uint16_t max_hotendtemp = thermalManager.heater_maxtemp[0];
+			EEPROM_WRITE(max_hotendtemp);
+		}		
 		#endif
 	
     //
@@ -1823,6 +1838,17 @@ void MarlinSettings::postprocess() {
 		   }
 			#endif
 
+			//
+			//maxiums hotend temp
+			//
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+			{
+				_FIELD_TEST(max_hotendtemp);
+				const uint16_t &max_hotendtemp = thermalManager.heater_maxtemp[0];
+				EEPROM_READ(max_hotendtemp);
+			} 	
+			#endif
+
 			
       //
       // DELTA Geometry or Dual Endstops offsets
@@ -2756,6 +2782,11 @@ void MarlinSettings::reset() {
 	// Bed Coating Thickness
 	//
 	TERN_(OPTION_BED_COATING,  coating_thickness = BED_COATING_THICKNESS);
+
+	//
+	// maxiums hotend temp
+	//
+	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.heater_maxtemp[0] = HEATER_0_MAXTEMP);
 	
   //
   // Endstop Adjustments

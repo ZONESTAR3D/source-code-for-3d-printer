@@ -303,7 +303,11 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-      static const uint16_t heater_maxtemp[HOTENDS];
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+      static uint16_t heater_maxtemp[HOTENDS];
+			#else
+			static const uint16_t heater_maxtemp[HOTENDS];
+			#endif
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);

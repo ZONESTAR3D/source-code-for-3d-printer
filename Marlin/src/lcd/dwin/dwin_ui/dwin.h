@@ -209,6 +209,7 @@ typedef enum {
  	DWMENU_SET_UNRETRACT_V,	
 	//BED Coating
 	DWMENU_SET_BEDCOATING,
+	DWMENU_SET_HOTENDMAXTEMP,
 	DWMENU_SET_WIFIBAUDRATE,
 	//Repeat printing
 	DWMENU_SET_REPRINT,
@@ -217,8 +218,8 @@ typedef enum {
 
 	// Pop Menu
 	DWMENU_POP_HOME,
-	DWMENU_POP_STOPPRINT,
-	DWMENU_POP_FROD_OPTION = 80,
+	DWMENU_POP_STOPPRINT = 80,
+	DWMENU_POP_FROD_OPTION,
 	DWMENU_POP_FROD_INSERT,
 	DWMENU_POP_FROD_HEAT,
 	DWMENU_POP_PAUSEORSTOP,	
@@ -362,6 +363,9 @@ typedef struct {
   int16_t Random_Height = 0;
 	#if ENABLED(OPTION_BED_COATING)
   int16_t coating_thickness = 0;
+	#endif
+	#if ENABLED(OPTION_HOTENDMAXTEMP)
+	int16_t max_hotendtemp = HEATER_0_MAXTEMP-HOTEND_OVERSHOOT;
 	#endif
   int16_t Retract_MM_scale      = 0;
   int16_t Retract_V_scale      = 0;

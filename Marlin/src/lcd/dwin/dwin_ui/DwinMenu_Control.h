@@ -119,6 +119,9 @@ enum {
 #if ENABLED(OPTION_BED_COATING)
 	CONFIG_CASE_COATING,
 #endif
+#if ENABLED(OPTION_HOTENDMAXTEMP)
+	CONFIG_CASE_HOTENDMAXTEMP,
+#endif
 #if ABL_GRID
 	CONFIG_CASE_LEVELING,
 	CONFIG_CASE_ACTIVELEVEL,
@@ -320,6 +323,10 @@ void HMI_Option_Bltouch();
 #if ENABLED(OPTION_BED_COATING)
 void HMI_Adjust_Coating_Thickness();
 #endif
+#if ENABLED(OPTION_HOTENDMAXTEMP)
+void HMI_Adjust_hotend_MaxTemp();
+#endif
+
 #if ENABLED(OPTION_WIFI_BAUDRATE)
 void HMI_Adjust_WiFi_BaudRate();
 #endif

@@ -318,7 +318,7 @@ void HMI_ETemp() {
 			return;
 		}
 		// E_Temp limit
-		NOMORE(HMI_Value.E_Temp, (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT)));
+		NOMORE(HMI_Value.E_Temp, (thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT)));
 		NOLESS(HMI_Value.E_Temp, HEATER_0_MINTEMP);
 		// E_Temp value
 		if(HMI_Value.E_Temp > 230)

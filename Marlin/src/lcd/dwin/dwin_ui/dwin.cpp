@@ -566,8 +566,12 @@ void DWIN_HandleScreen() {
 	  case DWMENU_SET_BEDCOATING:			HMI_Adjust_Coating_Thickness(); break;
 	#endif
 
+	#if ENABLED(OPTION_HOTENDMAXTEMP)
+	  case DWMENU_SET_HOTENDMAXTEMP:	HMI_Adjust_hotend_MaxTemp(); break;
+	#endif	
+
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
-		case DWMENU_SET_WIFIBAUDRATE: 		HMI_Adjust_WiFi_BaudRate(); break;
+		case DWMENU_SET_WIFIBAUDRATE: 	HMI_Adjust_WiFi_BaudRate(); break;
 	#endif
 	
 	#if ENABLED(BLTOUCH)

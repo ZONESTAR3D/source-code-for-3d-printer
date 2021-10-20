@@ -106,6 +106,7 @@
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
 //#define	OPTION_PL08N 			    			//Probe use PL_08N
+#define	OPTION_HOTENDMAXTEMP					//
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //===========================================================================
 
@@ -116,11 +117,9 @@
 #define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 #define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
 //
-//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
 //#define	OPTION_BGM								//BGM extruder
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
-
+//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
 //#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //==========================================================================
 //Bed coating
