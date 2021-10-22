@@ -16,7 +16,8 @@ Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/do
 #2. Install the PlatformIO IDE
 Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]  to learn how to install PlatformIO IDE in VSCode.
 
-#3 find and copy the configuration files for your machine from the "config" directory, you need to:
+#3 find and copy the configuration files for your machine from the "config" directory, you need to: 
+
 1). copy and replace configuration.h and configuration_adv.h to "marlin" directory
 
 2). copy and replace platformio.ini to "main" directory
