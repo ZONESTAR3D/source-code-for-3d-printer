@@ -1,7 +1,7 @@
 @cls
 @echo off
 
-@echo >>>>backup the current Configuration?
+@echo backup the current Configuration?
 @pause
 
 copy /Y .\Configuration.h .\backup\.

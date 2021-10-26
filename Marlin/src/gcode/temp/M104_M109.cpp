@@ -63,6 +63,7 @@ void GcodeSuite::M104() {
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     constexpr int8_t target_extruder = 0;
+		if(get_target_extruder_from_command() < 0) return;
   #else
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
@@ -91,6 +92,7 @@ void GcodeSuite::M104() {
       singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
     #endif
+
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -139,6 +141,7 @@ void GcodeSuite::M109() {
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     constexpr int8_t target_extruder = 0;
+		if(get_target_extruder_from_command() < 0) return;
   #else
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
