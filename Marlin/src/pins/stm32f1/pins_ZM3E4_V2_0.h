@@ -84,31 +84,31 @@
 //	PD15    E1_DIR		//	PE15	BTN_ENC
 //=============================================================================
 //EXP1 connector																
-//	   MARK     I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
-//	10 RS		PE13   	KILL					BTN_ENC										
-//	9  BP		PE11	BEEP					BEEP										
-//	8  EN		PE12	DOGLCD_CS				LCDRS								
-//	7  MOSI		PE10 	DOGLCD_SCK				LCDE								
-//	6  EN1		PE8    	BTN_EN1					NC								
-//	5  SCK		PE9   	DOGLCD_MOSI				LCD4
-//	4  ENC 		PE15   	BTN_ENC					NC								
-//	3  EN2  	PE14	BTN_EN2					NC								
-//	2  +5V										+5V								
-//	1  GND										GND								
+//	   MARK I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
+//	10 RS		PE13   	KILL								BTN_ENC										
+//	9  BP		PE11		BEEP								BEEP										
+//	8  EN		PE12		DOGLCD_CS						LCDRS								
+//	7  MOSI	PE10 		DOGLCD_SCK					LCDE								
+//	6  EN1	PE8   	BTN_EN1							NC								
+//	5  SCK	PE9   	DOGLCD_MOSI					LCD4
+//	4  ENC 	PE15  	BTN_ENC							NC								
+//	3  EN2  PE14		BTN_EN2							NC								
+//	2  +5V					+5V								
+//	1  GND					GND								
 
 
 //EXP2 connector								
-//	   MARK     I/O     ZONESTAR_LCD12864       REPRAPDISCOUNT_LCD12864
-//	10	SDA     PC0 										
-//	9	SCL  	PE7
-//	8	RX1  	PA9		UART1_RX				
-//	7	TX1  	PA10	UART1_TX				BTN_EN2
-//	6	CS3	 	PA15
-//	5	MISO3  	PB4								BTN_EN1
-//	4	MOSI3  	PB5								KILL
-//	3	SCK3  	PB3								
-//	2	+5V										+5V
-//	1	GND										GND
+//	  MARK   I/O   LCD_DWIN				REPRAPDISCOUNT_LCD12864
+// 10	SDA     PC0 										
+//	9	SCL  		PE7
+//	8	RX1  		PA9		UART1_RX				NC
+//	7	TX1  		PA10	UART1_TX				BTN_EN2
+//	6	CS3	 		PA15  BEEPER					NC
+//	5	MISO3  	PB4		BTN_ENC					BTN_EN1
+//	4	MOSI3  	PB5		BTN_EN2					KILL
+//	3	SCK3  	PB3		BTN_EN1					NC						
+//	2	+5V						+5V
+//	1	GND						GND
 
 
 //AUX1 connector
@@ -132,11 +132,19 @@
 // Limit Switches
 //
 #ifdef USE_XMIN_PLUG
+#ifdef EXCHANGE_XMIN_XMAX
+#define X_STOP_PIN         PD8
+#else
 #define X_STOP_PIN         PC13
+#endif
 #endif
 
 #ifdef USE_YMIN_PLUG
+#ifdef EXCHANGE_YMIN_YMAX
+#define Y_STOP_PIN         PB14
+#else
 #define Y_STOP_PIN         PE3
+#endif
 #endif
 
 #ifdef USE_ZMIN_PLUG
@@ -144,11 +152,19 @@
 #endif
 
 #ifdef USE_XMAX_PLUG
+#ifdef EXCHANGE_XMIN_XMAX
+#define X_MAX_PIN          PC13
+#else
 #define X_MAX_PIN          PD8
+#endif
 #endif
 
 #ifdef USE_YMAX_PLUG
+#ifdef EXCHANGE_YMIN_YMAX
+#define Y_MAX_PIN          PE3
+#else
 #define Y_MAX_PIN          PB14
+#endif
 #endif
 
 #ifdef USE_ZMAX_PLUG
@@ -234,16 +250,22 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN         PC2   // TH0
-//#define TEMP_1_PIN         PC1   // TH1
+#define TEMP_1_PIN         PC1   // TH1
 #define TEMP_BED_PIN       PC3   // TB1
 
 //
 // Heaters
 //
 #define HEATER_0_PIN       PC5   // HEATER0
-//#define HEATER_1_PIN       PB0   // HEATER1
+#define HEATER_1_PIN       PB0   // HEATER1
 #define HEATER_BED_PIN     PA2   // HOT BED
 
+#if ENABLED(OPTION_CHAMBER)
+#undef TEMP_1_PIN
+#undef HEATER_1_PIN
+#define TEMP_CHAMBER_PIN	PC1
+#define HEATER_CHAMBER_PIN	PB0
+#endif
 //
 // Fans
 //
@@ -348,30 +370,29 @@
 #define BTN_ENC 			PB4   	//PE15
 #endif
 
-#if HAS_MARLINUI_U8GLIB
-#define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
-#define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
-#define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
-#endif
-
 //SERVO
 //Remap SERVO0 PIN for BLTouch
 #if ENABLED(BLTOUCH_ON_EXP1)
 //BLTouch connect to EXP1
 #define	BLTOUCH_PROBE_PIN 		PE8
-#define BLTOUCH_GND_PIN		  	PE15
+#define PROBE_GND_PIN		  		PE15
 #define	SERVO0_PIN		  			PE14
 #elif ENABLED(BLTOUCH_ON_EXP2)
 //BLTouch connect to EXP2
 #define	BLTOUCH_PROBE_PIN 		PB3
-#define BLTOUCH_GND_PIN		  	PB5
+#define PROBE_GND_PIN		  		PB5
 #define	SERVO0_PIN		  			PA15
 #else
 #define	SERVO0_PIN		  			PB9	
 #define	BLTOUCH_PROBE_PIN 		PB6//PB13//PB6//PB7
 #endif
 
-#define	SERVO2_PIN		  PB7
+//#define	SERVO2_PIN		  PB7
 //#define	SERVO3_PIN		  PB6
 
+#if HAS_MARLINUI_U8GLIB
+#define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
+#define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
+#define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
+#endif
 

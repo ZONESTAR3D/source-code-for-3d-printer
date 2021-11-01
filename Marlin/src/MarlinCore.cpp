@@ -1243,11 +1243,12 @@ void setup() {
   #if ENABLED(MIXING_EXTRUDER)
     SETUP_RUN(mixer.init());
   #endif
+	
+	#if PIN_EXISTS(PROBE_GND)
+	OUT_WRITE(PROBE_GND_PIN, LOW);
+	#endif
 
   #if ENABLED(BLTOUCH)
-	  #if PIN_EXISTS(BLTOUCH_GND)
-    SET_OUTPUT(BLTOUCH_GND_PIN);
-		#endif
     SETUP_RUN(bltouch.init(/*set_voltage=*/true));
   #endif
 

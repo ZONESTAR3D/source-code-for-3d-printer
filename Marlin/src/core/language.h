@@ -249,8 +249,8 @@
 #define STR_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define STR_T_HEATING_FAILED                "Heating failed"
 #define STR_T_THERMAL_RUNAWAY               "Thermal Runaway"
-#define STR_T_MAXTEMP                       "MAXTEMP triggered"
-#define STR_T_MINTEMP                       "MINTEMP triggered"
+#define STR_T_MAXTEMP                       "MAX TEMP Error!"
+#define STR_T_MINTEMP                       "MIN TEMP Error!"
 #define STR_ERR_PROBING_FAILED              "Probing Failed"
 #define STR_ZPROBE_OUT_SER                  "Z Probe Past Bed"
 

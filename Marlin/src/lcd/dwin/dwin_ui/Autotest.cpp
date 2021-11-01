@@ -29,12 +29,6 @@
 _stAutotest_t Autotest::testflag;
 Autotest autotest;
 
-static float test_temp_hotend_target = 0;
-static float test_temp_hotbed_target = 0;
-static float test_temp_hotend_celsius = 0;
-static float test_temp_hotbed_celsius = 0;
-static float test_temp_hotend_first = 0;
-static float test_temp_hotbed_first = 0;
 
 static uint8_t swstatus[6]={0,0,0,0,0,0};
 static uint8_t old_swstatus[6]={0,0,0,0,0,0};
@@ -65,16 +59,20 @@ static uint8_t old_swstatus[6]={0,0,0,0,0,0};
 #define	ID_LINE_SW							12
 #define	ID_LINE_SW_STATE				13
 #define	ID_LINE_SW_RESULT				14
-#define	ID_LINE_KNOB						15.25
+#define	ID_LINE_KNOB						15
 
 #define	XSTART					0
 #define	YPOS(L)					(ROW_GAP*(L-1))
+#define	YPOS_MSG(L)			(ROW_GAP*(L-1)+F_GAP/2)
 #define	XCENTER(L)			(DWIN_WIDTH/2+L*WIDTH)
+#define	Y_BOTTOMBAR			(DWIN_HEIGHT-HEIGH)
 
 #define	DRAW_INT_WHITE_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, USED_FONT, COLOR_WHITE, a, b, x, y, v)
 #define	DRAW_INT_RED_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, USED_FONT, COLOR_RED, a, b, x, y, v)
 #define	DRAW_INT_GREEN_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, USED_FONT, COLOR_GREEN, a, b, x, y, v)
 #define	DRAW_STRING_FONT12(a,b,x,y,s) dwinLCD.Draw_String(false, true, USED_FONT, a, b, x, y, s)
+#define	DRAW_STRING_FONT8(a,b,x,y,s) dwinLCD.Draw_String(false, true, font8x16, a, b, x, y, s)
+
 
 void Autotest::Check_Rotary(){
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -91,39 +89,43 @@ void Autotest::Check_Rotary(){
 
 inline void Autotest::Autotest_ShowKnob(uint8_t rotates){
 	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, LSTART+XCENTER(7), YPOS(ID_LINE_KNOB), LSTART+XCENTER(10), YPOS(ID_LINE_KNOB)+ROW_GAP);	
-	DRAW_STRING_FONT12((testflag.rotary_click_rg>4?COLOR_GREEN : COLOR_WHITE), COLOR_BG_BLUE, LSTART+XCENTER(7), YPOS(ID_LINE_KNOB), F_STRING_ONOFF(testflag.rotary_click_rg&0x01));	
+	DRAW_STRING_FONT12((testflag.rotary_click_rg>4?COLOR_GREEN : COLOR_WHITE), COLOR_BG_BLUE, LSTART+XCENTER(7), YPOS_MSG(ID_LINE_KNOB), F_STRING_ONOFF(testflag.rotary_click_rg&0x01));	
 	if(rotates > 10)
-		DRAW_INT_GREEN_FONT12(COLOR_BG_BLUE, 3, LSTART+7*WIDTH, YPOS(ID_LINE_KNOB), rotates);
+		DRAW_INT_GREEN_FONT12(COLOR_BG_BLUE, 3, LSTART+7*WIDTH, YPOS_MSG(ID_LINE_KNOB), rotates);
 	else
-		DRAW_INT_WHITE_FONT12(COLOR_BG_BLUE, 3, LSTART+7*WIDTH, YPOS(ID_LINE_KNOB), rotates);
+		DRAW_INT_WHITE_FONT12(COLOR_BG_BLUE, 3, LSTART+7*WIDTH, YPOS_MSG(ID_LINE_KNOB), rotates);
 }
 
 inline void Autotest::AutoTest_ShowTemperature(){
+	static float test_temp_hotend_target = -100;
+	static float test_temp_hotbed_target = -100;
+	static float test_temp_hotend_celsius = -100;
+	static float test_temp_hotbed_celsius = -100;	
 	//hotend temperature
-	if(test_temp_hotend_celsius != thermalManager.temp_hotend[0].celsius){
-		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(0), YPOS(ID_LINE_ETEMP), thermalManager.temp_hotend[0].celsius);
-		test_temp_hotend_celsius = thermalManager.temp_hotend[0].celsius;
+	if(ABS(test_temp_hotend_celsius - thermalManager.degHotend(0)) >=1 ){
+		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(0), YPOS_MSG(ID_LINE_ETEMP), thermalManager.temp_hotend[0].celsius);
+		test_temp_hotend_celsius = thermalManager.degHotend(0);
 	}
-	if(test_temp_hotend_target != thermalManager.temp_hotend[0].target){
-		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS(ID_LINE_ETEMP), thermalManager.temp_hotend[0].target);
-		test_temp_hotend_target = thermalManager.temp_hotend[0].target;
+	if(ABS(test_temp_hotend_target - thermalManager.degTargetHotend(0)) >= 1){
+		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS_MSG(ID_LINE_ETEMP), thermalManager.temp_hotend[0].target);
+		test_temp_hotend_target = thermalManager.degTargetHotend(0);
 	}
 	//bed temperature
-	if(test_temp_hotbed_celsius != thermalManager.temp_bed.celsius){
-		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(0), YPOS(ID_LINE_BTEMP), thermalManager.temp_bed.celsius);
-		test_temp_hotbed_celsius = thermalManager.temp_bed.celsius;
+	if(ABS(test_temp_hotbed_celsius - thermalManager.degBed()) >= 1){		
+		test_temp_hotbed_celsius = thermalManager.degBed();
+		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(0), YPOS_MSG(ID_LINE_BTEMP), (uint32_t)test_temp_hotbed_celsius);
 	}
-	if(test_temp_hotbed_target != thermalManager.temp_bed.target){
-		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS(ID_LINE_BTEMP), thermalManager.temp_bed.target);
-		test_temp_hotbed_target = thermalManager.temp_bed.target;
+	if(ABS(test_temp_hotbed_target - thermalManager.degTargetBed()) >= 1 ){		
+		test_temp_hotbed_target = thermalManager.degTargetBed();
+		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS_MSG(ID_LINE_BTEMP), (uint32_t)test_temp_hotbed_target);
 	}
 	//FAN
-	if((thermalManager.temp_hotend[0].celsius <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.loops > CHECK_FAN_SPEED)){
+	if((thermalManager.degHotend(0) <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.loops > CHECK_FAN_SPEED)){
 		thermalManager.fan_speed[0] = 0;
 		if(!testflag.fan_fg){
 			testflag.fan_fg = 1;
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_FAN), DWIN_WIDTH, YPOS(ID_LINE_FAN)+ROW_GAP);
-			DRAW_STRING_FONT12(COLOR_BG_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_FAN), PSTR("ALL Fan Off"));
+			DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("ALL Fan Off"));
 		}
 	}
 }
@@ -132,36 +134,36 @@ inline void Autotest::AutoTest_ShowSWStatus(bool bfirst){
 	if(bfirst){
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW), DWIN_WIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW_STATE), DWIN_WIDTH,  YPOS(ID_LINE_SW_STATE)+ROW_GAP);
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_SW), PSTR(" X "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+1*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" Y "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS(ID_LINE_SW), PSTR("ZL "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS(ID_LINE_SW), PSTR("ZR "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+4*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" F "));
-		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+5*SWWIDTH, YPOS(ID_LINE_SW), PSTR(" S "));		
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_SW), PSTR(" X "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+1*SWWIDTH, YPOS_MSG(ID_LINE_SW), PSTR(" Y "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS_MSG(ID_LINE_SW), PSTR("ZL "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS_MSG(ID_LINE_SW), PSTR("ZR "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+4*SWWIDTH, YPOS_MSG(ID_LINE_SW), PSTR(" F "));
+		DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+5*SWWIDTH, YPOS_MSG(ID_LINE_SW), PSTR(" S "));		
 	}	
 	//X	
 	if(old_swstatus[0] != swstatus[0] || bfirst)
-		DRAW_STRING_FONT12((swstatus[0]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[0]==0x07));
+		DRAW_STRING_FONT12((swstatus[0]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[0]==0x07));
 	//Y
 	if(old_swstatus[1] != swstatus[1] || bfirst)
-		DRAW_STRING_FONT12((swstatus[1]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+1*SWWIDTH, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[1]==0x07));
+		DRAW_STRING_FONT12((swstatus[1]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+1*SWWIDTH, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[1]==0x07));
 	//Z
 	if(old_swstatus[2] != swstatus[2] || bfirst)
-		DRAW_STRING_FONT12((swstatus[2]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[2]==0x07));
+		DRAW_STRING_FONT12((swstatus[2]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+2*SWWIDTH, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[2]==0x07));
 	//Z2
 #if PIN_EXISTS(Z2_MIN)
 	if(old_swstatus[3] != swstatus[3] || bfirst)
-		DRAW_STRING_FONT12((swstatus[3]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[3]==0x07));
+		DRAW_STRING_FONT12((swstatus[3]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+3*SWWIDTH, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[3]==0x07));
 #endif
 	//runout sensor
 #if PIN_EXISTS(FIL_RUNOUT)
 	if(old_swstatus[4] != swstatus[4] || bfirst)
-		DRAW_STRING_FONT12((swstatus[4]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+4*SWWIDTH, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[4]==0x07));		
+		DRAW_STRING_FONT12((swstatus[4]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+4*SWWIDTH, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[4]==0x07));		
 #endif
 	//Probe
 #if PIN_EXISTS(Z_MIN_PROBE)
 	if(old_swstatus[5] != swstatus[5] || bfirst)
-		DRAW_STRING_FONT12((swstatus[5]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+5*SWWIDTH, YPOS(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[5]==0x07));
+		DRAW_STRING_FONT12((swstatus[5]==0x07)?COLOR_GREEN:COLOR_WHITE, COLOR_BG_WINDOW, LSTART+5*SWWIDTH, YPOS_MSG(ID_LINE_SW_STATE), F_STRING_ONOFF(swstatus[5]==0x07));
 #endif
 }
 
@@ -202,7 +204,10 @@ bool Autotest::DWIN_AutoTesting() {
 	static millis_t test_next_rts_update_ms = 0;
 	static uint16_t test_counter = 0;
 	static uint16_t test_timer = 0;
+	static uint16_t temp_test_timer = 0;
 	static bool test_dir = 0;
+	static float test_temp_hotend_first = -100.0;
+	static float test_temp_hotbed_first = -100.0;
 	
 	if(testflag.loops == CHECK_Z_MOTOR){
 		stepper.do_Zaxis_step(test_counter >= 6,test_dir);
@@ -214,7 +219,7 @@ bool Autotest::DWIN_AutoTesting() {
 	if (PENDING(test_ms, test_next_rts_update_ms)) return false;
 	test_next_rts_update_ms = test_ms + 10;
 	
-	if(testflag.loops >= CHECK_HOTBED_TEMP) AutoTest_ShowTemperature();
+	if(testflag.loops >= CHECK_SD) AutoTest_ShowTemperature();
 	
 	switch(testflag.loops){
 		default:
@@ -225,13 +230,9 @@ bool Autotest::DWIN_AutoTesting() {
 		case CHECK_SD:		
 			if(IS_SD_INSERTED()){
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD2)+ROW_GAP);
-				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS(ID_LINE_SD1), PSTR("SD Card OK!"));
-			  DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS(ID_LINE_SD2), PSTR("SD Size(M):"));
-				DRAW_INT_RED_FONT12(COLOR_BG_BLACK, 5, (strlen("SD Size(M):")+1)*WIDTH, YPOS(ID_LINE_SD2), CardReader::sd2card.cardSize()/2000);
-				thermalManager.temp_hotend[0].target = 60;
-				thermalManager.temp_bed.target = 50;
-				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_ETEMP_INFO), PSTR("Hot end Heating..."));
-				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_BTEMP_INFO), PSTR("Hot bed Heating..."));
+				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("SD Card OK!"));
+			  DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD2), PSTR("SD Size(M):"));
+				DRAW_INT_RED_FONT12(COLOR_BG_BLACK, 5, (strlen("SD Size(M):")+1)*WIDTH, YPOS_MSG(ID_LINE_SD2), CardReader::sd2card.cardSize()/2000);				
 		 		test_timer = 0;
 				testflag.loops++;
 			}
@@ -241,62 +242,129 @@ bool Autotest::DWIN_AutoTesting() {
 					test_dir = !test_dir;
 					if(test_dir){
 						dwinLCD.Draw_Rectangle(1, COLOR_BG_RED, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD2)+ROW_GAP);
-						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_RED, LSTART, YPOS(ID_LINE_SD1), PSTR("Please insert SD Card!"));
-						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_RED, LSTART, YPOS(ID_LINE_SD2), PSTR("Or SD Card error!"));
+						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_RED, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Please insert SD Card!"));
+						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_RED, LSTART, YPOS_MSG(ID_LINE_SD2), PSTR("Or SD Card error!"));
 					}
 					else{
-						dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD2)+HEIGH);
-						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS(ID_LINE_SD1), PSTR("Please insert SD Card!"));
-						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS(ID_LINE_SD2), PSTR("Or SD Card error!"));
+						dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD2)+ROW_GAP);
+						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Please insert SD Card!"));
+						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD2), PSTR("Or SD Card error!"));
 					}
 				}
 			}
 		break;
 
-		case CHECK_HOTEND_TEMP:
-			if(test_timer++ > 1500){
+	 case CHECK_PREPARE_HEAT:
+	 		if(test_timer++ >= 100){
 				test_timer = 0;
-			  dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_ETEMP_INFO)+ROW_GAP);
-				if((test_temp_hotend_celsius - test_temp_hotend_first) >= 4) {
-					DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_ETEMP_INFO), PSTR("Hot end Temp. OK!"));
+				//check current temp of hotend
+				test_temp_hotend_first = thermalManager.degHotend(0);
+				if(test_temp_hotend_first <= 1){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend testing fail!"));
+					buzzer.tone(20, 4000);
+					break;
 				}
-				else DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_ETEMP_INFO), PSTR("Please check Hot end!"));
+				else if(test_temp_hotend_first >= 150){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend too hot!!"));
+					buzzer.tone(20, 4000);
+					break;
+				}
+				//check current temp of hotbed
+				test_temp_hotbed_first = thermalManager.degBed();
+				if(test_temp_hotbed_first <= 1){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hotbed testing fail!"));
+					buzzer.tone(20, 4000);
+					break;
+				}
+				else if(test_temp_hotbed_first >= 60){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hotbed too hot!!"));
+					buzzer.tone(20, 4000);
+					break;
+				}
+				thermalManager.setTargetHotend(max(test_temp_hotend_first + 20, 60), 0);
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_ETEMP_INFO)+ROW_GAP);
+				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend Heating..."));
+				thermalManager.setTargetBed(max(test_temp_hotbed_first + 20, 60));
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_BTEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_BTEMP_INFO)+ROW_GAP);
+				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hotbed Heating..."));				
 				testflag.loops++;
+	 		}
+		break;
+
+	case CHECK_PREPARE_HEAT2:
+		if(test_timer++ >= 100){
+			test_timer = 0;
+			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0 && thermalManager.degBed() >= test_temp_hotbed_first + 1.0){
+				test_temp_hotend_first = thermalManager.degHotend(0);
+				test_temp_hotbed_first = thermalManager.degBed();
+				testflag.loops++;
+			} 
+			else{
+				temp_test_timer++;
+				if(temp_test_timer > 20){
+					temp_test_timer = 0;
+					if(thermalManager.degHotend(0) <= test_temp_hotend_first + 2.0)
+						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend testing fail!"));
+					if(thermalManager.degBed() <= test_temp_hotbed_first + 2.0)
+						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hotbed testing fail!"));
+					thermalManager.setTargetBed(0);
+					testflag.loops = CHECK_FAN_SPEED;
+				}				
 			}
+		}		
+		break;
+		
+	 case CHECK_HOTEND_TEMP:
+			//raised 2 degree within 5 seconds
+			test_timer++;
+			if(test_timer%100 == 0) buzzer.tone(10, 1000); 
+			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0){
+				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend testing OK!"));
+			}
+			else if(test_timer > 500){ 
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Please check Hotend!"));
+			}
+			else break;
+			
+			test_timer = 0;
+			testflag.loops++;			
 			break;
 
 		case CHECK_HOTBED_TEMP:
-			if(test_timer++ > 1000){
-				test_timer = 0;
-			  dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_BTEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_BTEMP_INFO)+ROW_GAP);
-				if((test_temp_hotbed_celsius - test_temp_hotbed_first) > 3) {
-					thermalManager.temp_bed.target = 0;
-					DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_BTEMP_INFO), PSTR("Hot bed Temp. OK!"));
-				}
-				else DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_BTEMP_INFO), PSTR("Please check Hot bed!"));
-				
-				thermalManager.temp_bed.target = 0;
-				testflag.fan_fg = 0;
-				testflag.loops++;
+			//raised 2 degree within 10 seconds
+			test_timer++;
+			if(test_timer%100 == 0) buzzer.tone(10, 1000); 				
+			if(thermalManager.degBed() >= test_temp_hotbed_first + 1.0){
+				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hotbed testing OK!"));
 			}
+			else if(test_timer > 500){
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Please check Hotbed!"));
+			}
+			else break;
+			
+			thermalManager.setTargetBed(0);			
+			thermalManager.set_fan_speed(0, 255);			
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Fans On, check them"));
+
+			test_timer = 0;
+			testflag.loops++;
+			testflag.fan_fg = 0;
 			break;
 
 		case CHECK_FAN_SPEED:
-			thermalManager.fan_speed[0] = 255;
+			test_timer++;
 			thermalManager.checkExtruderAutoFans();
-			DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS(ID_LINE_FAN), PSTR("ALL Fan On..."));
-			
-			if(thermalManager.temp_hotend[0].celsius >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 10){
+			if((thermalManager.degHotend(0) >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 10) || (test_timer > 2000)){
 				test_timer = 0;
-				test_counter = 0;			
-				thermalManager.temp_hotend[0].target = 0;
+				test_counter = 0;
+				thermalManager.setTargetHotend(0, 0);
 				testflag.loops++;
 			}
 			break;
 
 		case CHECK_XY_MOTOR:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
-			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_XYMOTOR), PSTR("XY Axis Motor On..."));
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("XY Axis Motor On..."));
 			if(test_timer++ >= 100){
 				test_timer = 0;
 				test_dir = !test_dir;
@@ -317,7 +385,7 @@ bool Autotest::DWIN_AutoTesting() {
 				if(test_counter++ >=5){
 					test_counter = 0;
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
-					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_XYMOTOR), PSTR("XY Axis Motor Off"));
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("XY Axis Motor Off"));
 					testflag.loops++;
 				}			
 			}
@@ -327,25 +395,30 @@ bool Autotest::DWIN_AutoTesting() {
 		case CHECK_Z_MOTOR:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
 			if(test_counter >= 6)
-				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("ZR Axis Motor On..."));
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("ZR Axis Motor On..."));
 			else
-				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("ZL Axis Motor On..."));
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("ZL Axis Motor On..."));
 
 			if(test_timer++ >= 100){
 				test_timer = 0;
 				test_dir = !test_dir;					
-		#if 0	
+			#if 0	
 			  if(test_dir)
 					current_position.z += 3;
 				else 
 					current_position.z -= 2;
 				planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_Z), active_extruder);
 				planner.synchronize();
-		#endif
-				if(test_counter++ >= 12){
+			#endif
+			#if (NUM_Z_STEPPER_DRIVERS >= 2)
+				if(test_counter++ >= 11)
+			#else
+				if(test_counter++ >= 5)
+			#endif
+				{
 					test_counter = 0;					
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
-					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_ZMOTOR), PSTR("Z Axis Motor Off"));
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("Z Axis Motor Off"));
 					testflag.loops++;
 				}
 			}
@@ -353,7 +426,7 @@ bool Autotest::DWIN_AutoTesting() {
 
 		case CHECK_MOTOR_E1:
 			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_EXTRUDER), PSTR("Extruder1 Motor On..."));
+			 DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extruder1 Motor On..."));
 			 if(test_timer++ >= 100){
 			 	test_timer = 0;
 				test_dir = !test_dir;
@@ -375,7 +448,7 @@ bool Autotest::DWIN_AutoTesting() {
 #if (E_STEPPERS > 1)
 		case CHECK_MOTOR_E2:
 			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_YELLOW, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_EXTRUDER), PSTR("Extruder2 Motor On..."));
+			 DRAW_STRING_FONT12(COLOR_YELLOW, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extruder2 Motor On..."));
 			 if(test_timer++ >= 100){
 			 	test_timer = 0;
 				test_dir = !test_dir;
@@ -397,7 +470,7 @@ bool Autotest::DWIN_AutoTesting() {
 #if (E_STEPPERS > 2)
 		case CHECK_MOTOR_E3:
 			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_BG_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_EXTRUDER), PSTR("Extruder3 Motor On..."));
+			 DRAW_STRING_FONT12(COLOR_BG_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extruder3 Motor On..."));
 			 if(test_timer++ >= 100){
 			 	test_timer = 0;
 				test_dir = !test_dir;
@@ -419,7 +492,7 @@ bool Autotest::DWIN_AutoTesting() {
 #if (E_STEPPERS > 3)
 		case CHECK_MOTOR_E4:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_EXTRUDER), PSTR("Extruder4 Motor On..."));
+			DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extruder4 Motor On..."));
 			if(test_timer++ >= 100){
 				test_timer = 0;
 				test_dir = !test_dir;
@@ -439,7 +512,7 @@ bool Autotest::DWIN_AutoTesting() {
 		case CHECK_MOTORS_END:
 				disable_all_steppers();
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS(ID_LINE_EXTRUDER), PSTR("ALL Extruder Motor Off"));					
+				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("ALL Extruder Motor Off"));					
 		
 				AutoTest_ShowSWStatus(1);
 				testflag.Endstops = 0;
@@ -455,9 +528,9 @@ bool Autotest::DWIN_AutoTesting() {
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW_RESULT), DWIN_WIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
 				for(uint8_t i=0; i<6; i++){ 					
 					if((testflag.Endstops & (1<<i)) == 0)
-						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS(ID_LINE_SW_RESULT), PSTR("--"));
+						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("--"));
 					else
-						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS(ID_LINE_SW_RESULT), PSTR("OK"));
+						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("OK"));
 				}
 				test_timer = 0;
 				testflag.loops++;			
@@ -472,7 +545,7 @@ bool Autotest::DWIN_AutoTesting() {
 					if((testflag.Endstops & (1<<i)) == 0 && (old_swstatus[i] == 0x0 && swstatus[i] == 0x07)){
 						testflag.Endstops |= (1<<i);
 						dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS(ID_LINE_SW_RESULT), LSTART+WIDTH/2+i*SWWIDTH+SWWIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
-						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS(ID_LINE_SW_RESULT), PSTR("OK"));							
+						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("OK"));							
 					}				
 				}				
 				if(testflag.Endstops == 0x3f){
@@ -507,21 +580,26 @@ bool Autotest::DWIN_AutoTesting() {
 void Autotest::HMI_StartTest() {	
 	testflag.loops = 0;
 
-	test_temp_hotend_first = thermalManager.temp_hotend[0].target = 0;
-	test_temp_hotbed_first = thermalManager.temp_bed.target = 0;	
-
-		
+	thermalManager.setTargetHotend(0, 0);
+	thermalManager.setTargetBed(0);
+	
+	//clean screen	
 	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, 0, DWIN_WIDTH, DWIN_HEIGHT);
-	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, 0, DWIN_WIDTH, HEIGH);
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, XCENTER(-8), 0, PSTR("3D Printer Test"));
-	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, DWIN_HEIGHT-HEIGH, DWIN_WIDTH, DWIN_HEIGHT);
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART, DWIN_HEIGHT-HEIGH, PSTR("Rotary:"));
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART+XCENTER(0), DWIN_HEIGHT-HEIGH, PSTR("Buzzer:"));
-	dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP), DWIN_WIDTH, YPOS(ID_LINE_ETEMP)+HEIGH);
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS(ID_LINE_ETEMP), PSTR("Hot end:"));
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, XCENTER(3),  YPOS(ID_LINE_ETEMP), PSTR("/"));
-	dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_BTEMP), DWIN_WIDTH, YPOS(ID_LINE_BTEMP)+HEIGH);
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART,  YPOS(ID_LINE_BTEMP), PSTR("Hot bed:"));
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, XCENTER(3), YPOS(ID_LINE_BTEMP), PSTR("/"));
+		
+	//titel
+	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, 0, DWIN_WIDTH, ROW_GAP);
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, XCENTER(-8), (F_GAP/2), PSTR("3D Printer Test"));
+
+	//Temperature bar
+	dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP), DWIN_WIDTH, YPOS(ID_LINE_ETEMP)+ROW_GAP*4);
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP), PSTR("Hot end:"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, XCENTER(3),  YPOS_MSG(ID_LINE_ETEMP), PSTR("/"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART,  YPOS_MSG(ID_LINE_BTEMP), PSTR("Hot bed:"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, XCENTER(3), YPOS_MSG(ID_LINE_BTEMP), PSTR("/"));
+
+	//bottom bar
+	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, YPOS(ID_LINE_KNOB), DWIN_WIDTH, YPOS(ID_LINE_KNOB)+ROW_GAP);	
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART, YPOS(ID_LINE_KNOB), PSTR("Rotary:"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART+XCENTER(0), YPOS(ID_LINE_KNOB), PSTR("Buzzer:"));
 }
 #endif

@@ -79,19 +79,23 @@
  * Warnings for Option feature in configurations
  */
 #if BOTH(OPTION_ZLSENSOR, OPTION_3DTOUCH) || BOTH(OPTION_PL08N, OPTION_ZLSENSOR) || BOTH(OPTION_PL08N, OPTION_3DTOUCH)
-	#error "Only Choose one in OPTION_PL08N, OPTION_ZLSENSOR and OPTION_3DTOUCH"
+	#error "You can only select one in OPTION_PL08N, OPTION_ZLSENSOR and OPTION_3DTOUCH"
+#endif
+
+#if DISABLED(OPTION_LCDDWIN) && ENABLED(PROBE_ON_EXP1)
+	#error "EXP1 has been used by LCD12864, it must disable PROBE_ON_EXP1"
 #endif
 
 #if BOTH(OPTION_TITAN, OPTION_BGM)
-	#error "Only Choose one in OPTION_TITAN and OPTION_BGM"
+	#error "You can only select one between OPTION_TITAN and OPTION_BGM"
 #endif
 
 #if BOTH(OPTION_TMC220X_XYZ, OPTION_TMC2225_XYZ)
-	#error "Only Choose one in OPTION_TMC220X_XYZ and OPTION_TMC2225_XYZ"
+	#error "You can only select one between OPTION_TMC220X_XYZ and OPTION_TMC2225_XYZ"
 #endif
 
 #if BOTH(OPTION_TMC220X_EXTRUDER, OPTION_TMC2225_EXTRUDER)
-	#error "Only Choose one in OPTION_TMC220X_EXTRUDER and OPTION_TMC2225_EXTRUDER"
+	#error "You can only select one between OPTION_TMC220X_EXTRUDER and OPTION_TMC2225_EXTRUDER"
 #endif
 
 #if BOTH(DEBUG_OUT_TO_WIFI,OPTION_WIFI_BAUDRATE)

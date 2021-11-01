@@ -78,7 +78,6 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-//ATTENTION: V3.0.0 only applied for Z9V5_MK3
 #define SHORT_BUILD_VERSION 		"Marlin-2.0.8"
 #ifdef OPTION_Z9V5_PRO
 #ifdef OPTION_MAX_SIZE
@@ -93,8 +92,8 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #endif
-#define	FIRMWARE_VERSION					"V2.0.1"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-22"
+#define	FIRMWARE_VERSION					"V1.2.7"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-01"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -105,24 +104,27 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-//#define	OPTION_PL08N 			    			//Probe use PL_08N
+//#define	OPTION_PL08N 			    				//Probe use PL_08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
-//===========================================================================
-
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
-#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
-#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
-//
-//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
 //#define	OPTION_BGM								//BGM extruder
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+//#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
-
+//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
 //#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //==========================================================================
+//Special
+/* for Z9V5-MK2, if the serial number V1xxxxxxxxxx and you want to use 
+ * ZLSENSOR, you have to connect the ZLSENSOR to EXP1 connector and enable 
+ * this option
+*/
+//#define ZLSENSOR_ON_EXP1						//
+//==========================================================================
+
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
 #if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
@@ -562,14 +564,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 250
-#define HEATER_1_MAXTEMP 250
-#define HEATER_2_MAXTEMP 250
-#define HEATER_3_MAXTEMP 250
-#define HEATER_4_MAXTEMP 250
-#define HEATER_5_MAXTEMP 250
-#define HEATER_6_MAXTEMP 250
-#define HEATER_7_MAXTEMP 250
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      130
 
 //===========================================================================
@@ -966,7 +968,12 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
+#if BOTH(OPTION_ZLSENSOR, ZLSENSOR_ON_EXP1)
+#define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
+#define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
+#else
 #define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
+#endif
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif

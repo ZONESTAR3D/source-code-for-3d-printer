@@ -588,7 +588,7 @@ volatile bool Temperature::raw_temps_ready = false;
         #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
       #endif
       if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
-        TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_PID_TIMEOUT));
+        TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_PID_TIMEOUT, heater_id));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
         SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -829,12 +829,12 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 }
 
 void Temperature::max_temp_error(const heater_id_t heater_id) {
-  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MAXTEMP));
+  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MAXTEMP, heater_id));
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
-  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MINTEMP));
+  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MINTEMP, heater_id));
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
@@ -1072,7 +1072,7 @@ void Temperature::manage_heater() {
         // Make sure temperature is increasing
         if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
           if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
-            TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD)));
+            TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), e));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
           else                                                                  // Start again if the target is still far off
@@ -1083,7 +1083,7 @@ void Temperature::manage_heater() {
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         // Make sure measured temperatures are close together
         if (ABS(temp_hotend[0].celsius - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF){
-					TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_ERR_REDUNDANT_TEMP)));
+					TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_ERR_REDUNDANT_TEMP), 0));
           _temp_error(H_E0, PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
         }
       #endif
@@ -1117,7 +1117,7 @@ void Temperature::manage_heater() {
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
         if (degBed() < watch_bed.target) {                              // Failed to increase enough?
-          TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD)));
+          TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), H_BED));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
         else                                                            // Start again if the target is still far off
@@ -2117,7 +2117,7 @@ void Temperature::init() {
         state = TRRunaway;
 
       case TRRunaway:
-        TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_THERMAL_RUNAWAY)));
+        TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_THERMAL_RUNAWAY), heater_id));
         _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
     }
   }

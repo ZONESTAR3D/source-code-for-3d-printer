@@ -84,31 +84,32 @@
 //=============================================================================
 
 //EXP1 connector																
-//	   MARK     I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
-//	10 RS		PE13   	KILL					BTN_ENC										
-//	9  BP		PE11		BEEP					BEEP										
-//	8  EN		PE12		DOGLCD_CS				LCDRS								
-//	7  MOSI	PE10 		DOGLCD_SCK				LCDE								
-//	6  EN1	PE8    	BTN_EN1					NC								
-//	5  SCK	PE9   	DOGLCD_MOSI				LCD4
-//	4  ENC 	PE15   	BTN_ENC					NC								
-//	3  EN2  PE14		BTN_EN2					NC								
-//	2  +5V										+5V								
-//	1  GND										GND								
+//	   MARK I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
+//	10 RS		PE13   	KILL								BTN_ENC										
+//	9  BP		PE11		BEEP								BEEP										
+//	8  EN		PE12		DOGLCD_CS						LCDRS								
+//	7  MOSI	PE10 		DOGLCD_SCK					LCDE								
+//	6  EN1	PE8    	BTN_EN1							NC								
+//	5  SCK	PE9   	DOGLCD_MOSI					LCD4
+//	4  ENC 	PE15   	BTN_ENC							NC								
+//	3  EN2  PE14		BTN_EN2							NC								
+//	2  +5V															+5V								
+//	1  GND															GND								
 
 
 //EXP2 connector								
-//	   MARK     I/O     ZONESTAR_LCD12864       REPRAPDISCOUNT_LCD12864
+//	   MARK   I/O   LCD_DWIN				REPRAPDISCOUNT_LCD12864
 //	10	 										
 //	9	  
-//	8	RX0  	PA9		UART1_RX				
-//	7	TX0  	PA10	UART1_TX				BTN_EN2
-//	6	CS3	 	PA15
-//	5	MISO3  	PB4								BTN_EN1
-//	4	MOSI3  	PB5								KILL
-//	3	SCK3  	PB3								
-//	2	+5V										+5V
-//	1	GND										GND
+//	8	RX1  		PA9		UART1_RX				NC
+//	7	TX1  		PA10	UART1_TX				BTN_EN2
+//	6	CS3	 		PA15  BEEPER					NC
+//	5	MISO3  	PB4		BTN_ENC					BTN_EN1
+//	4	MOSI3  	PB5		BTN_EN2					KILL
+//	3	SCK3  	PB3		BTN_EN1					NC						
+//	2	+5V														+5V
+//	1	GND														GND
+
 
 
 //AUX1 connector
@@ -189,6 +190,11 @@
 #ifdef OPTION_Z2_ENDSTOP
 #define Z2_MIN_PIN		  PD1	//Z2_MIN_PIN
 #endif
+
+#ifdef OPTION_REPEAT_PRINTING
+#define REPRINT_STOP_PIN   PD8	//X_MAX_PIN
+#endif
+
 
 //#define Z2_MAX_PIN         PB12
 
@@ -338,6 +344,7 @@
 
 #define ADC_KEYPAD_PIN		PE13//PC0			//PIN6 of AUX1
 #endif
+
 #if ENABLED(ZONESTAR_DWIN_LCD)
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
@@ -349,30 +356,29 @@
 #define BTN_ENC 			PB4   	//PE15
 #endif
 
-#if HAS_MARLINUI_U8GLIB
-#define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
-#define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
-#define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
-#endif
-
 //SERVO
 //Remap SERVO0 PIN for BLTouch
 #if ENABLED(BLTOUCH_ON_EXP1)
 //BLTouch connect to EXP1
 #define	BLTOUCH_PROBE_PIN 		PE8
-#define BLTOUCH_GND_PIN		  	PE15
+#define PROBE_GND_PIN		  		PE15
 #define	SERVO0_PIN		  			PE14
 #elif ENABLED(BLTOUCH_ON_EXP2)
 //BLTouch connect to EXP2
 #define	BLTOUCH_PROBE_PIN 		PB3
-#define BLTOUCH_GND_PIN		  	PB5
+#define PROBE_GND_PIN		  		PB5
 #define	SERVO0_PIN		  			PA15
 #else
 #define	SERVO0_PIN		  			PB9	
 #define	BLTOUCH_PROBE_PIN 		PB13
 #endif
 
-#define	SERVO2_PIN		  PB7
-#define	SERVO3_PIN		  PB6
+//#define	SERVO2_PIN		  PB7
+//#define	SERVO3_PIN		  PB6
 
+#if HAS_MARLINUI_U8GLIB
+#define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
+#define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
+#define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
+#endif
 

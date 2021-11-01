@@ -517,7 +517,7 @@ void _reset_shutdown_timer();
 void set_status_bar_showtime(const uint8_t t);
 
 
-void Popup_Window_Temperature(const char *msg);
+void Popup_Window_Temperature(const char *msg, int8_t heaterid);
 void HMI_DWIN_Init();
 void DWIN_Update();
 void EachMomentUpdate();

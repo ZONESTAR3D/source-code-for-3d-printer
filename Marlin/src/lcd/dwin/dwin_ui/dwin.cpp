@@ -407,15 +407,20 @@ inline void DWIN_Update_Variable() {
 	TERN_(MIXING_EXTRUDER, DWIN_Show_Mixing_status());
 }
 
-void Popup_Window_Temperature(const char *msg) {
+void Popup_Window_Temperature(const char *msg, int8_t heaterid) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
 	Draw_Popup_Bkgd_105();
-	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 165);		
-	dwinLCD.Draw_String(false, true, font8x16, POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - strlen(msg)*10)/2, 300, (char*)msg);
-#if 1
+	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 165);
+	if(heaterid == -1)
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10 )/2, 280, PSTR("HEATBED "));
+	else
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2, 280, PSTR("HOT END "));
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 280, (char*)msg);
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 300, PSTR("Please check it!"));		
+#if 0
 	for(uint8_t i=0; i<20; i++){
-		buzzer.tone(200, 2000);
-		buzzer.tone(200, 0);
+		buzzer.tone(100, 2000);
+		buzzer.tone(100, 0);
 	}
 #endif
 }

@@ -79,19 +79,19 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
-#define	FIRMWARE_VERSION			    "V1.6.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-07-29"
+#define	FIRMWARE_VERSION			    "V1.6.1"
+#define	STRING_DISTRIBUTION_DATE  "2021-10-29"
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				      "www.zonestar3d.com"
 //===========================================================================
 //default
 //default feature, usually keep it enable
-#define OPTION_TITAN								//Titan Extruder
-#define	OPTION_AUTOPOWEROFF					//Power off after printer
-#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to Z2 motor connector)
-#define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
-#define	OPTION_PL08N 			    			//leveling Probe use PL_08N
+#define OPTION_TITAN									//Titan Extruder
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
+#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
+#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
+#define	OPTION_PL08N 			    				//leveling Probe use PL_08N
 #define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
 //===========================================================================
 //Bed coating
@@ -100,21 +100,22 @@
 #endif
 //===========================================================================
 //optional feature
-//#define	OPTION_LCDDWIN				  		//
-#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
+//#define	OPTION_LCDDWIN				  			//
+//#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
-//#define OPTION_Z2_ENDSTOP							//the second Z ENDSTOP
-//#define	OPTION_BGM									//BGM extruder
+//#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
+//#define	OPTION_BGM										//BGM extruder
 //#define	OPTION_TMC220X_XYZ						//TMC220X be used to XYZ motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
 //#define	OPTION_TMC220X_EXTRUDER				//TMC220x be used to  extruder motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
-//#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
+//#define	OPTION_ZLSENSOR								//leveling Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
-
-//#define	OPTION_REPEAT_PRINTING			//Auto remove prints feature
 //#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
 //===========================================================================
+//Speical
+//#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
+//#define	EXCHANGE_YMIN_YMAX						//Exchange Y_MIN_PIN and Y_MAX_PIN
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
@@ -963,7 +964,12 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 					//Z_MAX_PIN as probe pin
+#if BOTH(OPTION_LCDDWIN, OPTION_ZLSENSOR)
+#define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
+#define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
+#else
+#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
+#endif
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif
