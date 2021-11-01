@@ -92,8 +92,8 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #endif
-#define	FIRMWARE_VERSION					"V1.3.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-16"
+#define	FIRMWARE_VERSION					"V1.2.7"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-01"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -104,21 +104,27 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-//#define	OPTION_PL08N 			    			//Probe use PL_08N
+#define	OPTION_PL08N 			    				//Probe use PL_08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //===========================================================================
-
-//===========================================================================
 //optional feature
-#define	OPTION_WIFI_MODULE			//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE			//Option WiFi baudrate
+#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 //#define	OPTION_BGM								//BGM extruder
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
-#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
+//#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
 //#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //==========================================================================
+//Special
+/* for Z9V5-MK2, if the serial number V1xxxxxxxxxx and you want to use 
+ * ZLSENSOR, you have to connect the ZLSENSOR to EXP1 connector and enable 
+ * this option
+*/
+//#define ZLSENSOR_ON_EXP1						//
+//==========================================================================
+
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
 #if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
@@ -962,7 +968,12 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 					//Z_MAX_PIN as probe pin
+#if BOTH(OPTION_ZLSENSOR, ZLSENSOR_ON_EXP1)
+#define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
+#define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
+#else
+#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
+#endif
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif
