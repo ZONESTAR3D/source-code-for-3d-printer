@@ -1,17 +1,17 @@
 ﻿# ZONESTAR 3D Printer Firmware Source Code
 ***this firmware can be applied to the below printer model***
 - **D805S_ZM3E4**	   *Printer model:* D805S(M2/R2)	   *Control board:* ZM3E4
-- **D805S_ZRIB **	   *Printer model:* D805S(M2/R2)	   *Control board:* ZRIBV5/ZRIBV6
-- **Z5S_ZM3E2  **	   *Printer model:* Z5S(M2/R2)	   *Control board:* ZM3E2
+- **D805S_ZRIB**	   *Printer model:* D805S(M2/R2)	   *Control board:* ZRIBV5/ZRIBV6
+- **Z5S_ZM3E2**	   *Printer model:* Z5S(M2/R2)	   *Control board:* ZM3E2
 - **Z5XM3_ZM3E4**	   *Printer model:* Z5X(M3/R3)	   *Control board:* ZM3E4
-- **Z8P_ZM3E4  **	   *Printer model:* Z8P(M3/M4)	   *Control board:* ZM3E4
-- **Z8R3_ZRIB  **	   *Printer model:* Z8-R3		      *Control board:* ZRIBV5/ZRIBV6
-- **Z8T_ZRIB   **  	*Printer model:* Z8T		         *Control board:* ZRIBV6
+- **Z8P_ZM3E4**	   *Printer model:* Z8P(M3/M4)	   *Control board:* ZM3E4
+- **Z8R3_ZRIB**	   *Printer model:* Z8-R3		      *Control board:* ZRIBV5/ZRIBV6
+- **Z8T_ZRIB**  	   *Printer model:* Z8T		         *Control board:* ZRIBV6
 - **Z8XM2_ZM3E4**  	*Printer model:* Z8X(M2)		   *Control board:* ZM3E4
-- **Z9M3_ZRIB  ** 	*Printer model:* Z9M3(R3)		   *Control board:* ZRIBV6
-- **Z9M3_ZM3E4 **	   *Printer model:* Z9M3(R3)		   *Control board:* ZM3E4
-- **Z9M4_ZM3E4 ** 	*Printer model:* Z9M4		      *Control board:* ZM3E4
-- **Z9V5       ** 	*Printer model:* Z9V5(Pro)		   *Control board:* ZM3E4
+- **Z9M3_ZRIB** 	   *Printer model:* Z9M3(R3)		   *Control board:* ZRIBV6
+- **Z9M3_ZM3E4**	   *Printer model:* Z9M3(R3)		   *Control board:* ZM3E4
+- **Z9M4_ZM3E4** 	   *Printer model:* Z9M4		      *Control board:* ZM3E4
+- **Z9V5** 	         *Printer model:* Z9V5(Pro)		   *Control board:* ZM3E4
 - **Z10M2_ZM3E4**	   *Printer model:* Z10M2		      *Control board:* ZM3E4
 
 ---
