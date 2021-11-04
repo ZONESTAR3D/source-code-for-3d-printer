@@ -14,26 +14,18 @@
 - Z9V5 		Printer model:Z9V5(Pro)		Control board: ZM3E4
 - Z10M2_ZM3E4	Printer model:Z10M2		Control board: ZM3E4
 
-
+---
 # Build Firmware
--1. Install VSCode
-Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest VSCode for your particular platform.
-
--2. Install the PlatformIO IDE
-Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]  to learn how to install PlatformIO IDE in VSCode.
-
--3. find and copy the configuration files for your machine from the "config" directory, you need to: 
-
--1). copy and replace configuration.h and configuration_adv.h to "marlin" directory
-
--2). copy and replace platformio.ini to "main" directory
-
-You may need to modify the file "configuration.h" and "configuration_adv.h" according to the setting of your machine.
-
-
--3. Use the "Open Folder…" command in the VSCode "File" menu to open the source code directory which you stored, e.g. "main".
-
--4. Run the "Run build task" command in the VSCode "Terminal" menu, and then choose "PlatformIO:build" task to build the source code.
+1. Install VSCode
+    Visit the Setting up "Visual Studio Code" page         [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest        VSCode for your particular platform.
+2. Install the PlatformIO IDE
+   Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]    to learn how to install PlatformIO IDE in VSCode.
+3. find and copy the configuration files for your machine from the "config" directory, you need to: 
+   * copy and replace configuration.h and configuration_adv.h to "marlin" directory
+   * copy and replace platformio.ini to root directory of the source code
+   * You may need to modify the file "configuration.h" and "configuration_adv.h" according to the        setting of your machine.
+4. Use the "Open Folder…" command in the VSCode "File" menu to open the source code directory       which you stored, e.g. "main".
+5. Run the "Run build task" command in the VSCode "Terminal" menu, and then choose       "PlatformIO:build" task to build the source code.
 
 ---
 # License
