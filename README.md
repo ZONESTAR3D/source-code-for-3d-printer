@@ -16,16 +16,19 @@
 
 ---
 # Build Firmware
-1. Install VSCode
-  - Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest        VSCode for your particular platform.*
-2. Install the PlatformIO IDE
-  - Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]    to learn how to install PlatformIO IDE in VSCode.
-3. find and copy the configuration files for your machine from the "config" directory, you need to: 
+1. **Install VSCode**
+Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest        VSCode for your particular platform.*
+2. **Install the PlatformIO IDE**
+Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]    to learn how to install PlatformIO IDE in VSCode.
+3. **Choose and replace config files**
+   - find and copy the configuration files for your machine from the "config" directory
    - copy and replace configuration.h and configuration_adv.h to "marlin" directory
    - copy and replace platformio.ini to root directory of the source code
    - You may need to modify the file "configuration.h" and "configuration_adv.h" according to the        setting of your machine.
-4. Use the "Open Folder…" command in the VSCode "File" menu to open the source code directory       which you stored, e.g. "main".
-5. Run the "Run build task" command in the VSCode "Terminal" menu, and then choose       "PlatformIO:build" task to build the source code.
+4. **Open the project in Visual Stuido Code**
+Use the "Open Folder…" command in the VSCode "File" menu to open the source code directory       which you stored, e.g. "main".
+5. **Build firmware**
+Run the "Run build task" command in the VSCode "Terminal" menu, and then choose       "PlatformIO:build" task to build the source code.
 
 ---
 # License
