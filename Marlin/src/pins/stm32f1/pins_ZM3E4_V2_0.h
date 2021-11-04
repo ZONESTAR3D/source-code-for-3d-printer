@@ -132,19 +132,11 @@
 // Limit Switches
 //
 #ifdef USE_XMIN_PLUG
-#ifdef EXCHANGE_XMIN_XMAX
-#define X_STOP_PIN         PD8
-#else
 #define X_STOP_PIN         PC13
-#endif
 #endif
 
 #ifdef USE_YMIN_PLUG
-#ifdef EXCHANGE_YMIN_YMAX
-#define Y_STOP_PIN         PB14
-#else
 #define Y_STOP_PIN         PE3
-#endif
 #endif
 
 #ifdef USE_ZMIN_PLUG
@@ -152,19 +144,11 @@
 #endif
 
 #ifdef USE_XMAX_PLUG
-#ifdef EXCHANGE_XMIN_XMAX
-#define X_MAX_PIN          PC13
-#else
 #define X_MAX_PIN          PD8
-#endif
 #endif
 
 #ifdef USE_YMAX_PLUG
-#ifdef EXCHANGE_YMIN_YMAX
-#define Y_MAX_PIN          PE3
-#else
 #define Y_MAX_PIN          PB14
-#endif
 #endif
 
 #ifdef USE_ZMAX_PLUG
@@ -203,7 +187,7 @@
 #endif
 
 #ifdef OPTION_Z2_ENDSTOP
-#define Z2_MIN_PIN		  PD1	//Z2_MIN_PIN
+#define Z2_MIN_PIN		  	PD1	//Z2_MIN_PIN
 #endif
 
 #ifdef OPTION_REPEAT_PRINTING
@@ -288,7 +272,7 @@
 #define SS_PIN             PA4
 
 //WiFi. Functions
-#define WIFI_RST          	PC15
+#define WIFI_RST          PC15
 #define WIFI_EN          	PC14
 
 #if ENABLED(OPTION_REPEAT_PRINTING)
@@ -359,6 +343,7 @@
 
 #define ADC_KEYPAD_PIN		PE13//PC0			//PIN6 of AUX1
 #endif
+
 #if ENABLED(ZONESTAR_DWIN_LCD)
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
@@ -396,3 +381,57 @@
 #define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
 #endif
 
+//===========================================
+//Special
+#ifdef EXCHANGE_XMIN_XMAX
+#ifdef USE_XMIN_PLUG
+#undef X_STOP_PIN
+#define X_STOP_PIN         PD8
+#endif
+#ifdef USE_XMAX_PLUG
+#undef X_MAX_PIN
+#define X_MAX_PIN          PC13
+#endif
+#endif//EXCHANGE_XMIN_XMAX
+
+#ifdef EXCHANGE_YMIN_YMAX
+#ifdef USE_YMIN_PLUG
+#undef Y_STOP_PIN
+#define Y_STOP_PIN         PB14
+#endif
+#ifdef USE_YMAX_PLUG
+#undef Y_MAX_PIN
+#define Y_MAX_PIN          PE3
+#endif
+#endif//EXCHANGE_YMIN_YMAX
+
+#ifdef EXCHANGE_XDRIVER_Z2DRIVER
+#ifdef USE_XMIN_PLUG
+#undef X_STOP_PIN
+#define X_STOP_PIN         PD1
+#endif
+#ifdef COREXY
+#undef Y_ENABLE_PIN
+#undef Y_STEP_PIN
+#undef Y_DIR_PIN
+#define Y_ENABLE_PIN      PC11
+#define Y_STEP_PIN        PC12
+#define Y_DIR_PIN         PD0
+#else
+#undef X_ENABLE_PIN
+#undef X_STEP_PIN
+#undef X_DIR_PIN
+#define X_ENABLE_PIN      PC11
+#define X_STEP_PIN        PC12
+#define X_DIR_PIN         PD0
+#endif
+#ifdef OPTION_DUALZ_DRIVE
+#undef Z2_ENABLE_PIN
+#undef Z2_STEP_PIN
+#undef Z2_DIR_PIN
+#define Z2_ENABLE_PIN       PE6
+#define Z2_STEP_PIN         PE5
+#define Z2_DIR_PIN          PE4
+#endif
+#endif//EXCHANGE_XAXIS_Z2AXIS
+//===========================================
