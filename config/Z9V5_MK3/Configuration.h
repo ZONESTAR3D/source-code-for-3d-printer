@@ -73,28 +73,19 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
-#define OPTION_Z9V5_PRO				//Dwin LCD, Glass bed
 //#define	OPTION_MAX_SIZE				//500x500x400
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 //ATTENTION: V3.0.0 only applied for Z9V5_MK3
-#define SHORT_BUILD_VERSION 		"Marlin-2.0.8"
-#ifdef OPTION_Z9V5_PRO
+#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #ifdef OPTION_MAX_SIZE
-#define CUSTOM_MACHINE_NAME 		"Z9V5MaxPro"
+#define CUSTOM_MACHINE_NAME 			"Z9V5MaxPro(MK3)"
 #else
-#define CUSTOM_MACHINE_NAME 		"Z9V5Pro"
+#define CUSTOM_MACHINE_NAME 			"Z9V5Pro(MK3)"
 #endif
-#else
-#ifdef OPTION_MAX_SIZE
-#define CUSTOM_MACHINE_NAME 			"Z9V5Max"
-#else
-#define CUSTOM_MACHINE_NAME 			"Z9V5"
-#endif
-#endif
-#define	FIRMWARE_VERSION					"V2.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-20"
+#define	FIRMWARE_VERSION					"V2.0.1"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-01"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -105,74 +96,33 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-//#define	OPTION_PL08N 			    			//Probe use PL_08N
+#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
-//===========================================================================
-
+#define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 //===========================================================================
 //optional feature
-#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
-#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
-#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
-//
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 //#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
-//#define	OPTION_BGM								//BGM extruder
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
-//#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
-
-//#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
+//#define	OPTION_BGM									//BGM extruder
+//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
+//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+//#define	OPTION_REPEAT_PRINTING			//Auto remove prints feature
 //==========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
-#define	BED_COATING_THICKNESS	3.5			//glass thickness
-#else
 #define	BED_COATING_THICKNESS	0.0			//stikcer thickness
-#endif
 #endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
 #define WIFI_SERIAL_PORT 2
 #endif
-
-#if ENABLED(OPTION_Z9V5_PRO)
-  #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
-  #if ENABLED(OPTION_3DTOUCH)
-  #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
-  #endif
-#else															//LCD12864 connect to EXP1																	
-	#if ENABLED(OPTION_3DTOUCH)
-	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
-	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
-	#else
-  #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
-  #endif
+#define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
+#if ENABLED(OPTION_3DTOUCH)
+#define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
 #endif
-
 //===========================================================================
-/**
- * LCD LANGUAGE
- *
- * Select the language to display on the LCD. These languages are available:
- *
- *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, it, jp_kana,
- *   ko_KR, nl, pl, pt, pt_br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
- *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 
-   'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 
-   'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp_kana':'Japanese', 
-   'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 
-   'pt_br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 
-   'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
- */
-#define LCD_LANGUAGE en
-
-#ifdef OPTION_Z9V5_PRO
-#undef LCD_LANGUAGE
-#endif
-
 /**
  * *** VENDORS PLEASE READ ***
  *
@@ -2264,9 +2214,7 @@
 //
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
-#ifndef OPTION_Z9V5_PRO
-#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
-#endif
+//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
 
@@ -2449,13 +2397,10 @@
 //
 //#define DWIN_CREALITY_LCD
 
-
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
-#ifdef OPTION_Z9V5_PRO
 #define ZONESTAR_DWIN_LCD
-#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8

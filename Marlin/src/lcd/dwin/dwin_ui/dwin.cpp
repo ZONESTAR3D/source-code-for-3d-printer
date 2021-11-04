@@ -251,7 +251,7 @@ inline void _check_Powerloss_resume(){
 				dwinLCD.UpdateLCD();
 			}
 			TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
-		}		
+		}
 		HMI_flag.show_mode = SHOWED_TUNE;
 		DWIN_status = ID_SM_PRINTING;
 		queue.inject_P(PSTR("M1000"));
