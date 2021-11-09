@@ -34,8 +34,12 @@ enum EndstopEnum : char {
   X2_MIN, X2_MAX,
   Y2_MIN, Y2_MAX,
   Z2_MIN, Z2_MAX,
-  Z3_MIN, Z3_MAX,
-  Z4_MIN, Z4_MAX
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	RPL_MIN, RPR_MIN
+#else
+	Z3_MIN, Z3_MAX,
+	Z4_MIN, Z4_MAX
+#endif
 };
 
 #define X_ENDSTOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)

@@ -1341,7 +1341,7 @@ void HMI_Printing() {
 						Popup_window_PauseOrStop();
 					}
 					else{
-						DWIN_status = ID_SM_IDEL;
+						DWIN_status = ID_SM_IDLE;
 						Draw_Main_Menu();
 					}
 				break;

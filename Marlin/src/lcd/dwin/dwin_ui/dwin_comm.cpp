@@ -442,10 +442,10 @@ void ICON_YESorNO(uint8_t Option){
 	DWIN_FEEDBACK_TICK();
 }
 
-void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint8_t t ){
+void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint8_t show_seconds ){
 	Clear_Dwin_Area(AREA_BOTTOM);
 	dwinLCD.Draw_String(true, true, font8x16, color, COLOR_BG_BLACK, 10, 455, string);
-	if(t > 0) HMI_flag.clean_status_delay = t;
+	if(show_seconds > 0) HMI_flag.clean_status_delay = show_seconds;
 }
 
 #endif // HAS_DWIN_LCD

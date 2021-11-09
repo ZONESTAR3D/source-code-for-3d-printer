@@ -620,8 +620,8 @@ void DWIN_Show_Status(){
 			SERIAL_ECHOLNPGM("DWIN_status = ID_SM_START");
 		break;
 		default:
-		case ID_SM_IDEL:
-			SERIAL_ECHOLNPGM("DWIN_status = ID_SM_IDEL");
+		case ID_SM_IDLE:
+			SERIAL_ECHOLNPGM("DWIN_status = ID_SM_IDLE");
 		break;
 		case ID_SM_PRINTING:
 			SERIAL_ECHOLNPGM("DWIN_status = ID_SM_PRINTING");
@@ -715,16 +715,16 @@ void EachMomentUpdate() {
 	
 	if(DWIN_status == ID_SM_START){
 		//check resume print when power on
-		DWIN_status = ID_SM_IDEL;
+		DWIN_status = ID_SM_IDLE;
 		//TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 	}
-	else if(DWIN_status == ID_SM_IDEL){
+	else if(DWIN_status == ID_SM_IDLE){
 		TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 	}
 #if ENABLED(POWER_LOSS_RECOVERY)
 	else if(DWIN_status == ID_SM_RETURN_MAIN){
 		if(!queue.has_commands_queued()){
-			DWIN_status = ID_SM_IDEL;
+			DWIN_status = ID_SM_IDLE;
 			card.mount();
 			Draw_Main_Menu(true);
 		}
@@ -782,7 +782,7 @@ void EachMomentUpdate() {
 			TERN_(OPTION_AUTOPOWEROFF, _setAutoPowerDown());
 			TERN_(MIXING_EXTRUDER, mixer.reset_vtools());
 			HMI_Value.print_speed = feedrate_percentage = 100;
-			DWIN_status = ID_SM_IDEL;
+			DWIN_status = ID_SM_IDLE;
 			Draw_Main_Menu();			
 		}
 	}		

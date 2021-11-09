@@ -83,32 +83,34 @@
 //	PD14    E2_EN		//	PE14	BTN_EN2
 //	PD15    E1_DIR		//	PE15	BTN_ENC
 //=============================================================================
+
 //EXP1 connector																
 //	   MARK I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
 //	10 RS		PE13   	KILL								BTN_ENC										
 //	9  BP		PE11		BEEP								BEEP										
 //	8  EN		PE12		DOGLCD_CS						LCDRS								
 //	7  MOSI	PE10 		DOGLCD_SCK					LCDE								
-//	6  EN1	PE8   	BTN_EN1							NC								
+//	6  EN1	PE8    	BTN_EN1							NC								
 //	5  SCK	PE9   	DOGLCD_MOSI					LCD4
-//	4  ENC 	PE15  	BTN_ENC							NC								
+//	4  ENC 	PE15   	BTN_ENC							NC								
 //	3  EN2  PE14		BTN_EN2							NC								
-//	2  +5V					+5V								
-//	1  GND					GND								
+//	2  +5V															+5V								
+//	1  GND															GND								
 
 
 //EXP2 connector								
 //	  MARK   I/O   LCD_DWIN				REPRAPDISCOUNT_LCD12864
 // 10	SDA     PC0 										
 //	9	SCL  		PE7
-//	8	RX1  		PA9		UART1_RX				NC
-//	7	TX1  		PA10	UART1_TX				BTN_EN2
-//	6	CS3	 		PA15  BEEPER					NC
-//	5	MISO3  	PB4		BTN_ENC					BTN_EN1
-//	4	MOSI3  	PB5		BTN_EN2					KILL
-//	3	SCK3  	PB3		BTN_EN1					NC						
-//	2	+5V						+5V
-//	1	GND						GND
+//	8	RX1  		PA9		RXD									NC
+//	7	TX1  		PA10	TXD									BTN_EN2
+//	6	CS3	 		PA15  BEEPER							NC
+//	5	MISO3  	PB4		BTN_ENC							BTN_EN1
+//	4	MOSI3  	PB5		BTN_EN2							KILL
+//	3	SCK3  	PB3		BTN_EN1							NC						
+//	2	+5V																+5V
+//	1	GND																GND
+
 
 
 //AUX1 connector
@@ -190,11 +192,6 @@
 #define Z2_MIN_PIN		  	PD1	//Z2_MIN_PIN
 #endif
 
-#ifdef OPTION_REPEAT_PRINTING
-#define REPRINT_STOP_PIN   PD8	//X_MAX_PIN
-#endif
-
-
 //#define Z2_MAX_PIN         PB12
 
 #ifdef	SWITCH_EXTRUDER_SQUENCY
@@ -275,10 +272,6 @@
 #define WIFI_RST          PC15
 #define WIFI_EN          	PC14
 
-#if ENABLED(OPTION_REPEAT_PRINTING)
-#define FPRWARD_PIN         PA13    
-#define BACK_PIN          	PA14
-#endif
 
 #if ENABLED(ZONESTAR_12864LCD)
 #define	LCDSCREEN_NAME		"ZONESTAR LCD12864"
@@ -379,6 +372,27 @@
 #define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
 #define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns
 #define BOARD_ST7920_DELAY_3 DELAY_NS(200)    //Tclk_rise <200ns
+#endif
+
+
+//===========================================
+//Repeat printing
+//
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#ifdef X_MAX_PIN
+#undef X_MAX_PIN
+#endif
+#ifdef Y_MAX_PIN
+#undef Y_MAX_PIN
+#endif
+//Motor drive pin
+#define RP_LFPRWARD_PIN       PA13
+#define RP_LBACK_PIN          PA14
+#define RP_RFPRWARD_PIN       PB6
+#define RP_RBACK_PIN          PB7
+//ENDSTOP pin
+#define RPL_MIN_PIN   				PD8		//X_MAX_PIN
+#define RPR_MIN_PIN   				PB14	//Y_MAX_PIN
 #endif
 
 //===========================================

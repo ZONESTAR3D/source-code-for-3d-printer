@@ -59,19 +59,18 @@
 //	PD1     NC
 //	PD2	    E1_STEP
 //=============================================================================
-
 //EXP1 connector
-//	   MARK     I/O     ZONESTAR_12864LCD      ZONESTAR_12864OLED
-//	10	MOSI 	PB1    	KILL					SDA
-//	9	SCK  	PB0		BEEP					SCK
-//	8	TX1  	PA9		DOGLCD_CS				CS
-//	7	RX1  	PA10	DOGLCD_SCK				DC
-//	6	ENA	 	PC5    	BTN_EN2					KNOB_ENB
-//	5	DAT  	PB2    	DOGLCD_MOSI				RESET
-//	4	TX3  	PB10   	BTN_ENC					KNOB_ENC
-//	3	RX3  	PB11	BTN_EN1					KNOB_ENA
-//	2	+5V
-//	1	GND
+//	   	MARK     I/O     ZONESTAR_12864LCD      ZONESTAR_12864OLED		LCD_DWIN
+//	10	MOSI 		PB1    		KILL									SDA										NA
+//	9		SCK  		PB0				BEEP									SCK										NA
+//	8		TX1  		PA9				DOGLCD_CS							CS										RXD
+//	7		RX1  		PA10			DOGLCD_SCK						DC										TXD
+//	6		ENA	 		PC5    		BTN_EN2								KNOB_ENB							BEEPER
+//	5		DAT  		PB2    		DOGLCD_MOSI						RESET									KNOB_ENC
+//	4		TX3  		PB10   		BTN_ENC								KNOB_ENC							KNOB_ENB
+//	3		RX3  		PB11			BTN_EN1								KNOB_ENA							KNOB_ENA
+//	2		+5V								+5V										+5V										+5V
+//	1		GND								GND										GND										GND
 
 //AUX1 connector
 //	1	+5V 	    	
@@ -143,8 +142,14 @@
 //#define	FIL_RUNOUT2_PIN	   PC11			//E1_SW
 
 //BLTouch(3DTouch)
+#if defined(OPTION_3DTOUCH)
 #define	SERVO0_PIN		   		PA15
 #define	Z_MIN_PROBE_PIN	   	PC10
+//WiFi
+#elif defined(OPTION_WIFI_MODULE)
+#define WIFI_RST          PA15
+#define WIFI_EN          	PC10
+#endif
 
 
 #define LED_PIN            	PB12
@@ -158,7 +163,6 @@
 #define MISO_PIN           PA6
 #define MOSI_PIN           PA7
 #define SS_PIN             PA4
-
 
 //
 // LCD Pins
@@ -193,7 +197,6 @@
 	#define BOARD_ST7920_DELAY_2 DELAY_NS(200)
 	#define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
-
 //================================================================================
 //OLED 128x64
 //================================================================================
@@ -222,10 +225,17 @@
 	#define BTN_EN2 		  	PC5
 	#define BTN_ENC 		  	PB10
 #endif//ENABLED(ZONESTAR_OLED12864)
-
-//WiFi
-#ifdef OPTION_WIFI_MODULE
-#define WIFI_RST          PC10
-#define WIFI_EN          	PA15
+//================================================================================
+//LCD DWIN
+//================================================================================
+#if ENABLED(ZONESTAR_DWIN_LCD)
+//Connect to EXP2 connector
+#define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
+#define BEEPER_PIN        PC5
+#define KILL_PIN          -1
+#define BTN_EN1 					PB10
+#define BTN_EN2 					PB11
+#define BTN_ENC 					PB2
 #endif
+
 

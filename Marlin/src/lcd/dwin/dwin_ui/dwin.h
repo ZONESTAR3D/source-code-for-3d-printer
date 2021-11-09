@@ -102,7 +102,7 @@
 
 typedef enum{
 	ID_SM_START = 0,
-	ID_SM_IDEL,
+	ID_SM_IDLE,
 	ID_SM_PRINTING,	
 	ID_SM_PAUSING,				//pause >> wait paused
 	ID_SM_PAUSED,

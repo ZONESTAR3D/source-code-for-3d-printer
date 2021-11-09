@@ -489,6 +489,7 @@ void _O2 Endstops::report_states() {
 #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
 #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
 
+
 // Check endstops - Could be called from Temperature ISR!
 void Endstops::update() {
 
@@ -636,6 +637,17 @@ void Endstops::update() {
       UPDATE_ENDSTOP_BIT(Z, MAX);
     #endif
   #endif
+
+	#if ENABLED(OPTION_REPEAT_PRINTING)
+		#if HAS_RPL_MIN_PIN
+			UPDATE_ENDSTOP_BIT(RPL, MIN);
+		#endif
+		#if HAS_RPR_MIN_PIN
+			UPDATE_ENDSTOP_BIT(RPR, MIN);
+		#elif HAS_RPL_MIN_PIN
+			COPY_LIVE_STATE(RPL_MIN, RPR_MIN);
+		#endif
+	#endif
 
   #if ENDSTOP_NOISE_THRESHOLD
 

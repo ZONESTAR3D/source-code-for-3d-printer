@@ -1696,6 +1696,12 @@
 #if HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
+#if ENABLED(OPTION_REPEAT_PRINTING) && PIN_EXISTS(RPL_MIN)
+  #define HAS_RPL_MIN_PIN 1
+#endif
+#if ENABLED(OPTION_REPEAT_PRINTING) && PIN_EXISTS(RPR_MIN)
+  #define HAS_RPR_MIN_PIN 1
+#endif
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)

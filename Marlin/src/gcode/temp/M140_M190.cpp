@@ -95,8 +95,8 @@ void GcodeSuite::M140() {
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
  *
  * Examples:
- *  M190 S60 : Set target to 60°. Wait until the bed is at or above 60°.
- *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
+ *  M190 S60 : Set target to 60. Wait until the bed is at or above 60.
+ *  M190 R40 : Set target to 40. Wait until the bed gets close to 40.
  *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.

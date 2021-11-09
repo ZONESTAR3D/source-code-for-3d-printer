@@ -71,56 +71,52 @@
 // @section info
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
+  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E2
 #endif
 
-#define	D805S
-//#define	D805SM2
-//#define	D805SR2
+//#define	Z5S
+#define	Z5SM2
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
-#ifdef D805S
-#define CUSTOM_MACHINE_NAME 	  	"D805S"
+#ifdef Z5S
+#define CUSTOM_MACHINE_NAME 	  	"Z5S"
+#elif defined(Z5SM2)
+#define CUSTOM_MACHINE_NAME 	  	"Z5SM2"
 #endif
-#ifdef D805SM2
-#define CUSTOM_MACHINE_NAME 	  	"D805SM2"
-#endif
-#ifdef D805SR2
-#define CUSTOM_MACHINE_NAME 	  	"D805SR2"
-#endif
-#define	FIRMWARE_VERSION		  	  "V4.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-09-22"
+#define	FIRMWARE_VERSION		  	  "V1.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-10-11"
 #define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 			        "www.zonestar3d.com"
 //===========================================================================
 //default, factory default configuration
 #define	DEFAULT_AUTO_LEVELING			true		//Auto leveling feature is on
-//#define	OPTION_PL08N 									//Probe use PL_08N
+#define	OPTION_PL08N 											//Probe use PL_08N (Z- connector)
+#define	OPTION_MICROSTEP   				16  		//32 64 128
 //===========================================================================
 //Optional feature
+#define	OPTION_WIFI_MODULE
 //#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //#define OPTION_TITAN								//TITAN Extruder
+#define OPTION_BGM										//BGM Extruder
 //#define	OPTION_AUTOPOWEROFF					//Power off after printer
 //#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
 //#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to E0 motor wire )
-//#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen
-//#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob
-//#define OPTION_BGM									//BGM Extruder
-#define	OPTION_TMC220X_XYZ  				//TMC220x be used to XYZ motor
-#define	OPTION_TMC220X_EXTRUDER 		//TMC220x be used to all extruder motor
-//#define	OPTION_TMC2225_XYZ  				//TMC2225 be used to XYZ motor
-//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to all extruder motor
-//#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
-#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
+//#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen (EXP1 connector)
+//#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob (EXP1 connector)
+//#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR (Z- connector)
+//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch (AUX2 connector)
 //===========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	0.2		//stikcer thickness
+#define	BED_COATING_THICKNESS	0.4		//stikcer thickness
 #endif
 //===========================================================================
+#if ENABLED(OPTION_WIFI_MODULE)
+#define WIFI_SERIAL_PORT 2
+#endif
 
 /**
  * LCD LANGUAGE
@@ -160,10 +156,10 @@
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define	SHOW_MARLIN_BOOTSCREEN
-//#define SHOW_CUSTOM_BOOTSCREEN
+#define SHOW_CUSTOM_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#define CUSTOM_STATUS_SCREEN_IMAGE
 #endif
 // @section machine
 
@@ -181,11 +177,8 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if EITHER(OPTION_LCD12864, OPTION_DWIN_LCD)
-#define SERIAL_PORT_2 1
-#else
-#define SERIAL_PORT_2 3		// EXP2 be used by LCD2004
-#endif
+//#define SERIAL_PORT_2 2		///1-RIB  
+
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -195,7 +188,8 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 			115200
+#define	WIFI_BAUDRATE	115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -222,6 +216,10 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
+
+// For ZONESTAR R2S or any "multi-extruder" that shares a single heater on hotend.
+//#define SHARE_HOTEND_HEATER
+
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
@@ -373,7 +371,7 @@
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
-#ifdef D805SM2
+#ifdef Z5SM2
 #define MIXING_EXTRUDER
 #endif
 #if ENABLED(MIXING_EXTRUDER)
@@ -825,15 +823,15 @@
  */
 
 #if ENABLED(OPTION_TMC2225_XYZ)
-#define	DOUBLE_STEPS_XYZ	2
+#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/8)
 #else
-#define	DOUBLE_STEPS_XYZ	1
+#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/16)
 #endif
 
 #if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define	DOUBLE_STEPS_E		2
+#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/8)
 #else
-#define	DOUBLE_STEPS_E		1
+#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/16)
 #endif
 
 #if EITHER(OPTION_TITAN,OPTION_BGM)
@@ -849,7 +847,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 8, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 8, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -941,10 +939,14 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#if ENABLED(OPTION_PL08N)
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
 
 // Force the use of the probe for Z-axis homing
-//#define USE_PROBE_FOR_Z_HOMING
+#if ENABLED(OPTION_PL08N)
+#define USE_PROBE_FOR_Z_HOMING
+#endif
 
 /**
  * Z_MIN_PROBE_PIN
@@ -962,10 +964,10 @@
  *      - normally-open switches to 5V and D32.
  *
  */
+#ifndef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
-#elif ENABLED(OPTION_3DTOUCH)
-#define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
+#define Z_MIN_PROBE_PIN 	PC10 									//Z_MAX_PIN as probe pin
+#endif
 #endif
 
 /**
@@ -1095,7 +1097,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 25, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 30, 0, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1237,8 +1239,8 @@
 #define Y_BED_SIZE 220
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -10
-#define Y_MIN_POS -20
+#define X_MIN_POS -20
+#define Y_MIN_POS -10
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1511,7 +1513,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
@@ -2004,7 +2006,7 @@
                                   // which scrambles the display.  Pressing any button clears it up.
                                   // This is a LCD2004 display with 5 analog buttons.
 
-#define ZONESTAR_LCD2004_KNOB
+//#define ZONESTAR_LCD2004_KNOB
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
 //
 //#define ULTRA_LCD
@@ -2252,7 +2254,7 @@
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
 #if NONE(OPTION_TFTLCD,OPTION_LCDDWIN)
-//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
+#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
 #endif

@@ -43,204 +43,160 @@
 RePrint ReprintManager;
 
 bool RePrint::enabled = false;
-bool RePrint::Reprint_over = false;
-bool RePrint::Is_Reprint_Reset = false;
-bool RePrint::Is_Reprint_Print = false;
-bool RePrint::Reprint_Reset_Enabled = false;
-bool RePrint::Reprint_Wait_Enabled = false;
 		 
 int16_t RePrint::Reprint_times = REPEAT_PRINTING_TIMES;
-int16_t RePrint::Forward_lenght = FORWARD_PRINTING_LENGHT;
-int16_t RePrint::tempbed_counter = 0;
+int16_t RePrint::Forward_lenght = REPEAT_PRINTING_PUSH_LENGHT;
 millis_t RePrint::reprt_timer = 0;
-RePrint_state_t RePrint::reprt_state = REPRINT_INIT;
+RePrint_Armstate_t RePrint::reprt_state = REPRINT_ARM_IDLE;
+float RePrint::bedtemp_threshold = 25.0;
 
-int16_t RePrint::raw_bedtemp_old;
-uint8_t RePrint::tempbed_var;
-
-
-void RePrint::Init() {
-  OUT_WRITE(FPRWARD_PIN,LOW);
-  delayMicroseconds(10);
-  OUT_WRITE(BACK_PIN,LOW);
-  delayMicroseconds(10);
-  SET_INPUT_PULLUP(REPRINT_STOP_PIN);
-  
-  TERN_(HAS_DWIN_LCD, Is_Reprint_Reset = true);
-  Back_Move_Start();
-	reprt_timer = millis();
+static void RePrint::RepeatPrint_Arm_Init() {
+	SET_INPUT_PULLUP(RPL_MIN_PIN);
+	SET_INPUT_PULLUP(RPR_MIN_PIN);
+  OUT_WRITE(RP_LFPRWARD_PIN,LOW);
+  OUT_WRITE(RP_LBACK_PIN,LOW);
+	OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+	OUT_WRITE(RP_RBACK_PIN,LOW);
 }
 
-bool RePrint::Forward_Move_Process(uint16_t Fmove_Timer) {
-  if(reprt_timer - millis() > (millis_t)(Fmove_Timer*1000)){
-  	reprt_timer = millis();
-		 return true;
-  }
-  return false;
-}
-
-bool RePrint::Check_ENDSTOP() {
-  if(!READ(REPRINT_STOP_PIN))
-	{
-		delay(2);
-		if(!READ(REPRINT_STOP_PIN))	
-			return true;
+static void RePrint::RepeatPrint_Arm_Push(const uint8_t lor) {  
+	if(TEST(lor, 0)){
+		OUT_WRITE(RP_LFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_LBACK_PIN,LOW);
 	}
-	return false;
-}
-
-void RePrint::Check_Reprint_HOME(){ 
-	if(ReprintManager.Is_Reprint_Reset){
-		if(ReprintManager.Check_ENDSTOP()){
-				ReprintManager.Back_Move_Start();
-		  ReprintManager.Is_Reprint_Reset = 0;
-				ReprintManager.Reprint_Reset_Enabled = 1;
-	 		ReprintManager.Reprint_Wait_Enabled = 0;
-	 		ReprintManager.tempbed_counter = 0;
-		}
-	}
-}
-
-bool RePrint::Reprint_BTemp_Check() {
-  if((reprt_timer - millis())/100 > CHECK_TEMP_PER_TIMER){
-  	reprt_timer = millis();
-		if(thermalManager.temp_bed.celsius <= 25) 
-			return true;
-		else if((ABS(raw_bedtemp_old - thermalManager.temp_bed.raw) < TEMP_DIFFER) && (thermalManager.temp_bed.celsius < 30)) {
-			if(tempbed_var++ > 10){
-				tempbed_var = 0;
-				raw_bedtemp_old = thermalManager.temp_bed.raw;
-				return true;
-			}
-		}
-		else 
-			raw_bedtemp_old = thermalManager.temp_bed.raw;
+	if(TEST(lor, 1)){
+		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_RBACK_PIN,LOW);
   }
-  return false;
+	safe_delay(5);
+	if(TEST(lor, 0)) OUT_WRITE(RP_LFPRWARD_PIN,HIGH);
+	if(TEST(lor, 1)) OUT_WRITE(RP_RFPRWARD_PIN,HIGH);	
+	safe_delay(1);	
 }
 
-void RePrint::Forward_Move_Start() {
-  OUT_WRITE(FPRWARD_PIN,LOW);
-  delayMicroseconds(1);
-  OUT_WRITE(BACK_PIN,HIGH);
+static void RePrint::RepeatPrint_Arm_Back(const uint8_t lor) {
+	if(TEST(lor, 0)){
+		OUT_WRITE(RP_LFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_LBACK_PIN,LOW);
+	}
+	if(TEST(lor, 1)){
+		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_RBACK_PIN,LOW);
+  }
+	safe_delay(5);
+	if(TEST(lor, 0)) OUT_WRITE(RP_LBACK_PIN,HIGH);
+	if(TEST(lor, 1)) OUT_WRITE(RP_RBACK_PIN,HIGH);	
+	safe_delay(1);		
 }
 
-void RePrint::Back_Move_Start() {
-  OUT_WRITE(FPRWARD_PIN,HIGH);
-  delayMicroseconds(1);
-  OUT_WRITE(BACK_PIN,LOW);
+static void RePrint::RepeatPrint_Arm_Stop(const uint8_t lor) {
+	if(TEST(lor, 0)){
+		OUT_WRITE(RP_LFPRWARD_PIN,HIGH);
+		OUT_WRITE(RP_LBACK_PIN,HIGH);
+	}
+	if(TEST(lor, 1)){
+		OUT_WRITE(RP_RFPRWARD_PIN,HIGH);
+		OUT_WRITE(RP_RFPRWARD_PIN,HIGH);
+	}
+	safe_delay(10);
+	if(TEST(lor, 0)){
+		OUT_WRITE(RP_LFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_LBACK_PIN,LOW);
+	}
+	if(TEST(lor, 1)){
+		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+	}
+	safe_delay(1);
 }
 
-void RePrint::Back_Move_Stop() {
-  OUT_WRITE(FPRWARD_PIN,LOW);
-  delayMicroseconds(1);
-  OUT_WRITE(BACK_PIN,LOW);
+static void RePrint::RepeatPrint_HomeArm() {
+	uint8_t select_arm = 0;
+  if(TEST(endstops.state(), RPL_MIN))
+		SBI(endstops_state, 0);
+	else{
+		CBI(endstops_state, 0);
+		select_arm += 1;
+	}
+	if(TEST(endstops.state(), RPR_MIN)){
+		SBI(endstops_state, 1);
+	}
+	else{
+		CBI(endstops_state, 1);
+		select_arm += 2;		
+	}
+	RepeatPrint_Arm_Back(select_arm);	
+	reprt_state = REPRINT_ARM_HOMING;
 }
 
+static void RePrint::RepeatPrint_PushArm(){
+	if(Forward_lenght < 10 || Forward_lenght > REPEAT_PRINTING_ARM_LENGHT) 
+		return;
+	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Push the Arm, please wait!")));
+	RepeatPrint_Arm_Push(ARM_ALL);		
+  reprt_timer = millis() + MM_TO_MS(Forward_lenght);
+	reprt_state = REPRINT_ARM_PUSHING;
+}
 
+static void RePrint::Init() {
+	const float start_bedtemp = thermalManager.degBed();
+	
+	RepeatPrint_Arm_Init();
+	enabled = false;
+	if(start_bedtemp >= 30){
+		bedtemp_threshold = 30;
+	}
+	else if(start_bedtemp > 25 && start_bedtemp < 30)
+		bedtemp_threshold = start_bedtemp;
+	else
+		bedtemp_threshold = 25;	
+	Reprint_times = REPEAT_PRINTING_TIMES;
+}
 
-bool RePrint::Repeat_Print_Process(RePrint_state_t state) {
-  uint8_t RPrint_Fg = 0;
+static bool RePrint::RepeatPrint_ArmControl() {
+	const millis_t now = millis();
   switch(reprt_state){
-  	case REPRINT_INIT:
-			raw_bedtemp_old = thermalManager.temp_bed.raw;
-	    reprt_timer = millis();
-			tempbed_var = 0;
-			reprt_state = REPRINT_WAIT;
+		default:
+		case REPRINT_ARM_IDLE:
 		break;
 		
-	case REPRINT_WAIT:
-		if(Reprint_BTemp_Check()) 
-			reprt_state = FORWARD_START;
+  	case REPRINT_ARM_INIT:
+			RepeatPrint_Arm_Init();
+			RepeatPrint_HomeArm();
+			reprt_state = REPRINT_ARM_HOMING;
 		break;
 		
-	case FORWARD_START:
-		Forward_Move_Start();
-		reprt_state = FORWARD_MOVE;
-    reprt_timer = millis(); 
-		TERN_(HAS_DWIN_LCD,Popup_Window_FMoveStart());
-		break;
-
-	case FORWARD_MOVE:
-		if(Forward_Move_Process((Forward_lenght*60)/(8*DCMOTOR_SPEED_RMP)))
-			reprt_state = BACK_START;
-		#if HAS_DWIN_LCD
-		else {			
-			DWIN_Draw_RepeatPrint_Time_lapse();			
+	case REPRINT_ARM_HOMING:
+		if(TEST(endstops.state(), RPL_MIN) && !TEST(endstops_state,0)){
+			SBI(endstops_state,0);
+			RepeatPrint_Arm_Stop(ARM_L);
 		}
-		#endif
-		break;
-
-	case BACK_START:
-		Back_Move_Start();
-	  TERN_(HAS_DWIN_LCD,Is_Reprint_Reset = true);
-		TERN_(HAS_DWIN_LCD,Popup_Window_BMoveStart());
-		Reprint_over = 0;
-		reprt_state = BACK_MOVE;
-		break;
-
-	case BACK_MOVE:
-		if(Reprint_over) {
-			Reprint_over = 0;
-			TERN_(HAS_DWIN_LCD,Popup_Window_BMoveStop());
-			reprt_state = BACK_STOP;
+		if(TEST(endstops.state(), RPR_MIN) && !TEST(endstops_state,1)){
+			SBI(endstops_state,1);
+			RepeatPrint_Arm_Stop(ARM_R);
+		}
+		//Bump 2 mm
+		if(TEST(endstops.state(), RPL_MIN) && TEST(endstops_state,0) && TEST(endstops.state(), RPR_MIN) && TEST(endstops_state,1)){
+			RepeatPrint_Arm_Push(ARM_ALL);
+			reprt_timer = millis() + MM_TO_MS(2);
+			reprt_state = REPRINT_ARM_HOMING_BUMP;
 		}
 		break;
 
-	case BACK_STOP:
-			RPrint_Fg = 1;
+	case REPRINT_ARM_HOMING_BUMP:
+		if(now >= reprt_timer){
+			RepeatPrint_Arm_Stop(ARM_ALL);
+			reprt_state = REPRINT_ARM_IDLE;
+		}
 		break;
-		
-	default: RPrint_Fg = 0;
+
+	case REPRINT_ARM_PUSHING:
+		if(now - reprt_timer >= 0){
+			RepeatPrint_Arm_Stop(ARM_ALL);
+			reprt_state = REPRINT_ARM_IDLE;
+		}
 		break;
   } 
-  return RPrint_Fg;
 }
 
-
-_emReprint_state RePrint::Reprint_check_state(){
- if(Reprint_Reset_Enabled){
-	 if(Forward_Move_Process(2)){
-			 Reprint_Reset_Enabled = false;
-			 Reprint_Wait_Enabled = true;
-			 tempbed_counter = 0;
-			 Forward_Move_Start();  
-	 }
-	 else Back_Move_Start();
- }
-
- if(Reprint_Wait_Enabled){
-	 if(Forward_Move_Process(4)){
-			 Reprint_Wait_Enabled = false;  
-			 tempbed_counter = 0;
-			 Reprint_over = true;
-			 Back_Move_Stop();
-	 }
-	 else Forward_Move_Start();
- }
- 
- if(Is_Reprint_Print && enabled){
-	 if(Repeat_Print_Process(reprt_state)){
-		 Is_Reprint_Print = false;
-		 reprt_state = REPRINT_INIT;
-		 if(Reprint_times <= 0) {
-			 enabled = false;			 
-			 return REPRINT_FINISHED;			 
-		 }		 
-		 return REPRINT_NEXT;		 
-	 }
- }
- return REPRINT_GOON;
-} 
-
-void RePrint::Reprint_Stop(){
-	Is_Reprint_Print = false;
-	reprt_state = REPRINT_INIT;
-}
-
-void RePrint::Reprint_goon(){
-	Reprint_times--;						
-	Is_Reprint_Print = true;
-	reprt_state = REPRINT_INIT;	
-}
 #endif // REPEAT_PRINTING_CONTROL

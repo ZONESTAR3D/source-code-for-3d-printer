@@ -1002,7 +1002,8 @@ void setup() {
 	#ifndef WIFI_BAUDRATE
 		#define	WIFI_BAUDRATE	115200
 	#endif
-	#if(WIFI_SERIAL_PORT == 2)
+	 
+	#if((WIFI_SERIAL_PORT == 2) && (MOTHERBOARD == BOARD_ZONESTAR_ZM3E4 || MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V2))
 		Uart2_Remap_Enabled();
 	#endif
 	#if DISABLED(OPTION_WIFI_BAUDRATE)
@@ -1383,8 +1384,6 @@ void loop() {
     endstops.event_handler();
 
     TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
-
-		TERN_(OPTION_REPEAT_PRINTING, ReprintManager.Check_Reprint_HOME());
 	
   } while(ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

@@ -27,19 +27,24 @@
 #include "../../gcode.h"
 #include "../../../feature/repeat_printing.h"
 /**
- * M180: Repeat printing control
- * 
- * S[bool] - enabled or disabled Repeat printing
- * T[int] -  Repeat printing times 
- * L[int] -  Forward move lenght 
- * Example: M180 S1 T10 F310
+ * M180: Home Repeat Printing Arm
  * 
  */
-
 void GcodeSuite::M180() {
-    if (parser.seen('S')) ReprintManager.enabled = parser.value_bool();
-	if (parser.seen('T')) ReprintManager.Reprint_times = parser.value_byte();
-	if (parser.seen('L')) ReprintManager.Forward_lenght = parser.value_byte();
+  ReprintManager.RepeatPrint_HomeArm();
+	while(ReprintManager. != REPRINT_ARM_IDLE) idle();
 }
 
+/**
+ * M181: Push Repeat printing Arm 
+ * L[int] -  Forward move lenght 
+ * Example: M181 L280
+ */
+void GcodeSuite::M181() {
+	if (parser.seen('L')){
+		ReprintManager.Forward_lenght = parser.value_ushort();		
+		ReprintManager.RepeatPrint_PushArm();
+		while(ReprintManager. != REPRINT_ARM_IDLE) idle();
+	}
+}
 #endif // OPTION_REPEAT_PRINTING
