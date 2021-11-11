@@ -16,19 +16,35 @@
 
 ---
 # Build Firmware
+
+## Prepare the compilation environment and software
+**Please refer to this link: https://marlinfw.org/docs/basics/install_platformio_vscode.html**
 1. **Install "Visual Studio Code**  
 Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest Visual Studio Code for your particular platform.*
 2. **Install the PlatformIO IDE**  
 Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]    to learn how to install PlatformIO IDE in Visual Studio Code.
-3. **Choose and replace config files**  
+
+## Prepare the compilation environment and software
+1. **Choose and replace config files**  
    - find and copy the configuration files of your machine from the "config" directory  
    - copy and replace configuration.h and configuration_adv.h to "marlin" directory  
    - copy and replace platformio.ini to root directory of the source code  
    - You may need to modify the file "configuration.h" and "configuration_adv.h" according to the setting of your machine.  
-4. **Open the project in Visual Stuido Code**  
+2. **Open the project in Visual Stuido Code**  
 Use the "Open Folder…" command in the Visual Studio Code "File" menu to open the source code directory which you stored, e.g. "main".  
-5. **Build firmware**
-Run the "Run build task" command in the Visual Studio Code "Terminal" menu, and then choose "PlatformIO:build" task to build the source code.
+
+
+## Build firmware
+1. Run the "Run build task" command in the Visual Studio Code "Terminal" menu, and then choose "PlatformIO:build" task to build the firmware bin (or Hex) file.
+- 32bits control board(ZM3E2/ZM3E4): firmware.bin file
+- 8bits control board(ZMIB/ZRIB): firmware.hex file
+2. Wait the build finished
+3. find the *firmware.bin or firmware.HEX* file in the ".pio/build/STM32F103VE_ZM3E4V2_USB(or others)" of your source code directory
+
+## upload firmware to the control board
+1. for 32 bits control board, you can copy the *firmware.bin* to SD card and upload the firmware to your PC
+2. for 8bits control board, you need to upload firmwre to the control board by PC (from USB cable)
+About detail, please refer to: https://github.com/ZONESTAR3D/Firmware
 
 ---
 # License
