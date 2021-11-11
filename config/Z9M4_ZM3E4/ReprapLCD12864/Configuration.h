@@ -101,21 +101,22 @@
 //===========================================================================
 //optional feature
 //#define	OPTION_LCDDWIN				  			//
-#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
+//#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+//#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
 //#define	OPTION_BGM										//BGM extruder
-#define	OPTION_TMC220X_XYZ						//TMC220X be used to XYZ motors
+//#define	OPTION_TMC220X_XYZ						//TMC220X be used to XYZ motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
-#define	OPTION_TMC220X_EXTRUDER				//TMC220x be used to  extruder motors
+//#define	OPTION_TMC220X_EXTRUDER				//TMC220x be used to  extruder motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 //#define	OPTION_ZLSENSOR								//leveling Probe use ZLSENSOR
-#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
+//#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
 //#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
 //===========================================================================
 //Speical
 //#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
 //#define	EXCHANGE_YMIN_YMAX						//Exchange Y_MIN_PIN and Y_MAX_PIN
+//#define	EXCHANGE_XDRIVER_Z2DRIVER			//
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)

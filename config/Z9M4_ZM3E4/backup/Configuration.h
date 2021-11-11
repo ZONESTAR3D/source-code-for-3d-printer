@@ -80,7 +80,7 @@
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
 #define	FIRMWARE_VERSION			    "V1.6.1"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-29"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-11"
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				      "www.zonestar3d.com"
@@ -116,6 +116,7 @@
 //Speical
 //#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
 //#define	EXCHANGE_YMIN_YMAX						//Exchange Y_MIN_PIN and Y_MAX_PIN
+//#define	EXCHANGE_XDRIVER_Z2DRIVER			//
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
