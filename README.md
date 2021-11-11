@@ -16,7 +16,7 @@
 
 ---
 # Build Firmware
-1. **Install Studio Code**  
+1. **Install "Visual Studio Code**  
 Visit the Setting up "Visual Studio Code" page [https://code.visualstudio.com/docs/setup/setup-overview] to download and install the latest Visual Studio Code for your particular platform.*
 2. **Install the PlatformIO IDE**  
 Head over to the “Get PlatformIO IDE” page [https://platformio.org/install/ide?install=vscode]    to learn how to install PlatformIO IDE in Visual Studio Code.
