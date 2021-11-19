@@ -121,7 +121,7 @@ inline void Autotest::AutoTest_ShowTemperature(){
 	}
 	//FAN
 	if((thermalManager.degHotend(0) <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.loops > CHECK_FAN_SPEED)){
-		thermalManager.fan_speed[0] = 0;
+		thermalManager.set_fan_speed(0, 0);
 		if(!testflag.fan_fg){
 			testflag.fan_fg = 1;
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_FAN), DWIN_WIDTH, YPOS(ID_LINE_FAN)+ROW_GAP);
@@ -342,25 +342,35 @@ bool Autotest::DWIN_AutoTesting() {
 			}
 			else break;
 			
-			thermalManager.setTargetBed(0);			
-			thermalManager.set_fan_speed(0, 255);			
-			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Fans On, check them"));
+			thermalManager.setTargetBed(0);
+			thermalManager.set_fan_speed(0, 255);
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Extruder Fan On!"));
 
 			test_timer = 0;
 			testflag.loops++;
 			testflag.fan_fg = 0;
+			test_counter = 0;
 			break;
 
 		case CHECK_FAN_SPEED:
-			test_timer++;
+			test_timer++;			
 			thermalManager.checkExtruderAutoFans();
-			if((thermalManager.degHotend(0) >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 10) || (test_timer > 2000)){
-				test_timer = 0;
-				test_counter = 0;
-				thermalManager.setTargetHotend(0, 0);
-				testflag.loops++;
+			if(test_counter == 0){
+				if((thermalManager.degHotend(0) >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 5) || (test_timer > 2000)){
+					test_timer = 0;
+					test_counter++;					
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Cooling Fan On!"));
+				}
 			}
-			break;
+			else if(test_counter == 1 && test_timer > 200){					
+					test_timer = 0;
+					test_counter = 0;
+					testflag.loops++;					
+					thermalManager.set_fan_speed(0, 0);
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Extruder Fan Off!"));
+					thermalManager.setTargetHotend(0, 0);
+			}
+			break;			
 
 		case CHECK_XY_MOTOR:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
