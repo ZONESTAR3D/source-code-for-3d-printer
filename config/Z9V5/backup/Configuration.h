@@ -92,8 +92,8 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #endif
-#define	FIRMWARE_VERSION					"V1.2.7"
-#define	STRING_DISTRIBUTION_DATE  "2021-11-01"
+#define	FIRMWARE_VERSION					"V1.2.8"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-22"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -528,7 +528,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 57
+#define TEMP_SENSOR_BED 56
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 

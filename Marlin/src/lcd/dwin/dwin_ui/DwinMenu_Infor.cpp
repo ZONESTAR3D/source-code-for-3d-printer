@@ -34,13 +34,13 @@
 // Info menu
 //
 static void Item_Info_Version(const uint8_t row) {
- DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Version:"));
- DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Version:")+1)*MENU_CHR_W, MBASE(row),  PSTR(FIRMWARE_VERSION));
+ DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Firmware Version:"));
+ DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Firmware Version:")+1)*MENU_CHR_W, MBASE(row),  PSTR(FIRMWARE_VERSION));
 }
 
 static void Item_Info_Firmware(const uint8_t row) {
- DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Firmware:"));
- DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Firmware:")+1)*MENU_CHR_W, MBASE(row),  PSTR(SHORT_BUILD_VERSION));
+ DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Base on:"));
+ DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Base on:")+1)*MENU_CHR_W, MBASE(row),  PSTR(SHORT_BUILD_VERSION));
 }
 
 static void Item_Info_Website(const uint8_t row) {
@@ -154,11 +154,11 @@ void Draw_Info_Menu() {
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (ICVISI(0)) Draw_Back_First(DwinMenu_infor.now == 0);             						// < Back
 
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, ICLINE(INFO_CASE_VERSION), PSTR("Version:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Version:")+1)*MENU_CHR_W, ICLINE(INFO_CASE_VERSION), PSTR(FIRMWARE_VERSION));  	
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, ICLINE(INFO_CASE_VERSION), PSTR("Firmware Version:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Firmware Version:")+1)*MENU_CHR_W, ICLINE(INFO_CASE_VERSION), PSTR(FIRMWARE_VERSION));  	
 	dwinLCD.Draw_Line(LINE_COLOR, 16, ICLINE(INFO_CASE_VERSION) + 33, 256, ICLINE(INFO_CASE_VERSION) + 34);
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, ICLINE(INFO_CASE_FIRMWARE), PSTR("Firmware:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Firmware:")+1)*MENU_CHR_W, ICLINE(INFO_CASE_FIRMWARE), PSTR(SHORT_BUILD_VERSION)); 
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, ICLINE(INFO_CASE_FIRMWARE), PSTR("Base on:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Base on:")+1)*MENU_CHR_W, ICLINE(INFO_CASE_FIRMWARE), PSTR(SHORT_BUILD_VERSION)); 
 	dwinLCD.Draw_Line(LINE_COLOR, 16, ICLINE(INFO_CASE_FIRMWARE) + 33, 256, ICLINE(INFO_CASE_FIRMWARE) + 34);
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, ICLINE(INFO_CASE_WEBSITE), PSTR("Website:"));
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Website:")+1)*MENU_CHR_W, ICLINE(INFO_CASE_WEBSITE), PSTR(WEBSITE_URL)); 
