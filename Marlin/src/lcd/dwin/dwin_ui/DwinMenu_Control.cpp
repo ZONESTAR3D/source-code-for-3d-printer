@@ -928,10 +928,19 @@ static void Item_Config_bedcoating(const uint8_t row) {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 static void Item_Config_MaxHotendTemp(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT));
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), (int16_t)(HMI_Value.max_hotendtemp));
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
+
+#if ENABLED(HAS_PID_HEATING)
+static void Item_Config_PIDAutoTune(const uint8_t row) { 
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Autotune:"));
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), HMI_Value.PIDAutotune_Temp);
+	Draw_Menu_Line(row,ICON_CURSOR);
+}
+#endif
+
 
 #if ABL_GRID
 static void Item_Config_Leveling(const uint8_t row) {
@@ -951,7 +960,8 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	DwinMenuID = DWMENU_CONFIG;
 	DwinMenu_configure.set(MenuItem);
 	DwinMenu_configure.index = _MAX(DwinMenu_configure.now, MROWS);
-
+	
+	TERN_(OPTION_HOTENDMAXTEMP,HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT));
 #if CONFIG_CASE_TOTAL > MROWS
 	const int16_t scroll = MROWS - DwinMenu_configure.index;
 	#define COSCROL(L) (scroll + (L))
@@ -998,7 +1008,11 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 	 
 	#if ENABLED(OPTION_HOTENDMAXTEMP) 
-	 if (COVISI(CONFIG_CASE_HOTENDMAXTEMP)) 	Item_Config_MaxHotendTemp(COSCROL(CONFIG_CASE_HOTENDMAXTEMP));  	 	// GLASS LEVELING
+	 if (COVISI(CONFIG_CASE_HOTENDMAXTEMP)) 	Item_Config_MaxHotendTemp(COSCROL(CONFIG_CASE_HOTENDMAXTEMP));  	 	// hotend max temperature
+	#endif
+	
+	#if ENABLED(HAS_PID_HEATING) 
+	 if (COVISI(CONFIG_CASE_PIDAUTOTUNE)) 	Item_Config_PIDAutoTune(COSCROL(CONFIG_CASE_PIDAUTOTUNE));  	 	// PID AutoTune:
 	#endif	 
 
 	 #if ABL_GRID 		
@@ -1079,17 +1093,17 @@ inline void Draw_Retract_Menu() {
 	if (DwinMenu_fwretract.now) Draw_Menu_Cursor(RESCROL(DwinMenu_fwretract.now));
 }
 
-char Retract_Buf[50]={0};
 void HMI_Retract_MM() {
+	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
-			ZERO(Retract_Buf);
-			sprintf_P(Retract_Buf,PSTR("M207 S%.2f"),(fwretract.settings.retract_length));
-			queue.inject(Retract_Buf);
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M207 S%.2f"),(fwretract.settings.retract_length));
+			queue.inject(string_Buf);
 			dwinLCD.UpdateLCD();			
 			return;
 		}
@@ -1102,15 +1116,16 @@ void HMI_Retract_MM() {
 }
 
 void HMI_Retract_V() {
+	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_V_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
-			ZERO(Retract_Buf);
-			sprintf_P(Retract_Buf,PSTR("M207 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s)));
-			queue.inject(Retract_Buf);
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M207 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s)));
+			queue.inject(string_Buf);
 			dwinLCD.UpdateLCD();
 			return;
 		}
@@ -1123,15 +1138,16 @@ void HMI_Retract_V() {
 }
 
 void HMI_Retract_ZHOP() {
+	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_ZHOP_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
-			ZERO(Retract_Buf);
-			sprintf_P(Retract_Buf,PSTR("M207 Z%.2f"), fwretract.settings.retract_zraise);
-			queue.inject(Retract_Buf);
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M207 Z%.2f"), fwretract.settings.retract_zraise);
+			queue.inject(string_Buf);
 			dwinLCD.UpdateLCD();			
 			return;
 		}
@@ -1144,15 +1160,16 @@ void HMI_Retract_ZHOP() {
 }
 
 void HMI_UnRetract_MM() {
+	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.unRetract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
-			ZERO(Retract_Buf);
-			sprintf_P(Retract_Buf,PSTR("M208 S%.2f"),(fwretract.settings.retract_recover_extra));
-			queue.inject(Retract_Buf);
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M208 S%.2f"),(fwretract.settings.retract_recover_extra));
+			queue.inject(string_Buf);
 			dwinLCD.UpdateLCD();			
 			return;
 		}
@@ -1165,15 +1182,16 @@ void HMI_UnRetract_MM() {
 }
 
 void HMI_UnRetract_V() {
+	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.unRetract_V_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
-			ZERO(Retract_Buf);
-			sprintf_P(Retract_Buf,PSTR("M208 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s)));
-			queue.inject(Retract_Buf);
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M208 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s)));
+			queue.inject(string_Buf);
 			dwinLCD.UpdateLCD();			
 			return;
 		}
@@ -1913,18 +1931,41 @@ void HMI_Adjust_hotend_MaxTemp() {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(3,MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);			
-			dwinLCD.UpdateLCD();
 			thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
+			if(thermalManager.heater_maxtemp[0] > HEATER_0_MAXTEMP)	DWIN_Show_Status_Message(COLOR_RED, PSTR("Caution, it may damage the hotend!"));
+			dwinLCD.UpdateLCD();
 			return;
 		}
-		NOLESS(HMI_Value.max_hotendtemp, 230);
-		NOMORE(HMI_Value.max_hotendtemp, 260);		
+		NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
+		NOMORE(HMI_Value.max_hotendtemp, 280);		
 		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
 		dwinLCD.UpdateLCD();
 	}
 }
 #endif
 
+#if ENABLED(HAS_PID_HEATING)
+void HMI_Adjust_hotend_PIDAutoTune() {
+	char string_Buf[50]={0};
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
+			DwinMenuID = DWMENU_CONFIG;
+			EncoderRate.enabled = false;
+			DWIN_Draw_IntValue_Default(3,MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);			
+			dwinLCD.UpdateLCD();
+			ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C4 U1\nM500"),HMI_Value.PIDAutotune_Temp);
+			queue.inject(string_Buf);
+			return;
+		}
+		NOLESS(HMI_Value.PIDAutotune_Temp, 180);
+		NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
+		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif
 
 
 #if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE)
@@ -1982,7 +2023,11 @@ void HMI_Config() {
 			#endif
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
 				if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
+			#endif			
+			#if ENABLED(HAS_PID_HEATING)
+				if(DwinMenu_configure.index == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(MROWS);			
 			#endif
+			 
 			#if ABL_GRID
 				if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
 				if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
@@ -2022,6 +2067,9 @@ void HMI_Config() {
 			#endif			
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(0);
+			#endif			
+			#if ENABLED(HAS_PID_HEATING)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(0);			
 			#endif
 
 			}
@@ -2137,8 +2185,17 @@ void HMI_Config() {
 			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
 			
 			DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
-			HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - 15);
+			HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
 			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);			
+		break;
+ #endif
+
+ 
+ #if ENABLED(HAS_PID_HEATING)
+ 	case CONFIG_CASE_PIDAUTOTUNE:
+			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;			
+			DwinMenuID = DWMENU_PID_AUTOTUNE;
+			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(CONFIG_CASE_PIDAUTOTUNE + MROWS -DwinMenu_configure.index), HMI_Value.PIDAutotune_Temp);			
 		break;
  #endif
 

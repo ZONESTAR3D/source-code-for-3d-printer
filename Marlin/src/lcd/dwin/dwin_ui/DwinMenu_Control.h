@@ -122,6 +122,10 @@ enum {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 	CONFIG_CASE_HOTENDMAXTEMP,
 #endif
+#if ENABLED(HAS_PID_HEATING)
+	CONFIG_CASE_PIDAUTOTUNE,
+#endif
+
 #if ABL_GRID
 	CONFIG_CASE_LEVELING,
 	CONFIG_CASE_ACTIVELEVEL,
@@ -326,6 +330,10 @@ void HMI_Adjust_Coating_Thickness();
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 void HMI_Adjust_hotend_MaxTemp();
 #endif
+#if ENABLED(HAS_PID_HEATING)
+void HMI_Adjust_hotend_PIDAutoTune();
+#endif
+
 
 #if ENABLED(OPTION_WIFI_BAUDRATE)
 void HMI_Adjust_WiFi_BaudRate();

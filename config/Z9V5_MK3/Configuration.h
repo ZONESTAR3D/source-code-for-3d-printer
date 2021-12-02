@@ -84,8 +84,8 @@
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5Pro(MK3)"
 #endif
-#define	FIRMWARE_VERSION					"V2.0.1"
-#define	STRING_DISTRIBUTION_DATE  "2021-11-01"
+#define	FIRMWARE_VERSION					"V2.1.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-12-01"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -103,7 +103,7 @@
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
-//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
@@ -468,7 +468,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 56
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -476,7 +476,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 1
+#define TEMP_SENSOR_BED 56
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 
@@ -520,7 +520,7 @@
 #define HEATER_5_MAXTEMP 250
 #define HEATER_6_MAXTEMP 250
 #define HEATER_7_MAXTEMP 250
-#define BED_MAXTEMP      130
+#define BED_MAXTEMP      125
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -529,9 +529,9 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 0.95      // Smoothing factor within any PID loop
+#define BANG_MAX 	255     // Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 		0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)

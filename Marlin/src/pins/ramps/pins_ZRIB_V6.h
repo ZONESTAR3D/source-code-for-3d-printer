@@ -46,28 +46,28 @@
 
 
 /**
- D0   Port: E0       AUX_PIN4		RX0
- D1   Port: E1       AUX_PIN3		TX0
- D2   Port: E4       X_MAX_PIN
- D3   Port: E5       X_MIN_PIN
- D4   Port: G5       				XS1_PIN_1
- D5   Port: E3						XS1_PIN_3
- D6   Port: H3		 FAN2_PIN		XS1_PIN_2
- D7   Port: H4       HEATER2_PIN
+ D0   Port: E0     AUX_PIN4			RX0
+ D1   Port: E1     AUX_PIN3			TX0
+ D2   Port: E4     X_MAX_PIN
+ D3   Port: E5     X_MIN_PIN
+ D4   Port: G5     XS1_PIN_1
+ D5   Port: E3		 XS1_PIN_3
+ D6   Port: H3		 FAN2_PIN			XS1_PIN_2
+ D7   Port: H4     HEATER2_PIN
  D8   Port: H5		 HEAT_BED_PIN
  D9   Port: H6		 FAN_PIN			LASER_PWM
 D10   Port: B4		 HEATER1_PIN       
-D11   Port: B5       				XS1_PIN_4
+D11   Port: B5     							XS1_PIN_4
 D12   Port: B6		 PS_ON_PIN       
 D13   Port: B7		 LED_PIN        
 D14   Port: J1		 Y_MIN_PIN
 D15   Port: J0		 Y_MAX_PIN
 D16   Port: H1		 EXP1_PIN_7		TXD2
 D17   Port: H0		 EXP1_PIN_8		RXD2
-D18   Port: D3		 Z_MIN_PIN      TXD1
-D19   Port: D2		 Z_MAX_PIN      RXD1
-D20   Port: D1		 AUX_PIN1		SDA
-D21   Port: D0		 AUX_PIN2		SCL
+D18   Port: D3		 Z_MIN_PIN    TXD1
+D19   Port: D2		 Z_MAX_PIN    RXD1
+D20   Port: D1		 AUX_PIN1			SDA
+D21   Port: D0		 AUX_PIN2			SCL
 D22   Port: A0		 E2_EN_PIN		
 D23   Port: A1		 EXP1_PIN6
 D24   Port: A2		 E0_EN_PIN
@@ -257,10 +257,10 @@ D69   Port: K7		 E1_TEMP		A15
 //
 // Servos
 //
-#define SERVO0_PIN        4		//XS1(AUX3) Pin1
-#define SERVO1_PIN        -1	//XS1(AUX3) Pin3
-#define SERVO2_PIN        5		//XS1(AUX3) Pin5
-#define SERVO3_PIN       11		//XS1(AUX3) Pin7
+#define SERVO0_PIN        4		///4 	XS1(AUX3) Pin1
+#define SERVO1_PIN        -1	///6 	XS1(AUX3) Pin3
+#define SERVO2_PIN        -1	///5		XS1(AUX3) Pin5
+#define SERVO3_PIN       	-1	///11	XS1(AUX3) Pin7
 
 //================================================================================
 // 							LCD / Controller

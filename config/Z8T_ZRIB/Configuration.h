@@ -79,8 +79,8 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 	  	"Z8T_M3"
-#define	FIRMWARE_VERSION		  	  "V2.0.2"
-#define	STRING_DISTRIBUTION_DATE  "2021-07-29"
+#define	FIRMWARE_VERSION		  	  "V2.1.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-11-15"
 #define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 			        "www.zonestar3d.com"
@@ -92,11 +92,11 @@
 #define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to E0 motor wire )
 #define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
 #define	OPTION_PL08N 								//Probe use PL_08N
-#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
+//#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
 //===========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	1.0		//stikcer thickness
+#define	BED_COATING_THICKNESS	0.2		//stikcer thickness
 #endif
 //===========================================================================
 //Optional feature
@@ -940,8 +940,10 @@
  *      - normally-open switches to 5V and D32.
  *
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_ZLSENSOR)
 #define Z_MIN_PROBE_PIN 19 		//Z_MAX_PIN as probe pin
+#elif ENABLED(OPTION_3DTOUCH)
+#define Z_MIN_PROBE_PIN 11 		//
 #endif
 
 /**

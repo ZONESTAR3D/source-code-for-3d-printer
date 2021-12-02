@@ -32,6 +32,11 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if HAS_DWIN_LCD
+#include "../../lcd/dwin/dwin_lcd.h"
+#include "../../lcd/dwin/dwin_ui/dwin.h"
+#endif
+
 /**
  * M303: PID relay autotune
  *
@@ -78,8 +83,10 @@ void GcodeSuite::M303() {
   #endif
 
   ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
+	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("PID Auto tuning, please wait!"), 0));
   thermalManager.PID_autotune(temp, e, c, u);
   ui.reset_status();
+	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("PID Auto tune finished!")));
 }
 
 #endif // HAS_PID_HEATING

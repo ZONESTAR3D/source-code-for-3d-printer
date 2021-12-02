@@ -33,7 +33,6 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
-
 #if HAS_DWIN_LCD
 #include "../lcd/dwin/dwin_lcd.h"
 #include "../lcd/dwin/dwin_ui/dwin.h"

@@ -574,6 +574,10 @@ void DWIN_HandleScreen() {
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	  case DWMENU_SET_HOTENDMAXTEMP:	HMI_Adjust_hotend_MaxTemp(); break;
 	#endif	
+	
+	#if HAS_PID_HEATING
+		case DWMENU_PID_AUTOTUNE:				HMI_Adjust_hotend_PIDAutoTune(); break;
+	#endif
 
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
 		case DWMENU_SET_WIFIBAUDRATE: 	HMI_Adjust_WiFi_BaudRate(); break;

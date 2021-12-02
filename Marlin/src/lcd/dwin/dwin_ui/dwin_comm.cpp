@@ -308,7 +308,7 @@ void HMI_ETemp() {
 			}			
 			if(HMI_Value.E_Temp > 230){								
 				Clear_Dwin_Area(AREA_BOTTOM);
-				DWIN_Show_Status_Message(COLOR_RED, PSTR("Warnning! High temperature"));
+				DWIN_Show_Status_Message(COLOR_RED, PSTR("Warnning, High temperature!"));
 				buzzer.tone(100, 1000);
 				buzzer.tone(100, 3000);
 				buzzer.tone(100, 1000);

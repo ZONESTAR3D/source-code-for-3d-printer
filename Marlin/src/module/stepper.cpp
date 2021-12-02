@@ -2960,7 +2960,12 @@ void Stepper::do_Zaxis_step(const bool LorR, const bool direction){
 	_SAVE_START();                                    
     
 #if (NUM_Z_STEPPER_DRIVERS >= 2)
-	LorR?Z2_STEP_WRITE(true):Z_STEP_WRITE(true);			
+	if(LorR){
+		Z2_STEP_WRITE(true);
+	}
+	else{
+		Z_STEP_WRITE(true);			
+	}
 #else
 	Z_STEP_WRITE(true);
 #endif
@@ -2968,7 +2973,12 @@ void Stepper::do_Zaxis_step(const bool LorR, const bool direction){
 	_PULSE_WAIT();                                    
     
 #if (NUM_Z_STEPPER_DRIVERS >= 2)
-	LorR?Z2_STEP_WRITE(false):Z_STEP_WRITE(false);	
+	if(LorR){
+		Z2_STEP_WRITE(false);
+	}
+	else{
+		Z_STEP_WRITE(false);			
+	}
 #else
 	Z_STEP_WRITE(false);
 #endif
