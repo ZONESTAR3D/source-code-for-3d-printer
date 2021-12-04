@@ -1,5 +1,5 @@
 ## ZONESTAR 3D Printer Firmware Source Code
-### This source code can be applied to the below Machine     
+### List of machines already configured   
 |     Config     |         Model       |    Control board    |  
 |----------------|---------------------|---------------------|  
 |  D805S_ZM3E4   |    D805S(M2/R2)     |       ZM3E4         |  
@@ -7,7 +7,8 @@
 |  Z5S_ZM3E2     |     Z5S(M2/R2)      |       ZM3E2         |  
 |  Z5XM3_ZM3E4   |     Z5X(M3/R3)      |       ZM3E4         |  
 |  Z8P_ZM3E4     |     Z8P(M3/R3)      |       ZM3E4         |  
-|  Z8R3_ZRIB     |     Z8X(R3)         |       ZRIB          |  
+|  Z8R3_ZRIB     |     Z8X(R3)         |       ZRIB          |
+|  Z8T_ZM3E4     |     Z8T(M3)         |       ZM3E4         |
 |  Z8T_ZRIB      |     Z8T(M3)         |       ZRIB          |  
 |  Z8XM2_ZM3E4   |     Z8X(M2/R2)      |       ZM3E4         |  
 |  Z9M3_ZRIB     |     Z9M3(R3)        |       ZRIB          |  
