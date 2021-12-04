@@ -1470,6 +1470,8 @@ void Draw_Leveling_Menu() {
 	DwinMenuID = DWMENU_LEVELING;
 	DwinMenu_move.reset();
 	//DwinMenu_leveling.index = _MAX(DwinMenu_leveling.now, MROWS);
+
+	set_axis_never_homed(Z_AXIS);
 	
 #if (LEVELING_CASE_TOTAL > MROWS)
 	const int16_t scrol = MROWS - DwinMenu_leveling.index;	

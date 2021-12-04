@@ -27,12 +27,12 @@
 #include "../../gcode.h"
 #include "../../../feature/repeat_printing.h"
 /**
- * M180: Home Repeat Printing Arm
+ * M180: Home Repeat_Print Arm
  * 
  */
 void GcodeSuite::M180() {
   ReprintManager.RepeatPrint_HomeArm();
-	while(ReprintManager. != REPRINT_ARM_IDLE) idle();
+	while(ReprintManager.reprt_state != REPRINT_ARM_IDLE) idle();
 }
 
 /**
@@ -44,7 +44,7 @@ void GcodeSuite::M181() {
 	if (parser.seen('L')){
 		ReprintManager.Forward_lenght = parser.value_ushort();		
 		ReprintManager.RepeatPrint_PushArm();
-		while(ReprintManager. != REPRINT_ARM_IDLE) idle();
+		while(ReprintManager.reprt_state != REPRINT_ARM_IDLE) idle();
 	}
 }
 #endif // OPTION_REPEAT_PRINTING

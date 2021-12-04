@@ -310,8 +310,8 @@ void menu_config_retract() {
   BACK_ITEM(MSG_CONFIGURATION);
 	
   EDIT_ITEM(bool, MSG_REPEATPRINT_ONOFF, &ReprintManager.enabled, 0,1);
-  EDIT_ITEM(uint16_3, MSG_REPEATPRINT_TIMES, &ReprintManager.Reprint_times, 0, REPEAT_PRINTING_MAX_TIMES);    
-  EDIT_ITEM(float3, MSG_REPEATPRINT_LENGTH, &ReprintManager.Forward_lenght, 5, FORWARD_PRINTING_MAX_LENGHT);
+  EDIT_ITEM(uint16_3, MSG_REPEATPRINT_TIMES, &ReprintManager.Reprint_times, 0, MAX_REPRINT_TIMES);    
+  EDIT_ITEM(float3, MSG_REPEATPRINT_LENGTH, &ReprintManager.Forward_lenght, 5, MAX_REPRINT_ARM_LENGHT);
   EDIT_ITEM(float52sign, MSG_REPEATPRINT_RESET, &fwretract.settings.retract_zraise, 0, 999);
   EDIT_ITEM(float52sign, MSG_REPEATPRINT_FORWARD, &fwretract.settings.retract_recover_extra, -100, 100);
   EDIT_ITEM(float52sign, MSG_REPEATPRINT_BACK, &fwretract.settings.swap_retract_recover_extra, -100, 100);

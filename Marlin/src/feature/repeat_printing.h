@@ -31,10 +31,10 @@
 #define	RPR_MIN_ENDSTOP_INVERTING		true
 
 // @repeat printing control
-#define REPEAT_PRINTING_TIMES				10			//
-#define REPEAT_PRINTING_PUSH_LENGHT	360			//
-#define REPEAT_PRINTING_ARM_LENGHT	400
-#define REPEAT_PRINTING_MAX_TIMES		9999		//
+#define DEFAULT_REPRINT_TIMES				10			//
+#define MAX_REPRINT_TIMES						9999		//
+#define DEFAULT_REPRINT_ARM_LENGHT	360			//
+#define MAX_REPRINT_ARM_LENGHT			400			//
 
 #define	RPM_REPEATPRINTING_MOTOR		50			//the rotating speed of repeat printing motor (rotate/minute)
 #define	MM_TO_MS(A) (A * 1000 * 60 / (RPM_REPEATPRINTING_MOTOR * 8))
@@ -58,7 +58,8 @@ class RePrint {
 		static int16_t Reprint_times;
 		static uint8_t endstops_state:
 		static int16_t Forward_lenght;
-		static millis_t reprt_timer;		
+		static millis_t reprt_timer;
+		static RePrint_Armstate_t reprt_state;
 		//hot bed temperature for repeat printing, if hot bed temperature must lower than this temperature 
 		//before remove the prints
 		static float bedtemp_threshold;

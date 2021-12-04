@@ -51,22 +51,18 @@ bool _check_repeatPrint(){
 }
 
 void HMI_Reprint_Times() {
-	char Reprint_Buf[50] = {0}; 
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &ReprintManager.Reprint_times)) {
 			DwinMenuID = DWMENU_SET_REPRINT;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -select_reprint.index + REPRINT_CASE_TIMES), ReprintManager.Reprint_times);
-			ZERO(Reprint_Buf);
-			sprintf_P(Reprint_Buf,PSTR("M180 T%4d"),ReprintManager.Reprint_times);
-			queue.inject(Reprint_Buf);
+			DWIN_Draw_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_TIMES), ReprintManager.Reprint_times);		
 			dwinLCD.UpdateLCD();
 			return;
 		}
 		NOLESS(ReprintManager.Reprint_times, 0);
-		NOMORE(ReprintManager.Reprint_times, REPEAT_PRINTING_MAX_TIMES);
-		DWIN_Draw_Select_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -select_reprint.index + REPRINT_CASE_TIMES), ReprintManager.Reprint_times);
+		NOMORE(ReprintManager.Reprint_times, MAX_REPRINT_TIMES);
+		DWIN_Draw_Select_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_TIMES), ReprintManager.Reprint_times);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -78,20 +74,15 @@ void HMI_Forward_Lenght() {
 		if (Apply_Encoder_int16(encoder_diffState, &ReprintManager.Forward_lenght)) {
 			DwinMenuID = DWMENU_SET_REPRINT;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -select_reprint.index + REPRINT_CASE_LENGHT), ReprintManager.Forward_lenght);
-			ZERO(Reprint_Buf);
-			sprintf_P(Reprint_Buf,PSTR("M180 L%4d"),ReprintManager.Forward_lenght);
-			queue.inject(Reprint_Buf);
+			DWIN_Draw_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_LENGHT), ReprintManager.Forward_lenght);
 			dwinLCD.UpdateLCD();
 			return;
 		}
 		NOLESS(ReprintManager.Forward_lenght, 0);
-		NOMORE(ReprintManager.Forward_lenght, FORWARD_PRINTING_MAX_LENGHT);
-		DWIN_Draw_Select_IntValue_Default(4, MENUVALUE_X, MBASE(MROWS -select_reprint.index + REPRINT_CASE_LENGHT), ReprintManager.Forward_lenght);
+		NOMORE(ReprintManager.Forward_lenght, MAX_REPRINT_ARM_LENGHT);
+		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_LENGHT), ReprintManager.Forward_lenght);
 		dwinLCD.UpdateLCD();
 	}
 }
-
-
 #endif
 

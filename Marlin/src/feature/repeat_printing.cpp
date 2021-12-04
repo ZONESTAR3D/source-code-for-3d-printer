@@ -43,8 +43,8 @@ RePrint ReprintManager;
 
 bool RePrint::enabled = false;
 		 
-int16_t RePrint::Reprint_times = REPEAT_PRINTING_TIMES;
-int16_t RePrint::Forward_lenght = REPEAT_PRINTING_PUSH_LENGHT;
+int16_t RePrint::Reprint_times = DEFAULT_REPRINT_TIMES;
+int16_t RePrint::Forward_lenght = DEFAULT_REPRINT_ARM_LENGHT;
 millis_t RePrint::reprt_timer = 0;
 RePrint_Armstate_t RePrint::reprt_state = REPRINT_ARM_IDLE;
 float RePrint::bedtemp_threshold = 25.0;
@@ -83,28 +83,28 @@ static void RePrint::RepeatPrint_Arm_Back(const uint8_t lor) {
 		OUT_WRITE(RP_RBACK_PIN,LOW);
   }
 	safe_delay(5);
-	if(TEST(lor, 0)) OUT_WRITE(RP_LBACK_PIN,HIGH);
-	if(TEST(lor, 1)) OUT_WRITE(RP_RBACK_PIN,HIGH);	
+	if(TEST(lor, 0)) OUT_WRITE(RP_LBACK_PIN, HIGH);
+	if(TEST(lor, 1)) OUT_WRITE(RP_RBACK_PIN, HIGH);	
 	safe_delay(1);		
 }
 
 static void RePrint::RepeatPrint_Arm_Stop(const uint8_t lor) {
 	if(TEST(lor, 0)){
-		OUT_WRITE(RP_LFPRWARD_PIN,HIGH);
-		OUT_WRITE(RP_LBACK_PIN,HIGH);
+		OUT_WRITE(RP_LFPRWARD_PIN, HIGH);
+		OUT_WRITE(RP_LBACK_PIN, HIGH);
 	}
 	if(TEST(lor, 1)){
-		OUT_WRITE(RP_RFPRWARD_PIN,HIGH);
-		OUT_WRITE(RP_RFPRWARD_PIN,HIGH);
+		OUT_WRITE(RP_RFPRWARD_PIN, HIGH);
+		OUT_WRITE(RP_RFPRWARD_PIN, HIGH);
 	}
 	safe_delay(10);
 	if(TEST(lor, 0)){
-		OUT_WRITE(RP_LFPRWARD_PIN,LOW);
-		OUT_WRITE(RP_LBACK_PIN,LOW);
+		OUT_WRITE(RP_LFPRWARD_PIN, LOW);
+		OUT_WRITE(RP_LBACK_PIN, LOW);
 	}
 	if(TEST(lor, 1)){
-		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
-		OUT_WRITE(RP_RFPRWARD_PIN,LOW);
+		OUT_WRITE(RP_RFPRWARD_PIN, LOW);
+		OUT_WRITE(RP_RFPRWARD_PIN, LOW);
 	}
 	safe_delay(1);
 }
@@ -115,23 +115,23 @@ static void RePrint::RepeatPrint_HomeArm() {
 		SBI(endstops_state, 0);
 	else{
 		CBI(endstops_state, 0);
-		select_arm += 1;
+		select_arm |= 0x01;
 	}
 	if(TEST(endstops.state(), RPR_MIN)){
 		SBI(endstops_state, 1);
 	}
 	else{
 		CBI(endstops_state, 1);
-		select_arm += 2;		
+		select_arm |= 0x02;
 	}
 	RepeatPrint_Arm_Back(select_arm);	
 	reprt_state = REPRINT_ARM_HOMING;
 }
 
 static void RePrint::RepeatPrint_PushArm(){
-	if(Forward_lenght < 10 || Forward_lenght > REPEAT_PRINTING_ARM_LENGHT) 
-		return;
-	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Push the Arm, please wait!")));
+	NOMORE(Forward_lenght, MAX_REPRINT_ARM_LENGHT);
+	NOLESS(Forward_lenght, 10);	
+	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Pushing the arm, please wait!")));
 	RepeatPrint_Arm_Push(ARM_ALL);		
   reprt_timer = millis() + MM_TO_MS(Forward_lenght);
 	reprt_state = REPRINT_ARM_PUSHING;
@@ -149,7 +149,7 @@ static void RePrint::Init() {
 		bedtemp_threshold = start_bedtemp;
 	else
 		bedtemp_threshold = 25;	
-	Reprint_times = REPEAT_PRINTING_TIMES;
+	Reprint_times = DEFAULT_REPRINT_TIMES;
 }
 
 static bool RePrint::RepeatPrint_ArmControl() {
@@ -165,35 +165,35 @@ static bool RePrint::RepeatPrint_ArmControl() {
 			reprt_state = REPRINT_ARM_HOMING;
 		break;
 		
-	case REPRINT_ARM_HOMING:
-		if(TEST(endstops.state(), RPL_MIN) && !TEST(endstops_state,0)){
-			SBI(endstops_state,0);
-			RepeatPrint_Arm_Stop(ARM_L);
-		}
-		if(TEST(endstops.state(), RPR_MIN) && !TEST(endstops_state,1)){
-			SBI(endstops_state,1);
-			RepeatPrint_Arm_Stop(ARM_R);
-		}
-		//Bump 2 mm
-		if(TEST(endstops.state(), RPL_MIN) && TEST(endstops_state,0) && TEST(endstops.state(), RPR_MIN) && TEST(endstops_state,1)){
-			RepeatPrint_Arm_Push(ARM_ALL);
-			reprt_timer = millis() + MM_TO_MS(2);
-			reprt_state = REPRINT_ARM_HOMING_BUMP;
-		}
+		case REPRINT_ARM_HOMING:
+			if(TEST(endstops.state(), RPL_MIN) && !TEST(endstops_state,0)){
+				SBI(endstops_state,0);
+				RepeatPrint_Arm_Stop(ARM_L);
+			}
+			if(TEST(endstops.state(), RPR_MIN) && !TEST(endstops_state,1)){
+				SBI(endstops_state,1);
+				RepeatPrint_Arm_Stop(ARM_R);
+			}
+			//Bump 2 mm
+			if(TEST(endstops.state(), RPL_MIN) && TEST(endstops_state,0) && TEST(endstops.state(), RPR_MIN) && TEST(endstops_state,1)){
+				RepeatPrint_Arm_Push(ARM_ALL);
+				reprt_timer = millis() + MM_TO_MS(2);
+				reprt_state = REPRINT_ARM_HOMING_BUMP;
+			}
 		break;
 
-	case REPRINT_ARM_HOMING_BUMP:
-		if(now >= reprt_timer){
-			RepeatPrint_Arm_Stop(ARM_ALL);
-			reprt_state = REPRINT_ARM_IDLE;
-		}
+		case REPRINT_ARM_HOMING_BUMP:
+			if(now >= reprt_timer){
+				RepeatPrint_Arm_Stop(ARM_ALL);
+				reprt_state = REPRINT_ARM_IDLE;
+			}
 		break;
 
-	case REPRINT_ARM_PUSHING:
-		if(now - reprt_timer >= 0){
-			RepeatPrint_Arm_Stop(ARM_ALL);
-			reprt_state = REPRINT_ARM_IDLE;
-		}
+		case REPRINT_ARM_PUSHING:
+			if(now - reprt_timer >= 0){
+				RepeatPrint_Arm_Stop(ARM_ALL);
+				reprt_state = REPRINT_ARM_IDLE;
+			}
 		break;
   } 
 }
