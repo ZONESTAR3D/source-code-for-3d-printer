@@ -80,7 +80,7 @@
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z9M3-ZM3E4"
 #define	FIRMWARE_VERSION			    "V6.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-07-29"
+#define	STRING_DISTRIBUTION_DATE  "2021-08-20"
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				      "www.zonestar3d.com"
@@ -963,7 +963,7 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#define Z_MIN_PROBE_PIN 	PB13 					//Z_MAX_PIN as probe pin
+#define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif

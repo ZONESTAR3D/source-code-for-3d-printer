@@ -27,7 +27,8 @@
 **More detail, please refer to** [***Install marlin compilation environment***](https://marlinfw.org/docs/basics/install_platformio_vscode.html)  
 
 ### 2. Prepare firmware source code
-1. Download this firmware source code and stored to you PC  
+1. Download firmware source code to you PC and unzip it.  
+![](./config/download.jpg)    
 2. Choose and replace config files  
    - find and copy the configuration files of your machine from the "config" directory  
    - copy and replace configuration.h and configuration_adv.h to "marlin" directory  
@@ -36,11 +37,11 @@
 3. Open the project in Visual Stuido Code  
 Use the "Open Folder…" command in the Visual Studio Code "File" menu to open the source code directory which you stored, e.g. "main".  
 
-### 3. Build firmware
+### 3. compile firmware
 1. Run the "Run build task" command in the Visual Studio Code "Terminal" menu, and then choose "PlatformIO:build" task to build the firmware bin (or Hex) file.
    - **32bits control board(ZM3E2/ZM3E4)**: firmware.bin file.
    - **8bits control board(ZMIB/ZRIB)**: firmware.hex file.
-2. Wait the build finished
+2. Wait for the build finished.
 3. find the *firmware.bin* or *firmware.HEX* file in the ".pio/build/STM32F103VE_ZM3E4V2_USB(or others)" of your source code directory
 
 ---
