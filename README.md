@@ -1,5 +1,5 @@
 ## ZONESTAR 3D Printer Firmware Source Code
-### List of machines already configured   
+###  Configured machines list   
 |     Config     |         Model       |    Control board    |  
 |----------------|---------------------|---------------------|  
 |  D805S_ZM3E4   |    D805S(M2/R2)     |       ZM3E4         |  
@@ -27,17 +27,17 @@
 **More detail, please refer to** [***Install marlin compilation environment***](https://marlinfw.org/docs/basics/install_platformio_vscode.html)  
 
 ### 2. Prepare firmware source code
-1. Download firmware source code to you PC and unzip it.  
+1. Download firmware source code to your PC and unzip it.  
 ![](./config/download.jpg)    
 2. Choose and replace config files  
-   - find and copy the configuration files of your machine from the "config" directory  
-   - copy and replace configuration.h and configuration_adv.h to "marlin" directory  
-   - copy and replace platformio.ini to root directory of the source code  
+   - Find and copy the configuration files of your machine from the "config" directory  
+   - Copy and replace configuration.h and configuration_adv.h to "marlin" directory  
+   - Copy and replace platformio.ini to root directory of the source code  
    - You may need to modify the file "configuration.h" and "configuration_adv.h" according to the setting of your machine.  
 3. Open the project in Visual Stuido Code  
 Use the "Open Folder…" command in the Visual Studio Code "File" menu to open the source code directory which you stored, e.g. "main".  
 
-### 3. compile firmware
+### 3. Compile firmware
 1. Run the "Run build task" command in the Visual Studio Code "Terminal" menu, and then choose "PlatformIO:build" task to build the firmware bin (or Hex) file.
    - **32bits control board(ZM3E2/ZM3E4)**: firmware.bin file.
    - **8bits control board(ZMIB/ZRIB)**: firmware.hex file.
@@ -46,9 +46,8 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
 
 ---
 ## Upload firmware to your 3d printer
-1. For 32 bits control board, you can copy the *firmware.bin* to SD card and upload the firmware to your PC
-2. For 8bits control board, you need to upload firmwre to the control board by PC (from USB cable)
-About detail, please refer to [**upload firmware**](https://github.com/ZONESTAR3D/firmware/readme.md)
+1. For 32 bits control board, you can copy the *firmware.bin* file to SD card and upload the firmware from the SD card.
+2. For 8bits control board, you need to upload firmwre to the control board by PC (from USB cable), about detail, please refer to [**upload firmware**](https://github.com/ZONESTAR3D/firmware/readme.md)
 
 ---
 ## License

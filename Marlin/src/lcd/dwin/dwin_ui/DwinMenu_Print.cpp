@@ -115,8 +115,7 @@ static void Init_Shift_Name() {
 
 inline void Init_SDItem_Shift() {
 	shift_amt = 0;
-	shift_ms = DwinMenu_file.now > 0 && strlen(shift_name) > MENU_CHAR_LIMIT
-	  ? millis() + 750UL : 0;
+	shift_ms = (DwinMenu_file.now > 0 && strlen(shift_name) > MENU_CHAR_LIMIT) ? millis() + 750UL : 0;
 }
 
 inline void Draw_SDItem_Shifted(int8_t &shift) {
@@ -311,7 +310,13 @@ void HMI_SelectFile() {
 			// Reset highlight for next entry
 			DwinMenu_print.reset();
 			DwinMenu_file.reset();
-
+			
+			// Switch current VTOOL to T0
+			/*
+			HMI_Value.current_vtool = 0;
+			mixer.update_mix_from_vtool(HMI_Value.current_vtool);
+			*/
+			
 			// Start choice and print SD file
 			HMI_flag.heat_flag = true;   
 			HMI_flag.show_mode = SHOWED_TUNE;

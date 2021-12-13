@@ -357,21 +357,21 @@ void HMI_Mixer_Manual() {
 				EncoderRate.enabled = true;
 			break;
 
-#if(MIXING_STEPPERS > 2)
+		#if(MIXING_STEPPERS > 2)
 			case MANUAL_CASE_EXTRUDER3: 	// ex3
 				DwinMenuID = DWMENU_MIXER_EXT3;
 				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS + MANUAL_CASE_EXTRUDER3 -DwinMenu_manualmix.index), HMI_Value.mix_percent[2]);
 				EncoderRate.enabled = true;
 			break;
-#endif
+		#endif
 
-#if(MIXING_STEPPERS > 3) 
+		#if(MIXING_STEPPERS > 3) 
 			case MANUAL_CASE_EXTRUDER4: 	// ex4
 				DwinMenuID = DWMENU_MIXER_EXT4;
 				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS + MANUAL_CASE_EXTRUDER4 -DwinMenu_manualmix.index), HMI_Value.mix_percent[3]);
 				EncoderRate.enabled = true;
 			break;
-#endif
+		#endif
 				
 			case MANUAL_CASE_COMMIT: 		// COMMIT
 				DwinMenuID = DWMENU_MIXER_MANUAL;				
@@ -1094,110 +1094,91 @@ inline void Draw_Retract_Menu() {
 }
 
 void HMI_Retract_MM() {
-	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M207 S%.2f"),(fwretract.settings.retract_length));
-			queue.inject(string_Buf);
+			fwretract.settings.retract_length = (float)HMI_Value.Retract_MM_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
-		NOLESS(HMI_Value.Retract_MM_scale, 0);
-		NOMORE(HMI_Value.Retract_MM_scale, 100*MAXUNITMULT);
-		fwretract.settings.retract_length = (float)HMI_Value.Retract_MM_scale/MAXUNITMULT;
+		NOLESS(HMI_Value.Retract_MM_scale, 2*MAXUNITMULT);
+		NOMORE(HMI_Value.Retract_MM_scale, 30*MAXUNITMULT);		
 		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
 
 void HMI_Retract_V() {
-	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_V_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M207 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_feedrate_mm_s)));
-			queue.inject(string_Buf);
+			fwretract.settings.retract_feedrate_mm_s = (float)HMI_Value.Retract_V_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();
 			return;
 		}
-		NOLESS(HMI_Value.Retract_V_scale, 0);
-		NOMORE(HMI_Value.Retract_V_scale, 100*MAXUNITMULT);
-		fwretract.settings.retract_feedrate_mm_s = (float)HMI_Value.Retract_V_scale/MAXUNITMULT;
+		NOLESS(HMI_Value.Retract_V_scale, 5*MAXUNITMULT);
+		NOMORE(HMI_Value.Retract_V_scale, 50*MAXUNITMULT);		
 		DWIN_Draw_Selected_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
 
 void HMI_Retract_ZHOP() {
-	char string_Buf[50]={0};
+	//char string_Buf[20]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_ZHOP_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M207 Z%.2f"), fwretract.settings.retract_zraise);
-			queue.inject(string_Buf);
+			fwretract.settings.retract_zraise = (float)HMI_Value.Retract_ZHOP_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(HMI_Value.Retract_ZHOP_scale, 0);
-		NOMORE(HMI_Value.Retract_ZHOP_scale, 10*MAXUNITMULT);
-		fwretract.settings.retract_zraise = (float)HMI_Value.Retract_ZHOP_scale/MAXUNITMULT;
+		NOMORE(HMI_Value.Retract_ZHOP_scale, 10*MAXUNITMULT);		
 		DWIN_Draw_Selected_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
 
 void HMI_UnRetract_MM() {
-	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.unRetract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M208 S%.2f"),(fwretract.settings.retract_recover_extra));
-			queue.inject(string_Buf);
+			fwretract.settings.retract_recover_extra = (float)HMI_Value.unRetract_MM_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(HMI_Value.unRetract_MM_scale, 0);
-		NOMORE(HMI_Value.unRetract_MM_scale, 100*MAXUNITMULT);
-		fwretract.settings.retract_recover_extra = (float)HMI_Value.unRetract_MM_scale/MAXUNITMULT;
+		NOMORE(HMI_Value.unRetract_MM_scale, 10*MAXUNITMULT);		
 		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
 
 void HMI_UnRetract_V() {
-	char string_Buf[50]={0};
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.unRetract_V_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M208 F%.2f"),(MMS_TO_MMM(fwretract.settings.retract_recover_feedrate_mm_s)));
-			queue.inject(string_Buf);
+			fwretract.settings.retract_recover_feedrate_mm_s = (float)HMI_Value.unRetract_V_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
-		NOLESS(HMI_Value.unRetract_V_scale, 0);
-		NOMORE(HMI_Value.unRetract_V_scale, 100*MAXUNITMULT);
-		fwretract.settings.retract_recover_feedrate_mm_s = (float)HMI_Value.unRetract_V_scale/MAXUNITMULT;
+		NOLESS(HMI_Value.unRetract_V_scale, 5*MAXUNITMULT);
+		NOMORE(HMI_Value.unRetract_V_scale, 50*MAXUNITMULT);		
 		DWIN_Draw_Selected_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
 		dwinLCD.UpdateLCD();
 	}
@@ -1254,10 +1235,7 @@ void HMI_Retract() {
 				DwinMenuID = DWMENU_SET_RETRACT;
 				fwretract.autoretract_enabled = !fwretract.autoretract_enabled;
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_AUTO), F_STRING_ONOFF(fwretract.autoretract_enabled));
-				if(fwretract.autoretract_enabled)
-					queue.inject_P(PSTR("M209 S1"));
-				else
-					queue.inject_P(PSTR("M209 S0"));
+				fwretract.refresh_autoretract();
 			break;
 	 
 			case RETRACT_CASE_RETRACT_MM:  			// RETRACT_MM
