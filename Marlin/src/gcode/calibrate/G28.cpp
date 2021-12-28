@@ -50,6 +50,10 @@
   #include "../../lcd/dwin/dwin_ui/dwin.h"
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	#include "../../feature/repeat_printing.h"
+#endif
+
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
@@ -213,6 +217,8 @@ void GcodeSuite::G28() {
       return;
     }
   #endif
+
+	//TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrint_HomeArm(true));
 
   // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {

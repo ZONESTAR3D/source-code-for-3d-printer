@@ -148,8 +148,7 @@ class DWINLCD{
 		//	bColor: Background color
 		//	x/y: Upper-left coordinate of the string
 		//	*string: The string
-		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-													uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);		
+		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
 		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, PGM_P string) {	
 			char str_buf[50] = {0};
 			uint8_t i;

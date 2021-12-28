@@ -74,7 +74,10 @@
 #if HAS_DWIN_LCD
   #include "lcd/dwin/dwin_ui/dwin.h"
   #include "lcd/dwin/DWIN_LCD.h"
-  #include "lcd/dwin/rotary_encoder.h"
+  #include "lcd/dwin/rotary_encoder.h"	
+	#if ENABLED(OPTION_REPEAT_PRINTING)
+	#include "lcd/dwin/dwin_ui/DwinMenu_RepeatPrint.h"
+	#endif
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -489,8 +492,9 @@ inline void abortSDPrinting() {
   #ifdef EVENT_GCODE_SD_ABORT
     queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));		
 	#endif
-	  TERN_(HAS_DWIN_LCD, DWIN_status = ID_SM_STOPED);	
-  TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
+	TERN_(HAS_DWIN_LCD, DWIN_status = ID_SM_STOPED);  
+	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrinting_Reset());
+	TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
 }
 
 inline void finishSDPrinting() {
@@ -500,7 +504,6 @@ inline void finishSDPrinting() {
 		TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());			
   }
 }
-
 #endif // SDSUPPORT
 
 /**
@@ -1348,7 +1351,7 @@ void setup() {
 
   TERN_(PASSWORD_ON_STARTUP,SETUP_RUN(password.lock_machine()));
   TERN_(OPTION_WIFI_MODULE,	SETUP_RUN(WIFI_onoff()));
-  TERN_(OPTION_REPEAT_PRINTING,	SETUP_RUN(ReprintManager.Init()));
+  TERN_(OPTION_REPEAT_PRINTING,	SETUP_RUN(ReprintManager.initialize()));
 
   marlin_state = MF_RUNNING;
 
@@ -1384,6 +1387,7 @@ void loop() {
     endstops.event_handler();
 
     TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
+		TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrinting_process());
 	
   } while(ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

@@ -31,18 +31,25 @@
 
 enum{
 	REPRINT_CASE_BACK,
-	REPRINT_CASE_ENABLED,
+	REPRINT_CASE_ONOFF,		
 	REPRINT_CASE_TIMES,
-	REPRINT_CASE_LENGHT,
-	REPRINT_CASE_RESET,
-	REPRINT_CASE_FORWARD,
-	REPRINT_CASE_BACKWORD,
+	REPRINT_CASE_LENGTH,
+	REPRINT_CASE_BEDTEMP,	
+	REPRINT_CASE_ZHEIGTH,
+	REPRINT_TUNE_CASE_END,
+	REPRINT_CASE_HOMEARM = REPRINT_TUNE_CASE_END,
+	REPRINT_CASE_PUSHARM,
 	REPRINT_CASE_END
 };
-#define	REPRINT_CASE_TOTAL	(6)
+#define	REPRINT_CASE_TOTAL	(REPRINT_CASE_END-1)
 
-bool _check_repeatPrint();
+void Draw_RepeatPrint_Menu();
 void HMI_Reprint_Times(); 
-void HMI_Forward_Lenght();
-
+void HMI_RePrint_ArmPushLength();
+void HMI_RePrint_BedTemp();
+void HMI_RepeatPrint_ZHeigth();
+void HMI_RepeatPrint();
+void Popup_Window_RepeatPrint();
+void Updata_RePrint_Popup_Window(uint8_t status);
+void HMI_Cancel_RePrint();
 #endif

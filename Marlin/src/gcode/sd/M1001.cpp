@@ -60,6 +60,10 @@
 #include "../../feature/mixing.h"
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#include "../../feature/repeat_printing.h"
+#endif
+
 /**
  * M1001: Execute actions for SD print completion
  */
@@ -104,6 +108,8 @@ void GcodeSuite::M1001() {
   
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());	
+
+	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.Prepare_RepeatPrint());
 }
 
 #endif // SDSUPPORT

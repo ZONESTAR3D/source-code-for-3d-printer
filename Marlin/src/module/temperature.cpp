@@ -40,6 +40,10 @@
   #include "../lcd/dwin/dwin_ui/dwin.h"
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#include "../feature/repeat_printing.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -1640,6 +1644,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
   TERN_(HAS_POWER_MONITOR, power_monitor.capture_values());
+	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.getRefernceBedTemp(temp_hotend[0].celsius, temp_bed.celsius));
 
   // Reset the watchdog on good temperature measurement
   watchdog_refresh();

@@ -163,5 +163,6 @@ void HMI_MainMenu() {
 	}
 	dwinLCD.UpdateLCD();
 }
+
 #endif
 

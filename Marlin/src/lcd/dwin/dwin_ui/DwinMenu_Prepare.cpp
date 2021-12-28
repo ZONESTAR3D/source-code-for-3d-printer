@@ -444,7 +444,6 @@ void HMI_Home() {
 			case HOME_CASE_X: 										
 				DwinMenuID = DWMENU_POP_HOME;
 				DwinMenu_home.index = MROWS;
-				//queue.inject_P(TERN(HOME_Y_BEFORE_X, PSTR("G28Y\nG28X"),PSTR("G28X")));
 				queue.inject_P(PSTR("G28 X0"));
 				Popup_Window_HomeX();
 			break;
@@ -452,7 +451,6 @@ void HMI_Home() {
 			case HOME_CASE_Y: 										
 				DwinMenuID = DWMENU_POP_HOME;
 				DwinMenu_home.index = MROWS;
-				//queue.inject_P(TERN(HOME_X_BEFORE_Y, PSTR("G28X\nG28Y"),PSTR("G28Y")));
 				queue.inject_P(PSTR("G28 Y0"));
 				Popup_Window_HomeY();
 			break;
@@ -478,15 +476,17 @@ static void Item_Temperature_ETemp(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(TEMP_MENU_HOTEND, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(TEMP_MENU_TEMP, LBLX+GET_ICON_X(HOTEND), MBASE(row));
 	Draw_Menu_Line(row, ICON_SETENDTEMP);
-  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.temp_hotend[0].target);
+  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetHotend(0));
 }
+
 
 static void Item_Temperature_BTemp(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(TEMP_MENU_BED, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(TEMP_MENU_TEMP, LBLX+GET_ICON_X(BED), MBASE(row));
 	Draw_Menu_Line(row, ICON_SETENDTEMP);
-  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.temp_bed.target);
+  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetBed());
 }
+
 
 static void Item_Temperature_FANSpeed(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(TEMP_MENU_FAN_SPEED, LBLX, MBASE(row));
@@ -583,8 +583,8 @@ void HMI_Temperature() {
 			
 	   #if HAS_HOTEND
 	    case TEMP_CASE_ETEMP: // Nozzle temperature
-	     DwinMenuID = DWMENU_SET_ETMP;
-	     HMI_Value.E_Temp = thermalManager.temp_hotend[0].target;			
+	     DwinMenuID = DWMENU_SET_ETMP;			 
+	     HMI_Value.E_Temp = thermalManager.degTargetHotend(0);			
 			 if(HMI_Value.E_Temp > 230)
 				 DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
 			 else
@@ -596,7 +596,7 @@ void HMI_Temperature() {
 	   #if HAS_HEATED_BED
 	    case TEMP_CASE_BTEMP: // Bed temperature
 	     DwinMenuID = DWMENU_SET_BTMP;
-	     HMI_Value.Bed_Temp = thermalManager.temp_bed.target;
+	     HMI_Value.Bed_Temp = thermalManager.degTargetBed();
 	     DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_BTEMP + MROWS - DwinMenu_temp.index), HMI_Value.Bed_Temp);
 	     EncoderRate.enabled = true;
 	     break;
@@ -972,7 +972,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EX1: // Extruder1
 				// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					_warning_beep();
 					break;
@@ -988,7 +988,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EX2: // Extruder2
 			// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					_warning_beep();
 					break;
@@ -1005,7 +1005,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EX3: // Extruder3
 			// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend[0] < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					_warning_beep();
 					break;
@@ -1022,7 +1022,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EX4: // Extruder4
 			// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					_warning_beep();
 					break;
@@ -1039,7 +1039,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EXALL: // Extruderall
 			// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					_warning_beep();
 					break;
@@ -1217,7 +1217,7 @@ static void Dwin_filament_action(uint8_t action){
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
-	if(thermalManager.temp_hotend[active_extruder].celsius < EXTRUDE_MINTEMP)	{ 
+	if(thermalManager.degHotend(0) < EXTRUDE_MINTEMP)	{ 
 		DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 		_warning_beep();
 		return;
@@ -1603,9 +1603,9 @@ void HMI_BedLeveling() {
 				set_bed_leveling_enabled(false);				
 				ZERO(Level_Buf);
 				if(axes_should_home())	
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,lfrb[0],lfrb[1],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,lfrb[0],lfrb[1],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
 				queue.inject(Level_Buf);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
@@ -1614,14 +1614,13 @@ void HMI_BedLeveling() {
 		 case LEVELING_CASE_POINT2: 										
 				DwinMenuID = DWMENU_LEVELING;				
 				Clear_Dwin_Area(AREA_BOTTOM);
-
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
 				ZERO(Level_Buf);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,X_BED_SIZE-lfrb[2],lfrb[1],3000,0,500);	
+					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,X_BED_SIZE-lfrb[2],lfrb[1],3000,0,500);	
+					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
 				queue.inject(Level_Buf);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
@@ -1634,9 +1633,9 @@ void HMI_BedLeveling() {
 				set_bed_leveling_enabled(false);
 				ZERO(Level_Buf);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
 				queue.inject(Level_Buf);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
@@ -1645,14 +1644,13 @@ void HMI_BedLeveling() {
 			case LEVELING_CASE_POINT4: 										
 				DwinMenuID = DWMENU_LEVELING;								
 				Clear_Dwin_Area(AREA_BOTTOM);
-
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
 				ZERO(Level_Buf);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,lfrb[0],Y_BED_SIZE-lfrb[3],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z%d F%d\nG90\nG1 X%d Y%d F%d\nG1 Z%d F%d"),10,1500,lfrb[0],Y_BED_SIZE-lfrb[3],3000,0,500);
+					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
 				queue.inject(Level_Buf);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
@@ -1670,10 +1668,7 @@ void HMI_BedLeveling() {
 					Clear_Dwin_Area(AREA_BOTTOM);
 					Popup_Window_CatchOffset();
 					DWIN_G29_Show_Messge(G29_CATCH_START);
-					if(axes_should_home())
-						queue.inject_P(PSTR("G28\nG29 N\n"));
-					else
-						queue.inject_P(PSTR("G28O\nG29 N\n"));
+					queue.inject_P(PSTR("G28\nG29 N\n"));
 				}
 			#if ENABLED(OPTION_BED_COATING)
 	  	 	else{
@@ -1698,10 +1693,7 @@ void HMI_BedLeveling() {
 			Clear_Dwin_Area(AREA_BOTTOM);
 			Popup_Window_Leveling();
 			DWIN_G29_Show_Messge(G29_MESH_START);
-			if(axes_should_home())
-				queue.inject_P(PSTR("G28\nG29\n"));
-			else
-				queue.inject_P(PSTR("G28O\nG29\n"));
+			queue.inject_P(PSTR("G28\nG29\n"));			
 			planner.synchronize();
 		break;
  #endif
@@ -1974,7 +1966,7 @@ void HMI_Prepare() {
 			break;
 
 			case PREPARE_CASE_DISA: // Disable steppers
-				queue.inject_P(PSTR("M84"));
+				queue.inject_P(PSTR("M84"));				
 			break;
 
 			case PREPARE_CASE_LANG: // Toggle Language			

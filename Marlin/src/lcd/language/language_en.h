@@ -684,6 +684,17 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
 
 	PROGMEM Language_Str MSG_WIFI_MODULE                     = _UxGT("WiFi");
+
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	PROGMEM Language_Str MSG_REPEATPRINT             				 = _UxGT("Repeat Print");
+	PROGMEM Language_Str MSG_REPEATPRINT_TIMES               = _UxGT("Times");
+	PROGMEM Language_Str MSG_REPEATPRINT_LENGTH              = _UxGT("Push Length");
+	PROGMEM Language_Str MSG_REPEATPRINT_BEDTEMP             = _UxGT("Bed Temp");
+	PROGMEM Language_Str MSG_REPEATPRINT_ZHEIGTH              = _UxGT("Z Heigth");
+	PROGMEM Language_Str MSG_REPEATPRINT_HOMEARM             = _UxGT("Home Arm");
+	PROGMEM Language_Str MSG_REPEATPRINT_PUSHARM             = _UxGT("Push Arm");
+#endif
+
 }
 
 #if FAN_COUNT == 1

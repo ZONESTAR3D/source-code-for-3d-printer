@@ -646,6 +646,10 @@ private:
 
   #if ENABLED(OPTION_REPEAT_PRINTING)
   	static void M180();
+		static void M181();
+		static void M182();
+		static void M183();
+		static void M184();
   #endif
 
   static void M200();

@@ -83,7 +83,7 @@
 #ifdef OPTION_MAX_SIZE
 #define CUSTOM_MACHINE_NAME 		"Z9V5MaxPro"
 #else
-#define CUSTOM_MACHINE_NAME 		"Z9V5Pro"
+#define CUSTOM_MACHINE_NAME 		"Z9V5Pro-MK1(2)"
 #endif
 #else
 #ifdef OPTION_MAX_SIZE
@@ -92,8 +92,8 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #endif
-#define	FIRMWARE_VERSION					"V1.3.2"
-#define	STRING_DISTRIBUTION_DATE  "2021-12-11"
+#define	FIRMWARE_VERSION					"V1.3.3"
+#define	STRING_DISTRIBUTION_DATE  "2021-12-28"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -111,12 +111,12 @@
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 #define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //#define	OPTION_BGM								//BGM extruder
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
 //#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
-//#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
 //==========================================================================
 //Special
 /* for Z9V5-MK2, if the serial number V1xxxxxxxxxx and you want to use 
@@ -582,9 +582,9 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 0.95      // Smoothing factor within any PID loop
+#define BANG_MAX 	255     // Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 		0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
@@ -599,9 +599,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  30.30
-    #define DEFAULT_Ki   1.41
-    #define DEFAULT_Kd 162.77
+    #define DEFAULT_Kp  72.20// 30.30
+    #define DEFAULT_Ki   5.50//  1.41
+    #define DEFAULT_Kd 222.00//162.77
   #endif
 #endif // PIDTEMP
 
@@ -761,6 +761,12 @@
 #define Y_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true  // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING true // Set to true to invert the logic of the probe.
+
+// Auto remove prints arm ENDSTOPs 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#define RPARML_MIN_ENDSTOP_INVERTING	true
+#define RPARMR_MIN_ENDSTOP_INVERTING	true
+#endif
 
 /**
  * Stepper Drivers

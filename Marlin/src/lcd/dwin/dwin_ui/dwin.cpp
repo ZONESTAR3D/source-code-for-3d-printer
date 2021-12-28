@@ -121,7 +121,7 @@ DwinMenu DwinMenu_tune;
 DwinMenu DwinMenu_infor;
 
 void set_status_bar_showtime(const uint8_t t){
-	if(t > 0) HMI_flag.clean_status_delay = t;
+	HMI_flag.clean_status_delay = t;
 }
 
 inline void _check_clean_status_bar(){
@@ -265,7 +265,7 @@ void DWIN_Show_M117(const char * const message){
 	#define MAX_WIFI_MESSAGE_LENGTH 27
 	#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 	
-	char wifi_status_message[MAX_WIFI_MESSAGE_LENGTH+1] = {0};
+	char status_message[MAX_WIFI_MESSAGE_LENGTH+1] = {0};
 	// Here we have a problem. The message is encoded in UTF8, so
 	// arbitrarily cutting it will be a problem. We MUST be sure
 	// that there is no cutting in the middle of a multibyte character!
@@ -278,12 +278,12 @@ void DWIN_Show_M117(const char * const message){
 	 while (!START_OF_UTF8_CHAR(*pend)) --pend;
 	};	
 	uint8_t maxLen = pend - message;
-	strncpy(wifi_status_message, message, maxLen);
-	wifi_status_message[maxLen] = '\0';
-	
-	Clear_Dwin_Area(AREA_BOTTOM);
-	DWIN_Draw_MaskString_Default_Color(COLOR_WHITE, 10, 455, wifi_status_message);
+	strncpy(status_message, message, maxLen);
+	status_message[maxLen] = '\0';
 
+	HMI_Value.old_mix_mode = 0;
+	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 0);
+	
 	TERN_(OPTION_WIFI_MODULE, _check_wifi());
 }
 
@@ -465,6 +465,17 @@ void _reset_shutdown_timer(){
 }
 #endif
 
+void Stop_and_return_mainmenu() {
+	HMI_Value.Percentrecord = 0;
+	HMI_Value.remain_time = 0;		
+	TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
+	TERN_(OPTION_AUTOPOWEROFF, _setAutoPowerDown());
+	TERN_(MIXING_EXTRUDER, mixer.reset_vtools());
+	HMI_Value.print_speed = feedrate_percentage = 100;
+	DWIN_status = ID_SM_IDLE;
+	Draw_Main_Menu();		
+}
+
 void DWIN_HandleScreen() {	
  	switch (DwinMenuID){
 		//Main
@@ -475,7 +486,7 @@ void DWIN_HandleScreen() {
 		case DWMENU_INFO:								HMI_Info(); break;
 
 		//print
-		case DWMENU_POP_STOPPRINT:  		
+		case DWMENU_POP_STOPPRINT:  		HMI_Stop_SDPrinting(); break;
 		case DWMENU_PRINTING:  					HMI_Printing(); break;
 		case DWMENU_TUNE:      					HMI_Tune(); break;
 		case DWMENU_TUNE_PRINTSPEED:   	HMI_PrintSpeed(); break;
@@ -588,10 +599,14 @@ void DWIN_HandleScreen() {
 	#endif
 
 	#if ENABLED(OPTION_REPEAT_PRINTING)
-		case DWMENU_SET_REPRINT:							HMI_Reprint(); break;
+		case DWMENU_SET_REPRINT:							HMI_RepeatPrint(); break;		
 		case DWMENU_SET_REPRINT_TIMES:				HMI_Reprint_Times(); break;
-		case DWMENU_SET_REPRINT_RUNLENGTH:		HMI_Forward_Lenght(); break;
+		case DWMENU_SET_REPRINT_PUSHLENGTH:		HMI_RePrint_ArmPushLength(); break;
+		case DWMENU_SET_REPRINT_BEDTEMP:			HMI_RePrint_BedTemp(); break;
+		case DWMENU_SET_REPRINT_ZHEIGTH:			HMI_RepeatPrint_ZHeigth(); break;
+		case DWMENU_POP_REPEATPRINTING:				HMI_Cancel_RePrint(); break;
 	#endif
+	
 		//Control>>Motion
 		case DWMENU_MOTION:    					HMI_Motion(); break;			
 	  case DWMENU_SET_MAXSPEED: 			HMI_MaxSpeed(); break;
@@ -682,7 +697,7 @@ void HMI_DWIN_Init() {
 		dwinLCD.UpdateLCD();
 		delay(20);
 	}
-	HMI_SetLanguage_PicCache();
+	HMI_SetLanguage_PicCache();	
 	Draw_Main_Menu(true);
 }
 
@@ -704,9 +719,6 @@ void EachMomentUpdate() {
 
 	//variable update
 	DWIN_Update_Variable();
-
-	//check repeat printing
- 	TERN_(OPTION_REPEAT_PRINTING, _check_repeatPrint());
 	
 	//check auto power off
 	TERN_(OPTION_AUTOPOWEROFF, _check_autoshutdown());
@@ -743,7 +755,7 @@ void EachMomentUpdate() {
 				HMI_flag.babyshowtime--;
 				if(HMI_flag.babyshowtime == 0){
 					EncoderRate.enabled = false;	
-					Draw_Printing_Menu(true);
+					Draw_Printing_Menu();
 				}
 			} 	
 		}
@@ -755,11 +767,11 @@ void EachMomentUpdate() {
 		if(HMI_flag.clean_status_delay ==0){			
 			if(DWIN_status == ID_SM_RESUMING && printingIsActive() && !runout.filament_ran_out && wait_for_heatup == false){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu(true);
+				Draw_Printing_Menu();
 			}			
 			else if(DWIN_status == ID_SM_PAUSING && printingIsPaused() && !planner.has_blocks_queued() && !runout.filament_ran_out && wait_for_heatup == false){
 				DWIN_status = ID_SM_PAUSED;
-				Draw_Printing_Menu(true);
+				Draw_Printing_Menu();
 			}
 		}
 		#endif
@@ -767,31 +779,14 @@ void EachMomentUpdate() {
 	else if(DWIN_status == ID_SM_PAUSED){		
 		if(!printingIsPaused()){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu(true);
+				Draw_Printing_Menu();
 		}
-	}
+	}	
 	else if(DWIN_status == ID_SM_STOPED){
-		HMI_Value.Percentrecord = 0;
-		HMI_Value.remain_time = 0;		
-	#if ENABLED(OPTION_REPEAT_PRINTING)
-		if(ReprintManager.enabled && (current_position.z >= 20)){
-			planner.synchronize();
-			Popup_Window_BTempCooldown();
-			ReprintManager.Reprint_goon();
-		}
-		else
-	#endif
-		{
-			TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
-			TERN_(OPTION_AUTOPOWEROFF, _setAutoPowerDown());
-			TERN_(MIXING_EXTRUDER, mixer.reset_vtools());
-			HMI_Value.print_speed = feedrate_percentage = 100;
-			DWIN_status = ID_SM_IDLE;
-			Draw_Main_Menu();			
-		}
-	}		
+		Stop_and_return_mainmenu();
+	}	
 	dwinLCD.UpdateLCD();
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+  //TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 }
 
 void DWIN_Update() {

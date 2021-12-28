@@ -107,7 +107,10 @@ typedef enum{
 	ID_SM_PAUSING,				//pause >> wait paused
 	ID_SM_PAUSED,
 	ID_SM_RESUMING,				//Resuming
-	ID_SM_STOPED,					//
+	ID_SM_STOPED,					//	
+#if ENABLED(OPTION_REPEAT_PRINTING)	
+	ID_SM_REPEATPRITING,	
+#endif
 	ID_SM_RUNOUTING,
 	ID_SM_RETURN_MAIN
 }_emDWINState;
@@ -213,19 +216,23 @@ typedef enum {
 	DWMENU_SET_HOTENDMAXTEMP,
 	DWMENU_PID_AUTOTUNE,  
 	DWMENU_SET_WIFIBAUDRATE,
+	
 	//Repeat printing
-	DWMENU_SET_REPRINT,
+	DWMENU_SET_REPRINT = 100,	
 	DWMENU_SET_REPRINT_TIMES,
-	DWMENU_SET_REPRINT_RUNLENGTH,
+	DWMENU_SET_REPRINT_PUSHLENGTH,
+	DWMENU_SET_REPRINT_BEDTEMP,
+	DWMENU_SET_REPRINT_ZHEIGTH,
 
 	// Pop Menu
-	DWMENU_POP_HOME = 100,
+	DWMENU_POP_HOME = 110,
 	DWMENU_POP_STOPPRINT,
 	DWMENU_POP_FROD_OPTION,
 	DWMENU_POP_FROD_INSERT,
 	DWMENU_POP_FROD_HEAT,
 	DWMENU_POP_PAUSEORSTOP,	
 	DWMENU_POP_WAITING,
+	DWMENU_POP_REPEATPRINTING,
 
 	DWMENU_END
 }_emDWIN_MENUID_;
@@ -382,6 +389,7 @@ typedef struct {
 	int16_t Current_E_Scale[E_STEPPERS];
 	float Last_E_Coordinate[E_STEPPERS];
 	#if ENABLED(MIXING_EXTRUDER)
+	int8_t old_mix_mode = -1;
 	int16_t Current_EAll_Scale    = 0;
 	float Last_EAll_Coordinate    = 0;
 	int8_t current_vtool = MIXING_STEPPERS+1;
@@ -519,8 +527,8 @@ void _reset_shutdown_timer();
 #endif
 void set_status_bar_showtime(const uint8_t t);
 
-
 void Popup_Window_Temperature(const char *msg, int8_t heaterid);
+void Stop_and_return_mainmenu();
 void HMI_DWIN_Init();
 void DWIN_Update();
 void EachMomentUpdate();

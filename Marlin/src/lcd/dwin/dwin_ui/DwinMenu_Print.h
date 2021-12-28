@@ -86,6 +86,6 @@ void HMI_Filament_Runout_Option();
 void HMI_Filament_Runout_Confirm();
 void HMI_Waiting();
 void HMI_Printing();
-
+void HMI_Stop_SDPrinting();
 
 #endif

@@ -140,6 +140,7 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 	DwinMenuID = DWMENU_MIXER;	
 	DwinMenu_mixer.set(MenuItem);
 	DwinMenu_mixer.index = _MAX(DwinMenu_mixer.now, MROWS);
+	HMI_Value.old_mix_mode = -1;
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	
@@ -876,6 +877,14 @@ static void Item_Config_Retract(const uint8_t row) {
 }
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING) 
+static void Item_Config_Reprint(const uint8_t row){
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Repeat print"));
+	Draw_Menu_Line(row,ICON_CURSOR);
+	Draw_More_Icon(row);
+}
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 static void Item_Config_Filament(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Runout Sensor:"));
@@ -911,7 +920,7 @@ static void Item_Config_Wifi(const uint8_t row) {
 static void Item_Config_WifiBaudrate(const uint8_t row) {
  DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi BaudRate:"));
  Draw_Menu_Line(row,ICON_CURSOR);
- DWIN_Draw_IntValue_Default(6, MENUVALUE_X-24, MBASE(row), Table_Baudrate[WiFi_BaudRate]);
+ DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(row), Table_Baudrate[WiFi_BaudRate]);
 }
 #endif
 #endif
@@ -928,7 +937,7 @@ static void Item_Config_bedcoating(const uint8_t row) {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 static void Item_Config_MaxHotendTemp(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), (int16_t)(HMI_Value.max_hotendtemp));
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), (int16_t)(HMI_Value.max_hotendtemp));
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
@@ -936,7 +945,7 @@ static void Item_Config_MaxHotendTemp(const uint8_t row) {
 #if ENABLED(HAS_PID_HEATING)
 static void Item_Config_PIDAutoTune(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Autotune:"));
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X, MBASE(row), HMI_Value.PIDAutotune_Temp);
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.PIDAutotune_Temp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
@@ -976,8 +985,12 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	if (COVISI(CONFIG_CASE_BACK)) Draw_Back_First(DwinMenu_configure.now == CONFIG_CASE_BACK);  // < Back 
 
 	#if ENABLED(FWRETRACT) 
-	if (COVISI(CONFIG_CASE_RETRACT)) 	Item_Config_Retract(COSCROL(CONFIG_CASE_RETRACT));   			// Retract >
+		if (COVISI(CONFIG_CASE_RETRACT))	Item_Config_Retract(COSCROL(CONFIG_CASE_RETRACT));				// Retract >
 	#endif 
+		
+	#if ENABLED(OPTION_REPEAT_PRINTING) 
+		 if (COVISI(CONFIG_CASE_REPRINT)) 	Item_Config_Reprint(COSCROL(CONFIG_CASE_REPRINT));			// repeat print
+	#endif
 
 	#if ENABLED(FILAMENT_RUNOUT_SENSOR) 
 	if (COVISI(CONFIG_CASE_FILAMENT)) Item_Config_Filament(COSCROL(CONFIG_CASE_FILAMENT));  		// filament runout
@@ -990,22 +1003,23 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#if ENABLED(OPTION_AUTOPOWEROFF) 
 	if (COVISI(CONFIG_CASE_SHUTDOWN)) Item_Config_Shutdown(COSCROL(CONFIG_CASE_SHUTDOWN));  	 // shutdown
 	#endif
-	
- 	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){
+
 	#if ENABLED(OPTION_WIFI_MODULE) 
 	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 							// WIFI
 	 #if ENABLED(OPTION_WIFI_BAUDRATE)
 	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));// WIFI Baudrate
 	 #endif
 	#endif
-
-	#if ENABLED(OPTION_REPEAT_PRINTING) 
-	 if (COVISI(CONFIG_CASE_REPRINT)) 	Item_Config_Reprint(COSCROL(CONFIG_CASE_REPRINT));  	 	// repeat print
-	#endif
-
+	
+ 	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){			
 	#if ENABLED(OPTION_BED_COATING) 
 	 if (COVISI(CONFIG_CASE_COATING)) 	Item_Config_bedcoating(COSCROL(CONFIG_CASE_COATING));  	 	//coating thickness
 	#endif
+
+	#if ABL_GRID 		
+	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 			// auto LEVELING
+	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); // auto LEVELING
+	#endif	 
 	 
 	#if ENABLED(OPTION_HOTENDMAXTEMP) 
 	 if (COVISI(CONFIG_CASE_HOTENDMAXTEMP)) 	Item_Config_MaxHotendTemp(COSCROL(CONFIG_CASE_HOTENDMAXTEMP));  	 	// hotend max temperature
@@ -1014,18 +1028,12 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#if ENABLED(HAS_PID_HEATING) 
 	 if (COVISI(CONFIG_CASE_PIDAUTOTUNE)) 	Item_Config_PIDAutoTune(COSCROL(CONFIG_CASE_PIDAUTOTUNE));  	 	// PID AutoTune:
 	#endif	 
-
-	 #if ABL_GRID 		
-	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 			// auto LEVELING
-	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); // auto LEVELING
-	 #endif	 
  }
  if (DwinMenu_configure.now) Draw_Menu_Cursor(COSCROL(DwinMenu_configure.now));
  Draw_Status_Area();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 //
 // Control >> Config >> Auto retraction
 //
@@ -1038,7 +1046,7 @@ static void Item_Retract_Retract_Enabled(const uint8_t row) {
 
 static void Item_Retract_Retract_mm(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract MM:"));
-	DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), fwretract.settings.retract_length*MAXUNITMULT);
+	DWIN_Draw_Small_Float22(MENUVALUE_X-0, MBASE(row), fwretract.settings.retract_length*MAXUNITMULT);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
@@ -1050,19 +1058,19 @@ static void Item_Retract_Retract_V(const uint8_t row) {
 
 static void Item_Retract_Retract_ZHop(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract ZHop:"));
-	 DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), fwretract.settings.retract_zraise*MINUNITMULT);
+	 DWIN_Draw_Small_Float31(MENUVALUE_X-0, MBASE(row), fwretract.settings.retract_zraise*MINUNITMULT);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_UnRetract_mm(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract MM:"));
-	DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), fwretract.settings.retract_recover_extra*MAXUNITMULT);
+	DWIN_Draw_Small_Float22(MENUVALUE_X-0, MBASE(row), fwretract.settings.retract_recover_extra*MAXUNITMULT);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_UnRetract_V(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract V:"));
-	DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(row), fwretract.settings.retract_recover_feedrate_mm_s*MAXUNITMULT);
+	DWIN_Draw_Small_Float32(MENUVALUE_X-0, MBASE(row), fwretract.settings.retract_recover_feedrate_mm_s*MAXUNITMULT);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
@@ -1071,7 +1079,7 @@ inline void Draw_Retract_Menu() {
 	DwinMenu_fwretract.reset();
 	//DwinMenu_fwretract.index = _MAX(DwinMenu_fwretract.now, MROWS);
 
-#if CONFIG_CASE_TOTAL > MROWS
+#if RETRACT_CASE_TOTAL > MROWS
 	const int16_t scroll = MROWS - DwinMenu_fwretract.index;
 	#define RESCROL(L) (scroll + (L))
 #else
@@ -1099,14 +1107,14 @@ void HMI_Retract_MM() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
+			DWIN_Draw_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
 			fwretract.settings.retract_length = (float)HMI_Value.Retract_MM_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(HMI_Value.Retract_MM_scale, 2*MAXUNITMULT);
 		NOMORE(HMI_Value.Retract_MM_scale, 30*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
+		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1136,14 +1144,14 @@ void HMI_Retract_ZHOP() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Retract_ZHOP_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
+			DWIN_Draw_Small_Float31(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
 			fwretract.settings.retract_zraise = (float)HMI_Value.Retract_ZHOP_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(HMI_Value.Retract_ZHOP_scale, 0);
 		NOMORE(HMI_Value.Retract_ZHOP_scale, 10*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
+		DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1154,14 +1162,14 @@ void HMI_UnRetract_MM() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.unRetract_MM_scale)) {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
+			DWIN_Draw_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
 			fwretract.settings.retract_recover_extra = (float)HMI_Value.unRetract_MM_scale/MAXUNITMULT;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(HMI_Value.unRetract_MM_scale, 0);
 		NOMORE(HMI_Value.unRetract_MM_scale, 10*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
+		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1195,12 +1203,12 @@ void HMI_Retract() {
 				// Scroll up and draw a blank bottom line
 				DwinMenu_fwretract.index = DwinMenu_fwretract.now;
 				Scroll_Menu(DWIN_SCROLL_UP);
-				if(DwinMenu_configure.index == RETRACT_CASE_AUTO) Item_Retract_Retract_Enabled(MROWS);
-				else if(DwinMenu_configure.index == RETRACT_CASE_RETRACT_MM) Item_Retract_Retract_mm(MROWS);
-				else if(DwinMenu_configure.index == RETRACT_CASE_RETRACT_V) Item_Retract_Retract_V(MROWS);
-				else if(DwinMenu_configure.index == RETRACT_CASE_RETRACT_ZHOP) Item_Retract_Retract_ZHop(MROWS);
-				else if(DwinMenu_configure.index == RETRACT_CASE_RECOVER_MM) Item_Retract_UnRetract_mm(MROWS);
-				else if(DwinMenu_configure.index == RETRACT_CASE_RECOVER_V) Item_Retract_UnRetract_V(MROWS);
+				if(DwinMenu_fwretract.index == RETRACT_CASE_AUTO) Item_Retract_Retract_Enabled(MROWS);
+				else if(DwinMenu_fwretract.index == RETRACT_CASE_RETRACT_MM) Item_Retract_Retract_mm(MROWS);
+				else if(DwinMenu_fwretract.index == RETRACT_CASE_RETRACT_V) Item_Retract_Retract_V(MROWS);
+				else if(DwinMenu_fwretract.index == RETRACT_CASE_RETRACT_ZHOP) Item_Retract_Retract_ZHop(MROWS);
+				else if(DwinMenu_fwretract.index == RETRACT_CASE_RECOVER_MM) Item_Retract_UnRetract_mm(MROWS);
+				else if(DwinMenu_fwretract.index == RETRACT_CASE_RECOVER_V) Item_Retract_UnRetract_V(MROWS);
 			}
 			else {
 				Move_Highlight(1, DwinMenu_fwretract.now + MROWS - DwinMenu_fwretract.index);
@@ -1212,13 +1220,13 @@ void HMI_Retract() {
 			if (DwinMenu_fwretract.now < DwinMenu_fwretract.index - MROWS) {
 				DwinMenu_fwretract.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
-				if(DwinMenu_configure.index - MROWS == RETRACT_CASE_BACK) Draw_Back_First();
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_AUTO) Item_Retract_Retract_Enabled(MROWS);
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_RETRACT_MM) Item_Retract_Retract_mm(MROWS);
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_RETRACT_V) Item_Retract_Retract_V(MROWS);
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_RETRACT_ZHOP) Item_Retract_Retract_ZHop(MROWS);
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_RECOVER_MM) Item_Retract_UnRetract_mm(MROWS);
-				else if(DwinMenu_configure.index - MROWS == RETRACT_CASE_RECOVER_V) Item_Retract_UnRetract_V(MROWS);
+				if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_BACK) Draw_Back_First();
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_AUTO) Item_Retract_Retract_Enabled(0);
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_RETRACT_MM) Item_Retract_Retract_mm(0);
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_RETRACT_V) Item_Retract_Retract_V(0);
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_RETRACT_ZHOP) Item_Retract_Retract_ZHop(0);
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_RECOVER_MM) Item_Retract_UnRetract_mm(0);
+				else if(DwinMenu_fwretract.index - MROWS == RETRACT_CASE_RECOVER_V) Item_Retract_UnRetract_V(0);
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_fwretract.now + MROWS - DwinMenu_fwretract.index);
@@ -1241,7 +1249,7 @@ void HMI_Retract() {
 			case RETRACT_CASE_RETRACT_MM:  			// RETRACT_MM
 				DwinMenuID = DWMENU_SET_RETRACT_MM;
 				HMI_Value.Retract_MM_scale = fwretract.settings.retract_length*MAXUNITMULT;
-				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
 				EncoderRate.enabled = true;
 			break;
 
@@ -1255,14 +1263,14 @@ void HMI_Retract() {
 			case RETRACT_CASE_RETRACT_ZHOP:  			// RETRACT_ZHOP
 				DwinMenuID = DWMENU_SET_RETRACT_ZHOP;
 				HMI_Value.Retract_ZHOP_scale = fwretract.settings.retract_zraise*MAXUNITMULT;
-				DWIN_Draw_Selected_Small_Float32(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
+				DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
 				EncoderRate.enabled = true;
 			break;
 
 			case RETRACT_CASE_RECOVER_MM:  			// RECOVER_MM
 				DwinMenuID = DWMENU_SET_UNRETRACT_MM;
 				HMI_Value.unRetract_MM_scale = fwretract.settings.retract_recover_extra*MAXUNITMULT;
-				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-0, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
 				EncoderRate.enabled = true;
 			break;
 
@@ -1279,7 +1287,6 @@ void HMI_Retract() {
  dwinLCD.UpdateLCD();
 }
 #endif
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1908,7 +1915,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.max_hotendtemp)) {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(3,MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);			
+			DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);			
 			thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
 			if(thermalManager.heater_maxtemp[0] > HEATER_0_MAXTEMP)	DWIN_Show_Status_Message(COLOR_RED, PSTR("Caution, it may damage the hotend!"));
 			dwinLCD.UpdateLCD();
@@ -1916,7 +1923,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 		}
 		NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
 		NOMORE(HMI_Value.max_hotendtemp, 280);		
-		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1930,7 +1937,7 @@ void HMI_Adjust_hotend_PIDAutoTune() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(3,MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);			
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);			
 			dwinLCD.UpdateLCD();
 			ZERO(string_Buf);
 			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C4 U1\nM500"),HMI_Value.PIDAutotune_Temp);
@@ -1939,7 +1946,7 @@ void HMI_Adjust_hotend_PIDAutoTune() {
 		}
 		NOLESS(HMI_Value.PIDAutotune_Temp, 180);
 		NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
-		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);
+		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDAUTOTUNE), HMI_Value.PIDAutotune_Temp);
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1953,13 +1960,13 @@ void HMI_Adjust_WiFi_BaudRate(){
 		if (Apply_Encoder_uint8(encoder_diffState, &WiFi_BaudRate)) {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(6, MENUVALUE_X-24, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+			DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
 			dwinLCD.UpdateLCD();			
 			return;
 		}
 		NOLESS(WiFi_BaudRate, 0);
 		NOMORE(WiFi_BaudRate, 3);
-		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 6, MENUVALUE_X-24, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+		DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
 		dwinLCD.UpdateLCD();		
 	}
 }
@@ -1986,30 +1993,52 @@ void HMI_Config() {
 			if (DwinMenu_configure.now > MROWS && DwinMenu_configure.now > DwinMenu_configure.index) {
 				DwinMenu_configure.index = DwinMenu_configure.now;
 				// Scroll up and draw a blank bottom line
-				Scroll_Menu(DWIN_SCROLL_UP);				
+				Scroll_Menu(DWIN_SCROLL_UP);	
+
+			#if ENABLED(FWRETRACT)
+				if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
+			#endif
+			
 			#if ENABLED(OPTION_REPEAT_PRINTING) 
-				if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
 			#endif
+			
+			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+			#endif
+			
+			#if ENABLED(POWER_LOSS_RECOVERY)
+				else if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
+			#endif
+			
+			#if ENABLED(OPTION_AUTOPOWEROFF)
+				else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+			#endif
+			
 			#if ENABLED(OPTION_WIFI_MODULE)
-			if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
 			#if ENABLED(OPTION_WIFI_BAUDRATE) 
-			if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
 			#endif
-			#endif
-			#if ENABLED(OPTION_BED_COATING) 
-				if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
-			#endif
-			#if ENABLED(OPTION_HOTENDMAXTEMP)
-				if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
 			#endif			
+			
+			#if ENABLED(OPTION_BED_COATING) 
+				else if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
+			#endif			
+			
+			#if ABL_GRID
+				else if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
+			#endif
+			
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+				else if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
+			#endif			
+			
 			#if ENABLED(HAS_PID_HEATING)
-				if(DwinMenu_configure.index == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(MROWS);			
+				else if(DwinMenu_configure.index == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(MROWS);			
 			#endif
 			 
-			#if ABL_GRID
-				if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
-				if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
-			#endif
 			}
 			else 
 				Move_Highlight(1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -2021,35 +2050,46 @@ void HMI_Config() {
 				DwinMenu_configure.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
 				if(DwinMenu_configure.index - MROWS == CONFIG_CASE_BACK) Draw_Back_First();
-			#if ENABLED(FWRETRACT) 
+
+			#if ENABLED(FWRETRACT)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_RETRACT) Item_Config_Retract(0);
 			#endif
+			
+			#if ENABLED(OPTION_REPEAT_PRINTING) 
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_REPRINT) Item_Config_Reprint(0);
+			#endif
+			
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_FILAMENT) Item_Config_Filament(0);
 			#endif
+			
 			#if ENABLED(POWER_LOSS_RECOVERY)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(0);
 			#endif
+			
 			#if ENABLED(OPTION_AUTOPOWEROFF)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(0);
 			#endif
+			
 			#if ENABLED(OPTION_WIFI_MODULE)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_WIFI) Item_Config_Wifi(0);
 			 #if ENABLED(OPTION_WIFI_BAUDRATE)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(0);
 			 #endif			
 			#endif
+			
 			#if ABL_GRID
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LEVELING) Item_Config_Leveling(0);
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(0);
 			#endif			
+			
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(0);
 			#endif			
+			
 			#if ENABLED(HAS_PID_HEATING)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(0);			
 			#endif
-
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -2057,8 +2097,9 @@ void HMI_Config() {
 		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+		#define _BREAK_WHILE_PRINTING {if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()) break;}
 	  switch (DwinMenu_configure.now) {
-			case 0: 									// Back
+      case 0: 									// Back
 				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()){
 					HMI_flag.show_mode = SHOWED_TUNE;
 					Draw_Tune_Menu(TUNE_CASE_CONFIG);
@@ -2067,119 +2108,82 @@ void HMI_Config() {
 					Draw_Control_Menu(CONTROL_CASE_CONFIG);					
 				}
 		  break;
-
- #if ENABLED(FWRETRACT) 
-			case CONFIG_CASE_RETRACT: 				// RETRACT
+#if ENABLED(FWRETRACT) 
+			case CONFIG_CASE_RETRACT: 				// RETRACT			
 				DwinMenuID = DWMENU_SET_RETRACT;
 				DwinMenu_fwretract.index = MROWS;
 				Draw_Retract_Menu();				
 			break;
  #endif
+			 
+ #if ENABLED(OPTION_REPEAT_PRINTING)
+			case CONFIG_CASE_REPRINT:				
+				DwinMenuID = DWMENU_SET_REPRINT;
+				DwinMenu_reprint.index = MROWS;
+				Draw_RepeatPrint_Menu();
+			break;
+ #endif
 	 
  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-	case CONFIG_CASE_FILAMENT:  				// FILAMENT
-		DwinMenuID = DWMENU_CONFIG;
-		runout.enabled = !runout.enabled;
-		DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(runout.enabled));		
-		if(runout.enabled)
-			queue.inject_P(PSTR("M412 S1"));		
-		else
-			queue.inject_P(PSTR("M412 S0"));
-   break;
+			case CONFIG_CASE_FILAMENT:  				// FILAMENT
+				DwinMenuID = DWMENU_CONFIG;
+				runout.enabled = !runout.enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(runout.enabled));		
+				if(runout.enabled)
+					queue.inject_P(PSTR("M412 S1"));		
+				else
+					queue.inject_P(PSTR("M412 S0"));
+		   break;
  #endif
 	 
  #if ENABLED(POWER_LOSS_RECOVERY)
-	 case CONFIG_CASE_POWERLOSS:  			// POWERLOSS	 		
-			DwinMenuID = DWMENU_CONFIG;
-			recovery.enabled = !recovery.enabled;
-			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_POWERLOSS + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(recovery.enabled));
-			if(recovery.enabled)
-				queue.inject_P(PSTR("M413 S1"));			
-			else
-				queue.inject_P(PSTR("M413 S0"));
-  break;
+			case CONFIG_CASE_POWERLOSS:  			// POWERLOSS	 		
+				DwinMenuID = DWMENU_CONFIG;
+				recovery.enabled = !recovery.enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_POWERLOSS + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(recovery.enabled));
+				if(recovery.enabled)
+					queue.inject_P(PSTR("M413 S1"));			
+				else
+					queue.inject_P(PSTR("M413 S0"));
+			break;
  #endif
 		
  #if ENABLED(OPTION_AUTOPOWEROFF)
-	 case CONFIG_CASE_SHUTDOWN:
-		DwinMenuID = DWMENU_CONFIG;
-		HMI_flag.Autoshutdown_enabled = !HMI_flag.Autoshutdown_enabled;
-		DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_SHUTDOWN + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
-		break;
+			case CONFIG_CASE_SHUTDOWN:
+				DwinMenuID = DWMENU_CONFIG;
+				HMI_flag.Autoshutdown_enabled = !HMI_flag.Autoshutdown_enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_SHUTDOWN + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
+			break;
  #endif
    
  #if ENABLED(OPTION_WIFI_MODULE)
-	 case CONFIG_CASE_WIFI:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
-			
-			WiFi_Enabled = !WiFi_Enabled;
-			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));
-			HMI_AudioFeedback(settings.save());
-		  if(WiFi_Enabled){
-				queue.wifi_Handshake_ok = false;
-				HMI_flag.wifi_link_timer = 12;
-				WIFI_onoff();
-				DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Turn on WiFi and connecting...."));
-		  }
-			else{
-				DwinMenuID = DWMENU_CONFIG;
-				WIFI_onoff();
-			}			
-		break;
+			case CONFIG_CASE_WIFI:	 	 	
+				WiFi_Enabled = !WiFi_Enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));
+				HMI_AudioFeedback(settings.save());
+			  if(WiFi_Enabled){
+					queue.wifi_Handshake_ok = false;
+					HMI_flag.wifi_link_timer = 12;
+					WIFI_onoff();
+					DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Turn on WiFi and connecting...."));
+			  }
+				else{
+					DwinMenuID = DWMENU_CONFIG;
+					WIFI_onoff();
+				}			
+			break;
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
-	case CONFIG_CASE_WIFISPEED:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
-
-			DwinMenuID = DWMENU_SET_WIFIBAUDRATE;
-			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 6, MENUVALUE_X-24, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
-	break;
-	#endif
-		
+      case CONFIG_CASE_WIFISPEED:			
+				DwinMenuID = DWMENU_SET_WIFIBAUDRATE;
+				DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+			break;
+	#endif		
  #endif
 	 		
- #if ENABLED(OPTION_REPEAT_PRINTING)
- 	case CONFIG_CASE_REPRINT:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
-			
-			DwinMenuID = DWMENU_SET_REPRINT;
-			DwinMenu_reprint.index = MROWS;
-			Draw_Reprint_Menu();
-		break;
- #endif
-
- #if ENABLED(OPTION_BED_COATING)
- 	case CONFIG_CASE_COATING:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
-			
-			DwinMenuID = DWMENU_SET_BEDCOATING;
-			axis_homed = 0;
-			HMI_Value.coating_thickness = (int16_t)(coating_thickness * MINUNITMULT);
-			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(CONFIG_CASE_COATING + MROWS -DwinMenu_configure.index), HMI_Value.coating_thickness);			
-		break;
- #endif
-
- #if ENABLED(OPTION_HOTENDMAXTEMP)
- 	case CONFIG_CASE_HOTENDMAXTEMP:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
-			
-			DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
-			HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
-			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);			
-		break;
- #endif
-
  
- #if ENABLED(HAS_PID_HEATING)
- 	case CONFIG_CASE_PIDAUTOTUNE:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;			
-			DwinMenuID = DWMENU_PID_AUTOTUNE;
-			DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X, MBASE(CONFIG_CASE_PIDAUTOTUNE + MROWS -DwinMenu_configure.index), HMI_Value.PIDAutotune_Temp);			
-		break;
- #endif
-
- #if ABL_GRID
+	#if ABL_GRID
 	  case CONFIG_CASE_LEVELING:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED()) 	break;
+			_BREAK_WHILE_PRINTING
 
 			DwinMenuID = DWMENU_CONFIG;
 			HMI_flag.Leveling_Menu_Fg = !HMI_flag.Leveling_Menu_Fg;
@@ -2188,16 +2192,47 @@ void HMI_Config() {
 		break;
 
 		case CONFIG_CASE_ACTIVELEVEL:
-			if(IS_SD_PRINTING() || IS_SD_PAUSED()) 	break;	
+			_BREAK_WHILE_PRINTING	
 			
 			DwinMenuID = DWMENU_CONFIG;			
 			planner.leveling_active = !planner.leveling_active;
 			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_ACTIVELEVEL + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(planner.leveling_active));
 			set_bed_leveling_enabled(planner.leveling_active);
 		break;
- #endif
+	#endif//ABL_GRID
+	
+	#if ENABLED(OPTION_BED_COATING)
+      case CONFIG_CASE_COATING:
+				_BREAK_WHILE_PRINTING
+			
+				DwinMenuID = DWMENU_SET_BEDCOATING;
+				axis_homed = 0;
+				HMI_Value.coating_thickness = (int16_t)(coating_thickness * MINUNITMULT);
+				DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(CONFIG_CASE_COATING + MROWS -DwinMenu_configure.index), HMI_Value.coating_thickness);			
+			break;
+	#endif//OPTION_BED_COATING
+
+	#if ENABLED(OPTION_HOTENDMAXTEMP)
+      case CONFIG_CASE_HOTENDMAXTEMP:
+				_BREAK_WHILE_PRINTING
+			
+				DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
+				HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
+				DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X+8, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);			
+			break;
+	#endif//OPTION_HOTENDMAXTEMP
+
+ 	#if ENABLED(HAS_PID_HEATING)
+      case CONFIG_CASE_PIDAUTOTUNE:
+				_BREAK_WHILE_PRINTING
+				
+				DwinMenuID = DWMENU_PID_AUTOTUNE;
+				DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X+8, MBASE(CONFIG_CASE_PIDAUTOTUNE + MROWS -DwinMenu_configure.index), HMI_Value.PIDAutotune_Temp);			
+			break;
+ 	#endif//CONFIG_CASE_PIDAUTOTUNE
+
    
-		default: break;
+			default: break;
 		}
 	}
 	dwinLCD.UpdateLCD();

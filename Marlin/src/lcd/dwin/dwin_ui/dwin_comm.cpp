@@ -213,7 +213,7 @@ void Erase_Menu_Text(const uint8_t line){
 void DWIN_Show_Z_Position(bool bshowICON){	
 	static float last_z_pos = -9999.99;	
 	if(bshowICON) DWIN_Show_ICON(ICON_ZOFFSET, State_icon_Zoffset_X, State_icon_Zoffset_Y);
-	if(all_axes_known()){
+	if(TEST(axis_known_position, Z_AXIS)){
 		if(last_z_pos != current_position.z || bshowICON){
 			dwinLCD.Draw_SignedFloatValue(DWIN_FONT_STAT, COLOR_WHITE, COLOR_BG_BLACK, State_text_Zoffset_inum, State_text_Zoffset_fnum, State_text_Zoffset_X, State_text_Zoffset_Y, MAXUNITMULT*current_position.z);
 			last_z_pos = current_position.z;
@@ -235,9 +235,9 @@ void Draw_Status_Area() {
 	//
 #if HAS_HOTEND
 	DWIN_Show_ICON(ICON_HOTENDTEMP, State_icon_extruder_X, State_icon_extruder_Y);
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.temp_hotend[0].celsius);
+	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.degHotend(0));
 	DWIN_Draw_UnMaskString_FONT10(State_string_extruder_X, State_string_extruder_Y, PSTR("/"));
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.temp_hotend[0].target);
+	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));
 #endif
 #if HOTENDS > 1
 	// dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_HOTENDTEMP, 13, 381);
@@ -245,9 +245,9 @@ void Draw_Status_Area() {
 
 #if HAS_HEATED_BED
 	DWIN_Show_ICON(ICON_BEDTEMP, State_icon_bed_X, State_icon_bed_Y);
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X, State_text_bed_Y, thermalManager.temp_bed.celsius);
+	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X, State_text_bed_Y, thermalManager.degBed());
 	DWIN_Draw_UnMaskString_FONT10(State_string_bed_X, State_string_bed_Y, PSTR("/"));
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_bed_Y, thermalManager.temp_bed.target);
+	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_bed_Y, thermalManager.degTargetBed());
 #endif
 
 	DWIN_Show_ICON(ICON_SPEED, State_icon_speed_X, State_icon_speed_Y);
@@ -260,9 +260,9 @@ void Draw_Status_Area() {
 
 void HMI_AudioFeedback(const bool success/*=true*/){
 	if (success) {
-		buzzer.tone(200, 1000);
+		buzzer.tone(100, 1000);
 		buzzer.tone(10, 0);
-		buzzer.tone(200, 3000);
+		buzzer.tone(100, 3000);
 	}
 	else
 		buzzer.tone(20, 1000);
@@ -442,10 +442,16 @@ void ICON_YESorNO(uint8_t Option){
 	DWIN_FEEDBACK_TICK();
 }
 
+void DWIN_Show_Status_Message(const uint16_t color, char *string, const uint8_t show_seconds ){
+	Clear_Dwin_Area(AREA_BOTTOM);
+	dwinLCD.Draw_String(true, true, font8x16, color, COLOR_BG_BLACK, 10, 455, string);
+	set_status_bar_showtime(show_seconds);
+}
+
 void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint8_t show_seconds ){
 	Clear_Dwin_Area(AREA_BOTTOM);
 	dwinLCD.Draw_String(true, true, font8x16, color, COLOR_BG_BLACK, 10, 455, string);
-	if(show_seconds > 0) HMI_flag.clean_status_delay = show_seconds;
+	set_status_bar_showtime(show_seconds);
 }
 
 #endif // HAS_DWIN_LCD

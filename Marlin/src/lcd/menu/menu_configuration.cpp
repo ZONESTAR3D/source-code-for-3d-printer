@@ -304,24 +304,19 @@ void menu_advanced_settings();
 
 #if ENABLED(OPTION_REPEAT_PRINTING)
 #include "../../feature/repeat_printing.h"
-
-void menu_config_retract() {
+void menu_config_repeatprint() {
   START_MENU();
-  BACK_ITEM(MSG_CONFIGURATION);
-	
-  EDIT_ITEM(bool, MSG_REPEATPRINT_ONOFF, &ReprintManager.enabled, 0,1);
-  EDIT_ITEM(uint16_3, MSG_REPEATPRINT_TIMES, &ReprintManager.Reprint_times, 0, MAX_REPRINT_TIMES);    
-  EDIT_ITEM(float3, MSG_REPEATPRINT_LENGTH, &ReprintManager.Forward_lenght, 5, MAX_REPRINT_ARM_LENGHT);
-  EDIT_ITEM(float52sign, MSG_REPEATPRINT_RESET, &fwretract.settings.retract_zraise, 0, 999);
-  EDIT_ITEM(float52sign, MSG_REPEATPRINT_FORWARD, &fwretract.settings.retract_recover_extra, -100, 100);
-  EDIT_ITEM(float52sign, MSG_REPEATPRINT_BACK, &fwretract.settings.swap_retract_recover_extra, -100, 100);
-      
+  BACK_ITEM(MSG_CONFIGURATION);	
+	EDIT_ITEM(bool, MSG_REPEATPRINT, &ReprintManager.enabled);    
+  EDIT_ITEM(uint16_3, MSG_REPEATPRINT_TIMES, &ReprintManager.RepeatTimes, 0, MAX_REPRINT_TIMES);    
+  EDIT_ITEM(uint16_3, MSG_REPEATPRINT_LENGTH, &ReprintManager.Push_length, MIN_REPRINT_ARM_LENGHT, MAX_REPRINT_ARM_LENGHT);
+	EDIT_ITEM(uint16_3, MSG_REPEATPRINT_BEDTEMP, &ReprintManager.Bedtemp,  MIN_REPRINT_BEDTEMP, MAX_REPRINT_BEDTEMP);
+	EDIT_ITEM(uint16_3, MSG_REPEATPRINT_ZHEIGTH, &ReprintManager.RePrintZHeigth,  MIN_REPRINT_ZHEIGTH, MAX_REPRINT_ZHEIGTH);
+	GCODES_ITEM(MSG_REPEATPRINT_HOME, PSTR("M180"));
+	GCODES_ITEM(MSG_REPEATPRINT_PUSHARM, PSTR("M181"));
   END_MENU();
 }
-
 #endif
-
-
 
 #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
@@ -431,6 +426,10 @@ void menu_configuration() {
   #if ENABLED(FWRETRACT)
     SUBMENU(MSG_RETRACT, menu_config_retract);
   #endif
+	
+	#if ENABLED(OPTION_REPEAT_PRINTING)
+		SUBMENU(MSG_REPEATPRINT,menu_config_repeatprint);
+	#endif
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);

@@ -117,14 +117,31 @@ D67   Port: K5		 E0_TEMP		A13
 D68   Port: K6		 BED_TEMP		A14
 D69   Port: K7		 E1_TEMP		A15
 **/
-
-
-
 /*===============================================================================
-
+EXP1															
+EXP2_PIN1		D64/A10
+EXP2_PIN2		GND
+EXP2_PIN3		D41
+EXP2_PIN4		D49
+EXP2_PIN5		D51/AVR_SPI_MOSI
+EXP2_PIN6		D33
+EXP2_PIN7		D53/AVR_SPI_SS
+EXP2_PIN8		D31
+EXP2_PIN9		D52/AVR_SPI_SCK
+EXP2_PIN10	D50/AVR_SPI_MISO
+//
+EXP2															ZONESTAR_12864LCD			REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+EXP1_PIN1		+5V     
+EXP1_PIN2		GND
+EXP1_PIN3   D29   								BTN_ENC 
+EXP1_PIN4		D27										BTN_EN1
+EXP1_PIN5		D25										BTN_EN2
+EXP1_PIN6		D23										LCD_PINS_ENABLE				LCD_PINS_D4
+EXP1_PIN7		D16		TXD2						LCD_PINS_RS						LCD_PINS_RS
+EXP1_PIN8		D17		RXD2						LCD_PINS_D4						LCD_PINS_ENABLE
+EXP1_PIN9		D35										KILL_PIN
+EXP1_PIN10	D37										BEEPER_PIN
 ===============================================================================*/
-
-
 //
 // Limit Switches
 //
@@ -308,13 +325,21 @@ D69   Port: K7		 E1_TEMP		A15
 //LCD 2004
 //================================================================================
 #if EITHER(ZONESTAR_LCD2004_ADCKEY, ZONESTAR_LCD2004_KNOB)
-#define	LCDSCREEN_NAME	"LCD2004 KNOB"
+#define	LCDSCREEN_NAME	"ZONESTAR LCD2004 KNOB"
 #define LCD_PINS_RS 	16
 #define LCD_PINS_ENABLE 17
 #define LCD_PINS_D4 	23
 #define LCD_PINS_D5 	25
 #define LCD_PINS_D6 	27
 #define LCD_PINS_D7 	29
+#elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#define	LCDSCREEN_NAME	"Reprap LCD2004 KNOB"
+#define LCD_PINS_RS 		16
+#define LCD_PINS_ENABLE 17
+#define LCD_PINS_D4 		23
+#define LCD_PINS_D5 		25
+#define LCD_PINS_D6 		27
+#define LCD_PINS_D7 		29
 #endif
 
 //================================================================================
@@ -344,7 +369,7 @@ D69   Port: K7		 E1_TEMP		A15
 #define BTN_ENC 		29
 #define BEEPER_PIN 	-1
 #define KILL_PIN 		-1
-#elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER)
 #define BTN_EN1 		31		//EXP2_PIN8
 #define BTN_EN2 		33		//EXP2_PIN6
 #define BTN_ENC 		35		//EXP1_PIN9

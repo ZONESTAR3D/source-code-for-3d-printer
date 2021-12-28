@@ -45,6 +45,10 @@
   #include "../../lcd/dwin/dwin_ui/dwin.h"
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	#include "../../feature/repeat_printing.h"
+#endif
+
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
@@ -65,7 +69,7 @@ void GcodeSuite::M24() {
     }
   #endif
 
-  if (card.isFileOpen()) {
+  if(card.isFileOpen()) {
     card.startFileprint();            								// SD card will now be read for commands
     startOrResumeJob();               								// Start (or resume) the print job timer
     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());		// backup the printing file name
@@ -78,9 +82,7 @@ void GcodeSuite::M24() {
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("Resuming SD"), DISMISS_STR));
   #endif
 
-  #if !HAS_DWIN_LCD
-  ui.reset_status();
-  #endif
+	TERN(HAS_DWIN_LCD, Draw_Printing_Menu(true), ui.reset_status());  
 }
 
 /**

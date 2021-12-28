@@ -32,7 +32,7 @@
   #endif
 #endif
 
-#define F_STRING_ONOFF(V) ((V)?PSTR("ON "):PSTR("OFF"))
+#define F_STRING_ONOFF(V) ((V)?PSTR(" ON"):PSTR("OFF"))
 
 //Color
 #define COLOR_WHITE       0xFFFF
@@ -162,6 +162,7 @@ enum{
 #define	DWIN_Draw_UnMaskString_FONT10_TITLE(x,y,s) 	dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLUE, x, y, s)
 #define	DWIN_Draw_IntValue_Default(n,x,y,v) 				dwinLCD.Draw_IntValue(true, true, 0, font8x16, COLOR_WHITE, COLOR_BG_BLACK, n, x, y, v)
 #define	DWIN_Draw_IntValue_Default_Color(c,n,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font8x16, c, COLOR_BG_BLACK, n, x, y, v)
+#define DWIN_Draw_IntValue_PopMenu(n,x,y,v)					dwinLCD.Draw_IntValue(true, true, 0, font10x20, POP_TEXT_COLOR, COLOR_BG_WINDOW, n, x, y, v)
 #define DWIN_Draw_MaskIntValue_Default(n,x,y,v) 		dwinLCD.Draw_IntValue(true, true, 1, font8x16, COLOR_WHITE, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_UnMaskIntValue_Default(n,x,y,v) 	dwinLCD.Draw_IntValue(false, true, 1, font8x16, COLOR_WHITE, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_IntValue_FONT10(c,n,x,y,v)				dwinLCD.Draw_IntValue(true, true, 0, font10x20, c, COLOR_BG_BLACK, n, x, y, v)
@@ -189,6 +190,8 @@ void Clear_Dwin_Area(const uint8_t area);
 
 void Draw_Title(PGM_P title);
 void Draw_Wifi_Title(PGM_P title);
+
+void DWIN_Show_Status_Message(const uint16_t color, char *string, const uint8_t show_seconds = 3);
 void DWIN_Show_Status_Message(uint16_t color, PGM_P string, const uint8_t show_seconds = 3);
 
 void Draw_Popup_Bkgd_105();

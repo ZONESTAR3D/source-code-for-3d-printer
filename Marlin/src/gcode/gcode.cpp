@@ -586,7 +586,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
 	  #if ENABLED(OPTION_REPEAT_PRINTING)
-	  	case 180: M180(); break;   								  								// M180: Repeat Printing Control						  
+	  	case 180: M180(); break;   								  								// M180: Home Repeat Printing Arm 
+	  	case 181: M181(); break;   								  								// M181: Push Repeat Printing Arm 
+	  	case 182: M182(); break;   								  								// M182: Wait bed cool
+	  	case 183: M183(); break;   								  								// M183: Set Repeat Printing Times
+	  	case 184: M184(); break;   								  								// M184: Pass the G0/G1 command below this Z heigth
 	  #endif
 
       #if DISABLED(NO_VOLUMETRICS)
@@ -949,6 +953,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
       parser.unknown_command_warning();
+			break;
   }
 
   if (!no_ok) queue.ok_to_send();

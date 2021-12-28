@@ -49,19 +49,19 @@
 //=============================================================================
 // ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
 //=============================================================================
-//	PA0					//	PB0		HEAT_1			//	PC0	   		AXU_SDA			  
-//	PA1     		    //	PB1     FAN1            //	PC1         TEMP_E1               
-//	PA2	    HEAT_BED	//	PB2	    BOOT1           //	PC2	        TEMP_E0           
+//	PA0									//	PB0		  HEAT_1					//	PC0	   		AXU_SDA			  
+//	PA1     		    		//	PB1     FAN1            //	PC1         TEMP_E1               
+//	PA2	    HEAT_BED		//	PB2	    BOOT1           //	PC2	        TEMP_E0           
 //	PA3	    PWR_HOLD    //	PB3	    SPI3_SCK        //	PC3	        TEMP_BED
-//	PA4     SD_CS		//	PB4     SPI3_MISO       //	PC4         SD_DETECT
+//	PA4     SD_CS				//	PB4     SPI3_MISO       //	PC4         SD_DETECT
 //	PA5     SD_SCK      //	PB5     SPI3_MOSI       //	PC5         HEAT_0
-//	PA6     SD_MISO 	//	PB6     SERVO3          //	PC6         E1_STEP
+//	PA6     SD_MISO 		//	PB6     SERVO3          //	PC6         E1_STEP
 //	PA7     SD_MOSI     //	PB7     SERVO2          //	PC7         E1_EN
 //	PA8     X_DIR      	//	PB8     FAN2/SERVO1     //	PC8         FIL_RUNOUT_PIN
 //	PA9     UART1_RX   	//	PB9     SERVO0          //	PC9         E0_DIR
 //	PA10    UART1_TX   	//	PB10    TX3             //	PC10        E0_EN
 //	PA11    USB_D-      //	PB11    RX3             //	PC11        Z2_EN
-//	PA12    USB_D+      //	PB12    LED          	//	PC12        Z2_STEP
+//	PA12    USB_D+      //	PB12    LED          		//	PC12        Z2_STEP
 //	PA13    SWD_SDO     //	PB13    Z1_MAX          //	PC13        X_MIN
 //	PA14    SWD_SCK     //	PB14    Y_MAX           //	PC14        WIFI_RST
 //	PA15    SPI3_CS     //	PB15    PWR_DET         //	PC15        WIFI_CS
@@ -83,20 +83,18 @@
 //	PD14    E2_EN		//	PE14	BTN_EN2
 //	PD15    E1_DIR		//	PE15	BTN_ENC
 //=============================================================================
-
 //EXP1 connector																
 //	   MARK I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864				
 //	10 RS		PE13   	KILL								BTN_ENC										
 //	9  BP		PE11		BEEP								BEEP										
 //	8  EN		PE12		DOGLCD_CS						LCDRS								
 //	7  MOSI	PE10 		DOGLCD_SCK					LCDE								
-//	6  EN1	PE8    	BTN_EN1							NC								
+//	6  EN1	PE14    BTN_EN1							NC								
 //	5  SCK	PE9   	DOGLCD_MOSI					LCD4
 //	4  ENC 	PE15   	BTN_ENC							NC								
-//	3  EN2  PE14		BTN_EN2							NC								
+//	3  EN2  PE8			BTN_EN2							NC								
 //	2  +5V															+5V								
 //	1  GND															GND								
-
 
 //EXP2 connector								
 //	   MARK   I/O   LCD_DWIN						REPRAPDISCOUNT_LCD12864
@@ -110,8 +108,6 @@
 //	3	SCK3  	PB3		BTN_EN1							NC						
 //	2	+5V																+5V
 //	1	GND																GND
-
-
 
 //AUX1 connector
 //	1	+5V 	    	
@@ -250,8 +246,8 @@
 //
 // Fans
 //
-#define FAN_PIN            PB1   // FAN1
-#define FAN1_PIN           PB8   // FAN2
+#define FAN_PIN            PB1   // 
+#define FAN1_PIN    			 PB8   //
 
 //
 // Misc. Functions
@@ -320,7 +316,7 @@
 #define BTN_EN1 			PA10
 #define BTN_EN2 			PB4
 #define BTN_ENC 			PE13
-#define BEEPER_PIN 			PE11
+#define BEEPER_PIN 		PE11
 #define KILL_PIN 			PB5
 #endif
 
@@ -341,8 +337,8 @@
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
 
-#define BEEPER_PIN          PA15    //PE11
-#define KILL_PIN          	-1		//PE13
+#define BEEPER_PIN    PA15    //PE11
+#define KILL_PIN      	-1		//PE13
 #define BTN_EN1 			PB3    	//PE14
 #define BTN_EN2 			PB5    	//PE8
 #define BTN_ENC 			PB4   	//PE15
@@ -350,6 +346,7 @@
 
 //SERVO
 //Remap SERVO0 PIN for BLTouch
+#if ENABLED(BLTOUCH)
 #if ENABLED(BLTOUCH_ON_EXP1)
 //BLTouch connect to EXP1
 #define	BLTOUCH_PROBE_PIN 		PE8
@@ -363,6 +360,7 @@
 #else
 #define	SERVO0_PIN		  			PB9	
 #define	BLTOUCH_PROBE_PIN 		PB13
+#endif
 #endif
 
 //#define	SERVO2_PIN		  PB7
@@ -379,20 +377,46 @@
 //Repeat printing
 //
 #if ENABLED(OPTION_REPEAT_PRINTING)
+//ENDSTOP pin of ARM
 #ifdef X_MAX_PIN
 #undef X_MAX_PIN
 #endif
 #ifdef Y_MAX_PIN
 #undef Y_MAX_PIN
 #endif
+#define RPARML_MIN_PIN   			PD8		//X_MAX_PIN
+#define RPARMR_MIN_PIN   			PB14	//Y_MAX_PIN
+
 //Motor drive pin
-#define RP_LFPRWARD_PIN       PA13
-#define RP_LBACK_PIN          PA14
-#define RP_RFPRWARD_PIN       PB6
-#define RP_RBACK_PIN          PB7
-//ENDSTOP pin
-#define RPL_MIN_PIN   				PD8		//X_MAX_PIN
-#define RPR_MIN_PIN   				PB14	//Y_MAX_PIN
+//Push: 	P = HIGH, N = LOW 
+//Pull: 	P = LOW, 	N = HIGH 
+//Brake: 	P = HIGH, N = HIGH 
+//Stop: 	P = LOW, 	N = LOW 
+#if DISABLED(BLTOUCH)
+ #if ENABLED(ZONESTAR_DWIN_LCD)
+	 #define RP_ARMLP_PIN       	PE15		//L+ EXP1_PIN4
+	 #define RP_ARMLN_PIN      		PE14		//L- EXP1_PIN6
+	 #define RP_ARMRP_PIN       	PE9			//R+ EXP1_PIN5
+	 #define RP_ARMRN_PIN      		PE8			//R- EXP1_PIN3
+ #elif ENABLED(ZONESTAR_12864LCD)
+	 #define RP_ARMLP_PIN       	PB5			//L+ EXP2_PIN4
+	 #define RP_ARMLN_PIN      		PA15		//L- EXP2_PIN6
+	 #define RP_ARMRP_PIN       	PB4			//R+ EXP2_PIN5
+	 #define RP_ARMRN_PIN      		PB3			//R- EXP2_PIN3
+ #endif
+#else
+  #if ENABLED(BLTOUCH_ON_EXP1)
+		#define RP_ARMLP_PIN        PE13		//L+ EXP2_PIN10
+		#define RP_ARMLN_PIN    		PE12		//L- EXP2_PIN8
+		#define RP_ARMRP_PIN        PE11		//R+ EXP2_PIN9
+		#define RP_ARMRN_PIN    		PE10		//R- EXP2_PIN7
+	#elif ENABLED(BLTOUCH_ON_EXP2)
+		#define RP_ARMLP_PIN        PA10		//L+ EXP2_PIN7
+		#define RP_ARMLN_PIN   		  PA9			//L- EXP2_PIN8
+		#define RP_ARMRP_PIN        PB6			//R+	SEVERO_S1
+		#define RP_ARMRN_PIN    	  PB7			//R- SEVERO_S2
+	#endif
+#endif
 #endif
 
 //===========================================

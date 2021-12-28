@@ -47,6 +47,10 @@ static float last_babyz_offset = 0.0;
 static float prevouis_babyz_offset = 0.0;
 #endif 
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#include "../../../feature/repeat_printing.h"
+#endif
+
 static void Draw_Select_Highlight(const bool sel) {
 	HMI_flag.select_flag = sel;
 	const uint16_t c1 = sel ? SELECT_COLOR : COLOR_BG_WINDOW,
@@ -294,8 +298,7 @@ void HMI_SelectFile() {
 			Draw_Main_Menu();
 		}
 		else if (hasUpDir && DwinMenu_file.now == 1) { // CD-Up
-			SDCard_Up();
-			goto HMI_SelectFileExit;
+			SDCard_Up();			
 		}
 		else {
 			const uint16_t filenum = DwinMenu_file.now - 1 - hasUpDir;
@@ -304,23 +307,29 @@ void HMI_SelectFile() {
 			// Enter that folder!
 			if (card.flag.filenameIsDir) {
 				SDCard_Folder(card.filename);
-				goto HMI_SelectFileExit;
+				dwinLCD.UpdateLCD();
+				return;
 			}
 
 			// Reset highlight for next entry
 			DwinMenu_print.reset();
 			DwinMenu_file.reset();
-			
-			// Switch current VTOOL to T0
-			/*
-			HMI_Value.current_vtool = 0;
-			mixer.update_mix_from_vtool(HMI_Value.current_vtool);
-			*/
-			
+
+		#if ENABLED(MIXING_EXTRUDER)
+			// Switch current VTOOL to T0			
+			HMI_Value.current_vtool= mixer.selected_vtool = 0;
+			mixer.update_mix_from_vtool();
+			MIXER_STEPPER_LOOP(i) {HMI_Value.mix_percent[i] = mixer.percentmix[i];}
+		#endif
+		
 			// Start choice and print SD file
 			HMI_flag.heat_flag = true;   
 			HMI_flag.show_mode = SHOWED_TUNE;
 			card.openAndPrintFile(card.filename);
+
+		#if ENABLED(OPTION_REPEAT_PRINTING) 
+			strcpy(rePrint_filename, card.filename);
+		#endif
 
 		#if ENABLED(BABYSTEPPING)
 			prevouis_babyz_offset = last_babyz_offset = babyz_offset = 0.0;
@@ -330,9 +339,9 @@ void HMI_SelectFile() {
 			DWIN_status = ID_SM_PRINTING;
 			HMI_flag.killtimes = 0;
 			Draw_Printing_Menu();
+			return;
 		}
 	}
-HMI_SelectFileExit:
 	dwinLCD.UpdateLCD();
 }
 
@@ -506,7 +515,8 @@ inline void Draw_Print_ProgressExtruder() {
 }
 
 void Draw_Print_ProgressMixModel(){	
-	if(mixer.gradient.enabled) {
+	if(mixer.gradient.enabled && HMI_Value.old_mix_mode != 1) {
+		HMI_Value.old_mix_mode = 1;
 		Clear_Dwin_Area(AREA_BOTTOM);		
 		//Gradient Mix: Zxxx->xxx Vxx->xx
 		DWIN_Draw_MaskString_Default(10, 455, PSTR("Gradient Mix: Z"));
@@ -518,8 +528,9 @@ void Draw_Print_ProgressMixModel(){
 		DWIN_Draw_MaskString_Default(10+(15+3+2+3+2+2)*8, 455, PSTR("->"));
 		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2+2+2)*8, 455, mixer.gradient.end_vtool);
 	}
-	else if(mixer.random_mix.enabled) {
-		Clear_Dwin_Area(AREA_BOTTOM);
+	else if(mixer.random_mix.enabled && HMI_Value.old_mix_mode != 2) {
+		HMI_Value.old_mix_mode = 2;
+		Clear_Dwin_Area(AREA_BOTTOM);		
 		//Random Mix: Zxxx->xxx Hxxx.x Ex
 		DWIN_Draw_MaskString_Default(10, 455, PSTR("Random Mix: Z"));
 		DWIN_Draw_MaskIntValue_Default(3, 10+13*8, 455, (uint32_t)mixer.random_mix.start_z);
@@ -530,10 +541,11 @@ void Draw_Print_ProgressMixModel(){
 		DWIN_Draw_MaskString_Default(10+(13+3+2+3+2+6)*8, 455, PSTR(" E"));
 		DWIN_Draw_MaskIntValue_Default(1, 10+(13+3+2+3+2+6+2)*8, 455, mixer.random_mix.extruders);
 	}
-	else{
+	else if(HMI_Value.old_mix_mode != 0){
+		HMI_Value.old_mix_mode = 0;
 		Clear_Dwin_Area(AREA_BOTTOM);
-		DWIN_Draw_MaskString_Default(10, 455, PSTR("Manual Mix: Vtool="));
-		DWIN_Draw_IntValue_Default(2, 10+19*8, 455, mixer.selected_vtool);
+		DWIN_Draw_MaskString_Default(10, 455, PSTR("Current VTOOL = "));
+		DWIN_Draw_IntValue_Default(2, 10+17*8, 455, mixer.selected_vtool);
 	}
 }
 
@@ -556,14 +568,15 @@ static void Item_Tune_ETemp(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(TUNE_MENU_HOTEND, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(TUNE_MENU_TEMP, LBLX+GET_ICON_X(HOTEND), MBASE(row));
 	Draw_Menu_Line(row, ICON_HOTENDTEMP);
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.temp_hotend[0].target);
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetHotend(0));
 }
+
 
 static void Item_Tune_BTemp(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(TUNE_MENU_BED, LBLX, MBASE(row));
   DWIN_Show_MultiLanguage_String(TUNE_MENU_TEMP, LBLX+GET_ICON_X(BED), MBASE(row));
 	Draw_Menu_Line(row, ICON_BEDTEMP);
-  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.temp_bed.target);
+  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetBed());
 }
 
 static void Item_Tune_FanSpeed(const uint8_t row){
@@ -755,16 +768,23 @@ inline void Popup_Window_waiting(uint8_t msg){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Draw_Printing_Menu(const bool with_update) {
+	if((DwinMenuID == DWMENU_PRINTING) && (DWIN_status == ID_SM_PRINTING)) return;
+	
 	DwinMenuID = DWMENU_PRINTING;	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);	
-	Draw_Printing_Screen();
-
+	DWIN_status = ID_SM_PRINTING;
+	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	
 	dwinLCD.JPG_CacheToN(1,HMI_flag.Title_Menu_Backup);
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_SDPRINT, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheToN(1,HMI_flag.language+1);
-	Draw_ICON_Printingstatus();
-	
-	// Copy into filebuf string before entry
+
+	Draw_Print_ProgressBar();
+	Draw_Print_ProgressExtruder();	
+#if ENABLED(MIXING_EXTRUDER)
+	DWIN_Refresh_Mix_Rate();
+	Draw_Print_ProgressMixModel();
+#endif	
+	//Copy into file buf string before entry
 	char * const name = card.longest_filename();
 	const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
 	DWIN_Draw_UnMaskString_Default(npos, 40, name);
@@ -773,18 +793,14 @@ void Draw_Printing_Menu(const bool with_update) {
 	DWIN_Show_ICON(ICON_PRINT_TIME, 42, 193);
 	DWIN_Show_ICON(ICON_REMAINTIME, 150, 191);	
 	DWIN_Show_ICON(ICON_REMAIN_TIME, 176, 193);
-
-	Draw_Print_ProgressBar();
 	Draw_Print_ElapsedTime();
 	Draw_Print_RemainTime();	
-	Draw_Print_ProgressExtruder();
-	Draw_Status_Area();	
-#if ENABLED(MIXING_EXTRUDER)
-	DWIN_Refresh_Mix_Rate();
-	Draw_Print_ProgressMixModel();
-#endif
-	
-	if(with_update) dwinLCD.UpdateLCD();
+
+	//Draw_Printing_Screen();
+	Draw_ICON_Printingstatus();	
+	Draw_Status_Area();
+
+	if(with_update) dwinLCD.UpdateLCD();	
 }
 
 inline void DWIN_resume_print() {
@@ -855,8 +871,8 @@ void HMI_PauseOrStop() {
 	else if(encoder_diffState == ENCODER_DIFF_ENTER){
 		if(DwinMenu_print.now == PRINT_CASE_PAUSE){
 			if(HMI_flag.select_flag){
-				tempbed = thermalManager.temp_bed.target;
-				temphot = thermalManager.temp_hotend[0].target;
+				tempbed = thermalManager.degTargetBed();
+				temphot = thermalManager.degTargetHotend(0);
 				if(printingIsActive()) _Dwin_pause_print();
 			}
 			else{
@@ -946,7 +962,7 @@ void HMI_Tune() {
 				#if HAS_HOTEND
 			 	case TUNE_CASE_ETEMP: // Nozzle temp
 					DwinMenuID = DWMENU_SET_ETMP;
-					HMI_Value.E_Temp = thermalManager.temp_hotend[0].target;
+					HMI_Value.E_Temp = thermalManager.degTargetHotend(0);
 					if(HMI_Value.E_Temp > 230)
 						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
 					else
@@ -957,7 +973,7 @@ void HMI_Tune() {
 				#if HAS_HEATED_BED
 			 	case TUNE_CASE_BTEMP: // Bed temp
 			  	 	DwinMenuID = DWMENU_SET_BTMP;
-			  		HMI_Value.Bed_Temp = thermalManager.temp_bed.target;
+			  		HMI_Value.Bed_Temp = thermalManager.degTargetBed();
 			  		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_BTEMP + MROWS - DwinMenu_tune.index), HMI_Value.Bed_Temp);
 			  		EncoderRate.enabled = true;
 			  	break;
@@ -984,7 +1000,7 @@ void HMI_Tune() {
 			  	Draw_Mixer_Menu();
 			 		break;
 
-					case TUNE_CASE_CONFIG:
+				case TUNE_CASE_CONFIG:
 			 		Draw_Config_Menu();
 			 		break;
 				
@@ -995,8 +1011,13 @@ void HMI_Tune() {
 	dwinLCD.UpdateLCD();
 }
 
-
-void DWIN_Draw_PrintDone_Confirm(){
+void DWIN_Draw_PrintDone_Confirm(){	
+#if ENABLED(OPTION_REPEAT_PRINTING)		
+	if(ReprintManager.enabled){
+		Stop_and_return_mainmenu();
+		return;
+	}
+#endif
 	// show print done confirm
 	DwinMenuID = DWMENU_POP_STOPPRINT;
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
@@ -1154,8 +1175,8 @@ static void DRAW_Pause_Message(PauseMessage message, PauseMode mode){
 			DWIN_Show_Status_Message(COLOR_RED, PSTR("Is parking, please wait..."));
 			break;
 		case PAUSE_MESSAGE_CHANGING:			
-			tempbed = thermalManager.temp_bed.target;
-			temphot = thermalManager.temp_hotend[0].target;			
+			tempbed = thermalManager.degTargetBed();
+			temphot = thermalManager.degTargetHotend(0);			
 			Popup_window_Pause_Start(mode);
 			DWIN_Show_Status_Message(COLOR_RED, PSTR("Is changing, please wait..."));			
 			break;
@@ -1206,7 +1227,7 @@ static void DRAW_Pause_Message(PauseMessage message, PauseMode mode){
 		case PAUSE_MESSAGE_RETURN:			
 			if(IS_SD_PRINTING() || IS_SD_PAUSED()){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu(true);
+				Draw_Printing_Menu();
 			}
 			else
 				Draw_Main_Menu(true);			
@@ -1309,10 +1330,7 @@ void HMI_Printing() {
 		DWIN_FEEDBACK_TICK();
 	}	
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		if(DwinMenuID == DWMENU_POP_STOPPRINT){
-			DWIN_status = ID_SM_STOPED;
-		}
-		else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
+		if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
 			DWIN_Show_Waiting();			
 		}
 		else{
@@ -1358,6 +1376,12 @@ void HMI_Printing() {
 	dwinLCD.UpdateLCD();
 }
 
+void HMI_Stop_SDPrinting(){
+	ENCODER_DiffState encoder_diffState = get_encoder_state();
+	if (encoder_diffState == ENCODER_DIFF_ENTER){		
+			Stop_and_return_mainmenu();		
+	}
+}
 
 #endif
 
