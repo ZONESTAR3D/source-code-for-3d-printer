@@ -604,6 +604,9 @@ void DWIN_HandleScreen() {
 		case DWMENU_SET_REPRINT_PUSHLENGTH:		HMI_RePrint_ArmPushLength(); break;
 		case DWMENU_SET_REPRINT_BEDTEMP:			HMI_RePrint_BedTemp(); break;
 		case DWMENU_SET_REPRINT_ZHEIGTH:			HMI_RepeatPrint_ZHeigth(); break;
+	#if HAS_REPEATPRINT_BASE
+		case DWMENU_SET_REPRINT_BASEHEIGTH:		HMI_RepeatPrint_BaseHeigth(); break;
+	#endif
 		case DWMENU_POP_REPEATPRINTING:				HMI_Cancel_RePrint(); break;
 	#endif
 	

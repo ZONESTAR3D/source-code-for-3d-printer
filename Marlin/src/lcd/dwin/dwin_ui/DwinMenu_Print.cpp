@@ -328,6 +328,9 @@ void HMI_SelectFile() {
 			card.openAndPrintFile(card.filename);
 
 		#if ENABLED(OPTION_REPEAT_PRINTING) 
+			ReprintManager.is_repeatPrinting = false;
+			ReprintManager.is_AutoRepeatPrinting = false;
+			ReprintManager.is_RepeatPrintOnce = false;
 			strcpy(rePrint_filename, card.filename);
 		#endif
 
@@ -515,37 +518,53 @@ inline void Draw_Print_ProgressExtruder() {
 }
 
 void Draw_Print_ProgressMixModel(){	
+	char string_buf[50] = {0};
 	if(mixer.gradient.enabled && HMI_Value.old_mix_mode != 1) {
-		HMI_Value.old_mix_mode = 1;
-		Clear_Dwin_Area(AREA_BOTTOM);		
-		//Gradient Mix: Zxxx->xxx Vxx->xx
+		HMI_Value.old_mix_mode = 1;				
+		//Gradient Mix: Zxxx->xxx Vxx->xx		
+	#if 0
+		Clear_Dwin_Area(AREA_BOTTOM);
 		DWIN_Draw_MaskString_Default(10, 455, PSTR("Gradient Mix: Z"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+15*8, 455, (uint32_t)mixer.gradient.start_z);
+		DWIN_Draw_MaskIntValue_Default(3, 10+15*8, 455, (uint16_t)mixer.gradient.start_z);
 		DWIN_Draw_MaskString_Default(10+(15+3)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+(15+3+2)*8, 455, (uint32_t)mixer.gradient.end_z);
+		DWIN_Draw_MaskIntValue_Default(3, 10+(15+3+2)*8, 455, (uint16_t)mixer.gradient.end_z);
 		DWIN_Draw_MaskString_Default(10+(15+3+2+3)*8, 455, PSTR(" V"));
 		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2)*8, 455, mixer.gradient.start_vtool);
 		DWIN_Draw_MaskString_Default(10+(15+3+2+3+2+2)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2+2+2)*8, 455, mixer.gradient.end_vtool);
+		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2+2+2)*8, 455, mixer.gradient.end_vtool);		
+	#else		
+		sprintf_P(string_buf, PSTR("Gradient Mix Z:%3d->%3d V:%2d->%2d"), (uint16_t)mixer.gradient.start_z, (uint16_t)mixer.gradient.end_z, mixer.gradient.start_vtool, mixer.gradient.end_vtool);
+		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
+	#endif
 	}
 	else if(mixer.random_mix.enabled && HMI_Value.old_mix_mode != 2) {
-		HMI_Value.old_mix_mode = 2;
-		Clear_Dwin_Area(AREA_BOTTOM);		
+		HMI_Value.old_mix_mode = 2;			
 		//Random Mix: Zxxx->xxx Hxxx.x Ex
+	#if 0
+		Clear_Dwin_Area(AREA_BOTTOM);	
 		DWIN_Draw_MaskString_Default(10, 455, PSTR("Random Mix: Z"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+13*8, 455, (uint32_t)mixer.random_mix.start_z);
+		DWIN_Draw_MaskIntValue_Default(3, 10+13*8, 455, (uint16_t)mixer.random_mix.start_z);
 		DWIN_Draw_MaskString_Default(10+(13+3)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+(13+3+2)*8, 455, (uint32_t)mixer.random_mix.end_z);
+		DWIN_Draw_MaskIntValue_Default(3, 10+(13+3+2)*8, 455, (uint16_t)mixer.random_mix.end_z);
 		DWIN_Draw_MaskString_Default(10+(13+3+2+3)*8, 455, PSTR(" H"));
 		DWIN_Draw_Small_Float31(10+(13+3+2+3+2)*8, 455, mixer.random_mix.height*10);
 		DWIN_Draw_MaskString_Default(10+(13+3+2+3+2+6)*8, 455, PSTR(" E"));
 		DWIN_Draw_MaskIntValue_Default(1, 10+(13+3+2+3+2+6+2)*8, 455, mixer.random_mix.extruders);
+	#else		
+		sprintf_P(string_buf, PSTR("Random Mix Z:%3d->%3d H:%3.1f E:%1d"), (uint16_t)mixer.random_mix.start_z, (uint16_t)mixer.random_mix.end_z, mixer.random_mix.height, mixer.random_mix.extruders);
+		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
+	#endif
 	}
 	else if(HMI_Value.old_mix_mode != 0){
 		HMI_Value.old_mix_mode = 0;
+	#if 0
 		Clear_Dwin_Area(AREA_BOTTOM);
 		DWIN_Draw_MaskString_Default(10, 455, PSTR("Current VTOOL = "));
 		DWIN_Draw_IntValue_Default(2, 10+17*8, 455, mixer.selected_vtool);
+	#else
+		sprintf_P(string_buf, PSTR("Current VTOOL = %2d"), mixer.selected_vtool);
+		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
+	#endif
 	}
 }
 
@@ -1013,10 +1032,7 @@ void HMI_Tune() {
 
 void DWIN_Draw_PrintDone_Confirm(){	
 #if ENABLED(OPTION_REPEAT_PRINTING)		
-	if(ReprintManager.enabled){
-		Stop_and_return_mainmenu();
-		return;
-	}
+	if(ReprintManager.enabled && (ReprintManager.is_AutoRepeatPrinting || ReprintManager.is_RepeatPrintOnce))	return;
 #endif
 	// show print done confirm
 	DwinMenuID = DWMENU_POP_STOPPRINT;

@@ -500,8 +500,7 @@ inline void abortSDPrinting() {
 inline void finishSDPrinting() {
   if (queue.enqueue_one_P(PSTR("M1001"))) {
     marlin_state = MF_RUNNING;
-    TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
-		TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());			
+    TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());		
   }
 }
 #endif // SDSUPPORT

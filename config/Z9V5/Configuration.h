@@ -111,7 +111,7 @@
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 #define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
-#define	OPTION_REPEAT_PRINTING		//Auto remove prints feature
+#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
 //#define	OPTION_BGM								//BGM extruder
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor

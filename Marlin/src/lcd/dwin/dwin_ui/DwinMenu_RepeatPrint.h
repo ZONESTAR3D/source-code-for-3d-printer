@@ -36,6 +36,9 @@ enum{
 	REPRINT_CASE_LENGTH,
 	REPRINT_CASE_BEDTEMP,	
 	REPRINT_CASE_ZHEIGTH,
+#if HAS_REPEATPRINT_BASE	
+	REPRINT_CASE_BASEHEIGTH,
+#endif
 	REPRINT_TUNE_CASE_END,
 	REPRINT_CASE_HOMEARM = REPRINT_TUNE_CASE_END,
 	REPRINT_CASE_PUSHARM,
@@ -48,6 +51,9 @@ void HMI_Reprint_Times();
 void HMI_RePrint_ArmPushLength();
 void HMI_RePrint_BedTemp();
 void HMI_RepeatPrint_ZHeigth();
+#if HAS_REPEATPRINT_BASE	
+void HMI_RepeatPrint_BaseHeigth();
+#endif
 void HMI_RepeatPrint();
 void Popup_Window_RepeatPrint();
 void Updata_RePrint_Popup_Window(uint8_t status);

@@ -25,31 +25,36 @@
  * repeat_printing.h - repeat printing control
  */
 
-#include "../core/millis_t.h"
-
-#define	RPL_MIN_ENDSTOP_INVERTING		true
-#define	RPR_MIN_ENDSTOP_INVERTING		true
+#ifdef OPTION_REPEAT_PRINTING
 
 // @repeat printing control
-#define	REPRINT_ARM_BUMP_LENGTH				3			//
 
-#define MAX_REPRINT_TIMES						999			//
 
-#define DEFAULT_REPRINT_ARM_LENGHT	(Y_MAX_POS+30)			//
-#define MIN_REPRINT_ARM_LENGHT			0										//
-#define MAX_REPRINT_ARM_LENGHT			(Y_MAX_POS+50)			//
 
-#define	DEFAULT_REPRINT_ZHEIGTH			30			//
-#define	MIN_REPRINT_ZHEIGTH					25			//
-#define	MAX_REPRINT_ZHEIGTH	(Z_MAX_POS/2)		//
 
-#define	DEFAULT_REPRINT_BEDTEMP			25			//
-#define	MIN_REPRINT_BEDTEMP					15			//
-#define	MAX_REPRINT_BEDTEMP					50			//
+#define MAX_REPRINT_TIMES						999							//Maximum repeat print times
 
-#define	WAIT_SECONDS_AFTER_BEDCOOL	30			// wait seconds after cool down
+#define MIN_REPRINT_ARM_LENGHT			0								//Minimum arm length
+#define MAX_REPRINT_ARM_LENGHT			(Y_MAX_POS+50)	//Maximum arm length
 
-#define	RPM_REPEATPRINTING_MOTOR		90			//the rotating speed of repeat printing motor (rotate/minute)
+#define	MIN_REPRINT_BEDTEMP					15							//Minimum bed temp while remove the prints
+#define	MAX_REPRINT_BEDTEMP					100							//Maximum bed temp while remove the prints
+
+#define	MIN_REPRINT_ZHEIGTH					25							//Minimum Z heigth before pushing the arm
+#define	MAX_REPRINT_ZHEIGTH	 				(Z_MAX_POS-25)	//Maximum Z heigth before pushing the arm
+
+#if HAS_REPEATPRINT_BASE
+#define	DEFAULT_REPEATPRINT_BASE_HEIGTH			0.0			//
+#define	MIN_REPEATPRINT_BASE_HEIGTH					0.0			//
+#define	MAX_REPEATPRINT_BASE_HEIGTH					5.0			//
+#endif
+
+#if (HAS_BED_COOL_FAN && BED_COOL_FAN_PIN == E0_AUTO_FAN_PIN)
+#undef E0_AUTO_FAN_PIN
+#define	E0_AUTO_FAN_PIN							-1
+#endif
+
+#define	RPM_REPEATPRINTING_MOTOR		90							//the rotating speed of repeat printing motor (rotate/minute)
 #define	ARM_MM_TO_MS(A) ((A*1000*60)/(RPM_REPEATPRINTING_MOTOR*8))
 
 #define	BIT_ARM_L			0
@@ -75,6 +80,7 @@ class RePrint {
 		static bool enabled;		
 		static bool is_AutoRepeatPrinting;
 		static bool is_RepeatPrintOnce;
+		static bool is_repeatPrinting;
 		
 		static int16_t RepeatTimes;
 		static int16_t Push_length;
@@ -83,8 +89,9 @@ class RePrint {
 		static int16_t RePrint_wait_seconds;
 		static uint8_t RePrint_status;
 
-		static float RePrintPassZ;
-				
+		#if HAS_REPEATPRINT_BASE
+		static float RePrintBaseHeigth;
+		#endif
 		static bool RepeatPrint_HomeArm(bool isblocked = true); 		
 		static void RepeatPrint_MoveArm(const int16_t pos = DEFAULT_REPRINT_ARM_LENGHT, bool isblocked = true);
 		static void getRefernceBedTemp(const float hotend_temp, const float bed_temp);
@@ -110,4 +117,4 @@ class RePrint {
 
 extern RePrint ReprintManager;
 extern char rePrint_filename[20];
-
+#endif

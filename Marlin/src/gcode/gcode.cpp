@@ -590,7 +590,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 	  	case 181: M181(); break;   								  								// M181: Push Repeat Printing Arm 
 	  	case 182: M182(); break;   								  								// M182: Wait bed cool
 	  	case 183: M183(); break;   								  								// M183: Set Repeat Printing Times
+	  	#if HAS_REPEATPRINT_BASE
 	  	case 184: M184(); break;   								  								// M184: Pass the G0/G1 command below this Z heigth
+	  	#endif
 	  #endif
 
       #if DISABLED(NO_VOLUMETRICS)

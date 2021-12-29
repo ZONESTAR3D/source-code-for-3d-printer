@@ -223,6 +223,7 @@ typedef enum {
 	DWMENU_SET_REPRINT_PUSHLENGTH,
 	DWMENU_SET_REPRINT_BEDTEMP,
 	DWMENU_SET_REPRINT_ZHEIGTH,
+	DWMENU_SET_REPRINT_BASEHEIGTH,
 
 	// Pop Menu
 	DWMENU_POP_HOME = 110,
@@ -401,6 +402,10 @@ typedef struct {
 	uint8_t	load_extruder = 1;
 	int16_t	feedlength = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
 	int16_t	purgelength = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+	
+	#if (ENABLED(OPTION_REPEAT_PRINTING) && HAS_REPEATPRINT_BASE)
+	int16_t RePrintBaseHeigth  = 0;
+	#endif
 		
 	uint8_t Percentrecord = 0;
 	uint16_t remain_time = 0;

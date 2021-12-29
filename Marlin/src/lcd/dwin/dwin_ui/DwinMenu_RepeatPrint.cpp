@@ -65,6 +65,13 @@ static void Item_RepeatPrint_ZHeigth(const uint8_t row) {
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), ReprintManager.RePrintZHeigth);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
+#if HAS_REPEATPRINT_BASE
+static void Item_RepeatPrint_BaseHeigth(const uint8_t row) {
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Base Heigth:"));
+	DWIN_Draw_Small_Float21(MENUVALUE_X, MBASE(row), HMI_Value.RePrintBaseHeigth);
+	Draw_Menu_Line(row,ICON_CURSOR);
+}
+#endif
 
 static void Item_RepeatPrint_HomeArm(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Arm Test >>"));	
@@ -100,9 +107,15 @@ void Draw_RepeatPrint_Menu() {
 	if (REVISI(REPRINT_CASE_LENGTH)) Item_RepeatPrint_ArmPushLength(RESCROL(REPRINT_CASE_LENGTH));
 	if (REVISI(REPRINT_CASE_BEDTEMP)) Item_RepeatPrint_BedTemp(RESCROL(REPRINT_CASE_BEDTEMP));
 	if (REVISI(REPRINT_CASE_ZHEIGTH)) Item_RepeatPrint_ZHeigth(RESCROL(REPRINT_CASE_ZHEIGTH));
-	if (REVISI(REPRINT_CASE_HOMEARM)) Item_RepeatPrint_HomeArm(RESCROL(REPRINT_CASE_HOMEARM));
-	if (REVISI(REPRINT_CASE_PUSHARM)) Item_RepeatPrint_PushArm(RESCROL(REPRINT_CASE_PUSHARM));
 	
+	#if HAS_REPEATPRINT_BASE
+	if (REVISI(REPRINT_CASE_BASEHEIGTH)) Item_RepeatPrint_BaseHeigth(RESCROL(REPRINT_CASE_BASEHEIGTH));
+	#endif
+	
+	if(!IS_SD_PRINTING() && !IS_SD_PAUSED() && !IS_SD_FILE_OPEN()) {
+		if (REVISI(REPRINT_CASE_HOMEARM)) Item_RepeatPrint_HomeArm(RESCROL(REPRINT_CASE_HOMEARM));
+		if (REVISI(REPRINT_CASE_PUSHARM)) Item_RepeatPrint_PushArm(RESCROL(REPRINT_CASE_PUSHARM));
+	}	
 	if (DwinMenu_reprint.now) Draw_Menu_Cursor(RESCROL(DwinMenu_reprint.now));
 }
 
@@ -161,9 +174,9 @@ void HMI_RepeatPrint_ZHeigth() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &ReprintManager.RePrintZHeigth)) {
-			DwinMenuID = DWMENU_SET_REPRINT;
-			EncoderRate.enabled = false;
+			DwinMenuID = DWMENU_SET_REPRINT;			
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_ZHEIGTH), ReprintManager.RePrintZHeigth);
+			EncoderRate.enabled = false;
 			dwinLCD.UpdateLCD();			
 			return;
 		}
@@ -173,6 +186,26 @@ void HMI_RepeatPrint_ZHeigth() {
 		dwinLCD.UpdateLCD();
 	}
 }
+
+#if HAS_REPEATPRINT_BASE
+void HMI_RepeatPrint_BaseHeigth() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.RePrintBaseHeigth)) {
+			DwinMenuID = DWMENU_SET_REPRINT;
+			ReprintManager.RePrintBaseHeigth = (float)HMI_Value.RePrintBaseHeigth/MINUNITMULT;			
+			DWIN_Draw_Small_Float21(MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_BASEHEIGTH), HMI_Value.RePrintBaseHeigth);
+			EncoderRate.enabled = false;
+			dwinLCD.UpdateLCD();			
+			return;
+		}
+		NOLESS(HMI_Value.RePrintBaseHeigth, MIN_REPEATPRINT_BASE_HEIGTH*MINUNITMULT);
+		NOMORE(HMI_Value.RePrintBaseHeigth, MAX_REPEATPRINT_BASE_HEIGTH*MINUNITMULT);		
+		DWIN_Draw_Selected_Small_Float21(MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_BASEHEIGTH), HMI_Value.RePrintBaseHeigth);
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif
 
 void HMI_RepeatPrint() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -186,6 +219,14 @@ void HMI_RepeatPrint() {
 					DwinMenu_reprint.index = DwinMenu_reprint.now;
 					// Scroll up and draw a blank bottom line
 					Scroll_Menu(DWIN_SCROLL_UP);
+					//if(DwinMenu_reprint.index == REPRINT_CASE_ONOFF) Item_RepeatPrint_Enabled(MROWS);
+					//if(DwinMenu_reprint.index == REPRINT_CASE_TIMES) Item_RepeatPrint_Times(MROWS);
+					//if(DwinMenu_reprint.index == REPRINT_CASE_LENGTH) Item_RepeatPrint_ArmPushLength(MROWS);
+					//if(DwinMenu_reprint.index == REPRINT_CASE_BEDTEMP) Item_RepeatPrint_BedTemp(MROWS);
+					//if(DwinMenu_reprint.index == REPRINT_CASE_ZHEIGTH) Item_RepeatPrint_ZHeigth(MROWS);
+				#if HAS_REPEATPRINT_BASE
+					if(DwinMenu_reprint.index == REPRINT_CASE_BASEHEIGTH) Item_RepeatPrint_BaseHeigth(MROWS);
+				#endif				
 				}
 				else 
 					Move_Highlight(1, DwinMenu_reprint.now + MROWS - DwinMenu_reprint.index);
@@ -196,14 +237,16 @@ void HMI_RepeatPrint() {
 				// Scroll up and draw a blank bottom line
 				DwinMenu_reprint.index = DwinMenu_reprint.now;
 				Scroll_Menu(DWIN_SCROLL_UP);
-				if(DwinMenu_reprint.index == REPRINT_CASE_ONOFF) Item_RepeatPrint_Enabled(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_TIMES) Item_RepeatPrint_Times(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_LENGTH) Item_RepeatPrint_ArmPushLength(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_BEDTEMP) Item_RepeatPrint_BedTemp(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_ZHEIGTH) Item_RepeatPrint_ZHeigth(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_HOMEARM) Item_RepeatPrint_HomeArm(MROWS);
-				else if(DwinMenu_reprint.index == REPRINT_CASE_PUSHARM) Item_RepeatPrint_PushArm(MROWS);
-				
+				//if(DwinMenu_reprint.index == REPRINT_CASE_ONOFF) Item_RepeatPrint_Enabled(MROWS);
+				//if(DwinMenu_reprint.index == REPRINT_CASE_TIMES) Item_RepeatPrint_Times(MROWS);
+				//if(DwinMenu_reprint.index == REPRINT_CASE_LENGTH) Item_RepeatPrint_ArmPushLength(MROWS);
+				//if(DwinMenu_reprint.index == REPRINT_CASE_BEDTEMP) Item_RepeatPrint_BedTemp(MROWS);
+				//if(DwinMenu_reprint.index == REPRINT_CASE_ZHEIGTH) Item_RepeatPrint_ZHeigth(MROWS);
+			#if HAS_REPEATPRINT_BASE
+				if(DwinMenu_reprint.index == REPRINT_CASE_BASEHEIGTH) Item_RepeatPrint_BaseHeigth(MROWS);
+			#endif
+				if(DwinMenu_reprint.index == REPRINT_CASE_HOMEARM) Item_RepeatPrint_HomeArm(MROWS);
+				if(DwinMenu_reprint.index == REPRINT_CASE_PUSHARM) Item_RepeatPrint_PushArm(MROWS);
 			}
 			else {
 				Move_Highlight(1, DwinMenu_reprint.now + MROWS - DwinMenu_reprint.index);
@@ -219,10 +262,13 @@ void HMI_RepeatPrint() {
 				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_ONOFF) Item_RepeatPrint_Enabled(0);
 				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_TIMES) Item_RepeatPrint_Times(0);
 				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_LENGTH) Item_RepeatPrint_ArmPushLength(0);
-				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_BEDTEMP) Item_RepeatPrint_BedTemp(0);
-				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_ZHEIGTH) Item_RepeatPrint_ZHeigth(0);
-				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_HOMEARM) Item_RepeatPrint_HomeArm(0);
-				else if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_PUSHARM) Item_RepeatPrint_PushArm(0);
+				//if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_BEDTEMP) Item_RepeatPrint_BedTemp(0);
+				//if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_ZHEIGTH) Item_RepeatPrint_ZHeigth(0);
+			#if HAS_REPEATPRINT_BASE
+				//if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_BASEHEIGTH) Item_RepeatPrint_BaseHeigth(0);
+			#endif
+				//if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_HOMEARM) Item_RepeatPrint_HomeArm(0);
+				//if(DwinMenu_reprint.index - MROWS == REPRINT_CASE_PUSHARM) Item_RepeatPrint_PushArm(0);
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_reprint.now + MROWS - DwinMenu_reprint.index);
@@ -264,16 +310,25 @@ void HMI_RepeatPrint() {
 				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_ZHEIGTH), ReprintManager.RePrintZHeigth);
 				EncoderRate.enabled = true;
 			break;
-
+			
+		#if HAS_REPEATPRINT_BASE	
+			case REPRINT_CASE_BASEHEIGTH:  			// Z Heigth
+				DwinMenuID = DWMENU_SET_REPRINT_BASEHEIGTH;
+				HMI_Value.RePrintBaseHeigth = ReprintManager.RePrintBaseHeigth*MINUNITMULT;			
+				DWIN_Draw_Selected_Small_Float21(MENUVALUE_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_BASEHEIGTH), HMI_Value.RePrintBaseHeigth);
+				EncoderRate.enabled = true;
+			break;
+		#endif		
+		
 			case REPRINT_CASE_HOMEARM: 			// HOME Arm
-				if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
+				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN())	break;
 			
 				if(ReprintManager.enabled && !ReprintManager.is_AutoRepeatPrinting)
 	  			ReprintManager.RepeatPrint_HomeArm();
 			break;
 
 			case REPRINT_CASE_PUSHARM: 			// Push Arm
-				if(IS_SD_PRINTING() || IS_SD_PAUSED())	break;
+				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN())	break;
 				
 				if(ReprintManager.enabled && !ReprintManager.is_AutoRepeatPrinting)
 	  			ReprintManager.RepeatPrint_MoveArm(ReprintManager.Push_length);

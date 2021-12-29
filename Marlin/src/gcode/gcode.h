@@ -649,7 +649,7 @@ private:
 		static void M181();
 		static void M182();
 		static void M183();
-		static void M184();
+		TERN_(HAS_REPEATPRINT_BASE, static void M184());
   #endif
 
   static void M200();

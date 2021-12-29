@@ -690,7 +690,8 @@ namespace Language_en {
 	PROGMEM Language_Str MSG_REPEATPRINT_TIMES               = _UxGT("Times");
 	PROGMEM Language_Str MSG_REPEATPRINT_LENGTH              = _UxGT("Push Length");
 	PROGMEM Language_Str MSG_REPEATPRINT_BEDTEMP             = _UxGT("Bed Temp");
-	PROGMEM Language_Str MSG_REPEATPRINT_ZHEIGTH              = _UxGT("Z Heigth");
+	PROGMEM Language_Str MSG_REPEATPRINT_ZHEIGTH             = _UxGT("Z Heigth");
+	PROGMEM Language_Str MSG_REPEATPRINT_BASEHEIGTH          = _UxGT("Base Heigth");
 	PROGMEM Language_Str MSG_REPEATPRINT_HOMEARM             = _UxGT("Home Arm");
 	PROGMEM Language_Str MSG_REPEATPRINT_PUSHARM             = _UxGT("Push Arm");
 #endif

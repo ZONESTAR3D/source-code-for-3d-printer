@@ -41,13 +41,13 @@
 
 RePrint ReprintManager;
 bool RePrint::enabled = false;
+bool RePrint::is_repeatPrinting = false;
 bool RePrint::is_AutoRepeatPrinting = false;
 bool RePrint::is_RepeatPrintOnce = false;
 bool RePrint::is_ArmHomed = false;
 bool RePrint::is_ArmL_Stopped = false;
 bool RePrint::is_ArmR_Stopped = false;
 bool RePrint::gotReferenceBedTemp = false;
-float RePrint::RePrintPassZ = 0.0;
 
 char rePrint_filename[20] = {0};
 int16_t RePrint::RepeatTimes = 0;
@@ -55,6 +55,9 @@ int16_t RePrint::Push_length = DEFAULT_REPRINT_ARM_LENGHT;
 int16_t RePrint::arm_current_pos = 0;
 int16_t RePrint::Bedtemp = DEFAULT_REPRINT_BEDTEMP;
 int16_t RePrint::RePrintZHeigth = DEFAULT_REPRINT_ZHEIGTH;
+#if HAS_REPEATPRINT_BASE
+float RePrint::RePrintBaseHeigth = DEFAULT_REPEATPRINT_BASE_HEIGTH;
+#endif
 int16_t RePrint::RePrint_wait_seconds = WAIT_SECONDS_AFTER_BEDCOOL;
 uint8_t RePrint::RePrint_status = REPRINT_IDLE;
 
@@ -175,7 +178,7 @@ bool RePrint::RepeatPrint_HomeArm(bool isblocked /*= true*/) {
 	else {
 		//Home Bumping
 		RepeatPrint_Arm_Push((1<<BIT_ARM_L)|(1<<BIT_ARM_R));				
-		Reprint_timer = now + ARM_MM_TO_MS(REPRINT_ARM_BUMP_LENGTH);
+		Reprint_timer = now + ARM_MM_TO_MS(REPRINT_ARM_HOMEBUMP_LENGTH);
 		TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Homing bump...")));
 		TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Home bump")));	
 		do{
@@ -289,6 +292,8 @@ void RePrint::RepeatPrinting_Reset() {
 	RepeatTimes = 0;
 	is_ArmHomed = false;
 	is_AutoRepeatPrinting = false;
+	is_RepeatPrintOnce = false;
+	is_repeatPrinting = false;
 	RePrint_status = REPRINT_IDLE;	
 }
 
@@ -309,7 +314,7 @@ void RePrint::RepeatPrinting_wait_bedCool() {
 		now = millis();
 		if (ELAPSED(now, next_temp_ms)){
 			next_temp_ms = now + 1000UL;
-			buzzer.tone(20,1000);
+			//buzzer.tone(20,1000);
 			sprintf_P(string_buf, PSTR("Wait bed cool ( < %2d )."), (thermalManager.degTargetBed()+10));
 			for(uint8_t i = 0; i < count%10; i++) strcat(string_buf, PSTR("."));
 			TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, string_buf));
@@ -400,6 +405,7 @@ void RePrint::RepeatPrinting_process() {
 			//Wait hotbed Cooldown			
 			if(thermalManager.degBed() > Bedtemp){
 				if(ELAPSED(now, RepeatPrint_temp_ms)){
+					//buzzer.tone(20,1000);
 					RepeatPrint_temp_ms = now + 1000UL;
 					count++;
 					sprintf_P(string_buf, PSTR("Wait bed cool ( < %2d )."), Bedtemp);
@@ -429,20 +435,17 @@ void RePrint::RepeatPrinting_process() {
 			break;
 
 		case REPRINT_PUSHING:						
-			//RepeatPrint_MoveArm(Push_length, false);
-			queue.inject_P(PSTR("M181"));	
-			planner.synchronize();
+			RepeatPrint_MoveArm(Push_length, false);
+			//queue.inject_P(PSTR("M181"));	
+			//planner.synchronize();
 			RePrint_status = REPRINT_HOMEAGAIN;
 			break;
 
 		case REPRINT_HOMEAGAIN:
-			//TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_HOMING));
-			//RepeatPrint_HomeArm(false);
-			queue.inject_P(PSTR("M180"));
-			planner.synchronize();
+			TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_HOMING));
+			RepeatPrint_HomeArm(false);
 			queue.inject_P(PSTR("G28 XY"));
-			planner.synchronize();				
-
+			planner.synchronize();
 			//RePrint_status = REPRINT_CHECK_FILEEXIST;
 			RePrint_status = REPRINT_PRINTNEXTONT;
 			break;
@@ -485,6 +488,7 @@ void RePrint::RepeatPrinting_process() {
 			planner.synchronize();	
 			buzzer.tone(20, 2000);
 			buzzer.tone(20, 0);
+			is_repeatPrinting = true;
 			card.openAndPrintFile(rePrint_filename);
 			if(is_AutoRepeatPrinting) RepeatTimes--;
 			is_RepeatPrintOnce = false;

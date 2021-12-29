@@ -1984,6 +1984,33 @@ void HMI_Config() {
 					DwinMenu_configure.index = DwinMenu_configure.now;
 					// Scroll up and draw a blank bottom line
 					Scroll_Menu(DWIN_SCROLL_UP);
+					
+				#if ENABLED(FWRETRACT)
+					if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
+				#endif
+				
+				#if ENABLED(OPTION_REPEAT_PRINTING) 
+					if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
+				#endif
+				
+				#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+					if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+				#endif
+				
+				#if ENABLED(POWER_LOSS_RECOVERY)
+					if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
+				#endif
+				
+				#if ENABLED(OPTION_AUTOPOWEROFF)
+					if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+				#endif
+				
+				#if ENABLED(OPTION_WIFI_MODULE)
+					if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
+					#if ENABLED(OPTION_WIFI_BAUDRATE) 
+					if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
+					#endif
+				#endif				
 				}
 				else 
 					Move_Highlight(1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -1993,52 +2020,51 @@ void HMI_Config() {
 			if (DwinMenu_configure.now > MROWS && DwinMenu_configure.now > DwinMenu_configure.index) {
 				DwinMenu_configure.index = DwinMenu_configure.now;
 				// Scroll up and draw a blank bottom line
-				Scroll_Menu(DWIN_SCROLL_UP);	
-
+				Scroll_Menu(DWIN_SCROLL_UP);
+				
 			#if ENABLED(FWRETRACT)
 				if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_REPEAT_PRINTING) 
-				else if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
 			#endif
 			
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
 			#endif
 			
 			#if ENABLED(POWER_LOSS_RECOVERY)
-				else if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_AUTOPOWEROFF)
-				else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_WIFI_MODULE)
-				else if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
-			#if ENABLED(OPTION_WIFI_BAUDRATE) 
-				else if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
-			#endif
+				if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
+				#if ENABLED(OPTION_WIFI_BAUDRATE) 
+				if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
+				#endif
 			#endif			
 			
 			#if ENABLED(OPTION_BED_COATING) 
-				else if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
 			#endif			
 			
 			#if ABL_GRID
-				else if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
-				else if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
+				if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
-				else if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
+				if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
 			#endif			
 			
 			#if ENABLED(HAS_PID_HEATING)
-				else if(DwinMenu_configure.index == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(MROWS);			
-			#endif
-			 
+				if(DwinMenu_configure.index == CONFIG_CASE_PIDAUTOTUNE) Item_Config_PIDAutoTune(MROWS);			
+			#endif			 
 			}
 			else 
 				Move_Highlight(1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -2049,8 +2075,8 @@ void HMI_Config() {
 			if (DwinMenu_configure.now < DwinMenu_configure.index - MROWS) {
 				DwinMenu_configure.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
-				if(DwinMenu_configure.index - MROWS == CONFIG_CASE_BACK) Draw_Back_First();
 
+				if(DwinMenu_configure.index - MROWS == CONFIG_CASE_BACK) Draw_Back_First();
 			#if ENABLED(FWRETRACT)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_RETRACT) Item_Config_Retract(0);
 			#endif
@@ -2230,7 +2256,6 @@ void HMI_Config() {
 				DWIN_Draw_IntValue_Default_Color(SELECT_COLOR, 3, MENUVALUE_X+8, MBASE(CONFIG_CASE_PIDAUTOTUNE + MROWS -DwinMenu_configure.index), HMI_Value.PIDAutotune_Temp);			
 			break;
  	#endif//CONFIG_CASE_PIDAUTOTUNE
-
    
 			default: break;
 		}
@@ -2473,7 +2498,7 @@ void HMI_Control() {
 			if (DwinMenu_control.now < DwinMenu_control.index - MROWS) {
 				DwinMenu_control.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
-				if (DwinMenu_control.index - MROWS == CONTROL_CASE_BACK) Draw_Back_First(1);    		
+				if (DwinMenu_control.index - MROWS == CONTROL_CASE_BACK) Draw_Back_First();    		
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MIXER ) Item_Control_Mixer(0);
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_CONFIG ) Item_Control_Config(0);
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MOTION ) Item_Control_Motion(0);

@@ -68,15 +68,15 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         }
       #endif
     #endif
-
 		
-		#if ENABLED(OPTION_REPEAT_PRINTING)
-		if(ReprintManager.enabled && ReprintManager.RePrintPassZ > 0 && !parser.seen('Z')){
-			if(current_position.z <= ReprintManager.RePrintPassZ){
+		#if (ENABLED(OPTION_REPEAT_PRINTING) && HAS_REPEATPRINT_BASE)
+		if(ReprintManager.enabled && ReprintManager.is_repeatPrinting \
+			&& (ReprintManager.RePrintBaseHeigth > 0) && !parser.seen('Z')) {
+			if(current_position.z <= ReprintManager.RePrintBaseHeigth){
 				if (parser.linearval('F') > 0)
 			    feedrate_mm_s = parser.value_feedrate();
 				return;
-			}			
+			}
 		}
 		#endif
 

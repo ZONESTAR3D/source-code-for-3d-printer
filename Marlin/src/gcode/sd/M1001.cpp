@@ -64,6 +64,11 @@
 #include "../../feature/repeat_printing.h"
 #endif
 
+#if HAS_DWIN_LCD
+  #include "../../lcd/dwin/dwin_ui/dwin.h"
+#endif
+
+
 /**
  * M1001: Execute actions for SD print completion
  */
@@ -110,6 +115,8 @@ void GcodeSuite::M1001() {
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());	
 
 	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.Prepare_RepeatPrint());
+	
+	TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());
 }
 
 #endif // SDSUPPORT

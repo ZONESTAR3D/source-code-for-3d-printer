@@ -3588,6 +3588,22 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
+/**
+ * repeat printing settings
+**/
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#define	REPRINT_ARM_HOMEBUMP_LENGTH	3								//Bump mm after arm homed
+#define DEFAULT_REPRINT_ARM_LENGHT	(Y_MAX_POS+30)	//Arm push length
+#define	DEFAULT_REPRINT_ZHEIGTH			30							//25 ~ Z_MAX_POS/2, move Z to this heigth before pushing the arm
+#define	DEFAULT_REPRINT_BEDTEMP			25							//15 ~ 100, bed temp while remove the prints, can be recoverd by M182
+#define	WAIT_SECONDS_AFTER_BEDCOOL	30							//wait seconds after cool down
+#define	HAS_REPEATPRINT_BASE				true						//
+#define HAS_BED_COOL_FAN						false						//
+#if HAS_BED_COOL_FAN
+	#define	BED_COOL_FAN_PIN 					FAN1_PIN				//pin of the bed cooling fan 
+#endif	
+#endif
+
 // @section develop
 
 //

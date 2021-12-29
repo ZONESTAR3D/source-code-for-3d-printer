@@ -74,22 +74,25 @@ void GcodeSuite::M183() {
 			for (char *fn = parser.string_arg; *fn; ++fn) if(*fn == ' ') *fn = '\0';
 			if(strlen(parser.string_arg) > 4)
 		  	strcpy(rePrint_filename, parser.string_arg);
-		}
+		}		
+		ReprintManager.is_AutoRepeatPrinting = false;
+		ReprintManager.RepeatTimes = 0;
 		ReprintManager.is_RepeatPrintOnce = true;
 	}
 }
 
+#if HAS_REPEATPRINT_BASE
 /**
- * M184: Start print from Z heighth
+ * M184: Start print from Z heigth
  * 
  */
  void GcodeSuite::M184() {	
+ 	//ReprintManager.RePrintBaseHeigth = 0.0;
 	if(ReprintManager.enabled){	
 		if(parser.seen('S')){
-			ReprintManager.RePrintPassZ = parser.value_float();
-			return;
+			ReprintManager.RePrintBaseHeigth = parser.value_float();
 		}
-		ReprintManager.RePrintPassZ = 0.0;
 	}
 }
+#endif
 #endif // OPTION_REPEAT_PRINTING

@@ -53,7 +53,13 @@ void lcd_sd_updir() {
 #endif
 
 inline void sdcard_start_selected_file() {
-  card.openAndPrintFile(card.filename);
+  card.openAndPrintFile(card.filename);	
+#if ENABLED(OPTION_REPEAT_PRINTING) 
+	ReprintManager.is_repeatPrinting = false;
+	ReprintManager.is_AutoRepeatPrinting = false;
+	ReprintManager.is_RepeatPrintOnce = false;
+	strcpy(rePrint_filename, card.filename);
+#endif
   ui.return_to_status();
   ui.reset_status();
 }

@@ -219,7 +219,7 @@ void GcodeSuite::G28() {
   #endif
 
 	//TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrint_HomeArm(true));
-
+	
   // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
