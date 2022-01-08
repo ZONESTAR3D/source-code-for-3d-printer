@@ -45,6 +45,11 @@ MarlinUI ui;
   #endif
 #endif
 
+#if HAS_DWIN_LCD
+#include "./dwin/dwin_ui/dwin.h"
+#endif
+
+
 #if LCD_HAS_WAIT_FOR_MOVE
   bool MarlinUI::wait_for_move; // = false
 #endif
@@ -1082,6 +1087,7 @@ void MarlinUI::update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 
   TERN_(HAS_GRAPHICAL_TFT, tft_idle());
+
 }
 
 #if HAS_ADC_BUTTONS
@@ -1597,7 +1603,9 @@ void MarlinUI::update() {
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
     TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
   }
-
+	void MarlinUI::update() {  
+	 TERN_(HAS_DWIN_LCD, DWIN_Update());
+	}
 #endif // !HAS_DISPLAY
 
 #if ENABLED(SDSUPPORT)

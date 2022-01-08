@@ -774,7 +774,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(USE_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  TERN(HAS_DWIN_LCD, DWIN_Update(), ui.update());
+  ui.update();
   
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1229,7 +1229,7 @@ void setup() {
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-    SETUP_RUN(caselight.update_brightness());
+    SETUP_RUN(caselight.update_brightness());	
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)

@@ -89,16 +89,27 @@
 #include "DwinMenu_RepeatPrint.h"
 #endif
 
-#if ENABLED(SPEAKER)
-#define	DWIN_FEEDBACK_TICK()	do{buzzer.tone(10, 500);} while(0)
+#if USE_BEEPER
+#define	DWIN_FEEDBACK_TICK()				do{buzzer.tone(10, 500);} while(0)
+#define	DWIN_FEEDBACK_TIPS()				do{buzzer.tone(10, 3000);} while(0)
+#define	DWIN_FEEDBACK_CONFIRM()			do{buzzer.tone(50, 3000);buzzer.tone(50, 0);buzzer.tone(50, 1000);} while(0)
+#define	DWIN_FEEDBACK_WARNNING()		do{buzzer.tone(100, 4000);buzzer.tone(100, 0);buzzer.tone(100, 4000);} while(0)
 #else
 #define	DWIN_FEEDBACK_TICK()
+#define	DWIN_FEEDBACK_TIPS()
+#define	DWIN_FEEDBACK_CONFIRM()
+#define	DWIN_FEEDBACK_WARNNING()
 #endif
 
 #define DWIN_SCROLL_UPDATE_INTERVAL 			1000
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL 	10000
 #define POWERDOWN_MACHINE_TIMER 					900//(900*1000/DWIN_SCROLL_UPDATE_INTERVAL)
 
+#if ENABLED(MIXING_EXTRUDER)
+#define	HOTEND_WARNNING_TEMP	230
+#else
+#define	HOTEND_WARNNING_TEMP	HEATER_0_MAXTEMP
+#endif
 
 typedef enum{
 	ID_SM_START = 0,
@@ -212,9 +223,14 @@ typedef enum {
  	DWMENU_SET_UNRETRACT_MM,
  	DWMENU_SET_UNRETRACT_V,	
 	//BED Coating
-	DWMENU_SET_BEDCOATING,
+	DWMENU_SET_BEDCOATING,	
 	DWMENU_SET_HOTENDMAXTEMP,
-	DWMENU_PID_AUTOTUNE,  
+	//
+	DWMENU_PID_TUNE,
+	DWMENU_PID_KP,
+	DWMENU_PID_KI,
+	DWMENU_PID_KD,
+	DWMENU_PID_AUTOTUNE,
 	DWMENU_SET_WIFIBAUDRATE,
 	
 	//Repeat printing
@@ -358,7 +374,7 @@ typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
   TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
   TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
-	TERN_(HAS_PID_HEATING,int16_t PIDAutotune_Temp = 200);
+	TERN_(PID_AUTOTUNE_MENU,int16_t PIDAutotune_Temp = 200);
   int16_t print_speed     = 100;
   int16_t Max_Feedspeed     = 0;
   int16_t Max_Acceleration  = 0;
@@ -378,11 +394,21 @@ typedef struct {
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	int16_t max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
 	#endif
+
+	#if ENABLED(FWRETRACT)
   int16_t Retract_MM_scale      = 0;
   int16_t Retract_V_scale      = 0;
 	int16_t Retract_ZHOP_scale      = 0;
   int16_t unRetract_MM_scale      = 0;
   int16_t unRetract_V_scale      = 0;
+	#endif
+	
+	#if ENABLED(PID_EDIT_MENU) 	
+	int16_t PIDKp      = 0;
+	int16_t PIDKi      = 0;
+	int16_t PIDKd      = 0;
+	#endif
+	
 	int16_t Zoffset_Scale      = 0;
 	int16_t ProbeZoffset_Scale = 0;
 	
@@ -512,6 +538,9 @@ extern DwinMenu DwinMenu_bltouch;
 #endif
 #if ENABLED(FWRETRACT)
 extern DwinMenu DwinMenu_fwretract;
+#endif
+#if ENABLED(PID_EDIT_MENU)
+extern DwinMenu DwinMenu_PIDTune;
 #endif
 extern DwinMenu DwinMenu_configure;
 

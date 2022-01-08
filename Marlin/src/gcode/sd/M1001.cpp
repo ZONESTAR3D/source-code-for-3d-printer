@@ -114,7 +114,7 @@ void GcodeSuite::M1001() {
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());	
 
-	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.Prepare_RepeatPrint());
+	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.CheckandStart_RepeatPrint());
 	
 	TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());
 }

@@ -42,14 +42,13 @@
 RePrint ReprintManager;
 bool RePrint::enabled = false;
 bool RePrint::is_repeatPrinting = false;
-bool RePrint::is_AutoRepeatPrinting = false;
-bool RePrint::is_RepeatPrintOnce = false;
 bool RePrint::is_ArmHomed = false;
 bool RePrint::is_ArmL_Stopped = false;
 bool RePrint::is_ArmR_Stopped = false;
 bool RePrint::gotReferenceBedTemp = false;
 
 char rePrint_filename[20] = {0};
+char rePrint_filename_next[20] = {0};
 int16_t RePrint::RepeatTimes = 0;
 int16_t RePrint::Push_length = DEFAULT_REPRINT_ARM_LENGHT;
 int16_t RePrint::arm_current_pos = 0;
@@ -208,7 +207,7 @@ void RePrint::RepeatPrint_MoveArm(const int16_t pos/*=DEFAULT_REPRINT_ARM_LENGHT
 	millis_t next_temp_ms = now;
 	uint8_t select_arm = 0;
 	int16_t newpos = pos;	
-	NOLESS(newpos, MIN_REPRINT_ARM_LENGHT);
+	NOLESS(newpos, 0);
 	NOMORE(newpos, MAX_REPRINT_ARM_LENGHT);
 	
 	int16_t move_length = newpos - arm_current_pos;	
@@ -288,60 +287,24 @@ void RePrint::getRefernceBedTemp(const float hotend_temp, const float bed_temp) 
 }
 
 void RePrint::RepeatPrinting_Reset() {
-	RepeatPrint_ArmPort_Init();
-	RepeatTimes = 0;
+	enabled = false;
+	RepeatTimes = 0;	
 	is_ArmHomed = false;
-	is_AutoRepeatPrinting = false;
-	is_RepeatPrintOnce = false;
 	is_repeatPrinting = false;
 	RePrint_status = REPRINT_IDLE;	
 }
 
-void RePrint::initialize() {
-	enabled = false;
+void RePrint::initialize() {	
+	RepeatPrint_ArmPort_Init();
 	RepeatPrinting_Reset();
 }
 
 char string_buf[50] = {0};
-void RePrint::RepeatPrinting_wait_bedCool() {
-	millis_t now = millis();
-	millis_t next_temp_ms = 0;	
-	uint8_t count = 0;
-	
-	thermalManager.setTargetBed(Bedtemp>10 ? Bedtemp-10 : 0);
-	planner.synchronize();
-	do {
-		now = millis();
-		if (ELAPSED(now, next_temp_ms)){
-			next_temp_ms = now + 1000UL;
-			//buzzer.tone(20,1000);
-			sprintf_P(string_buf, PSTR("Wait bed cool ( < %2d )."), (thermalManager.degTargetBed()+10));
-			for(uint8_t i = 0; i < count%10; i++) strcat(string_buf, PSTR("."));
-			TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, string_buf));
-			TERN_(HAS_LCD_MENU, ui.set_status(string_buf));		
-			count++;
-		}
-		idle();
-		TERN_(HAS_DWIN_LCD, if(DWIN_status != ID_SM_PRINTING) return);
-	}while(thermalManager.degBed() > (thermalManager.degTargetBed()+10));
-}
-
-void RePrint::Prepare_RepeatPrint() {
-	if(!enabled) return;	
-	if(is_RepeatPrintOnce){
-		is_AutoRepeatPrinting = false;		
-	}
-	else if(RepeatTimes > 0) {		
-		is_AutoRepeatPrinting = true;	
-		is_RepeatPrintOnce = false;
-	}
-	RePrint_status = REPRINT_PREPARE;
-}
 
 static millis_t RepeatPrint_temp_ms = millis();
 void RePrint::RepeatPrinting_process() {	
 	
-	if(!enabled || (!is_AutoRepeatPrinting && !is_RepeatPrintOnce)) return;
+	if(!enabled) return;
 	millis_t now = millis();
 	static uint8_t count = 0;
 	switch(RePrint_status){
@@ -350,45 +313,25 @@ void RePrint::RepeatPrinting_process() {
 			break;
 			
 		case REPRINT_PREPARE:
-			planner.synchronize();
-			if(is_AutoRepeatPrinting){
-				thermalManager.setTargetBed(0);
-				TERN_(HAS_DWIN_LCD, Popup_Window_RepeatPrint());
-				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Start repeat printing..."),10));
-				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Start repeat print")));		
-				RePrint_status = REPRINT_HOMING;
-			}
-			else if(is_RepeatPrintOnce){				
-				//RePrint_status = REPRINT_CHECK_FILEEXIST;
-				RePrint_status = REPRINT_PRINTNEXTONT;
-			}
+			planner.synchronize();			
+			thermalManager.setTargetBed(0);
+			TERN_(HAS_DWIN_LCD, Popup_Window_RepeatPrint());
+			TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Start repeat printing..."),10));
+			TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Start repeat print")));		
+			RePrint_status = REPRINT_HOMING;
 			break;
 			
 		case REPRINT_HOMING:		
-			if(!TEST(axis_homed, X_AXIS) || !TEST(axis_homed, Y_AXIS)){
-				queue.inject_P(PSTR("G28 XY"));	
+			if(!TEST(axis_homed, X_AXIS) || !TEST(axis_homed, Y_AXIS) || current_position.x > 0 || current_position.y > 0)
+			{			
+				queue.inject_P(PSTR("G28 XY"));
 				planner.synchronize();
 			}
 			if(!is_ArmHomed) {
-				queue.inject_P(PSTR("M180"));				
+				queue.inject_P(PSTR("M180"));
 				planner.synchronize();				
-			}
-			RePrint_status = REPRINT_PREPARE_YMOVE;
-			break;
-			
-		case REPRINT_PREPARE_YMOVE:
-			queue.inject_P(PSTR("G90\nG1 X150 Y305 F3600"));
-			planner.synchronize();
-			RePrint_status = REPRINT_PREPARE_ZMOVE;
-			break;
-			
-		case REPRINT_PREPARE_ZMOVE:
-			if(TEST(axis_known_position, Z_AXIS)){
-				sprintf_P(string_buf,PSTR("G1 Z%d F480"), RePrintZHeigth);
-				queue.inject(string_buf);
-				planner.synchronize();
-			}
-			RePrint_status = REPRINT_PREPARE_STARTCOOL;		
+			}			
+			RePrint_status = REPRINT_PREPARE_STARTCOOL;
 			break;
 
 		case REPRINT_PREPARE_STARTCOOL:
@@ -405,7 +348,7 @@ void RePrint::RepeatPrinting_process() {
 			//Wait hotbed Cooldown			
 			if(thermalManager.degBed() > Bedtemp){
 				if(ELAPSED(now, RepeatPrint_temp_ms)){
-					//buzzer.tone(20,1000);
+					DWIN_FEEDBACK_TICK();
 					RepeatPrint_temp_ms = now + 1000UL;
 					count++;
 					sprintf_P(string_buf, PSTR("Wait bed cool ( < %2d )."), Bedtemp);
@@ -414,14 +357,29 @@ void RePrint::RepeatPrinting_process() {
 					TERN_(HAS_LCD_MENU, ui.set_status(string_buf));	
 				}
 			}
-			else { 				
-				TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_COOLDOWN_WAIT));
-				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Wait more seconds...")));
-				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Wait more seconds")));				
-				RePrint_wait_seconds = WAIT_SECONDS_AFTER_BEDCOOL;
-				RepeatPrint_temp_ms = now + 1000UL;
-				RePrint_status = REPRINT_COOLDOWN_WAIT;
+			else {				
+				RePrint_status = REPRINT_PREPARE_YMOVE;
 			}
+			break;
+
+		case REPRINT_PREPARE_YMOVE:
+			queue.inject_P(PSTR("G90\nG1 X150 Y305 F3600"));
+			planner.synchronize();
+			RePrint_status = REPRINT_PREPARE_ZMOVE;
+			break;
+			
+		case REPRINT_PREPARE_ZMOVE:
+			if(TEST(axis_known_position, Z_AXIS)){
+				sprintf_P(string_buf,PSTR("G1 Z%d F480"), RePrintZHeigth);
+				queue.inject(string_buf);
+				planner.synchronize();
+			}
+			TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_COOLDOWN_WAIT));
+			TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Wait more seconds...")));
+			TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Wait more seconds")));				
+			RePrint_wait_seconds = WAIT_SECONDS_AFTER_BEDCOOL;
+			RepeatPrint_temp_ms = now + 1000UL;
+			RePrint_status = REPRINT_COOLDOWN_WAIT;		
 			break;
 			
 		case REPRINT_COOLDOWN_WAIT:
@@ -429,9 +387,10 @@ void RePrint::RepeatPrinting_process() {
 			if (ELAPSED(now, RepeatPrint_temp_ms)){
 				RepeatPrint_temp_ms = now + 1000UL;
 				RePrint_wait_seconds--;
+				DWIN_FEEDBACK_TIPS();
 				TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_COOLDOWN_WAIT));
 				if(RePrint_wait_seconds == 0)	RePrint_status = REPRINT_PUSHING;				
-			}			
+			}
 			break;
 
 		case REPRINT_PUSHING:						
@@ -444,12 +403,13 @@ void RePrint::RepeatPrinting_process() {
 		case REPRINT_HOMEAGAIN:
 			TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_HOMING));
 			RepeatPrint_HomeArm(false);
-			queue.inject_P(PSTR("G28 XY"));
-			planner.synchronize();
+			//queue.inject_P(PSTR("G28 XY"));
+			//planner.synchronize();
 			//RePrint_status = REPRINT_CHECK_FILEEXIST;
 			RePrint_status = REPRINT_PRINTNEXTONT;
 			break;
 
+	#if 0
 		case REPRINT_CHECK_FILEEXIST:		
 			if(card.fileExists(rePrint_filename)){ 
 				RepeatPrint_temp_ms = now + 1000UL;
@@ -466,15 +426,12 @@ void RePrint::RepeatPrinting_process() {
 				TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());	
 				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Fail to open file!")));
 				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Fail to open file!")));		
-				buzzer.tone(100,3000);
-				buzzer.tone(200, 0);
-				buzzer.tone(100,3000);
-				buzzer.tone(200, 0);
-				buzzer.tone(100,3000);				
+				DWIN_FEEDBACK_WARNNING();		
 				RepeatPrinting_Reset();
 			}
 			break;
-		
+	#endif		
+	
 		case REPRINT_PRINTNEXTONT:
 			TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_PRINTNEXTONT));
 			sprintf_P(string_buf, PSTR("Start print %s"), rePrint_filename);
@@ -485,16 +442,62 @@ void RePrint::RepeatPrinting_process() {
 				now = millis();
 				idle();
 			}while(PENDING(now, RepeatPrint_temp_ms));			
-			planner.synchronize();	
-			buzzer.tone(20, 2000);
-			buzzer.tone(20, 0);
-			is_repeatPrinting = true;
-			card.openAndPrintFile(rePrint_filename);
-			if(is_AutoRepeatPrinting) RepeatTimes--;
-			is_RepeatPrintOnce = false;
-			is_AutoRepeatPrinting = false;
+			
+			DWIN_FEEDBACK_CONFIRM();
+			card.openAndPrintFile(rePrint_filename);			
 			RePrint_status = REPRINT_IDLE;
 			break;
+	}
+}
+
+void RePrint::CheckandStart_RepeatPrint() { 
+	if(!enabled) return;
+	
+	if(is_repeatPrinting) {
+		//check repeat printing next one
+		if(RepeatTimes <= 0) {
+			RepeatPrinting_Reset();
+			return;
+		}
+		RepeatTimes--;		
+		if(RepeatTimes == 0){
+			//Repeat Finished
+			if(strstr(rePrint_filename_next, ".gco")){
+				//print a new file
+				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Print the next file!")));
+				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Print next file!")));
+				ZERO(rePrint_filename);
+				strcpy(rePrint_filename, rePrint_filename_next);
+				ZERO(rePrint_filename_next);
+				is_repeatPrinting = false;
+				RePrint_status = REPRINT_PREPARE;
+				return;
+			}
+			else{
+				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Repeat printing finished!")));
+				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Repeat Finished!")));
+				RepeatPrinting_Reset();
+				return;
+			}
+		}
+		else {
+			//Repeat next times
+			is_repeatPrinting = true;
+			RePrint_status = REPRINT_PREPARE;
+			return;
+		}
+	}
+	else {
+		if(RepeatTimes > 0){
+			//First Repeat
+			is_repeatPrinting = true;
+			RePrint_status = REPRINT_PREPARE;
+			return;
+		}
+		else {
+			RepeatPrinting_Reset();
+			return;
+		}
 	}
 }
 #endif // REPEAT_PRINTING_CONTROL

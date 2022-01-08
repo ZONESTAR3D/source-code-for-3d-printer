@@ -84,7 +84,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     if (ELAPSED(now, next_click_update_ms)) {
       next_click_update_ms = millis() + 300;
       //Encoder_tick();
-      buzzer.tone(20, 1000);
+      DWIN_FEEDBACK_TIPS();
 	  
       const bool was_waiting = wait_for_user;
       wait_for_user = false;

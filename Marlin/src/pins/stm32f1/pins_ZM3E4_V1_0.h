@@ -234,7 +234,7 @@
 // Heaters
 //
 #define HEATER_0_PIN       PC5   // HEATER0
-#define HEATER_1_PIN       PB0   // HEATER1
+//#define HEATER_1_PIN       PB0   // HEATER1
 #define HEATER_BED_PIN     PA2   // HOT BED
 
 #if ENABLED(OPTION_CHAMBER)

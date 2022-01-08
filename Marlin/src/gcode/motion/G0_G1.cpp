@@ -70,7 +70,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     #endif
 		
 		#if (ENABLED(OPTION_REPEAT_PRINTING) && HAS_REPEATPRINT_BASE)
-		if(ReprintManager.enabled && ReprintManager.is_repeatPrinting \
+		if(ReprintManager.enabled && IS_SD_PRINTING() && ReprintManager.is_repeatPrinting \
 			&& (ReprintManager.RePrintBaseHeigth > 0) && !parser.seen('Z')) {
 			if(current_position.z <= ReprintManager.RePrintBaseHeigth){
 				if (parser.linearval('F') > 0)

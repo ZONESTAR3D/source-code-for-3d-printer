@@ -29,6 +29,10 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	#include "../../feature/repeat_printing.h"
+#endif
+
 /**
  * M17: Enable stepper motors
  */
@@ -56,13 +60,26 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen("XYZE")) {
       planner.synchronize();
-      if (parser.seen('X')) DISABLE_AXIS_X();
-      if (parser.seen('Y')) DISABLE_AXIS_Y();
-      if (parser.seen('Z')) DISABLE_AXIS_Z();
-      if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen('E'))) disable_e_steppers();
+			if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen('E'))) disable_e_steppers();
+		#if ENABLED(OPTION_REPEAT_PRINTING)
+			if(!ReprintManager.enabled)			
+		#endif
+			{
+     	 	if (parser.seen('X')) DISABLE_AXIS_X();
+      	if (parser.seen('Y')) DISABLE_AXIS_Y();
+      	if (parser.seen('Z')) DISABLE_AXIS_Z();
+			}    
     }
-    else
-      planner.finish_and_disable();
+    else {
+		#if ENABLED(OPTION_REPEAT_PRINTING)
+			if(ReprintManager.enabled) {
+				planner.synchronize();
+				disable_e_steppers();
+			}
+			else
+		#endif
+				planner.finish_and_disable();
+    }
 
     TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
   }

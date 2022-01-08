@@ -33,6 +33,30 @@
 #define CONFIGURATION_ADV_H_VERSION 020008
 
 //===========================================================================
+//=================== Automatic Repeat Printing Settings ====================
+//===========================================================================
+/**
+ * Automatic Repeat Printing Settings
+**/
+//#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
+#if ENABLED(OPTION_REPEAT_PRINTING)
+#define RPARML_MIN_ENDSTOP_INVERTING	true
+#define RPARMR_MIN_ENDSTOP_INVERTING	true
+
+#define	REPRINT_ARM_HOMEBUMP_LENGTH	3								//Bump mm after arm homed
+#define DEFAULT_REPRINT_ARM_LENGHT	(Y_MAX_POS+30)	//Arm push length
+#define	DEFAULT_REPRINT_ZHEIGTH			30							//25 ~ Z_MAX_POS/2, move Z to this heigth before pushing the arm
+#define	DEFAULT_REPRINT_BEDTEMP			25							//15 ~ 100, bed temp while remove the prints, can be recoverd by M182
+#define	WAIT_SECONDS_AFTER_BEDCOOL	30							//wait seconds after cool down
+#define	HAS_REPEATPRINT_BASE				true						//
+#define HAS_BED_COOL_FAN						false						//
+#if HAS_BED_COOL_FAN
+	#define	BED_COOL_FAN_PIN 					FAN1_PIN				//pin of the bed cooling fan 
+#endif	
+#endif
+
+
+//===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================
 // @section temperature
@@ -115,7 +139,7 @@
 
 //
 // Hephestos 2 24V heated bed upgrade kit.
-// https://store.bq.com/en/heated-bed-kit-hephestos2
+// 
 //
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -505,14 +529,14 @@
  */
 #define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 				PB0                  // Override the default pin if needed
-  #define INVERT_CASE_LIGHT 			false             // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON 		true          // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define CASE_LIGHT_MAX_PWM 128            // Limit pwm
-  //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
-  //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
-  //#define CASE_LIGHT_USE_NEOPIXEL           // Use NeoPixel LED as case light, requires NEOPIXEL_LED.
+  #define CASE_LIGHT_PIN 								PB0       // Override the default pin if needed
+  #define INVERT_CASE_LIGHT 						false     // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON 				true      // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   		// Set default power-up brightness (0-255, requires PWM pin)
+  //#define CASE_LIGHT_MAX_PWM 128            		// Limit pwm
+  //#define CASE_LIGHT_MENU                   		// Add Case Light options to the LCD menu
+  #define CASE_LIGHT_NO_BRIGHTNESS          		// Disable brightness control. Enable for non-PWM lighting.
+  //#define CASE_LIGHT_USE_NEOPIXEL           		// Use NeoPixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
@@ -1451,11 +1475,11 @@
 // Additional options for DGUS / DWIN displays
 //
 #if HAS_DGUS_LCD
-  #define LCD_SERIAL_PORT 3
-  #define LCD_BAUDRATE 115200
+  #define LCD_SERIAL_PORT 				3
+  #define LCD_BAUDRATE 						115200
 
-  #define DGUS_RX_BUFFER_SIZE 128
-  #define DGUS_TX_BUFFER_SIZE 48
+  #define DGUS_RX_BUFFER_SIZE 		128
+  #define DGUS_TX_BUFFER_SIZE 		48
   //#define SERIAL_STATS_RX_BUFFER_OVERRUNS  // Fix Rx overrun situation (Currently only for AVR)
 
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
@@ -1809,9 +1833,7 @@
 //
 // G2/G3 Arc Support
 //
-#if(MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V2)
 //#define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
-#endif
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT      1 // (mm) Length (or minimum length) of each arc segment
   //#define ARC_SEGMENTS_PER_R    1 // Max segment length, MM_PER = Min
@@ -3588,21 +3610,7 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
-/**
- * repeat printing settings
-**/
-#if ENABLED(OPTION_REPEAT_PRINTING)
-#define	REPRINT_ARM_HOMEBUMP_LENGTH	3								//Bump mm after arm homed
-#define DEFAULT_REPRINT_ARM_LENGHT	(Y_MAX_POS+30)	//Arm push length
-#define	DEFAULT_REPRINT_ZHEIGTH			30							//25 ~ Z_MAX_POS/2, move Z to this heigth before pushing the arm
-#define	DEFAULT_REPRINT_BEDTEMP			25							//15 ~ 100, bed temp while remove the prints, can be recoverd by M182
-#define	WAIT_SECONDS_AFTER_BEDCOOL	30							//wait seconds after cool down
-#define	HAS_REPEATPRINT_BASE				true						//
-#define HAS_BED_COOL_FAN						false						//
-#if HAS_BED_COOL_FAN
-	#define	BED_COOL_FAN_PIN 					FAN1_PIN				//pin of the bed cooling fan 
-#endif	
-#endif
+
 
 // @section develop
 

@@ -445,10 +445,12 @@ volatile bool Temperature::raw_temps_ready = false;
     if (target > GHV(BED_MAX_TARGET, temp_range[heater_id].maxtemp - HOTEND_OVERSHOOT)) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
+			TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Temperature too high!")));
       return;
     }
 
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
+		TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("PID Tuning, please wait!"), 0));
 
     disable_all_heaters();
     TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
@@ -643,6 +645,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
 
+				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("PID Auto tune done!")));
+
         goto EXIT_M303;
       }
 
@@ -650,7 +654,7 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN_(HAL_IDLETASK, HAL_idletask());
 
       // Run UI update
-      TERN(HAS_DWIN_LCD, DWIN_Update(), ui.update());
+      ui.update();
     }
     wait_for_heatup = false;
 

@@ -260,12 +260,11 @@ void Draw_Status_Area() {
 
 void HMI_AudioFeedback(const bool success/*=true*/){
 	if (success) {
-		buzzer.tone(100, 1000);
-		buzzer.tone(10, 0);
-		buzzer.tone(100, 3000);
+		DWIN_FEEDBACK_CONFIRM();
 	}
-	else
-		buzzer.tone(20, 1000);
+	else{
+		DWIN_FEEDBACK_TIPS();
+	}
 }
 
 #if HAS_HOTEND
@@ -306,13 +305,10 @@ void HMI_ETemp() {
 					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
 				break;
 			}			
-			if(HMI_Value.E_Temp > 230){								
+			if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP){								
 				Clear_Dwin_Area(AREA_BOTTOM);
 				DWIN_Show_Status_Message(COLOR_RED, PSTR("Warnning, High temperature!"));
-				buzzer.tone(100, 1000);
-				buzzer.tone(100, 3000);
-				buzzer.tone(100, 1000);
-				buzzer.tone(100, 3000);
+				DWIN_FEEDBACK_WARNNING();
 				set_status_bar_showtime(3);
 			}
 			return;
@@ -321,7 +317,7 @@ void HMI_ETemp() {
 		NOMORE(HMI_Value.E_Temp, (thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT)));
 		NOLESS(HMI_Value.E_Temp, HEATER_0_MINTEMP);
 		// E_Temp value
-		if(HMI_Value.E_Temp > 230)
+		if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 			DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
 		else
 			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);

@@ -473,9 +473,9 @@ public:
     static void set_status(const char* message, const bool=false);
     static void set_status_P(PGM_P message, const int8_t=0);
     static void status_printf_P(const uint8_t, PGM_P message, ...);
-
-    static inline void init() {}
-    static inline void update() {}
+		static void update();
+		
+    static inline void init() {}	
     static inline void return_to_status() {}
     static inline void set_alert_status_P(PGM_P const) {}
     static inline void reset_status(const bool=false) {}

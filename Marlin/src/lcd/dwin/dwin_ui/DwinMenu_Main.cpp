@@ -138,7 +138,7 @@ void HMI_MainMenu() {
 				Draw_File_Menu();
 			}
 			else{
-				buzzer.tone(100, 3000);
+				DWIN_FEEDBACK_WARNNING();
 				DWIN_Show_Status_Message(COLOR_RED, PSTR("No SD card? please check!"));
 			}
 		break;

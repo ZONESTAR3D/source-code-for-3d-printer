@@ -217,8 +217,6 @@ void GcodeSuite::G28() {
       return;
     }
   #endif
-
-	//TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrint_HomeArm(true));
 	
   // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
@@ -308,6 +306,8 @@ void GcodeSuite::G28() {
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
+
+		TERN_(OPTION_REPEAT_PRINTING, if(home_all && ReprintManager.enabled) ReprintManager.RepeatPrint_HomeArm(true));
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 

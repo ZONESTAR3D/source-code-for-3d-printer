@@ -34,7 +34,6 @@
 
 #define MAX_REPRINT_TIMES						999							//Maximum repeat print times
 
-#define MIN_REPRINT_ARM_LENGHT			0								//Minimum arm length
 #define MAX_REPRINT_ARM_LENGHT			(Y_MAX_POS+50)	//Maximum arm length
 
 #define	MIN_REPRINT_BEDTEMP					15							//Minimum bed temp while remove the prints
@@ -64,10 +63,10 @@ typedef enum {
 	REPRINT_IDLE = 0,
 	REPRINT_PREPARE,	
 	REPRINT_HOMING,
-	REPRINT_PREPARE_YMOVE,
-	REPRINT_PREPARE_ZMOVE,
-	REPRINT_PREPARE_STARTCOOL,	
+	REPRINT_PREPARE_STARTCOOL,
 	REPRINT_COOLDOWN,
+	REPRINT_PREPARE_YMOVE,
+	REPRINT_PREPARE_ZMOVE,	
 	REPRINT_COOLDOWN_WAIT,	
 	REPRINT_PUSHING,
 	REPRINT_HOMEAGAIN,
@@ -78,8 +77,7 @@ typedef enum {
 class RePrint {
   public:
 		static bool enabled;		
-		static bool is_AutoRepeatPrinting;
-		static bool is_RepeatPrintOnce;
+		static bool is_RepeatPrint_Removing;
 		static bool is_repeatPrinting;
 		
 		static int16_t RepeatTimes;
@@ -97,9 +95,9 @@ class RePrint {
 		static void getRefernceBedTemp(const float hotend_temp, const float bed_temp);
 		static void RepeatPrinting_Reset();
 		static void initialize();
-		static void RepeatPrinting_wait_bedCool();
 		static void RepeatPrinting_process();
-		static void Prepare_RepeatPrint();
+		static void CheckandStart_RepeatPrint(); 
+		static bool is_removing() {return (RePrint_status != REPRINT_IDLE);}
 		
   private:				
 		static bool is_ArmHomed;
@@ -117,4 +115,5 @@ class RePrint {
 
 extern RePrint ReprintManager;
 extern char rePrint_filename[20];
+extern char rePrint_filename_next[20];
 #endif

@@ -82,11 +82,9 @@ void GcodeSuite::M303() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
-  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
-	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("PID Auto tuning, please wait!"), 0));
+  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));	
   thermalManager.PID_autotune(temp, e, c, u);
-  ui.reset_status();
-	TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("PID Auto tune finished!")));
+  ui.reset_status();	
 }
 
 #endif // HAS_PID_HEATING

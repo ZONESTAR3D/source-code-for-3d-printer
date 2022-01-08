@@ -321,18 +321,17 @@ void HMI_SelectFile() {
 			mixer.update_mix_from_vtool();
 			MIXER_STEPPER_LOOP(i) {HMI_Value.mix_percent[i] = mixer.percentmix[i];}
 		#endif
+
+		
+		#if ENABLED(OPTION_REPEAT_PRINTING) 
+			ReprintManager.is_repeatPrinting = false;
+			strcpy(rePrint_filename, card.filename);
+		#endif
 		
 			// Start choice and print SD file
 			HMI_flag.heat_flag = true;   
 			HMI_flag.show_mode = SHOWED_TUNE;
 			card.openAndPrintFile(card.filename);
-
-		#if ENABLED(OPTION_REPEAT_PRINTING) 
-			ReprintManager.is_repeatPrinting = false;
-			ReprintManager.is_AutoRepeatPrinting = false;
-			ReprintManager.is_RepeatPrintOnce = false;
-			strcpy(rePrint_filename, card.filename);
-		#endif
 
 		#if ENABLED(BABYSTEPPING)
 			prevouis_babyz_offset = last_babyz_offset = babyz_offset = 0.0;
@@ -838,9 +837,7 @@ inline void DWIN_resume_print() {
 }
 
 static void DWIN_Show_Waiting(){
-	buzzer.tone(200, 3000);
-	buzzer.tone(10, 0);
-	buzzer.tone(200, 3000);		
+	DWIN_FEEDBACK_WARNNING();
 	HMI_flag.killtimes++;
 	if(HMI_flag.killtimes <= 2){
 		DWIN_Show_Status_Message(COLOR_RED, PSTR("Is processing, please wait!"));
@@ -982,7 +979,7 @@ void HMI_Tune() {
 			 	case TUNE_CASE_ETEMP: // Nozzle temp
 					DwinMenuID = DWMENU_SET_ETMP;
 					HMI_Value.E_Temp = thermalManager.degTargetHotend(0);
-					if(HMI_Value.E_Temp > 230)
+					if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
 					else
 						DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
@@ -1032,7 +1029,7 @@ void HMI_Tune() {
 
 void DWIN_Draw_PrintDone_Confirm(){	
 #if ENABLED(OPTION_REPEAT_PRINTING)		
-	if(ReprintManager.enabled && (ReprintManager.is_AutoRepeatPrinting || ReprintManager.is_RepeatPrintOnce))	return;
+	if(ReprintManager.enabled && ReprintManager.is_removing())	return;
 #endif
 	// show print done confirm
 	DwinMenuID = DWMENU_POP_STOPPRINT;

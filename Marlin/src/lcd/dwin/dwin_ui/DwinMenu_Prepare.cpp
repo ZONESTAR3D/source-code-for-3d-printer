@@ -226,12 +226,6 @@ void DWIN_PopMenu_LevelingDone() {
 }
 #endif//#if (ABL_GRID && GRID_MAX_POINTS_X <= 7)
 
-inline void _warning_beep(){
-	buzzer.tone(50, 3000);
-	buzzer.tone(50, 0);
-	buzzer.tone(50, 3000);
-}
-
 void DWIN_PopMenu_HomeDone() {
 	if(DwinMenuID == DWMENU_POP_HOME) Draw_Home_Menu();	
 	dwinLCD.UpdateLCD();
@@ -585,7 +579,7 @@ void HMI_Temperature() {
 	    case TEMP_CASE_ETEMP: // Nozzle temperature
 	     DwinMenuID = DWMENU_SET_ETMP;			 
 	     HMI_Value.E_Temp = thermalManager.degTargetHotend(0);			
-			 if(HMI_Value.E_Temp > 230)
+			 if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 				 DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
 			 else
 	     	DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
@@ -974,7 +968,7 @@ void HMI_MoveAxis() {
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-					_warning_beep();
+					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
 			#endif		
@@ -990,7 +984,7 @@ void HMI_MoveAxis() {
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-					_warning_beep();
+					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
 			#endif
@@ -1007,7 +1001,7 @@ void HMI_MoveAxis() {
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend[0] < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-					_warning_beep();
+					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
 			#endif
@@ -1024,7 +1018,7 @@ void HMI_MoveAxis() {
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-					_warning_beep();
+					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
 			#endif
@@ -1041,7 +1035,7 @@ void HMI_MoveAxis() {
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-					_warning_beep();
+					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
 			#endif
@@ -1219,13 +1213,13 @@ static void Dwin_filament_action(uint8_t action){
 #if ENABLED(PREVENT_COLD_EXTRUSION)
 	if(thermalManager.degHotend(0) < EXTRUDE_MINTEMP)	{ 
 		DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
-		_warning_beep();
+		DWIN_FEEDBACK_WARNNING();
 		return;
 	}
 	else 
 #endif
 	if(HMI_flag.clean_status_delay > 0) { 
-		_warning_beep();	
+		DWIN_FEEDBACK_WARNNING();	
 		return;
 	}
 #if ENABLED(MIXING_EXTRUDER)

@@ -109,6 +109,10 @@ DwinMenu DwinMenu_bltouch;
 #if ENABLED(FWRETRACT)
 DwinMenu DwinMenu_fwretract;
 #endif
+#if ENABLED(PID_EDIT_MENU)
+DwinMenu DwinMenu_PIDTune;
+#endif
+
 #if ENABLED(OPTION_REPEAT_PRINTING)
 DwinMenu DwinMenu_reprint;
 #endif
@@ -334,12 +338,12 @@ inline void DWIN_Update_Variable() {
  /* Tune page temperature update */
 	if (DwinMenuID == DWMENU_TUNE){
 #if HAS_HOTEND
-		if(last_temp_hotend_target != thermalManager.temp_hotend[0].target)
-		  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), thermalManager.temp_hotend[0].target);
+		if(last_temp_hotend_target != thermalManager.degTargetHotend(0))
+		  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), thermalManager.degTargetHotend(0));
 #endif
 #if HAS_HEATED_BED
-		if(last_temp_bed_target != thermalManager.temp_bed.target)
-		  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_BTEMP + MROWS - DwinMenu_tune.index), thermalManager.temp_bed.target);
+		if(last_temp_bed_target != thermalManager.degTargetBed())
+		  DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_BTEMP + MROWS - DwinMenu_tune.index), thermalManager.degTargetBed());
 #endif
 #if HAS_FAN
 		if(last_fan_speed != thermalManager.fan_speed[0]) {
@@ -352,12 +356,12 @@ inline void DWIN_Update_Variable() {
  /* Temperature page temperature update */
 	if (DwinMenuID == DWMENU_TEMPERATURE) {
 #if HAS_HOTEND
-		if (last_temp_hotend_target != thermalManager.temp_hotend[0].target)
-			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), thermalManager.temp_hotend[0].target);
+		if (last_temp_hotend_target != thermalManager.degTargetHotend(0))
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), thermalManager.degTargetHotend(0));
 #endif
 #if HAS_HEATED_BED
-		if (last_temp_bed_target != thermalManager.temp_bed.target)
-			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_BTEMP + MROWS - DwinMenu_temp.index), thermalManager.temp_bed.target);
+		if (last_temp_bed_target != thermalManager.degTargetBed())
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_BTEMP + MROWS - DwinMenu_temp.index), thermalManager.degTargetBed());
 #endif
 #if HAS_FAN
 		if (last_fan_speed != thermalManager.fan_speed[0]) {
@@ -369,27 +373,27 @@ inline void DWIN_Update_Variable() {
 
  /* Bottom temperature update */
 #if HAS_HOTEND
-	if (last_temp_hotend_current != thermalManager.temp_hotend[0].celsius) {
-		DWIN_Draw_IntValue_FONT10((thermalManager.temp_hotend[0].celsius > 230)? COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.temp_hotend[0].celsius);
-		last_temp_hotend_current = thermalManager.temp_hotend[0].celsius;
+	if (last_temp_hotend_current != thermalManager.degHotend(0)) {
+		DWIN_Draw_IntValue_FONT10((thermalManager.degHotend(0) > HOTEND_WARNNING_TEMP)? COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.degHotend(0));
+		last_temp_hotend_current = thermalManager.degHotend(0);
 	}
-	if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
+	if (last_temp_hotend_target != thermalManager.degTargetHotend(0)) {
 		if(DwinMenuID == DWMENU_POP_FROD_HEAT && ((++flash_mask&0x01) == 0x01))
 			DWIN_Draw_UnMaskString_FONT10(State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, PSTR("    "));		
 		else 
-			DWIN_Draw_IntValue_FONT10((thermalManager.temp_hotend[0].target > 230)?COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.temp_hotend[0].target);					
-		last_temp_hotend_target = thermalManager.temp_hotend[0].target;
+			DWIN_Draw_IntValue_FONT10((thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP)?COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));					
+		last_temp_hotend_target = thermalManager.degTargetHotend(0);
 	}
 #endif
  
  #if HAS_HEATED_BED
-	if (last_temp_bed_current != thermalManager.temp_bed.celsius) {
-		DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X, State_text_bed_Y, thermalManager.temp_bed.celsius);
-		last_temp_bed_current = thermalManager.temp_bed.celsius;
+	if (last_temp_bed_current != thermalManager.degBed()) {
+		DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X, State_text_bed_Y, thermalManager.degBed());
+		last_temp_bed_current = thermalManager.degBed();
 	}
-	if (last_temp_bed_target != thermalManager.temp_bed.target) {
-		DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X + (State_text_bed_num + 1) * STAT_CHR_W, State_text_bed_Y, thermalManager.temp_bed.target);
-		last_temp_bed_target = thermalManager.temp_bed.target;
+	if (last_temp_bed_target != thermalManager.degTargetBed()) {
+		DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_bed_num, State_text_bed_X + (State_text_bed_num + 1) * STAT_CHR_W, State_text_bed_Y, thermalManager.degTargetBed());
+		last_temp_bed_target = thermalManager.degTargetBed();
 	}
  #endif
  
@@ -417,12 +421,6 @@ void Popup_Window_Temperature(const char *msg, int8_t heaterid) {
 		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2, 280, PSTR("HOT END "));
 	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 280, (char*)msg);
 	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 300, PSTR("Please check it!"));		
-#if 0
-	for(uint8_t i=0; i<20; i++){
-		buzzer.tone(100, 2000);
-		buzzer.tone(100, 0);
-	}
-#endif
 }
 
 
@@ -452,7 +450,7 @@ inline void _check_autoshutdown(){
 		}
 		else {
 			HMI_flag.free_close_timer_rg--;
-			if(HMI_flag.free_close_timer_rg < 10) buzzer.tone(50, 5000);
+			if(HMI_flag.free_close_timer_rg < 10) DWIN_FEEDBACK_TICK();
 		}
 		Draw_Freedown_Machine();
 	}
@@ -585,9 +583,16 @@ void DWIN_HandleScreen() {
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	  case DWMENU_SET_HOTENDMAXTEMP:	HMI_Adjust_hotend_MaxTemp(); break;
 	#endif	
+
+	#if ENABLED(PID_EDIT_MENU)
+		case DWMENU_PID_TUNE:						HMI_PIDTune(); break;
+		case DWMENU_PID_KP:							HMI_PIDTune_KP(); break;
+		case DWMENU_PID_KI:							HMI_PIDTune_KI(); break;
+		case DWMENU_PID_KD:							HMI_PIDTune_KD(); break;
+	#endif
 	
-	#if HAS_PID_HEATING
-		case DWMENU_PID_AUTOTUNE:				HMI_Adjust_hotend_PIDAutoTune(); break;
+	#if ENABLED(PID_AUTOTUNE_MENU)
+		case DWMENU_PID_AUTOTUNE:				HMI_PID_AutoTune(); break;
 	#endif
 
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
@@ -808,4 +813,5 @@ void DWIN_Update() {
 		HMI_SDCardUpdate();	 // SD card update
 	}
 }
+
 #endif // HAS_DWIN_LCD

@@ -80,6 +80,9 @@
 
 #define MBASE(L) (49 + MLINE * (L))
 
+#define	SHOW_PRE_MENU(N) (N > MROWS)
+#define	SHOW_NEXT_MENU(A,B) (A - B > MROWS)
+
 #define ICON_IMAGE_ID	8
 
 #define DWIN_FONT_MENU font8x16

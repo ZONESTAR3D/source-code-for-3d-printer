@@ -146,7 +146,7 @@ void HMI_RePrint_ArmPushLength() {
 			dwinLCD.UpdateLCD();
 			return;
 		}
-		NOLESS(ReprintManager.Push_length, MIN_REPRINT_ARM_LENGHT);
+		NOLESS(ReprintManager.Push_length, 0);
 		NOMORE(ReprintManager.Push_length, MAX_REPRINT_ARM_LENGHT);
 		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_LENGTH), ReprintManager.Push_length);
 		dwinLCD.UpdateLCD();
@@ -323,15 +323,13 @@ void HMI_RepeatPrint() {
 			case REPRINT_CASE_HOMEARM: 			// HOME Arm
 				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN())	break;
 			
-				if(ReprintManager.enabled && !ReprintManager.is_AutoRepeatPrinting)
-	  			ReprintManager.RepeatPrint_HomeArm();
+				queue.inject_P(PSTR("M180"));
 			break;
 
 			case REPRINT_CASE_PUSHARM: 			// Push Arm
 				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN())	break;
 				
-				if(ReprintManager.enabled && !ReprintManager.is_AutoRepeatPrinting)
-	  			ReprintManager.RepeatPrint_MoveArm(ReprintManager.Push_length);
+				queue.inject_P(PSTR("M181"));
 			break;
    
    default: break;
@@ -348,7 +346,7 @@ void Popup_Window_RepeatPrint(){
 	DWIN_Draw_UnMaskString_FONT10_TITLE(14 ,4, PSTR("Repeat Print"));
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272-12*15)/2, 90, PSTR("Repeat Printing"));
 	DWIN_Draw_MaskString_Default_PopMenu( (272-10*20)/2, 120, PSTR("Remain times = "));
-	DWIN_Draw_IntValue_PopMenu(3, (272-10*20)/2+16*10, 120, ReprintManager.RepeatTimes);
+	DWIN_Draw_IntValue_PopMenu(3, (272-10*20)/2+16*10, 120, (ReprintManager.RepeatTimes-1));
 	DWIN_Show_ICON(ICON_CANCEL_E, 85, 240);
 	dwinLCD.Draw_Rectangle(0, COLOR_RED, 85, 240, 186, 279);
 	dwinLCD.Draw_Rectangle(0, COLOR_RED, 84, 239, 187, 280);
