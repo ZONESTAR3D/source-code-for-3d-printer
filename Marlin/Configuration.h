@@ -79,8 +79,8 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
-#define	FIRMWARE_VERSION			    "V1.7.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-01-14"
+#define	FIRMWARE_VERSION			    "V1.7.0_Reprint"
+#define	STRING_DISTRIBUTION_DATE  "2022-01-17"
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				      "www.zonestar3d.com"
@@ -95,7 +95,7 @@
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //===========================================================================
 //optional feature
-//#define	OPTION_LCDDWIN				  		//
+#define	OPTION_LCDDWIN				  		//
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP

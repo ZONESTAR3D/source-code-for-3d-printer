@@ -38,7 +38,7 @@
 /**
  * Automatic Repeat Printing Settings
 **/
-//#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
+#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
 #if ENABLED(OPTION_REPEAT_PRINTING)
 #define RPARML_MIN_ENDSTOP_INVERTING	true
 #define RPARMR_MIN_ENDSTOP_INVERTING	true
@@ -3607,8 +3607,6 @@
   //#define SERVICE_NAME_3      "Service 3"
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
-
-
 
 // @section develop
 
