@@ -131,7 +131,10 @@ void set_status_bar_showtime(const uint8_t t){
 inline void _check_clean_status_bar(){
 	if(HMI_flag.clean_status_delay > 0){
 		HMI_flag.clean_status_delay--;
-		if(HMI_flag.clean_status_delay == 0) Clear_Dwin_Area(AREA_BOTTOM);
+		if(HMI_flag.clean_status_delay == 0){ 
+			Clear_Dwin_Area(AREA_BOTTOM);
+			TERN_(MIXING_EXTRUDER, HMI_Value.old_mix_mode = -1);
+		}
 	}
 }
 
@@ -285,9 +288,7 @@ void DWIN_Show_M117(const char * const message){
 	strncpy(status_message, message, maxLen);
 	status_message[maxLen] = '\0';
 
-	HMI_Value.old_mix_mode = 0;
-	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 0);
-	
+	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 0);	
 	TERN_(OPTION_WIFI_MODULE, _check_wifi());
 }
 
@@ -477,164 +478,164 @@ void Stop_and_return_mainmenu() {
 void DWIN_HandleScreen() {	
  	switch (DwinMenuID){
 		//Main
-		case DWMENU_MAIN:    						HMI_MainMenu(); break;
-		case DWMENU_FILE:   						HMI_SelectFile(); break;
-		case DWMENU_PREPARE:     				HMI_Prepare(); break;
-		case DWMENU_CONTROL:     				HMI_Control(); break;
-		case DWMENU_INFO:								HMI_Info(); break;
+		case DWMENU_MAIN:    								HMI_MainMenu(); break;
+		case DWMENU_FILE:   								HMI_SelectFile(); break;
+		case DWMENU_PREPARE:     						HMI_Prepare(); break;
+		case DWMENU_CONTROL:     						HMI_Control(); break;
+		case DWMENU_INFO:										HMI_Info(); break;
 
 		//print
-		case DWMENU_POP_STOPPRINT:  		HMI_Stop_SDPrinting(); break;
-		case DWMENU_PRINTING:  					HMI_Printing(); break;
-		case DWMENU_TUNE:      					HMI_Tune(); break;
-		case DWMENU_TUNE_PRINTSPEED:   	HMI_PrintSpeed(); break;
-		case DWMENU_POP_PAUSEORSTOP:		HMI_PauseOrStop(); break;
+		case DWMENU_POP_STOPPRINT:  				HMI_Stop_SDPrinting(); break;
+		case DWMENU_PRINTING:  							HMI_Printing(); break;
+		case DWMENU_TUNE:      							HMI_Tune(); break;
+		case DWMENU_TUNE_PRINTSPEED:   			HMI_PrintSpeed(); break;
+		case DWMENU_POP_PAUSEORSTOP:				HMI_PauseOrStop(); break;
 	#if HAS_HEATED_BED
-	  case DWMENU_SET_BTMP:   		 		HMI_BedTemp(); break;
+	  case DWMENU_SET_BTMP:   		 				HMI_BedTemp(); break;
 	#endif
 	#if HAS_FAN
-		case DWMENU_SET_FANSPEED:   		HMI_FanSpeed(); break;
+		case DWMENU_SET_FANSPEED:   				HMI_FanSpeed(); break;
 	#endif	
   #if ENABLED(BABYSTEPPING)
-	  case DWMENU_SET_ZOFFSET:  			HMI_Zoffset(); break;
+	  case DWMENU_SET_ZOFFSET:  					HMI_Zoffset(); break;
 	#endif
 
 		//Prepare
-		case DWMENU_HOME:    	 					HMI_Home(); break; 		
-		case DWMENU_TEMPERATURE:  	 		HMI_Temperature(); break;		
+		case DWMENU_HOME:    	 							HMI_Home(); break; 		
+		case DWMENU_TEMPERATURE:  	 				HMI_Temperature(); break;		
 	#if HAS_PREHEAT
-		case DWMENU_PREHEAT_PLA:				HMI_PLAPreheatSetting(); break;
-		case DWMENU_PREHEAT_ABS:				HMI_ABSPreheatSetting(); break;
+		case DWMENU_PREHEAT_PLA:						HMI_PLAPreheatSetting(); break;
+		case DWMENU_PREHEAT_ABS:						HMI_ABSPreheatSetting(); break;
 	#endif
-		case DWMENU_MOVEAXIS:  					HMI_MoveAxis(); break;			
-		case DWMENU_MOVEX:     					HMI_Move_X(); break;
-	  case DWMENU_MOVEY:     					HMI_Move_Y(); break;
-	  case DWMENU_MOVEZ:     					HMI_Move_Z(); break;
+		case DWMENU_MOVEAXIS:  							HMI_MoveAxis(); break;			
+		case DWMENU_MOVEX:     							HMI_Move_X(); break;
+	  case DWMENU_MOVEY:     							HMI_Move_Y(); break;
+	  case DWMENU_MOVEZ:     							HMI_Move_Z(); break;
 #if HAS_HOTEND
-		case DWMENU_SET_ETMP: 					HMI_ETemp(); break;
-		case DWMENU_MOVE_EXT1:					HMI_Move_Extr(0); break;
+		case DWMENU_SET_ETMP: 							HMI_ETemp(); break;
+		case DWMENU_MOVE_EXT1:							HMI_Move_Extr(0); break;
 	#if(E_STEPPERS > 1)
-		case DWMENU_MOVE_EXT2:					HMI_Move_Extr(1); break;
+		case DWMENU_MOVE_EXT2:							HMI_Move_Extr(1); break;
 	#endif
 	#if(E_STEPPERS > 2)
-		case DWMENU_MOVE_EXT3:					HMI_Move_Extr(2); break;
+		case DWMENU_MOVE_EXT3:							HMI_Move_Extr(2); break;
 	#endif
 	#if(E_STEPPERS > 3)
-		case DWMENU_MOVE_EXT4:					HMI_Move_Extr(3); break;
+		case DWMENU_MOVE_EXT4:							HMI_Move_Extr(3); break;
 	#endif
 	#if ENABLED(MIXING_EXTRUDER)
-		case DWMENU_MOVE_EXTALL:				HMI_Move_AllExtr(); break;	
+		case DWMENU_MOVE_EXTALL:						HMI_Move_AllExtr(); break;	
 	#endif   
 #endif	
-		case DWMENU_FILAMENT:  					HMI_Filament();  break;
-		case DWMENU_FILAMENT_EXTRUDER:	HMI_Filament_Extuder();  break;
-		case DWMENU_FILAMENT_FEEDLENGTH:  		HMI_Filament_FeedLength();  break;
-		case DWMENU_FILAMENT_PURGELENGTH:  		HMI_Filament_PurgeLength();  break;
-		case DWMENU_POP_LEVEL_CATCH:		HMI_BedLeveling(); break;
-		case DWMENU_LEVELING:						HMI_BedLeveling(); break;
-		case DWMENU_LEVEL_DONECONFIRM:	HMI_BedLeveling(); break;
-		case DWMENU_LEVEL_SETOFFSET:    HMI_SetProbZoffset(); break;		
-		case DWMENU_LANGUAGE:						HMI_Language(); break;
-		case DWMENU_POWERDOWN:					HMI_Powerdown(); break;		
+		case DWMENU_FILAMENT:  							HMI_Filament();  break;
+		case DWMENU_FILAMENT_EXTRUDER:			HMI_Filament_Extuder();  break;
+		case DWMENU_FILAMENT_FEEDLENGTH:  	HMI_Filament_FeedLength();  break;
+		case DWMENU_FILAMENT_PURGELENGTH: 	HMI_Filament_PurgeLength();  break;
+		case DWMENU_POP_LEVEL_CATCH:				HMI_BedLeveling(); break;
+		case DWMENU_LEVELING:								HMI_BedLeveling(); break;
+		case DWMENU_LEVEL_DONECONFIRM:			HMI_BedLeveling(); break;
+		case DWMENU_LEVEL_SETOFFSET:    		HMI_SetProbZoffset(); break;		
+		case DWMENU_LANGUAGE:								HMI_Language(); break;
+		case DWMENU_POWERDOWN:							HMI_Powerdown(); break;		
 		
-		//Control
-		case DWMENU_MIXER:     					HMI_Mixer(); break;
-#if ENABLED(MIXING_EXTRUDER)
-		case DWMENU_MIXER_MANUAL: 			HMI_Mixer_Manual(); break;
-		case DWMENU_MIXER_GRADIENT: 		HMI_Mixer_Gradient(); break;
-		case DWMENU_MIXER_RANDOM: 			HMI_Mixer_Random(); break;
-		case DWMENU_MIXER_VTOOL:				HMI_Adjust_Mixer_Vtool(); break;
-		case DWMENU_MANUALMIXER_VTOOL:	HMI_Adjust_Mixer_Manual_Vtool(); break;
-		case DWMENU_MIXER_EXT1: 				HMI_Adjust_Ext_Percent(0); break;
-		case DWMENU_MIXER_EXT2: 				HMI_Adjust_Ext_Percent(1); break;
+		//Control>>Mixer		
+	#if ENABLED(MIXING_EXTRUDER)
+		case DWMENU_MIXER:     							HMI_Mixer(); break;
+		case DWMENU_MIXER_MANUAL: 					HMI_Mixer_Manual(); break;
+		case DWMENU_MIXER_GRADIENT: 				HMI_Mixer_Gradient(); break;
+		case DWMENU_MIXER_RANDOM: 					HMI_Mixer_Random(); break;
+		case DWMENU_MIXER_VTOOL:						HMI_Adjust_Mixer_Vtool(); break;
+		case DWMENU_MANUALMIXER_VTOOL:			HMI_Adjust_Mixer_Manual_Vtool(); break;
+		case DWMENU_MIXER_EXT1: 						HMI_Adjust_Ext_Percent(0); break;
+		case DWMENU_MIXER_EXT2: 						HMI_Adjust_Ext_Percent(1); break;
 	#if(MIXING_STEPPERS > 2)		
-			case DWMENU_MIXER_EXT3: 			HMI_Adjust_Ext_Percent(2); break;
+			case DWMENU_MIXER_EXT3: 					HMI_Adjust_Ext_Percent(2); break;
 	#endif
 	#if(MIXING_STEPPERS > 3)
-			case DWMENU_MIXER_EXT4: 			HMI_Adjust_Ext_Percent(3); break;
+			case DWMENU_MIXER_EXT4: 					HMI_Adjust_Ext_Percent(3); break;
 	#endif
 			
-		case DWMENU_MIXER_GRADIENT_ZSTART:		HMI_Adjust_Gradient_Zpos_Start(); break;
-		case DWMENU_MIXER_GRADIENT_ZEND:			HMI_Adjust_Gradient_Zpos_End(); break;
-		case DWMENU_MIXER_GRADIENT_TSTAR: 		HMI_Adjust_Gradient_VTool_Start(); break;
-		case DWMENU_MIXER_GRADIENT_TEND:			HMI_Adjust_Gradient_VTool_End(); break;
+		case DWMENU_MIXER_GRADIENT_ZSTART:	HMI_Adjust_Gradient_Zpos_Start(); break;
+		case DWMENU_MIXER_GRADIENT_ZEND:		HMI_Adjust_Gradient_Zpos_End(); break;
+		case DWMENU_MIXER_GRADIENT_TSTAR: 	HMI_Adjust_Gradient_VTool_Start(); break;
+		case DWMENU_MIXER_GRADIENT_TEND:		HMI_Adjust_Gradient_VTool_End(); break;
 
-		case DWMENU_MIXER_RANDOM_ZSTART:			HMI_Adjust_Random_Zpos_Start(); break;
-		case DWMENU_MIXER_RANDOM_ZEND:				HMI_Adjust_Random_Zpos_End(); break;
-		case DWMENU_MIXER_RANDOM_HEIGHT:			HMI_Adjust_Random_Height(); break;
-		case DWMENU_MIXER_RANDOM_EXTN:				HMI_Adjust_Random_Extruders(); break;
+		case DWMENU_MIXER_RANDOM_ZSTART:		HMI_Adjust_Random_Zpos_Start(); break;
+		case DWMENU_MIXER_RANDOM_ZEND:			HMI_Adjust_Random_Zpos_End(); break;
+		case DWMENU_MIXER_RANDOM_HEIGHT:		HMI_Adjust_Random_Height(); break;
+		case DWMENU_MIXER_RANDOM_EXTN:			HMI_Adjust_Random_Extruders(); break;
 #endif
 		//Control>>Config
-		case DWMENU_CONFIG:							HMI_Config(); break;	
+		case DWMENU_CONFIG:									HMI_Config(); break;	
 		//Control>>Config>>Retraction
 	#if ENABLED(FWRETRACT) 
-		case DWMENU_SET_RETRACT:				HMI_Retract(); break;
-		case DWMENU_SET_RETRACT_MM:			HMI_Retract_MM(); break;
-		case DWMENU_SET_RETRACT_V:			HMI_Retract_V(); break;
-		case DWMENU_SET_RETRACT_ZHOP:		HMI_Retract_ZHOP(); break;		
-		case DWMENU_SET_UNRETRACT_MM:		HMI_UnRetract_MM(); break;
-		case DWMENU_SET_UNRETRACT_V:		HMI_UnRetract_V(); break;
+		case DWMENU_SET_RETRACT:						HMI_Retract(); break;
+		case DWMENU_SET_RETRACT_MM:					HMI_Retract_MM(); break;
+		case DWMENU_SET_RETRACT_V:					HMI_Retract_V(); break;
+		case DWMENU_SET_RETRACT_ZHOP:				HMI_Retract_ZHOP(); break;		
+		case DWMENU_SET_UNRETRACT_MM:				HMI_UnRetract_MM(); break;
+		case DWMENU_SET_UNRETRACT_V:				HMI_UnRetract_V(); break;
 	#endif	
 
 	#if ENABLED(OPTION_BED_COATING)
-	  case DWMENU_SET_BEDCOATING:			HMI_Adjust_Coating_Thickness(); break;
+	  case DWMENU_SET_BEDCOATING:					HMI_Adjust_Coating_Thickness(); break;
 	#endif
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	  case DWMENU_SET_HOTENDMAXTEMP:	HMI_Adjust_hotend_MaxTemp(); break;
+	  case DWMENU_SET_HOTENDMAXTEMP:			HMI_Adjust_hotend_MaxTemp(); break;
 	#endif	
 
 	#if ENABLED(PID_EDIT_MENU)
-		case DWMENU_PID_TUNE:						HMI_PIDTune(); break;
-		case DWMENU_PID_KP:							HMI_PIDTune_KP(); break;
-		case DWMENU_PID_KI:							HMI_PIDTune_KI(); break;
-		case DWMENU_PID_KD:							HMI_PIDTune_KD(); break;
+		case DWMENU_PID_TUNE:								HMI_PIDTune(); break;
+		case DWMENU_PID_KP:									HMI_PIDTune_KP(); break;
+		case DWMENU_PID_KI:									HMI_PIDTune_KI(); break;
+		case DWMENU_PID_KD:									HMI_PIDTune_KD(); break;
 	#endif
 	
 	#if ENABLED(PID_AUTOTUNE_MENU)
-		case DWMENU_PID_AUTOTUNE:				HMI_PID_AutoTune(); break;
+		case DWMENU_PID_AUTOTUNE:						HMI_PID_AutoTune(); break;
 	#endif
 
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
-		case DWMENU_SET_WIFIBAUDRATE: 	HMI_Adjust_WiFi_BaudRate(); break;
+		case DWMENU_SET_WIFIBAUDRATE: 			HMI_Adjust_WiFi_BaudRate(); break;
 	#endif
 	
 	#if ENABLED(BLTOUCH)
-		case DWMENU_SET_BLTOUCH: 				HMI_Option_Bltouch(); break;
+		case DWMENU_SET_BLTOUCH: 						HMI_Option_Bltouch(); break;
 	#endif
 
 	#if ENABLED(OPTION_REPEAT_PRINTING)
-		case DWMENU_SET_REPRINT:							HMI_RepeatPrint(); break;		
-		case DWMENU_SET_REPRINT_TIMES:				HMI_Reprint_Times(); break;
-		case DWMENU_SET_REPRINT_PUSHLENGTH:		HMI_RePrint_ArmPushLength(); break;
-		case DWMENU_SET_REPRINT_BEDTEMP:			HMI_RePrint_BedTemp(); break;
-		case DWMENU_SET_REPRINT_ZHEIGTH:			HMI_RepeatPrint_ZHeigth(); break;
+		case DWMENU_SET_REPRINT:						HMI_RepeatPrint(); break;		
+		case DWMENU_SET_REPRINT_TIMES:			HMI_Reprint_Times(); break;
+		case DWMENU_SET_REPRINT_PUSHLENGTH:	HMI_RePrint_ArmPushLength(); break;
+		case DWMENU_SET_REPRINT_BEDTEMP:		HMI_RePrint_BedTemp(); break;
+		case DWMENU_SET_REPRINT_ZHEIGTH:		HMI_RepeatPrint_ZHeigth(); break;
 	#if HAS_REPEATPRINT_BASE
-		case DWMENU_SET_REPRINT_BASEHEIGTH:		HMI_RepeatPrint_BaseHeigth(); break;
+		case DWMENU_SET_REPRINT_BASEHEIGTH:	HMI_RepeatPrint_BaseHeigth(); break;
 	#endif
-		case DWMENU_POP_REPEATPRINTING:				HMI_Cancel_RePrint(); break;
+		case DWMENU_POP_REPEATPRINTING:			HMI_Cancel_RePrint(); break;
 	#endif
 	
 		//Control>>Motion
-		case DWMENU_MOTION:    					HMI_Motion(); break;			
-	  case DWMENU_SET_MAXSPEED: 			HMI_MaxSpeed(); break;
-	  case DWMENU_SET_MAXACC: 				HMI_MaxAcceleration(); break;
-	  case DWMENU_SET_MAXJERK:  			HMI_MaxJerk(); break;
-	  case DWMENU_SET_STEPPREMM:			HMI_StepPermm(); break;	  
-	  case DWMENU_SET_MAXSPEED_VALUE: HMI_MaxFeedspeedXYZE(); break;
-	  case DWMENU_SET_MAXACC_VALUE: 	HMI_MaxAccelerationXYZE(); break;
-	  case DWMENU_SET_MAXJERK_VALUE: 	HMI_MaxJerkXYZE(); break;
-	  case DWMENU_SET_STEPPREMM_VALUE: HMI_StepXYZE(); break;
+		case DWMENU_MOTION:    							HMI_Motion(); break;			
+	  case DWMENU_SET_MAXSPEED: 					HMI_MaxSpeed(); break;
+	  case DWMENU_SET_MAXACC: 						HMI_MaxAcceleration(); break;
+	  case DWMENU_SET_MAXJERK:  					HMI_MaxJerk(); break;
+	  case DWMENU_SET_STEPPREMM:					HMI_StepPermm(); break;	  
+	  case DWMENU_SET_MAXSPEED_VALUE: 		HMI_MaxFeedspeedXYZE(); break;
+	  case DWMENU_SET_MAXACC_VALUE: 			HMI_MaxAccelerationXYZE(); break;
+	  case DWMENU_SET_MAXJERK_VALUE: 			HMI_MaxJerkXYZE(); break;
+	  case DWMENU_SET_STEPPREMM_VALUE: 		HMI_StepXYZE(); break;
 
-		case DWMENU_POP_FROD_OPTION:		HMI_Filament_Runout_Option(); break;
-		case DWMENU_POP_FROD_INSERT:		HMI_Filament_Runout_Confirm(); break;
-		case DWMENU_POP_FROD_HEAT:			HMI_Filament_Runout_Confirm(); break;
+		case DWMENU_POP_FROD_OPTION:				HMI_Filament_Runout_Option(); break;
+		case DWMENU_POP_FROD_INSERT:				HMI_Filament_Runout_Confirm(); break;
+		case DWMENU_POP_FROD_HEAT:					HMI_Filament_Runout_Confirm(); break;
 
  	#if ENABLED(BABYSTEPPING)
-		case DWMENU_TUNE_BABYSTEPS:			HMI_Pop_BabyZstep(); break;
+		case DWMENU_TUNE_BABYSTEPS:					HMI_Pop_BabyZstep(); break;
 	#endif		
 		
-		case DWMENU_POP_WAITING:				HMI_Waiting(); break;
+		case DWMENU_POP_WAITING:						HMI_Waiting(); break;
   default: break;
 	}
 }

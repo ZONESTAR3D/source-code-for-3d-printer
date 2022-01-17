@@ -359,8 +359,8 @@ extern _emDWIN_MENUID_ DwinMenuID;
 
 
 typedef struct Mixer_Display_cfg{
-	uint16_t Extruder_X_Coordinate[MIXING_STEPPERS] = {0};
-	uint8_t Extruder_Int_Number[MIXING_STEPPERS] = {0};
+	uint16_t Extruder_X_Coordinate[E_STEPPERS] = {0};
+	uint8_t Extruder_Int_Number[E_STEPPERS] = {0};
 	uint16_t VTool_X_Coordinate = 0;
 	uint8_t VTool_Int_Number = 0;
 	uint8_t Extruder_X_Start_Coordinate[5] = {0,0,34,19,8};

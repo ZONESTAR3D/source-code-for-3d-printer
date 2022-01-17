@@ -33,11 +33,13 @@
 //
 //Control >>> Main
 //
+#if ENABLED(MIXING_EXTRUDER)
 static void Item_Control_Mixer(const uint8_t row) {
  DWIN_Show_MultiLanguage_String(MTSTRING_MIXER, LBLX, MBASE(row));
  Draw_Menu_Line(row, ICON_MIXER);
  Draw_More_Icon(row);
 }
+#endif
 
 static void Item_Control_Config(const uint8_t row) {
  DWIN_Show_MultiLanguage_String(MTSTRING_CONFIG, LBLX, MBASE(row));
@@ -111,8 +113,10 @@ void Draw_Control_Menu(const uint8_t MenuItem) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_CONTROL, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (CCVISI(CONTROL_CASE_BACK)) Draw_Back_First(DwinMenu_control.now == CONTROL_CASE_BACK);             // < Back
-
+	
+#if ENABLED(MIXING_EXTRUDER)
 	if (CCVISI(CONTROL_CASE_MIXER)) Item_Control_Mixer(CCSCROL(CONTROL_CASE_MIXER));
+#endif
 	if (CCVISI(CONTROL_CASE_CONFIG)) Item_Control_Config(CCSCROL(CONTROL_CASE_CONFIG));
 	if (CCVISI(CONTROL_CASE_MOTION)) Item_Control_Motion(CCSCROL(CONTROL_CASE_MOTION));
 	if (CCVISI(CONTROL_CASE_SETPLA)) Item_Control_PLA(CCSCROL(CONTROL_CASE_SETPLA));
@@ -863,8 +867,8 @@ void HMI_Mixer() {
 	}
 	dwinLCD.UpdateLCD();
 }
+#endif //MIXING_EXTRUDER
 
-#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Control >> Configure
@@ -2726,7 +2730,9 @@ void HMI_Control() {
 				DwinMenu_control.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
 				if (DwinMenu_control.index - MROWS == CONTROL_CASE_BACK) Draw_Back_First();    		
+			#if ENABLED(MIXING_EXTRUDER)
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MIXER ) Item_Control_Mixer(0);
+			#endif
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_CONFIG ) Item_Control_Config(0);
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MOTION ) Item_Control_Motion(0);
 				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_SETPLA ) Item_Control_PLA(0);
@@ -2742,10 +2748,12 @@ void HMI_Control() {
 			case 0: // Back				
 				Draw_Main_Menu(false, MAIN_CASE_CONTROL);
 			break;
-
+			
+		#if ENABLED(MIXING_EXTRUDER)
 			case CONTROL_CASE_MIXER: // Mixer
 				Draw_Mixer_Menu();
 			break;
+		#endif
 			
 			case CONTROL_CASE_CONFIG: // Config
 				Draw_Config_Menu();

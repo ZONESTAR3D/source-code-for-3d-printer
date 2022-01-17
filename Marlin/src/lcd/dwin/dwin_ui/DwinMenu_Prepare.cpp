@@ -112,13 +112,13 @@ static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, x_start, y_start, x_start+BAR_WIDTH, y_start+BAR_HEIGTH);			
 			else if(idx == i*GRID_MAX_POINTS_Y+j+1){
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, x_start+1, y_start+1, x_start+BAR_WIDTH-1, y_start+BAR_HEIGTH-1);			
-				if(ABS(value) > 999)
+				if(ABS(value) > 199)
 					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+X_START,  y_start+Y_START, PSTR("Error"));
-				else if(ABS(value) > 199)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
 				else if(ABS(value) > 100)
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
+				else if(ABS(value) > 60)
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);	
-				else if(ABS(value) > 50)
+				else if(ABS(value) > 30)
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
 				else
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
@@ -898,20 +898,22 @@ void HMI_MoveAxis() {
 				DwinMenu_move.index = DwinMenu_move.now;
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
-				
-				if(DwinMenu_move.index == AXISMOVE_CASE_EXALL) Item_Axis_MoveEXAll(MROWS);
+
 		#if HAS_HOTEND
+			#if ENABLED(MIXING_EXTRUDER)
+				if(DwinMenu_move.index == AXISMOVE_CASE_EXALL) Item_Axis_MoveEXAll(MROWS);
+			#endif		
 			#if (E_STEPPERS > 3)
-				else if(DwinMenu_move.index == AXISMOVE_CASE_EX4) Item_Axis_MoveEX4(MROWS);
+				if(DwinMenu_move.index == AXISMOVE_CASE_EX4) Item_Axis_MoveEX4(MROWS);
 			#endif
 			#if (E_STEPPERS > 2)
-				else if(DwinMenu_move.index == AXISMOVE_CASE_EX3)	Item_Axis_MoveEX3(MROWS);
+				if(DwinMenu_move.index == AXISMOVE_CASE_EX3)	Item_Axis_MoveEX3(MROWS);
 			#endif
 			#if(E_STEPPERS > 1)
-				else if(DwinMenu_move.index == AXISMOVE_CASE_EX2)	Item_Axis_MoveEX2(MROWS);
+				if(DwinMenu_move.index == AXISMOVE_CASE_EX2)	Item_Axis_MoveEX2(MROWS);
 			#endif
-				else if(DwinMenu_move.index == AXISMOVE_CASE_EX1)	Item_Axis_MoveEX1(MROWS);	
-			#endif
+				if(DwinMenu_move.index == AXISMOVE_CASE_EX1)	Item_Axis_MoveEX1(MROWS);	
+		#endif
 			}
 			else {
 				Move_Highlight(1, DwinMenu_move.now + MROWS - DwinMenu_move.index);
@@ -999,7 +1001,7 @@ void HMI_MoveAxis() {
 			case AXISMOVE_CASE_EX3: // Extruder3
 			// window tips
 			#if ENABLED(PREVENT_COLD_EXTRUSION)
-				if (thermalManager.degHotend[0] < EXTRUDE_MINTEMP) {
+				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
 					break;
@@ -1203,8 +1205,9 @@ static void Dwin_filament_action(uint8_t action){
 	const feedRate_t old_feedrate = feedrate_mm_s;
 	static uint8_t mux = 1; 
 	static uint8_t t = 2;
-	const uint8_t extruder = HMI_Value.load_extruder-1;
+	
 #if ENABLED(MIXING_EXTRUDER)
+	const uint8_t extruder = HMI_Value.load_extruder-1;
 	const uint8_t old_vtool = mixer.selected_vtool;
 #else
 	const uint8_t old_extruder = active_extruder;

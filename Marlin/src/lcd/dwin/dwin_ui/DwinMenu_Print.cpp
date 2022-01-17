@@ -443,6 +443,7 @@ void Draw_Print_RemainTime() {
 //
 // Mixer Status Area
 //
+#if ENABLED(MIXING_EXTRUDER)
 static void X_Start_Coordinate_Calculation(uint8_t Extruder_number,uint16_t Coordinate){
 	uint8_t j = 0;
 
@@ -463,7 +464,7 @@ static void X_Start_Coordinate_Calculation(uint8_t Extruder_number,uint16_t Coor
   }
 	j++;
 	if(Extruder_number == MIXING_STEPPERS){
-		if((Coordinate < 100)&&(Coordinate >= 10)){ 
+		if((Coordinate < 100) && (Coordinate >= 10)){ 
 			MixerDis.VTool_X_Coordinate = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+7+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*j;
 			MixerDis.VTool_Int_Number = 2;
 		}
@@ -493,6 +494,7 @@ void DWIN_Refresh_Mix_Rate(){
 		}
 	}
 }
+#endif
 
 inline void Draw_Print_ProgressExtruder() {
  #if(E_STEPPERS == 4)
@@ -516,56 +518,28 @@ inline void Draw_Print_ProgressExtruder() {
  #endif
 }
 
+#if ENABLED(MIXING_EXTRUDER)
 void Draw_Print_ProgressMixModel(){	
 	char string_buf[50] = {0};
 	if(mixer.gradient.enabled && HMI_Value.old_mix_mode != 1) {
 		HMI_Value.old_mix_mode = 1;				
 		//Gradient Mix: Zxxx->xxx Vxx->xx		
-	#if 0
-		Clear_Dwin_Area(AREA_BOTTOM);
-		DWIN_Draw_MaskString_Default(10, 455, PSTR("Gradient Mix: Z"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+15*8, 455, (uint16_t)mixer.gradient.start_z);
-		DWIN_Draw_MaskString_Default(10+(15+3)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+(15+3+2)*8, 455, (uint16_t)mixer.gradient.end_z);
-		DWIN_Draw_MaskString_Default(10+(15+3+2+3)*8, 455, PSTR(" V"));
-		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2)*8, 455, mixer.gradient.start_vtool);
-		DWIN_Draw_MaskString_Default(10+(15+3+2+3+2+2)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(2, 10+(15+3+2+3+2+2+2)*8, 455, mixer.gradient.end_vtool);		
-	#else		
 		sprintf_P(string_buf, PSTR("Gradient Mix Z:%3d->%3d V:%2d->%2d"), (uint16_t)mixer.gradient.start_z, (uint16_t)mixer.gradient.end_z, mixer.gradient.start_vtool, mixer.gradient.end_vtool);
 		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
-	#endif
 	}
 	else if(mixer.random_mix.enabled && HMI_Value.old_mix_mode != 2) {
 		HMI_Value.old_mix_mode = 2;			
-		//Random Mix: Zxxx->xxx Hxxx.x Ex
-	#if 0
-		Clear_Dwin_Area(AREA_BOTTOM);	
-		DWIN_Draw_MaskString_Default(10, 455, PSTR("Random Mix: Z"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+13*8, 455, (uint16_t)mixer.random_mix.start_z);
-		DWIN_Draw_MaskString_Default(10+(13+3)*8, 455, PSTR("->"));
-		DWIN_Draw_MaskIntValue_Default(3, 10+(13+3+2)*8, 455, (uint16_t)mixer.random_mix.end_z);
-		DWIN_Draw_MaskString_Default(10+(13+3+2+3)*8, 455, PSTR(" H"));
-		DWIN_Draw_Small_Float31(10+(13+3+2+3+2)*8, 455, mixer.random_mix.height*10);
-		DWIN_Draw_MaskString_Default(10+(13+3+2+3+2+6)*8, 455, PSTR(" E"));
-		DWIN_Draw_MaskIntValue_Default(1, 10+(13+3+2+3+2+6+2)*8, 455, mixer.random_mix.extruders);
-	#else		
+		//Random Mix: Zxxx->xxx Hxxx.x Ex	
 		sprintf_P(string_buf, PSTR("Random Mix Z:%3d->%3d H:%3.1f E:%1d"), (uint16_t)mixer.random_mix.start_z, (uint16_t)mixer.random_mix.end_z, mixer.random_mix.height, mixer.random_mix.extruders);
 		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
-	#endif
 	}
-	else if(HMI_Value.old_mix_mode != 0){
+	else if(!mixer.gradient.enabled && !mixer.random_mix.enabled && HMI_Value.old_mix_mode != 0){
 		HMI_Value.old_mix_mode = 0;
-	#if 0
-		Clear_Dwin_Area(AREA_BOTTOM);
-		DWIN_Draw_MaskString_Default(10, 455, PSTR("Current VTOOL = "));
-		DWIN_Draw_IntValue_Default(2, 10+17*8, 455, mixer.selected_vtool);
-	#else
 		sprintf_P(string_buf, PSTR("Current VTOOL = %2d"), mixer.selected_vtool);
 		DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
-	#endif
 	}
 }
+#endif
 
 inline void Draw_Printing_Screen() {
  DWIN_Show_MultiLanguage_String(PRINTING_MENU_TUNE, GET_ICON_X(TUNE), 325);
@@ -609,11 +583,13 @@ static void Item_Tune_ZOffset(const uint8_t row){
   DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), HMI_Value.Zoffset_Scale);
 }
 
+#if ENABLED(MIXING_EXTRUDER)
 static void Item_Tune_Mixer(const uint8_t row) {
  DWIN_Show_MultiLanguage_String(TUNE_MENU_MIXER, LBLX, MBASE(row));
  Draw_Menu_Line(row, ICON_MIXER);
  Draw_More_Icon(row);
 }
+#endif
 
 static void Item_Tune_Config(const uint8_t row) {
  DWIN_Show_MultiLanguage_String(TUNE_MENU_CONFIG, LBLX, MBASE(row));
@@ -654,7 +630,9 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 #if ENABLED(BABYSTEPPING)
 	if (KCVISI(TUNE_CASE_ZOFF)) Item_Tune_ZOffset(KCSCROL(TUNE_CASE_ZOFF)); 
 #endif
+#if ENABLED(MIXING_EXTRUDER)
 	if (KCVISI(TUNE_CASE_MIXER)) Item_Tune_Mixer(KCSCROL(TUNE_CASE_MIXER)); 
+#endif
 	if (KCVISI(TUNE_CASE_CONFIG)) Item_Tune_Config(KCSCROL(TUNE_CASE_CONFIG)); 
 	
 	if (DwinMenu_tune.now) Draw_Menu_Cursor(KCSCROL(DwinMenu_tune.now));
@@ -666,6 +644,9 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 #if ENABLED(BABYSTEPPING)
 inline void Draw_Babystep_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
+	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	dwinLCD.Draw_String(false, false, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 10, 160, PSTR("Babysteps:"));
 	DWIN_Draw_Big_Float32(170, 160, HMI_Value.Zoffset_Scale);
 }
@@ -925,8 +906,10 @@ void HMI_Tune() {
 				DwinMenu_tune.index = DwinMenu_tune.now;
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
+			#if ENABLED(MIXING_EXTRUDER)
 				if(DwinMenu_tune.index == TUNE_CASE_MIXER) Item_Tune_Mixer(MROWS);
-				else if(DwinMenu_tune.index == TUNE_CASE_CONFIG)	Item_Tune_Config(MROWS);
+			#endif
+				if(DwinMenu_tune.index == TUNE_CASE_CONFIG)	Item_Tune_Config(MROWS);
 			}
 			else {
 				Move_Highlight(1, DwinMenu_tune.now + MROWS - DwinMenu_tune.index);
@@ -1012,9 +995,11 @@ void HMI_Tune() {
 			 	break;
 				#endif
 
+			 #if ENABLED(MIXING_EXTRUDER)
 			 	case TUNE_CASE_MIXER:
 			  	Draw_Mixer_Menu();
 			 		break;
+			 #endif
 
 				case TUNE_CASE_CONFIG:
 			 		Draw_Config_Menu();

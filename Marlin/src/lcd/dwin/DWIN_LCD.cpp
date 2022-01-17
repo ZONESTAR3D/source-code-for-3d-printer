@@ -22,7 +22,7 @@
 
 /********************************************************************************
  * @file     dwin_lcd.cpp
- * @author   LEO / Creality3D
+ * @author   
  * @date     2019/07/18
  * @version  2.0.1
  * @brief    DWIN screen control functions
@@ -83,6 +83,8 @@ FORCE_INLINE static void DWIN_Send(size_t &i) {
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
+// Tx: AA 00 CC 33 C3 3C
+// Rx: AA 00 4F 4B CC 33 C3 3C
 bool DWINLCD::Handshake(void) {
   size_t i = 0;
   DWIN_Byte(i, 0x00);
@@ -336,7 +338,7 @@ void DWINLCD::JPG_ShowAndCache(const uint8_t id) {
   size_t i = 0;
   DWIN_Word(i, 0x2200);
   DWIN_Byte(i, id);
-  DWIN_Send(i);     // AA 23 00 00 00 00 08 00 01 02 03 CC 33 C3 3C
+  DWIN_Send(i);
 }
 
 // Draw an Icon
@@ -374,7 +376,7 @@ void DWINLCD::JPG_CacheToN(uint8_t n, uint8_t id) {
 void DWINLCD::Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
-  DWIN_Byte(i, 0x27);
+  DWIN_Byte(i, 0x26);
   DWIN_Byte(i, 0x80 | cacheID);
   DWIN_Word(i, xStart);
   DWIN_Word(i, yStart);
