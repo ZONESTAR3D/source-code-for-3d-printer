@@ -142,6 +142,11 @@ void DWIN_Show_MultiLanguage_String(uint8_t ItemID, uint16_t x, uint16_t y){
 	dwinLCD.Frame_AreaCopy_Index(IMAGE_CACHE_ID1, HMI_flag.language, ItemID, coordinate, x, y);
 }
 
+uint16_t get_MultiLanguageString_Width(uint8_t ItemID){
+	return pgm_read_word(&MULTILANGSTR_COORDINATE[HMI_flag.language][ItemID][2]) \
+		- pgm_read_word(&MULTILANGSTR_COORDINATE[HMI_flag.language][ItemID][0]);
+}
+
 void Draw_Back_First(const bool is_sel/*=true*/){
 	Draw_Menu_Line(0, ICON_BACK);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MENU_BACK, LBLX, MBASE(0));
@@ -309,13 +314,13 @@ void HMI_ETemp() {
 				Clear_Dwin_Area(AREA_BOTTOM);
 				DWIN_Show_Status_Message(COLOR_RED, PSTR("Warnning, High temperature!"));
 				DWIN_FEEDBACK_WARNNING();
-				set_status_bar_showtime(3);
+				//set_status_bar_showtime(3);
 			}
 			return;
 		}
 		// E_Temp limit
 		NOMORE(HMI_Value.E_Temp, (thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT)));
-		NOLESS(HMI_Value.E_Temp, HEATER_0_MINTEMP);
+		NOLESS(HMI_Value.E_Temp, 0);
 		// E_Temp value
 		if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 			DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
@@ -367,7 +372,7 @@ void HMI_BedTemp() {
 		}
 		// Bed_Temp limit
 		NOMORE(HMI_Value.Bed_Temp, BED_MAX_TARGET);
-		NOLESS(HMI_Value.Bed_Temp, BED_MINTEMP);
+		NOLESS(HMI_Value.Bed_Temp, 0);
 		// Bed_Temp value
 		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(bed_line), HMI_Value.Bed_Temp);
 	}

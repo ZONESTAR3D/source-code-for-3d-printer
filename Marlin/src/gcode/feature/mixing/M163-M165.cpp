@@ -37,6 +37,11 @@
  */
 void GcodeSuite::M163() {
   const int mix_index = parser.intval('S');
+	
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled) return;
+#endif
+
   if (mix_index < MIXING_STEPPERS){
   	mixer.set_collector(mix_index, parser.floatval('P'));
   }
@@ -57,11 +62,16 @@ void GcodeSuite::M163() {
  *              If 'S' is omitted update the active virtual tool.
  */
 void GcodeSuite::M164() {
-  #if MIXING_VIRTUAL_TOOLS > 1
-    const int tool_index = parser.intval('S', -1);
-  #else
-    constexpr int tool_index = 0;
-  #endif
+#if MIXING_VIRTUAL_TOOLS > 1
+  const int tool_index = parser.intval('S', -1);
+#else
+  constexpr int tool_index = 0;
+#endif
+
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled) return;
+#endif
+	
 	if(tool_index >= 0 && tool_index < MIXING_VIRTUAL_TOOLS)
 		mixer.normalize(tool_index);
 	else
@@ -89,6 +99,11 @@ void GcodeSuite::M165() {
   // If no mix factors are given, the old mix is preserved
   const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'H', 'I') };
   uint8_t mix_bits = 0;
+
+#if ENABLED(OPTION_MIXING_SWITCH)
+		if(!mixer.mixing_enabled) return;
+#endif
+	
   MIXER_STEPPER_LOOP(i) {
     if (parser.seenval(mixing_codes[i])) {
       SBI(mix_bits, i);		

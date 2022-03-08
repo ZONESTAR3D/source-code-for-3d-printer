@@ -76,11 +76,10 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-//ATTENTION: V3.0.0 only applied for Z9V5_MK3
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
-#define CUSTOM_MACHINE_NAME 			"Z9V5-E4"
+#define CUSTOM_MACHINE_NAME 			"Z9-E4"
 #define	FIRMWARE_VERSION					"V1.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-01-14"
+#define	STRING_DISTRIBUTION_DATE  "2021-03-01"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -90,15 +89,18 @@
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
 #define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-//===========================================================================
-//optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
-//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
+#define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
+#define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is on
+#define	DEFAULT_MIXING_SWITCH	false		//Default mixing feature is off
+//===========================================================================
+//optional feature
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
@@ -188,7 +190,8 @@
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
-#define SINGLENOZZLE
+//#define SINGLENOZZLE
+//#define	SHARE_HOTEND_HEATER
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
@@ -339,7 +342,7 @@
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
-//#define MIXING_EXTRUDER
+#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)  
   #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
   #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
@@ -506,14 +509,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
+#define HEATER_3_MAXTEMP 250
+#define HEATER_4_MAXTEMP 250
+#define HEATER_5_MAXTEMP 250
+#define HEATER_6_MAXTEMP 250
+#define HEATER_7_MAXTEMP 250
 #define BED_MAXTEMP      125
 
 //===========================================================================
@@ -2381,6 +2384,9 @@
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
 #define ZONESTAR_DWIN_LCD
+#ifdef ZONESTAR_DWIN_LCD
+#define OPTION_DWINLCD_MENUV2
+#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8

@@ -254,14 +254,18 @@ static void Item_Prepare_Home(const uint8_t row) {
 }
 
 static void Item_Prepare_Filament(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_FILAMENT, LBLX, MBASE(row));
+#else
 	DWIN_Draw_UnMaskString_FONT10(LBLX, MBASE(row), PSTR("Filament"));
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 	Draw_More_Icon(row);
 }
 
 static void Item_Prepare_Leveling(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_BED, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_LEVELING, LBLX+GET_ICON_X(AUTO), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_LEVELING, LBLX+get_MultiLanguageString_Width(MTSTRING_BED)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_LEVELING0);
 	Draw_More_Icon(row);
 }
@@ -290,7 +294,7 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 	DwinMenu_prepare.index = _MAX(DwinMenu_prepare.now, MROWS);
 
 #if (PREPARE_CASE_TOTAL > MROWS)	
-	const int16_t scrol = MROWS - DwinMenu_prepare.index;
+	const int8_t scrol = MROWS - DwinMenu_prepare.index;
 	#define PSCROL(L) (scrol + (L))
 #else
 	#define PSCROL(L) (L)
@@ -299,7 +303,7 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_PREPARE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
  
@@ -356,25 +360,25 @@ void Popup_Window_HomeZ(const bool parking=false) {
 
 inline void Item_Home_All(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_ALL, LBLX+GET_ICON_X(HOME), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ALL, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
 	Draw_Menu_Line(row,ICON_HOME_ALL);
 }
 
 inline void Item_Home_X(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+GET_ICON_X(HOME), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
 	Draw_Menu_Line(row,ICON_HOME_X);
 }
 
 inline void Item_Home_Y(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+GET_ICON_X(HOME), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
 	Draw_Menu_Line(row,ICON_HOME_X);
 }
 
 inline void Item_Home_Z(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+GET_ICON_X(HOME), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
 	Draw_Menu_Line(row,ICON_HOME_Z);
 }
 
@@ -385,7 +389,7 @@ void Draw_Home_Menu() {
 	//DwinMenu_home.index = _MAX(DwinMenu_home.now, MROWS);
 	
 #if (HOME_CASE_TOTAL > MROWS)
-	const int16_t scrol = MROWS - DwinMenu_home.index;
+	const int8_t scrol = MROWS - DwinMenu_home.index;
 	#define HSCROL(L) (scrol + (L))
 #else
 	#define HSCROL(L) (L)
@@ -394,7 +398,7 @@ void Draw_Home_Menu() {
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_HOME, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if(HVISI(HOME_CASE_BACK)) Draw_Back_First(DwinMenu_home.now == HOME_CASE_BACK);
@@ -467,23 +471,23 @@ void HMI_Home() {
 //Prepare >> Temperature
 //
 static void Item_Temperature_ETemp(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(TEMP_MENU_HOTEND, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(TEMP_MENU_TEMP, LBLX+GET_ICON_X(HOTEND), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_NOZZLE)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_SETENDTEMP);
   DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetHotend(0));
 }
 
 
 static void Item_Temperature_BTemp(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(TEMP_MENU_BED, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(TEMP_MENU_TEMP, LBLX+GET_ICON_X(BED), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BED, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_BED)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_SETENDTEMP);
   DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetBed());
 }
 
 
 static void Item_Temperature_FANSpeed(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(TEMP_MENU_FAN_SPEED, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FANSPEED, LBLX, MBASE(row));
 	Draw_Menu_Line(row, ICON_FANSPEED);
   DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.fan_speed[0]);
 }
@@ -497,13 +501,13 @@ static void Item_Temperature_FANSpeed(const uint8_t row) {
 
 static void Item_Temperature_PLA(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_PLA, LBLX+GET_ICON_X(PREHEAT), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_PLA, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+10, MBASE(row));
 	Draw_Menu_Line(row, ICON_PLAPREHEAT);
 }
 
 static void Item_Temperature_ABS(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_ABS, LBLX+GET_ICON_X(PREHEAT), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ABS, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+10, MBASE(row));
 	Draw_Menu_Line(row, ICON_ABSPREHEAT);
 }
 
@@ -513,7 +517,7 @@ void Draw_Temperature_Menu() {
 	//DwinMenu_temp.index = _MAX(DwinMenu_temp.now, MROWS);
 	
 #if (TEMP_CASE_TOTAL > MROWS)
-	const int16_t scrol = MROWS - DwinMenu_temp.index;
+	const int8_t scrol = MROWS - DwinMenu_temp.index;
 	#define TCSCROL(L) (scrol + (L))
 #else
 	#define TCSCROL(L) (L)
@@ -521,7 +525,7 @@ void Draw_Temperature_Menu() {
  	#define TCVISI(L) WITHIN(TCSCROL(L), 0, MROWS)
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TEMPERATURE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
@@ -645,29 +649,30 @@ static void _init_Move_Extr(){
 }
 
 static void Item_Axis_MoveX(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+GET_ICON_X(MOVE), MBASE(row));
- Draw_Menu_Line(row, ICON_MOVEX);
- DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), current_position.x * MINUNITMULT);
+	DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_MOVE)+6, MBASE(row));
+	Draw_Menu_Line(row, ICON_MOVEX);
+	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), current_position.x * MINUNITMULT);
 }
 
 static void Item_Axis_MoveY(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+GET_ICON_X(MOVE), MBASE(row));
- Draw_Menu_Line(row, ICON_MOVEY);
- DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), current_position.y * MINUNITMULT);
+	DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_MOVE)+6, MBASE(row));
+	Draw_Menu_Line(row, ICON_MOVEY);
+	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), current_position.y * MINUNITMULT);
 }
 
 static void Item_Axis_MoveZ(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+GET_ICON_X(MOVE), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MOVE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MOVE)+6, MBASE(row));
  Draw_Menu_Line(row, ICON_MOVEZ);
  DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), current_position.z * MINUNITMULT);
 }
+
 #if HAS_HOTEND
 static void Item_Axis_MoveEX1(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_1, LBLX+GET_ICON_X(EXTRUDER)+4, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_1, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_EXTRUDER1);
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Current_E_Scale[0]);
 }
@@ -675,7 +680,7 @@ static void Item_Axis_MoveEX1(const uint8_t row) {
 #if (E_STEPPERS > 1)
 static void Item_Axis_MoveEX2(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_2, LBLX+GET_ICON_X(EXTRUDER)+4, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_2, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_EXTRUDER2);
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Current_E_Scale[1]);
 }
@@ -684,23 +689,25 @@ static void Item_Axis_MoveEX2(const uint8_t row) {
 #if (E_STEPPERS > 2)
 static void Item_Axis_MoveEX3(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_3, LBLX+GET_ICON_X(EXTRUDER)+4, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_3, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_EXTRUDER3);
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Current_E_Scale[2]);
 }
 #endif
+
 #if (E_STEPPERS > 3)
 static void Item_Axis_MoveEX4(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_4, LBLX+GET_ICON_X(EXTRUDER)+4, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_4, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_EXTRUDER4);
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Current_E_Scale[3]);
 }
 #endif
+
 #if ENABLED(MIXING_EXTRUDER)
 static void Item_Axis_MoveEXAll(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_ALL, LBLX+GET_ICON_X(EXTRUDER), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ALL, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+6, MBASE(row));
 	Draw_Menu_Line(row, ICON_LANGUAGE);
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Current_EAll_Scale);
 }
@@ -713,7 +720,7 @@ void Draw_Move_Menu() {
 	//DwinMenu_move.index = _MAX(DwinMenu_move.now, MROWS);
 
 #if (AXISMOVE_CASE_TOTAL > MROWS)
-	const int16_t scrol = MROWS - DwinMenu_move.index;
+	const int8_t scrol = MROWS - DwinMenu_move.index;
 	#define MSCROL(L) (scrol + (L))
 #else
 	#define MSCROL(L) (L)
@@ -723,7 +730,7 @@ void Draw_Move_Menu() {
 	_init_Move_Extr();
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MOVE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (MVISI(AXISMOVE_CASE_BACK)) Draw_Back_First(DwinMenu_move.now == AXISMOVE_CASE_BACK); // < Back
@@ -1060,13 +1067,13 @@ void HMI_MoveAxis() {
 //
 extern fil_change_settings_t fc_settings[EXTRUDERS];
 static void Item_Filament_Preheat(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_NOZZLE, LBLX+GET_ICON_X(PREHEAT)+5, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+5, MBASE(row));	
 	Draw_Menu_Line(row, ICON_CURSOR);
 }
 
 static void Item_Filament_Extruder(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_EXTRUDER, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
 	if(HMI_Value.load_extruder <= E_STEPPERS)
 		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.load_extruder);
 	else
@@ -1074,39 +1081,69 @@ static void Item_Filament_Extruder(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);	
 }
 
-static void Item_Filament_Purgelength(const uint8_t row) {
+static void Item_Filament_Purgelength(const uint8_t row) {	
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_SLOWLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_LENGTH, LBLX+get_MultiLanguageString_Width(MTSTRING_SLOWLY)+5, MBASE(row));
+#else
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Slowly Length(mm):"));
+#endif
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.purgelength);
 	Draw_Menu_Line(row,ICON_CURSOR);	
 }
 
 static void Item_Filament_Feedlength(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_QUICKLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_LENGTH, LBLX+get_MultiLanguageString_Width(MTSTRING_QUICKLY)+5, MBASE(row));
+#else
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Quckly Length(mm):"));
+#endif
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.feedlength);
 	Draw_Menu_Line(row,ICON_CURSOR);	
 }
 
 static void Item_Filament_Pugre(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_SLOWLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FILAMENT_LOAD, LBLX+get_MultiLanguageString_Width(MTSTRING_SLOWLY)+5, MBASE(row));
+#else	
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Slowly Load"));	
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 	//Draw_More_Icon(row);
 }
 
 static void Item_Filament_Retract(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_SLOWLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FILAMENT_UNLOAD, LBLX+get_MultiLanguageString_Width(MTSTRING_SLOWLY)+5, MBASE(row));
+#else
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Slowly Unload"));	
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 	//Draw_More_Icon(row);
 }
 
 
 inline void Item_Filament_load(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_QUICKLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FILAMENT_LOAD, LBLX+get_MultiLanguageString_Width(MTSTRING_QUICKLY)+5, MBASE(row));
+#else	
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Quickly Load"));
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 	//Draw_More_Icon(row);
 }
 
 inline void Item_Filament_unload(const uint8_t row) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_QUICKLY, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FILAMENT_UNLOAD, LBLX+get_MultiLanguageString_Width(MTSTRING_QUICKLY)+5, MBASE(row));
+#else		
 	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Quickly Unload"));	
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 	//Draw_More_Icon(row);
 }
@@ -1118,7 +1155,7 @@ void Draw_Filament_Menu() {
 	//DwinMenu_filament.index = _MAX(DwinMenu_filament.now, MROWS);
 
 #if (FILAMENT_CASE_TOTAL > MROWS)
-	const int16_t scrol = MROWS - DwinMenu_filament.index;
+	const int8_t scrol = MROWS - DwinMenu_filament.index;
 	#define FSCROL(L) (scrol + (L))
 #else
 	#define FSCROL(L) (L)
@@ -1128,10 +1165,13 @@ void Draw_Filament_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	HMI_flag.Is_purged = false;
 	HMI_flag.Is_retracted = false;
+	HMI_Value.load_extruder = 1;
 
-	//dwinLCD.JPG_CacheTo1(HMI_flag.language);
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_FILAMENT, TITLE_X, TITLE_Y);
+#else
 	DWIN_Draw_UnMaskString_FONT10(TITLE_X, TITLE_Y, PSTR("Filament"));
-	//dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
+#endif
 	if(FVISI(FILAMENT_CASE_BACK)) Draw_Back_First(DwinMenu_filament.now == FILAMENT_CASE_BACK);
 
 	if(FVISI(FILAMENT_CASE_PREHEAT)) Item_Filament_Preheat(FSCROL(FILAMENT_CASE_PREHEAT));
@@ -1158,8 +1198,16 @@ void HMI_Filament_Extuder() {
 			dwinLCD.UpdateLCD();
 			return;
 		}
-		NOLESS(HMI_Value.load_extruder, 1);
-		NOMORE(HMI_Value.load_extruder, (E_STEPPERS+1));
+		NOLESS(HMI_Value.load_extruder, 1);		
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		if(!mixer.mixing_enabled){
+			NOMORE(HMI_Value.load_extruder, E_STEPPERS);
+		}
+		else
+	#endif
+		{
+			NOMORE(HMI_Value.load_extruder, (E_STEPPERS+1));
+		}
 		if(HMI_Value.load_extruder <= E_STEPPERS)
 			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);
 		else
@@ -1349,9 +1397,10 @@ void HMI_Filament() {
 			case FILAMENT_CASE_EXTRUDER:
 				DwinMenuID = DWMENU_FILAMENT_EXTRUDER;
 				if(HMI_Value.load_extruder <= E_STEPPERS)
-					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);
-				else
+					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);				
+				else{
 					DWIN_Draw_MaskString_Default_Color(SELECT_COLOR, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));
+				}
 				EncoderRate.enabled = false;
 			break;					
 		
@@ -1383,51 +1432,53 @@ void HMI_Filament() {
 // Prepare >> Bed Leveling
 //
 static void Item_Leveling_Point1(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_POINT, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_1, LBLX+GET_ICON_X(POINT), MBASE(row));
- Draw_Menu_Line(row, ICON_LEVELING_POINT1);
+	DWIN_Show_MultiLanguage_String(MTSTRING_POINT, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_1, LBLX+get_MultiLanguageString_Width(MTSTRING_POINT)+6, MBASE(row));	
+	Draw_Menu_Line(row, ICON_LEVELING_POINT1);
 }
 
 static void Item_Leveling_Point2(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_POINT, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_2, LBLX+GET_ICON_X(POINT), MBASE(row));
- Draw_Menu_Line(row, ICON_LEVELING_POINT2);
+	DWIN_Show_MultiLanguage_String(MTSTRING_POINT, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_2, LBLX+get_MultiLanguageString_Width(MTSTRING_POINT)+6, MBASE(row));	
+	Draw_Menu_Line(row, ICON_LEVELING_POINT2);
 }
 
 static void Item_Leveling_Point3(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_POINT, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_3, LBLX+GET_ICON_X(POINT), MBASE(row));
- Draw_Menu_Line(row, ICON_LEVELING_POINT3);
+	DWIN_Show_MultiLanguage_String(MTSTRING_POINT, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_3, LBLX+get_MultiLanguageString_Width(MTSTRING_POINT)+6, MBASE(row));	
+	Draw_Menu_Line(row, ICON_LEVELING_POINT3);
 }
 
 static void Item_Leveling_Point4(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_POINT, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_4, LBLX+GET_ICON_X(POINT), MBASE(row));
- Draw_Menu_Line(row, ICON_LEVELING_POINT4);
+	DWIN_Show_MultiLanguage_String(MTSTRING_POINT, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_4, LBLX+get_MultiLanguageString_Width(MTSTRING_POINT)+6, MBASE(row));	
+	Draw_Menu_Line(row, ICON_LEVELING_POINT4);
 }
 
 #if ABL_GRID
 #if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 static void Item_Leveling_CatechZoffset(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_CATCH, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_Z_OFFSET, LBLX+GET_ICON_X(CATCH), MBASE(row));
- Draw_Menu_Line(row, ICON_LEVELING_SAVE);
+	DWIN_Show_MultiLanguage_String(MTSTRING_CATCH, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_PROBE, LBLX+get_MultiLanguageString_Width(MTSTRING_CATCH)+5, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z_OFFSET, LBLX+get_MultiLanguageString_Width(MTSTRING_CATCH)+get_MultiLanguageString_Width(MTSTRING_PROBE)+10, MBASE(row));	
+	Draw_Menu_Line(row, ICON_LEVELING_SAVE);
 }
 #endif
 static void Item_Leveling_ProbeZoffset(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_PROBE, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_Z_OFFSET, LBLX+GET_ICON_X(PROBE), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_PROBE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z_OFFSET, LBLX+get_MultiLanguageString_Width(MTSTRING_PROBE)+6, MBASE(row));	
 	DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), probe.offset.z*MAXUNITMULT);
  	Draw_Menu_Line(row, ICON_ZOFFSET);
 }
 static void Item_Leveling_Action(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_AUTO, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(LEVELING_MENU_LEVEL, LBLX+GET_ICON_X(AUTO), MBASE(row));
- if(planner.leveling_active)
-		DWIN_Draw_MaskString_Default_Color(COLOR_GREEN,186, MBASE(row), PSTR("Actived"));
- else
- 		dwinLCD.Draw_String(false, true, font8x16, COLOR_BG_RED, COLOR_BG_BLACK, 170, MBASE(row), PSTR("Unactived"));
- Draw_Menu_Line(row, ICON_LEVELING_SAVE);
+	DWIN_Show_MultiLanguage_String(MTSTRING_AUTO, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_LEVEL, LBLX+get_MultiLanguageString_Width(MTSTRING_AUTO)+6, MBASE(row));	
+
+	if(planner.leveling_active)
+		DWIN_Draw_MaskString_Default_Color(COLOR_GREEN, 196, MBASE(row), PSTR("Actived"));
+	else
+		DWIN_Draw_MaskString_Default_Color(COLOR_RED, 196, MBASE(row), PSTR(" --NA--"));
+	Draw_Menu_Line(row, ICON_LEVELING_SAVE);
 }
 #endif
 
@@ -1471,7 +1522,7 @@ void Draw_Leveling_Menu() {
 	set_axis_never_homed(Z_AXIS);
 	
 #if (LEVELING_CASE_TOTAL > MROWS)
-	const int16_t scrol = MROWS - DwinMenu_leveling.index;	
+	const int8_t scrol = MROWS - DwinMenu_leveling.index;	
 	#define LESCROL(L) (scrol + (L))
 #else
 	#define LESCROL(L) (L)
@@ -1483,7 +1534,7 @@ void Draw_Leveling_Menu() {
 	 HMI_flag.Leveling_Case_Total = HMI_flag.Leveling_Menu_Fg?LEVELING_CASE_TOTAL : LEVELING_CASE_POINT4;
 #endif
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_LEVELING, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
@@ -1743,7 +1794,7 @@ inline void Draw_Language_Menu() {
 	//DwinMenu_language.index = _MAX(DwinMenu_language.now, MROWS);
 
 #if (LANGUAGE_CASE_TOTAL > MROWS)
-	const int16_t scroll = MROWS - DwinMenu_language.index;
+	const int8_t scroll = MROWS - DwinMenu_language.index;
 	#define LASCROL(L) (scroll + (L))
 #else
 	#define LASCROL(L) (L)
@@ -1751,7 +1802,7 @@ inline void Draw_Language_Menu() {
 	#define LAVISI(L) WITHIN(LASCROL(L), 0, MROWS)
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_LANGUAGE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if(LAVISI(LANGUAGE_CASE_BACK)) Draw_Back_First(DwinMenu_language.now == LANGUAGE_CASE_BACK);
@@ -1768,10 +1819,7 @@ inline void Draw_Language_Menu() {
 
 void HMI_SetLanguage_PicCache() {
 	dwinLCD.JPG_CacheTo1(HMI_flag.language + 1);
-	if(HMI_flag.language < 3) 
-		HMI_flag.Title_Menu_Backup = 7;
-	else 
-		HMI_flag.Title_Menu_Backup = 6;
+	
 }
 
 void HMI_Language() {
@@ -1816,7 +1864,6 @@ void HMI_Language() {
 		 case LANGUAGE_CASE_EN: 
 		 case LANGUAGE_CASE_SP:
 		 case LANGUAGE_CASE_RU:
-			HMI_flag.Title_Menu_Backup = 7;
 			HMI_flag.language = DwinMenu_language.now - 1;
 			dwinLCD.JPG_CacheToN(1,HMI_flag.language+1);
 			HMI_AudioFeedback(settings.save());
@@ -1825,7 +1872,6 @@ void HMI_Language() {
 			
 		case LANGUAGE_CASE_FR: 
 		case LANGUAGE_CASE_PT:
-			HMI_flag.Title_Menu_Backup = 6;
 			HMI_flag.language = DwinMenu_language.now - 1;
 			dwinLCD.JPG_CacheToN(1,HMI_flag.language+1);
 			HMI_AudioFeedback(settings.save());

@@ -450,7 +450,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
-		TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("PID Tuning, please wait!"), 0));
+		TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("PID Tuning! Please wait..."), 0));
 
     disable_all_heaters();
     TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
@@ -781,15 +781,14 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 //
 // Temperature Error Handlers
 //
-
 inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
-  marlin_state = MF_KILLED;
-  #if USE_BEEPER	
+	marlin_state = MF_KILLED;	
+  #if (USE_BEEPER && DISABLED(SPEAKER))
     for (uint8_t i = 20; i--;) {
       WRITE(BEEPER_PIN, HIGH); DELAY_US(25);
       WRITE(BEEPER_PIN, LOW); delay(80);
     }
-    WRITE(BEEPER_PIN, HIGH);	  
+    WRITE(BEEPER_PIN, HIGH);
   #endif
   kill(lcd_msg, HEATER_PSTR(heater_id));
 }
@@ -812,6 +811,8 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   }
 
   disable_all_heaters(); // always disable (even for bogus temp)
+	
+  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(lcd_msg, heater_id));
 
   #if BOGUS_TEMPERATURE_GRACE_PERIOD
     const millis_t ms = millis();
@@ -837,12 +838,10 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 }
 
 void Temperature::max_temp_error(const heater_id_t heater_id) {
-  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MAXTEMP, heater_id));
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
-void Temperature::min_temp_error(const heater_id_t heater_id) {
-  TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(STR_T_MINTEMP, heater_id));
+void Temperature::min_temp_error(const heater_id_t heater_id) {  
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
 
@@ -1080,7 +1079,7 @@ void Temperature::manage_heater() {
         // Make sure temperature is increasing
         if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
           if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
-            TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), e));
+            //TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), e));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
           else                                                                  // Start again if the target is still far off
@@ -1091,7 +1090,7 @@ void Temperature::manage_heater() {
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         // Make sure measured temperatures are close together
         if (ABS(temp_hotend[0].celsius - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF){
-					TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_ERR_REDUNDANT_TEMP), 0));
+					//TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_ERR_REDUNDANT_TEMP), 0));
           _temp_error(H_E0, PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
         }
       #endif
@@ -1125,7 +1124,7 @@ void Temperature::manage_heater() {
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
         if (degBed() < watch_bed.target) {                              // Failed to increase enough?
-          TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), H_BED));
+          //TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_HEATING_FAILED_LCD), H_BED));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
         else                                                            // Start again if the target is still far off
@@ -1559,7 +1558,7 @@ void Temperature::manage_heater() {
     }
 
     #if HOTEND_USES_THERMISTOR
-      // Thermistor with conversion table?
+      // Thermistor with conversion table?   
       const temp_entry_t(*tt)[] = (temp_entry_t(*)[])(heater_ttbl_map[e]);
       SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]);
     #endif
@@ -1913,23 +1912,24 @@ void Temperature::init() {
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
-  #if ENABLED(OPTION_HOTENDMAXTEMP)
+
+	#if ENABLED(OPTION_HOTENDMAXTEMP)
 		#define _TEMP_MAX_E(NR) do{ \
-      const int16_t tmax = _MIN((int16_t)heater_maxtemp[NR], TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
-      temp_range[NR].maxtemp = tmax; \
-      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
+      temp_range[NR].maxtemp = HOTEND_MAXTEMP; \
+      while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > HOTEND_MAXTEMP) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 	#else
     #define _TEMP_MAX_E(NR) do{ \
-      const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
+			const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
-	#endif
+  #endif
+	
     #define _MINMAX_TEST(N,M) (HOTENDS > N && THERMISTOR_HEATER_##N && THERMISTOR_HEATER_##N != 998 && THERMISTOR_HEATER_##N != 999 && defined(HEATER_##N##_##M##TEMP))
-
+	
     #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
     #endif
@@ -2126,8 +2126,9 @@ void Temperature::init() {
         state = TRRunaway;
 
       case TRRunaway:
-        TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_THERMAL_RUNAWAY), heater_id));
+        //TERN_(HAS_DWIN_LCD, Popup_Window_Temperature(GET_TEXT(MSG_THERMAL_RUNAWAY), heater_id));
         _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+				break;
     }
   }
 

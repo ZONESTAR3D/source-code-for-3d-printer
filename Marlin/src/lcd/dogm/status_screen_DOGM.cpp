@@ -283,7 +283,7 @@ FORCE_INLINE void _draw_mixetruder_status() {
     static char str[5];
 	uint8_t len, x = MIX_DATA_X;
 	//draw mix data
-#if MIXING_2_IN_1_OUT   
+#if (MIXING_STEPPERS == 2)   
 	#define MIX_STATUS_X 	1
 	#define MIX_STATUS_Y 	28
 	strcpy(str, i8tostr3rj(mixer.percentmix[0]));
@@ -305,7 +305,7 @@ FORCE_INLINE void _draw_mixetruder_status() {
 	else
 		x = 25;
 	lcd_put_u8str(x, MIX_DATA_Y, &str[3-len]);	
-#elif MIXING_3_IN_1_OUT
+#elif (MIXING_STEPPERS == 3)
     #define MIX_STATUS_X 	1
     #define MIX_STATUS_Y 	28
 	
@@ -339,7 +339,7 @@ FORCE_INLINE void _draw_mixetruder_status() {
 		x = 30;
 	lcd_put_u8str(x, MIX_DATA_Y, &str[3-len]);
 
-#elif MIXING_4_IN_1_OUT
+#elif (MIXING_STEPPERS == 4)
     #define MIX_STATUS_X 	5
     #define MIX_STATUS_Y 	28
 	

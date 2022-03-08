@@ -83,8 +83,8 @@
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					"V1.3.5"
-#define	STRING_DISTRIBUTION_DATE  "2022-01-07"
+#define	FIRMWARE_VERSION					"V1.3.7"
+#define	STRING_DISTRIBUTION_DATE  "2022-03-08"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"

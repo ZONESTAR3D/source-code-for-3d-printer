@@ -343,11 +343,11 @@
 //Connect to EXP2 connector
 #define	LCDSCREEN_NAME		"ZONESTAR DWIN LCD"
 
-#define BEEPER_PIN          PA15    //PE11
-#define KILL_PIN          	-1		//PE13
-#define BTN_EN1 						PB3    	//PE14
-#define BTN_EN2 						PB5    	//PE8
-#define BTN_ENC 						PB4   	//PE15
+#define BEEPER_PIN          PA15    //
+#define KILL_PIN          	-1			//PC0
+#define BTN_EN1 						PB3    	//
+#define BTN_EN2 						PB5    	//
+#define BTN_ENC 						PB4   	//
 #endif
 
 //SERVO

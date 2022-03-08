@@ -53,8 +53,8 @@ static float prevouis_babyz_offset = 0.0;
 
 static void Draw_Select_Highlight(const bool sel) {
 	HMI_flag.select_flag = sel;
-	const uint16_t c1 = sel ? SELECT_COLOR : COLOR_BG_WINDOW,
-	     c2 = sel ? COLOR_BG_WINDOW : SELECT_COLOR;
+	const uint16_t c1 = sel ? COLOR_RED : COLOR_BG_WINDOW,
+	     c2 = sel ? COLOR_BG_WINDOW : COLOR_RED;
 	dwinLCD.Draw_Rectangle(0, c1, 25, 279, 126, 318);
 	dwinLCD.Draw_Rectangle(0, c1, 24, 278, 127, 319);
 	dwinLCD.Draw_Rectangle(0, c2, 145, 279, 246, 318);
@@ -148,7 +148,11 @@ static void Draw_SDItem(const uint16_t item, int16_t row=-1) {
 	if (row < 0) row = item + 1 + MROWS - DwinMenu_file.index;
 	const bool is_subdir = !card.flag.workDirIsRoot;
 	if (is_subdir && item == 0) {
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+		Draw_Menu_Line(row, ICON_FOLDER_N, "..");
+#else
 		Draw_Menu_Line(row, ICON_FOLDER, "..");
+#endif
 		return;
 	}
 
@@ -167,7 +171,11 @@ static void Draw_SDItem(const uint16_t item, int16_t row=-1) {
 	// Draw the file/folder with name aligned left
 	char str[strlen(name) + 1];
 	make_name_without_ext(str, name);
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	Draw_Menu_Line(row, card.flag.filenameIsDir ? ICON_FOLDER_N : ICON_FILE, str);
+#else
 	Draw_Menu_Line(row, card.flag.filenameIsDir ? ICON_FOLDER : ICON_FILE, str);
+#endif
 }
 
 
@@ -358,7 +366,7 @@ static void Draw_ICON_Tune(const bool selected = false) {
 	}
 	else {
 		DWIN_Show_ICON(ICON_SETUP, 8, 252);
-		DWIN_Show_MultiLanguage_String(PRINTING_MENU_TUNE, GET_ICON_X(TUNE), 325);
+		DWIN_Show_MultiLanguage_String(MTSTRING_TUNE, GET_ICON_X(TUNE), 325);
 	}
 	dwinLCD.UpdateLCD();
 }
@@ -371,7 +379,7 @@ static void Draw_ICON_Pause(const bool selected = false) {
 	}
 	else {
 		DWIN_Show_ICON(ICON_PAUSE, 96, 252);
-		DWIN_Show_MultiLanguage_String(PRINTING_MENU_PAUSE, GET_ICON_X(PAUSE), 325);
+		DWIN_Show_MultiLanguage_String(MTSTRING_PAUSE, GET_ICON_X(PAUSE), 325);
 	}
 	dwinLCD.UpdateLCD();
 }
@@ -384,7 +392,7 @@ static void Draw_ICON_Continue(const bool selected = false) {
 	}
 	else {
 		DWIN_Show_ICON(ICON_CONTINUE, 96, 252);
-		DWIN_Show_MultiLanguage_String(PRINTING_MENU_CONTINUE, GET_ICON_X(CONTINUE), 325);
+		DWIN_Show_MultiLanguage_String(MTSTRING_CONTINUE, GET_ICON_X(CONTINUE), 325);
 	}
 	dwinLCD.UpdateLCD();
 }
@@ -397,7 +405,7 @@ static void Draw_ICON_Stop(const bool selected = false) {
 	}
 	else {
 		DWIN_Show_ICON(ICON_STOP, 184, 252);
-		DWIN_Show_MultiLanguage_String(PRINTING_MENU_STOP, GET_ICON_X(STOP), 325);
+		DWIN_Show_MultiLanguage_String(MTSTRING_STOP, GET_ICON_X(STOP), 325);
 	}
 	dwinLCD.UpdateLCD();
 }
@@ -439,87 +447,171 @@ void Draw_Print_RemainTime() {
 	}
 }
 
+#if(E_STEPPERS == 4)
+ 	#define	X_ICON_EXT1				 10	
+	#define	X_ICON_EXT2				 62	
+	#define	X_ICON_EXT3				114	
+	#define	X_ICON_EXT4				166	
+	#define	X_ICON_VTOOLFAN		218
+	#define	Y_ICON_EXT1				 98
+	#define	Y_ICON_EXT2				 98
+	#define	Y_ICON_EXT3				 98
+	#define	Y_ICON_EXT4				 98	
+	#define	Y_ICON_VTOOLFAN		 98
+#elif(E_STEPPERS == 3)
+	#define	X_ICON_EXT1				 21	
+	#define	X_ICON_EXT2				 84	
+	#define	X_ICON_EXT3				147	
+	#define	X_ICON_VTOOLFAN		210
+	#define	Y_ICON_EXT1				 98
+	#define	Y_ICON_EXT2				 98
+	#define	Y_ICON_EXT3				 98
+	#define	Y_ICON_VTOOLFAN		 98
+#elif(E_STEPPERS == 2)
+	#define	X_ICON_EXT1				 36	
+	#define	X_ICON_EXT2				114	
+	#define	X_ICON_VTOOLFAN		192
+	#define	Y_ICON_EXT1				 98
+	#define	Y_ICON_EXT2				 98
+	#define	Y_ICON_VTOOLFAN		 98
+#else
+	#define	X_ICON_EXT1				 63	
+	#define	X_ICON_VTOOLFAN		168
+	#define	Y_ICON_EXT1				 98
+	#define	Y_ICON_VTOOLFAN		 98
+#endif
+
+inline void Draw_Print_ShowExtruderICON() {
+  DWIN_Show_ICON(ICON_EXTRUDER1_P, X_ICON_EXT1, Y_ICON_EXT1);
+#if(E_STEPPERS > 1)
+ 	DWIN_Show_ICON(ICON_EXTRUDER2_P, X_ICON_EXT2, Y_ICON_EXT2);
+#endif
+#if(E_STEPPERS > 2)
+ 	DWIN_Show_ICON(ICON_EXTRUDER3_P, X_ICON_EXT3, Y_ICON_EXT3);
+#endif
+#if(E_STEPPERS > 3)
+ 	DWIN_Show_ICON(ICON_EXTRUDER4_P, X_ICON_EXT4, Y_ICON_EXT4);
+#endif
+
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled)
+		DWIN_Show_ICON(ICON_FAN_P, 	X_ICON_VTOOLFAN, Y_ICON_VTOOLFAN);
+	else
+#endif
+		DWIN_Show_ICON(ICON_VTOOL_P, 	X_ICON_VTOOLFAN, Y_ICON_VTOOLFAN);  	
+}
+
 //////////////////////////////////////////////////////
 //
-// Mixer Status Area
+// Extruder & Mixer Status Area
 //
 #if ENABLED(MIXING_EXTRUDER)
-static void X_Start_Coordinate_Calculation(uint8_t Extruder_number,uint16_t Coordinate){
-	uint8_t j = 0;
-
+static void X_Start_Coordinate_Calculation(uint8_t Extruder_number, uint16_t Coordinate){
+	const uint8_t Extruder_X_Start_Coordinate[5] = {0,0,34,19,8};
+	const uint8_t Extruder_X_Start_Gap[5] = {0,0,78,63,52};
 	MIXER_STEPPER_LOOP(i){
 		if(Coordinate >= 100){
-			MixerDis.Extruder_X_Coordinate[i] = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*i; 
+			MixerDis.Extruder_X_Coordinate[i] = Extruder_X_Start_Coordinate[MIXING_STEPPERS]+Extruder_X_Start_Gap[MIXING_STEPPERS]*i; 
 			MixerDis.Extruder_Int_Number[i] = 3;
 		}
 		else if((Coordinate < 100)&&(Coordinate >= 10)){
-			MixerDis.Extruder_X_Coordinate[i] = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+7+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*i;
+			MixerDis.Extruder_X_Coordinate[i] = Extruder_X_Start_Coordinate[MIXING_STEPPERS]+7+Extruder_X_Start_Gap[MIXING_STEPPERS]*i;
 			MixerDis.Extruder_Int_Number[i] = 2;
 		}
 		else if(Coordinate < 10){
-			MixerDis.Extruder_X_Coordinate[i] = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+14+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*i;
+			MixerDis.Extruder_X_Coordinate[i] = Extruder_X_Start_Coordinate[MIXING_STEPPERS]+14+Extruder_X_Start_Gap[MIXING_STEPPERS]*i;
 			MixerDis.Extruder_Int_Number[i] = 1;
-		}
-		j = i;
-  }
-	j++;
+		}		
+  }	
+	//the last one is VTOOL
 	if(Extruder_number == MIXING_STEPPERS){
 		if((Coordinate < 100) && (Coordinate >= 10)){ 
-			MixerDis.VTool_X_Coordinate = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+7+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*j;
+			MixerDis.VTool_X_Coordinate = Extruder_X_Start_Coordinate[MIXING_STEPPERS]+7+Extruder_X_Start_Gap[MIXING_STEPPERS]*MIXING_STEPPERS;
 			MixerDis.VTool_Int_Number = 2;
 		}
 		else if(Coordinate < 10){
-			MixerDis.VTool_X_Coordinate = MixerDis.Extruder_X_Start_Coordinate[MIXING_STEPPERS]+14+MixerDis.Extruder_X_Start_Gap[MIXING_STEPPERS]*j;
+			MixerDis.VTool_X_Coordinate = Extruder_X_Start_Coordinate[MIXING_STEPPERS]+14+Extruder_X_Start_Gap[MIXING_STEPPERS]*MIXING_STEPPERS;
 			MixerDis.VTool_Int_Number = 1;
 		}
 	}
 }
 
-void DWIN_Refresh_Mix_Rate(){		
+//#define	MIX_RATE_Y_COORDINAT	MixerDis.Y_Coordinat
+#define	MIX_RATE_Y_COORDINAT	143
+void DWIN_Refresh_ExtruerFAN_State(){	
 	Clear_Dwin_Area(AREA_MIXVALUE);
-	MIXER_STEPPER_LOOP(i){
-		X_Start_Coordinate_Calculation(i,mixer.percentmix[i]);
-	  dwinLCD.Draw_IntValue(true, true, 0, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.Extruder_Int_Number[i], MixerDis.Extruder_X_Coordinate[i], MixerDis.Y_Coordinate, mixer.percentmix[i]);
-		if(mixer.gradient.enabled){
-			X_Start_Coordinate_Calculation(MIXING_STEPPERS,10);
-			dwinLCD.Draw_String(false, false, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.VTool_X_Coordinate, MixerDis.Y_Coordinate, PSTR("Gr"));
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled){
+		if(mixer.percentmix[0] == 100)
+			DWIN_Show_ICON(ICON_EON, X_ICON_EXT1, MIX_RATE_Y_COORDINAT);
+		else
+			DWIN_Show_ICON(ICON_EOFF, X_ICON_EXT1, MIX_RATE_Y_COORDINAT);
+		
+	#if(E_STEPPERS > 1)
+		if(mixer.percentmix[1] == 100)
+		 	DWIN_Show_ICON(ICON_EON, X_ICON_EXT2, MIX_RATE_Y_COORDINAT);
+		else
+			DWIN_Show_ICON(ICON_EOFF, X_ICON_EXT2, MIX_RATE_Y_COORDINAT);
+	#endif
+
+	#if(E_STEPPERS > 2)
+		if(mixer.percentmix[2] == 100)
+		 	DWIN_Show_ICON(ICON_EON, X_ICON_EXT3, MIX_RATE_Y_COORDINAT);
+		else
+			DWIN_Show_ICON(ICON_EOFF, X_ICON_EXT3, MIX_RATE_Y_COORDINAT);
+	#endif
+
+	#if(E_STEPPERS > 3)
+		if(mixer.percentmix[3] == 100)
+		 	DWIN_Show_ICON(ICON_EON, X_ICON_EXT4, MIX_RATE_Y_COORDINAT);
+		else
+			DWIN_Show_ICON(ICON_EOFF, X_ICON_EXT4, MIX_RATE_Y_COORDINAT);
+	#endif
+
+		//FAN speed
+		if(thermalManager.fan_speed[0] >= 100){
+			MixerDis.VTool_Int_Number = 3;
+			MixerDis.VTool_X_Coordinate = 6+52*4;
 		}
-		else if(mixer.random_mix.enabled){
-			X_Start_Coordinate_Calculation(MIXING_STEPPERS,10);
-			dwinLCD.Draw_String(false, false, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.VTool_X_Coordinate, MixerDis.Y_Coordinate, PSTR("Rd"));
+		else if(thermalManager.fan_speed[0] >= 10){
+			MixerDis.VTool_Int_Number = 2;
+			MixerDis.VTool_X_Coordinate = 16+52*4;
 		}
 		else{
-      X_Start_Coordinate_Calculation(MIXING_STEPPERS,mixer.selected_vtool);
-			dwinLCD.Draw_IntValue(true, true, 0, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.VTool_Int_Number, MixerDis.VTool_X_Coordinate, MixerDis.Y_Coordinate, mixer.selected_vtool);
+			MixerDis.VTool_Int_Number = 1;
+			MixerDis.VTool_X_Coordinate = 24+52*4;
+		}				
+		DWIN_Draw_IntValue_FONT14(COLOR_WHITE, MixerDis.VTool_Int_Number, MixerDis.VTool_X_Coordinate, MIX_RATE_Y_COORDINAT, thermalManager.fan_speed[0]);
+	}
+	else
+#endif
+	{
+		//Mix data
+		MIXER_STEPPER_LOOP(i){
+			X_Start_Coordinate_Calculation(i, mixer.percentmix[i]);
+			DWIN_Draw_IntValue_FONT14(COLOR_WHITE, MixerDis.Extruder_Int_Number[i], MixerDis.Extruder_X_Coordinate[i], MIX_RATE_Y_COORDINAT, mixer.percentmix[i]);			
+		}
+		//V-TOOL
+		if(mixer.gradient.enabled){
+			X_Start_Coordinate_Calculation(MIXING_STEPPERS, 10);				
+			dwinLCD.Draw_String(false, false, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.VTool_X_Coordinate, MIX_RATE_Y_COORDINAT, PSTR("Gr"));
+		}
+		else if(mixer.random_mix.enabled){
+			X_Start_Coordinate_Calculation(MIXING_STEPPERS, 10);
+			dwinLCD.Draw_String(false, false, DWIN_FONT_MIX, COLOR_WHITE, COLOR_BG_BLACK, MixerDis.VTool_X_Coordinate, MIX_RATE_Y_COORDINAT, PSTR("Rd"));
+		}
+		else{
+	    X_Start_Coordinate_Calculation(MIXING_STEPPERS, mixer.selected_vtool);
+			DWIN_Draw_IntValue_FONT14(COLOR_WHITE, MixerDis.VTool_Int_Number, MixerDis.VTool_X_Coordinate, MIX_RATE_Y_COORDINAT, mixer.selected_vtool);
 		}
 	}
 }
+
+void Draw_Print_ProgressMixModel(){	
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled) return;
 #endif
 
-inline void Draw_Print_ProgressExtruder() {
- #if(E_STEPPERS == 4)
- 	DWIN_Show_ICON(ICON_EXTRUDER1_P, 10, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER2_P, 62, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER3_P, 114, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER4_P, 166, 98);
- 	DWIN_Show_ICON(ICON_VTOOL_P, 	218, 98);
- #elif(E_STEPPERS == 3)
- 	DWIN_Show_ICON(ICON_EXTRUDER1_P, 21, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER2_P, 84, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER3_P, 147, 98);
- 	DWIN_Show_ICON(ICON_VTOOL_P, 	210, 98);
- #elif(E_STEPPERS == 2)
- 	DWIN_Show_ICON(ICON_EXTRUDER1_P, 36, 98);
- 	DWIN_Show_ICON(ICON_EXTRUDER2_P, 114, 98);
- 	DWIN_Show_ICON(ICON_VTOOL_P, 	192, 98);
- #else
-  DWIN_Show_ICON(ICON_EXTRUDER1_P, 63, 98);
-  DWIN_Show_ICON(ICON_VTOOL_P, 	168, 98);
- #endif
-}
-
-#if ENABLED(MIXING_EXTRUDER)
-void Draw_Print_ProgressMixModel(){	
 	char string_buf[50] = {0};
 	if(mixer.gradient.enabled && HMI_Value.old_mix_mode != 1) {
 		HMI_Value.old_mix_mode = 1;				
@@ -542,57 +634,57 @@ void Draw_Print_ProgressMixModel(){
 #endif
 
 inline void Draw_Printing_Screen() {
- DWIN_Show_MultiLanguage_String(PRINTING_MENU_TUNE, GET_ICON_X(TUNE), 325);
- DWIN_Show_MultiLanguage_String(PRINTING_MENU_PAUSE, GET_ICON_X(PAUSE), 325);
- DWIN_Show_MultiLanguage_String(PRINTING_MENU_STOP, GET_ICON_X(STOP), 325);
+ DWIN_Show_MultiLanguage_String(MTSTRING_TUNE, GET_ICON_X(TUNE), 325);
+ DWIN_Show_MultiLanguage_String(MTSTRING_PAUSE, GET_ICON_X(PAUSE), 325);
+ DWIN_Show_MultiLanguage_String(MTSTRING_STOP, GET_ICON_X(STOP), 325);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //Tune
 //
 static void Item_Tune_Speed(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_SPEED, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_SPEED, LBLX, MBASE(row));
 	Draw_Menu_Line(row, ICON_SETSPEED);
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), feedrate_percentage);
 }
 
 static void Item_Tune_ETemp(const uint8_t row){
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_HOTEND, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_TEMP, LBLX+GET_ICON_X(HOTEND), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_NOZZLE)+6, MBASE(row));	
 	Draw_Menu_Line(row, ICON_HOTENDTEMP);
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetHotend(0));
 }
 
 
 static void Item_Tune_BTemp(const uint8_t row){
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_BED, LBLX, MBASE(row));
-  DWIN_Show_MultiLanguage_String(TUNE_MENU_TEMP, LBLX+GET_ICON_X(BED), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BED, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_BED)+6, MBASE(row));	
 	Draw_Menu_Line(row, ICON_BEDTEMP);
   DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.degTargetBed());
 }
 
 static void Item_Tune_FanSpeed(const uint8_t row){
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_FAN_SPEED, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FANSPEED, LBLX, MBASE(row));
 	Draw_Menu_Line(row, ICON_FANSPEED);
   DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.fan_speed[0]);
 }
 
 static void Item_Tune_ZOffset(const uint8_t row){
-	DWIN_Show_MultiLanguage_String(TUNE_MENU_Z_OFFSET, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TUNEZ_OFFSET, LBLX, MBASE(row));
 	Draw_Menu_Line(row, ICON_ZOFFSET);
   DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), HMI_Value.Zoffset_Scale);
 }
 
 #if ENABLED(MIXING_EXTRUDER)
 static void Item_Tune_Mixer(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(TUNE_MENU_MIXER, LBLX, MBASE(row));
+ DWIN_Show_MultiLanguage_String(MTSTRING_MIXER, LBLX, MBASE(row));
  Draw_Menu_Line(row, ICON_MIXER);
  Draw_More_Icon(row);
 }
 #endif
 
 static void Item_Tune_Config(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(TUNE_MENU_CONFIG, LBLX, MBASE(row));
+ DWIN_Show_MultiLanguage_String(MTSTRING_CONFIG, LBLX, MBASE(row));
  Draw_Menu_Line(row, ICON_CONTACT);
  Draw_More_Icon(row);
 }
@@ -603,7 +695,7 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 	DwinMenu_tune.index = _MAX(DwinMenu_tune.now, MROWS);
 	
 #if (TUNE_CASE_TOTAL > MROWS)
-	const int16_t kscroll = MROWS - DwinMenu_tune.index; // Scrolled-up lines
+	const int8_t kscroll = MROWS - DwinMenu_tune.index; // Scrolled-up lines
 	#define KCSCROL(L) (kscroll + (L))
 #else
 	#define KCSCROL(L) (L)
@@ -612,7 +704,7 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (KCVISI(TUNE_CASE_BACK)) Draw_Back_First(DwinMenu_tune.now == TUNE_CASE_BACK);
@@ -630,11 +722,17 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 #if ENABLED(BABYSTEPPING)
 	if (KCVISI(TUNE_CASE_ZOFF)) Item_Tune_ZOffset(KCSCROL(TUNE_CASE_ZOFF)); 
 #endif
-#if ENABLED(MIXING_EXTRUDER)
-	if (KCVISI(TUNE_CASE_MIXER)) Item_Tune_Mixer(KCSCROL(TUNE_CASE_MIXER)); 
-#endif
 	if (KCVISI(TUNE_CASE_CONFIG)) Item_Tune_Config(KCSCROL(TUNE_CASE_CONFIG)); 
-	
+#if ENABLED(MIXING_EXTRUDER)
+	#if ENABLED(OPTION_MIXING_SWITCH)
+	if(mixer.mixing_enabled){
+		if (KCVISI(TUNE_CASE_MIXER)) Item_Tune_Mixer(KCSCROL(TUNE_CASE_MIXER));
+	}
+	#else
+	if (KCVISI(TUNE_CASE_MIXER)) Item_Tune_Mixer(KCSCROL(TUNE_CASE_MIXER)); 
+	#endif
+#endif
+		
 	if (DwinMenu_tune.now) Draw_Menu_Cursor(KCSCROL(DwinMenu_tune.now));
 }
 
@@ -644,7 +742,7 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 #if ENABLED(BABYSTEPPING)
 inline void Draw_Babystep_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	dwinLCD.Draw_String(false, false, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 10, 160, PSTR("Babysteps:"));
@@ -664,6 +762,19 @@ static void _Apply_ZOffset(){
 		}
 	}		
 }
+
+#if ENABLED(OPTION_BED_COATING)
+/****
+	if baby Z offset is ajusted while printing, save it.
+*/
+inline void save_Zoffset(){	
+	if(ABS(last_babyz_offset) >= 0.1 && (coating_thickness + last_babyz_offset >= 0)) {		
+		coating_thickness += last_babyz_offset;
+		settings.save();
+		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Z offset stored!"));			
+	}
+}
+#endif
 
 void HMI_Pop_BabyZstep() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
@@ -737,7 +848,11 @@ void Popup_Window_Resume() {
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 22) / 2, 192, PSTR("It looks like the last"));
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 22) / 2, 212, PSTR("file was interrupted."));
 	DWIN_Show_ICON(ICON_CANCEL_E,  26, 307);
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	DWIN_Show_ICON(ICON_CONTINUE_C, 146, 307);
+#else
 	DWIN_Show_ICON(ICON_CONTINUE_E, 146, 307);
+#endif
 }
 
 static void Popup_window_PauseOrStop() {
@@ -748,9 +863,15 @@ static void Popup_window_PauseOrStop() {
 		DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 12 * 12) / 2, 150, PSTR("Pause Print?"));
 	else if (DwinMenu_print.now == PRINT_CASE_STOP) 
 		DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 12 * 11) / 2, 150, PSTR("Stop Print?"));
+#if ENABLED(OPTION_DWINLCD_MENUV2)	
+	DWIN_Show_ICON(ICON_CONFIRM_C, 26, 280);
+	DWIN_Show_ICON(ICON_CANCEL_E, 146, 280);
+	Draw_Select_Highlight(false);
+#else
 	DWIN_Show_ICON(ICON_CONFIRM_E, 26, 280);
 	DWIN_Show_ICON(ICON_CANCEL_E, 146, 280);
 	Draw_Select_Highlight(true);
+#endif
 }
 
 inline void Popup_Window_waiting(uint8_t msg){
@@ -773,14 +894,14 @@ void Draw_Printing_Menu(const bool with_update) {
 	DWIN_status = ID_SM_PRINTING;
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
 	
-	dwinLCD.JPG_CacheToN(1,HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_SDPRINT, TITLE_X, TITLE_Y);
-	dwinLCD.JPG_CacheToN(1,HMI_flag.language+1);
+	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
 	Draw_Print_ProgressBar();
-	Draw_Print_ProgressExtruder();	
+	Draw_Print_ShowExtruderICON();	
 #if ENABLED(MIXING_EXTRUDER)
-	DWIN_Refresh_Mix_Rate();
+	DWIN_Refresh_ExtruerFAN_State();
 	Draw_Print_ProgressMixModel();
 #endif	
 	//Copy into file buf string before entry
@@ -861,10 +982,20 @@ void HMI_PauseOrStop() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
 
-	if(encoder_diffState == ENCODER_DIFF_CW)
+	if(encoder_diffState == ENCODER_DIFF_CW){
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+		DWIN_Show_ICON(ICON_CONFIRM_C, 26, 280);
+		DWIN_Show_ICON(ICON_CANCEL_E, 146, 280);
+#endif
 		Draw_Select_Highlight(false);
-	else if(encoder_diffState == ENCODER_DIFF_CCW)
+	}
+	else if(encoder_diffState == ENCODER_DIFF_CCW){
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+		DWIN_Show_ICON(ICON_CONFIRM_E, 26, 280);
+		DWIN_Show_ICON(ICON_CANCEL_C, 146, 280);
+#endif
 		Draw_Select_Highlight(true);
+	}
 	else if(encoder_diffState == ENCODER_DIFF_ENTER){
 		if(DwinMenu_print.now == PRINT_CASE_PAUSE){
 			if(HMI_flag.select_flag){
@@ -874,7 +1005,7 @@ void HMI_PauseOrStop() {
 			}
 			else{
 				//redraw printing menu
-				Draw_Printing_Menu(); // cancel pause
+				Draw_Printing_Menu(); // cancel pause				
 			}
 		}
 		else if(DwinMenu_print.now == PRINT_CASE_STOP){
@@ -884,6 +1015,9 @@ void HMI_PauseOrStop() {
 				TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
 				wait_for_heatup = wait_for_user = false;
 				card.flag.abort_sd_printing = true;
+				#if BOTH(BABYSTEPPING, OPTION_BED_COATING)
+				save_Zoffset();
+				#endif
 			}
 			else{
 				//redraw printing menu
@@ -901,15 +1035,15 @@ void HMI_Tune() {
 	if (encoder_diffState == ENCODER_DIFF_NO) return;
 	
 	if (encoder_diffState == ENCODER_DIFF_CW) {
-		if (DwinMenu_tune.inc(TUNE_CASE_END)) {
+		if (DwinMenu_tune.inc(TUNE_CASE_END + mixing_menu_adjust())) {
 			if (DwinMenu_tune.now > MROWS && DwinMenu_tune.now > DwinMenu_tune.index) {
 				DwinMenu_tune.index = DwinMenu_tune.now;
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
-			#if ENABLED(MIXING_EXTRUDER)
-				if(DwinMenu_tune.index == TUNE_CASE_MIXER) Item_Tune_Mixer(MROWS);
-			#endif
 				if(DwinMenu_tune.index == TUNE_CASE_CONFIG)	Item_Tune_Config(MROWS);
+			#if ENABLED(MIXING_EXTRUDER)
+				else if(DwinMenu_tune.index == TUNE_CASE_MIXER) Item_Tune_Mixer(MROWS);
+			#endif				
 			}
 			else {
 				Move_Highlight(1, DwinMenu_tune.now + MROWS - DwinMenu_tune.index);
@@ -995,15 +1129,15 @@ void HMI_Tune() {
 			 	break;
 				#endif
 
-			 #if ENABLED(MIXING_EXTRUDER)
-			 	case TUNE_CASE_MIXER:
-			  	Draw_Mixer_Menu();
-			 		break;
-			 #endif
-
 				case TUNE_CASE_CONFIG:
 			 		Draw_Config_Menu();
 			 		break;
+				
+				#if ENABLED(MIXING_EXTRUDER)
+				 case TUNE_CASE_MIXER:
+					 Draw_Mixer_Menu();
+					 break;
+				#endif
 				
 			 	default: break;
 			} 			
@@ -1024,6 +1158,9 @@ void DWIN_Draw_PrintDone_Confirm(){
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 14 * 12) / 2, 200, PSTR("Click to exit!"));
 	//dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y_START);
 	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 250);
+#if BOTH(BABYSTEPPING, OPTION_BED_COATING)
+	save_Zoffset();
+#endif
 }
 
 static void DRAW_Pause_Mode(const PauseMode mode){
@@ -1054,20 +1191,20 @@ static void DRAW_Pause_Mode(const PauseMode mode){
 }
 
 static void Popup_window_Pause_Parking(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
- Draw_Popup_Bkgd_60();
- DWIN_Show_ICON(ICON_WAITING, 86, 105);
- DRAW_Pause_Mode(mode);
- DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 15) / 2, 240, PSTR("Parking hotend!"));
+	 Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	 Draw_Popup_Bkgd_60();
+	 DWIN_Show_ICON(ICON_WAITING, 86, 105);
+	 DRAW_Pause_Mode(mode);
+	 DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 15) / 2, 240, PSTR("Parking hotend!"));
 }
 
 static void Popup_window_Pause_Start(const PauseMode mode) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
- Draw_Popup_Bkgd_60();
- DWIN_Show_ICON(ICON_WAITING, 86, 105);
- DRAW_Pause_Mode(mode);
- DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 15) / 2, 240, PSTR("Filament change"));
- DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 9) / 2, 269, PSTR("to start!"));
+	Draw_Popup_Bkgd_60();
+	DWIN_Show_ICON(ICON_WAITING, 86, 105);
+	DRAW_Pause_Mode(mode);
+	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 15) / 2, 240, PSTR("Filament change"));
+	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 9) / 2, 269, PSTR("to start!"));
 }
 
 static void Popup_window_Pause_Heating(const PauseMode mode) {
@@ -1377,7 +1514,8 @@ void HMI_Printing() {
 void HMI_Stop_SDPrinting(){
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if (encoder_diffState == ENCODER_DIFF_ENTER){		
-			Stop_and_return_mainmenu();		
+			//Stop_and_return_mainmenu();		
+			DWIN_status = ID_SM_STOPED;
 	}
 }
 

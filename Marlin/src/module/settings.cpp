@@ -279,7 +279,7 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_DWIN_LCD
   uint8_t dwin_last_language;
-  uint8_t dwin_last_Title_Memu;	
+  //uint8_t dwin_last_Title_Memu;	
 	bool dwin_autoLeveling_Menu;
 	bool dwin_autoshutdown; 
 	#endif
@@ -303,6 +303,10 @@ typedef struct SettingsDataStruct {
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	uint16_t max_hotendtemp;
+	#endif
+
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+	bool mixing_enabled;
 	#endif
 
   //
@@ -850,10 +854,6 @@ void MarlinSettings::postprocess() {
 			const uint8_t dwin_last_language = HMI_flag.language;
 			EEPROM_WRITE(dwin_last_language);
 
-			_FIELD_TEST(dwin_last_Title_Memu);
-			const uint8_t dwin_last_Title_Memu = HMI_flag.Title_Menu_Backup;
-			EEPROM_WRITE(dwin_last_Title_Memu);
-
 			_FIELD_TEST(dwin_autoLeveling_Menu);
 			const bool dwin_autoLeveling_Menu = TERN(LCD_BED_LEVELING, HMI_flag.Leveling_Menu_Fg, false);
 			EEPROM_WRITE(dwin_autoLeveling_Menu);
@@ -900,6 +900,17 @@ void MarlinSettings::postprocess() {
 			const uint16_t max_hotendtemp = thermalManager.heater_maxtemp[0];
 			EEPROM_WRITE(max_hotendtemp);
 		}		
+		#endif
+
+		//
+		//mixing enable
+		//
+		#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		{
+		  _FIELD_TEST(mixing_enabled);
+			const bool mixing_enabled = mixer.mixing_enabled;			
+      EEPROM_WRITE(mixing_enabled);
+		}
 		#endif
 	
     //
@@ -1793,11 +1804,7 @@ void MarlinSettings::postprocess() {
 			{
 				_FIELD_TEST(dwin_last_language);
 				const uint8_t &dwin_last_language = HMI_flag.language;
-				EEPROM_READ(dwin_last_language);
-
-				_FIELD_TEST(dwin_last_Title_Memu);
-				const uint8_t &dwin_last_Title_Memu = HMI_flag.Title_Menu_Backup;
-				EEPROM_READ(dwin_last_Title_Memu);				
+				EEPROM_READ(dwin_last_language);	
 			
 				_FIELD_TEST(dwin_autoLeveling_Menu);
 				bool dwin_autoLeveling_Menu = DEFAULT_AUTO_LEVELING;				
@@ -1844,11 +1851,22 @@ void MarlinSettings::postprocess() {
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
 			{
 				_FIELD_TEST(max_hotendtemp);
-				const uint16_t &max_hotendtemp = thermalManager.heater_maxtemp[0];
+				const uint16_t &max_hotendtemp = HMI_Value.max_hotendtemp;				
 				EEPROM_READ(max_hotendtemp);
-			} 	
+				thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
+			}			
 			#endif
 
+			//
+			//mixing enabled
+			//			
+			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+			{
+				_FIELD_TEST(mixing_enabled);				
+        const bool &mixing_enabled = mixer.mixing_enabled;
+        EEPROM_READ(mixing_enabled);
+			}
+			#endif
 			
       //
       // DELTA Geometry or Dual Endstops offsets
@@ -2768,7 +2786,6 @@ void MarlinSettings::reset() {
   //#endif
 #if HAS_DWIN_LCD
   HMI_flag.language = 0;
-  HMI_flag.Title_Menu_Backup = 7;	
 	TERN_(LCD_BED_LEVELING,  HMI_flag.Leveling_Menu_Fg = DEFAULT_AUTO_LEVELING);
 	TERN_(OPTION_AUTOPOWEROFF,  HMI_flag.Autoshutdown_enabled = false);
 #endif//HAS_DWIN_LCD
@@ -2786,7 +2803,15 @@ void MarlinSettings::reset() {
 	//
 	// maxiums hotend temp
 	//
-	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.heater_maxtemp[0] = HEATER_0_MAXTEMP);
+	TERN_(OPTION_HOTENDMAXTEMP,  HMI_Value.max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT);
+
+	//
+	// mixing enabled
+	//
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+	mixer.mixing_enabled = DEFAULT_MIXING_SWITCH;		
+	#endif
 	
   //
   // Endstop Adjustments

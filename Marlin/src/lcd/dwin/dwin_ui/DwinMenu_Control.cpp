@@ -55,52 +55,60 @@ static void Item_Control_Motion(const uint8_t row) {
 
 static void Item_Control_PLA(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_PLA, LBLX+GET_ICON_X(PREHEAT), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_PLA, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+5, MBASE(row));
 	Draw_Menu_Line(row, ICON_PLAPREHEAT);
 	Draw_More_Icon(row);
 }
 
 static void Item_Control_ABS(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_ABS, LBLX+GET_ICON_X(PREHEAT), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ABS, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+5, MBASE(row));
 	Draw_Menu_Line(row, ICON_ABSPREHEAT);
 	Draw_More_Icon(row);	
 }
 
 #if ENABLED(BLTOUCH)
 static void Item_Control_BLtouch(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH, LBLX, MBASE(row)); 
- Draw_Menu_Line(row, ICON_BLTOUCH);
- Draw_More_Icon(row);
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH, LBLX, MBASE(row)); 
+	Draw_Menu_Line(row, ICON_BLTOUCH);
+	Draw_More_Icon(row);
 }
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
 static void Item_Control_Save(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_STORE, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_SETTINGS, LBLX+GET_ICON_X(STORE), MBASE(row));
- Draw_Menu_Line(row, ICON_WRITEEEPROM);
+	DWIN_Show_MultiLanguage_String(MTSTRING_STORE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_SETTINGS, LBLX+get_MultiLanguageString_Width(MTSTRING_STORE)+5, MBASE(row));
+	Draw_Menu_Line(row, ICON_WRITEEEPROM);
 }
 
 static void Item_Control_Load(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_LOAD, LBLX, MBASE(row));
- DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_SETTINGS, LBLX+GET_ICON_X(LOAD), MBASE(row));
- Draw_Menu_Line(row, ICON_READEEPROM);
+	DWIN_Show_MultiLanguage_String(MTSTRING_LOAD, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_SETTINGS, LBLX+get_MultiLanguageString_Width(MTSTRING_LOAD)+5, MBASE(row));
+	Draw_Menu_Line(row, ICON_READEEPROM);
 }
 
 static void Item_Control_Reset(const uint8_t row) {
- DWIN_Show_MultiLanguage_String(MTSTRING_RESET, LBLX, MBASE(row));
- Draw_Menu_Line(row, ICON_RESUMEEEPROM);
+	DWIN_Show_MultiLanguage_String(MTSTRING_RESET, LBLX, MBASE(row));
+	Draw_Menu_Line(row, ICON_RESUMEEEPROM);
 }
 #endif
 
+int8_t mixing_menu_adjust(){
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled)
+		return -1;
+	#endif
+	return 0;
+}
+
 void Draw_Control_Menu(const uint8_t MenuItem) {
-	DwinMenuID = DWMENU_CONTROL;	
+	DwinMenuID = DWMENU_CONTROL;
 	DwinMenu_control.set(MenuItem);
 	DwinMenu_control.index = _MAX(DwinMenu_control.now, MROWS);
 
 #if (CONTROL_CASE_TOTAL > MROWS)
-	const int16_t scroll = MROWS - DwinMenu_control.index;
+	const int8_t scroll = MROWS - DwinMenu_control.index;	
 	#define CCSCROL(L) (scroll + (L))
 #else
 	#define CCSCROL(L) (L)
@@ -109,26 +117,32 @@ void Draw_Control_Menu(const uint8_t MenuItem) {
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
 	
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_CONTROL, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (CCVISI(CONTROL_CASE_BACK)) Draw_Back_First(DwinMenu_control.now == CONTROL_CASE_BACK);             // < Back
-	
+
 #if ENABLED(MIXING_EXTRUDER)
-	if (CCVISI(CONTROL_CASE_MIXER)) Item_Control_Mixer(CCSCROL(CONTROL_CASE_MIXER));
+	#if ENABLED(OPTION_MIXING_SWITCH)
+	if (mixer.mixing_enabled){
+		if (CCVISI(CONTROL_CASE_MIXER)) Item_Control_Mixer(CCSCROL(CONTROL_CASE_MIXER));
+	}
+	#else
+		if (CCVISI(CONTROL_CASE_MIXER)) Item_Control_Mixer(CCSCROL(CONTROL_CASE_MIXER));
+	#endif		
 #endif
-	if (CCVISI(CONTROL_CASE_CONFIG)) Item_Control_Config(CCSCROL(CONTROL_CASE_CONFIG));
-	if (CCVISI(CONTROL_CASE_MOTION)) Item_Control_Motion(CCSCROL(CONTROL_CASE_MOTION));
-	if (CCVISI(CONTROL_CASE_SETPLA)) Item_Control_PLA(CCSCROL(CONTROL_CASE_SETPLA));
-	if (CCVISI(CONTROL_CASE_SETABS)) Item_Control_ABS(CCSCROL(CONTROL_CASE_SETABS));
+	if (CCVISI(CONTROL_CASE_CONFIG + mixing_menu_adjust())) Item_Control_Config(CCSCROL(CONTROL_CASE_CONFIG + mixing_menu_adjust()));
+	if (CCVISI(CONTROL_CASE_MOTION + mixing_menu_adjust())) Item_Control_Motion(CCSCROL(CONTROL_CASE_MOTION + mixing_menu_adjust()));
+	if (CCVISI(CONTROL_CASE_SETPLA + mixing_menu_adjust())) Item_Control_PLA(CCSCROL(CONTROL_CASE_SETPLA + mixing_menu_adjust()));
+	if (CCVISI(CONTROL_CASE_SETABS + mixing_menu_adjust())) Item_Control_ABS(CCSCROL(CONTROL_CASE_SETABS + mixing_menu_adjust()));
 
 #if ENABLED(BLTOUCH)
-	if (CCVISI(CONTROL_CASE_BLTOUCH)) Item_Control_BLtouch(CCSCROL(CONTROL_CASE_BLTOUCH));
+	if (CCVISI(CONTROL_CASE_BLTOUCH + mixing_menu_adjust())) Item_Control_BLtouch(CCSCROL(CONTROL_CASE_BLTOUCH + mixing_menu_adjust()));
 #endif
 #if ENABLED(EEPROM_SETTINGS)
-	if (CCVISI(CONTROL_CASE_SAVE)) Item_Control_Save(CCSCROL(CONTROL_CASE_SAVE));
-	if (CCVISI(CONTROL_CASE_LOAD)) Item_Control_Load(CCSCROL(CONTROL_CASE_LOAD));
-	if (CCVISI(CONTROL_CASE_RESET)) Item_Control_Reset(CCSCROL(CONTROL_CASE_RESET));
+	if (CCVISI(CONTROL_CASE_SAVE + mixing_menu_adjust())) Item_Control_Save(CCSCROL(CONTROL_CASE_SAVE + mixing_menu_adjust()));
+	if (CCVISI(CONTROL_CASE_LOAD + mixing_menu_adjust())) Item_Control_Load(CCSCROL(CONTROL_CASE_LOAD + mixing_menu_adjust()));
+	if (CCVISI(CONTROL_CASE_RESET + mixing_menu_adjust())) Item_Control_Reset(CCSCROL(CONTROL_CASE_RESET + mixing_menu_adjust()));
 #endif
 
 	if(DwinMenu_control.now)	Draw_Menu_Cursor(CCSCROL(DwinMenu_control.now));	
@@ -148,29 +162,29 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MIXER, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Draw_Back_First(DwinMenu_mixer.now == MIXER_CASE_BACK);
 
 	//Mauanl
 	Draw_Menu_Line(MIXER_CASE_MANUAL,ICON_MIXER_MANUAL);
-	DWIN_Show_MultiLanguage_String(MIXER_MENU_MIX, LBLX, MBASE(MIXER_CASE_MANUAL));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX, LBLX, MBASE(MIXER_CASE_MANUAL));
 	Draw_More_Icon(MIXER_CASE_MANUAL);
 	//Gradient
 	Draw_Menu_Line(MIXER_CASE_GRADIENT,ICON_MIXER_GRADIENT);
-	DWIN_Show_MultiLanguage_String(MIXER_MENU_GRADIENT, LBLX, MBASE(MIXER_CASE_GRADIENT));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_GRADIENT, LBLX, MBASE(MIXER_CASE_GRADIENT));
 	Draw_More_Icon(MIXER_CASE_GRADIENT);
 	DWIN_Draw_MaskString_Default(190, MBASE(MIXER_CASE_GRADIENT), F_STRING_ONOFF(mixer.gradient.enabled)); 
 	//Random	
 	Draw_Menu_Line(MIXER_CASE_RANDOM,ICON_MIXER_RANDOM);
-	DWIN_Show_MultiLanguage_String(MIXER_MENU_RANDOM, LBLX, MBASE(MIXER_CASE_RANDOM));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_RANDOM, LBLX, MBASE(MIXER_CASE_RANDOM));	
 	Draw_More_Icon(MIXER_CASE_RANDOM);
 	DWIN_Draw_MaskString_Default(190, MBASE(MIXER_CASE_RANDOM), F_STRING_ONOFF(mixer.random_mix.enabled));
 	//Current VTOOL	
 	Draw_Menu_Line(MIXER_CASE_VTOOL,ICON_S_VTOOL);
-	DWIN_Show_MultiLanguage_String(MIXER_MENU_CURRENT, LBLX, MBASE(MIXER_CASE_VTOOL));
-	DWIN_Show_MultiLanguage_String(MIXER_MENU_VTOOL, LBLX+GET_ICON_X(CURRENT), MBASE(MIXER_CASE_VTOOL));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_CURRENT, LBLX, MBASE(MIXER_CASE_VTOOL));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_VTOOL, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_CURRENT)+5, MBASE(MIXER_CASE_VTOOL));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MIXER_CASE_VTOOL), mixer.selected_vtool);
 	
 	if (DwinMenu_mixer.now) Draw_Menu_Cursor(DwinMenu_mixer.now);
@@ -181,27 +195,27 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 // Control >> Mixer >>> Manual
 //
 static void Item_Mixer_Manual_VTOOL(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_VTOOL, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_VTOOL2, LBLX, MBASE(row));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.current_vtool);
 	Draw_Menu_Line(row, ICON_S_VTOOL);
 }
 static void Item_Mixer_Manual_EXT1(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MIX_MENU_1, LBLX+GET_ICON_X(EXTRUDER), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_1, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+5, MBASE(row));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.mix_percent[0]);
 	Draw_Menu_Line(row, ICON_EXTRUDER1);
 }
 static void Item_Mixer_Manual_EXT2(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MIX_MENU_2, LBLX+GET_ICON_X(EXTRUDER), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_2, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+5, MBASE(row));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.mix_percent[1]);
 	Draw_Menu_Line(row, ICON_EXTRUDER2);
 
 }
 #if(MIXING_STEPPERS > 2)	
 static void Item_Mixer_Manual_EXT3(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MIX_MENU_3, LBLX+GET_ICON_X(EXTRUDER), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_3, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+5, MBASE(row));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.mix_percent[2]);
 	Draw_Menu_Line(row, ICON_EXTRUDER3);
 }
@@ -209,15 +223,15 @@ static void Item_Mixer_Manual_EXT3(const uint8_t row) {
 
 #if(MIXING_STEPPERS > 3)	
 static void Item_Mixer_Manual_EXT4(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_EXTRUDER, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MIX_MENU_4, LBLX+GET_ICON_X(EXTRUDER), MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_EXTRUDER, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_4, LBLX+get_MultiLanguageString_Width(MTSTRING_EXTRUDER)+5, MBASE(row));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.mix_percent[3]);
 	Draw_Menu_Line(row, ICON_EXTRUDER4);
 }
 #endif
 
 static void Item_Mixer_Manual_Commit(const uint8_t row) {
-	DWIN_Show_MultiLanguage_String(MIX_MENU_COMIT, LBLX, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_COMIT, LBLX, MBASE(row));	
 	Draw_Menu_Line(row, ICON_C_VTOOL);
 }
 
@@ -227,14 +241,14 @@ inline void Draw_Mixer_Manual_Menu() {
 	//DwinMenu_manualmix.index = _MAX(DwinMenu_manualmix.now, MROWS);
 
 #if (MANUAL_CASE_TOTAL > MROWS)
-	const int16_t scroll = MROWS - DwinMenu_manualmix.index; // Scrolled-up lines
+	const int8_t scroll = MROWS - DwinMenu_manualmix.index; // Scrolled-up lines
 	#define MCSCROL(L) (scroll + (L))
 #else
 	#define MCSCROL(L) (L)
 #endif
 	#define MCVISI(L) WITHIN(MCSCROL(L), 0, MROWS)
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MIX, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
   // < Back
@@ -278,13 +292,13 @@ void HMI_Adjust_Mixer_Manual_Vtool() {
 				DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS + MANUAL_CASE_EXTRUDER4 - DwinMenu_manualmix.index), HMI_Value.mix_percent[3]);
 		#endif		
 			DwinMenuID = DWMENU_MIXER_MANUAL;
-			EncoderRate.enabled = false;
-			dwinLCD.UpdateLCD();
-			return;
+			EncoderRate.enabled = false;		
 		}
-		NOLESS(HMI_Value.current_vtool, 0);
-		NOMORE(HMI_Value.current_vtool, (MIXING_VIRTUAL_TOOLS-1));
-		DWIN_Draw_Select_IntValue_Default(2, MENUVALUE_X+16, MBASE(MROWS + MANUAL_CASE_VTOOL-DwinMenu_manualmix.index), HMI_Value.current_vtool);		
+		else {
+			NOLESS(HMI_Value.current_vtool, 0);
+			NOMORE(HMI_Value.current_vtool, (MIXING_VIRTUAL_TOOLS-1));
+			DWIN_Draw_Select_IntValue_Default(2, MENUVALUE_X+16, MBASE(MROWS + MANUAL_CASE_VTOOL-DwinMenu_manualmix.index), HMI_Value.current_vtool);		
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -295,13 +309,13 @@ void HMI_Adjust_Ext_Percent(uint8_t Extruder_Number) {
 		if (Apply_Encoder_int8(encoder_diffState, &HMI_Value.mix_percent[Extruder_Number])) {
 			DwinMenuID = DWMENU_MIXER_MANUAL;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS+MANUAL_CASE_EXTRUDER1+Extruder_Number-DwinMenu_manualmix.index), HMI_Value.mix_percent[Extruder_Number]);
-			dwinLCD.UpdateLCD();
-			return;
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS+MANUAL_CASE_EXTRUDER1+Extruder_Number-DwinMenu_manualmix.index), HMI_Value.mix_percent[Extruder_Number]);			
 		}
-		NOLESS(HMI_Value.mix_percent[Extruder_Number], 0);
-		NOMORE(HMI_Value.mix_percent[Extruder_Number], 100);
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS+MANUAL_CASE_EXTRUDER1+Extruder_Number-DwinMenu_manualmix.index), HMI_Value.mix_percent[Extruder_Number]);
+		else{
+			NOLESS(HMI_Value.mix_percent[Extruder_Number], 0);
+			NOMORE(HMI_Value.mix_percent[Extruder_Number], 100);
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS+MANUAL_CASE_EXTRUDER1+Extruder_Number-DwinMenu_manualmix.index), HMI_Value.mix_percent[Extruder_Number]);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -405,7 +419,7 @@ inline void Draw_Mixer_Gradient_Menu() {
 	//DwinMenu_GradientMix.index = _MAX(DwinMenu_GradientMix.now, MROWS);
 	
 #if GRADIENT_CASE_TOTAL >= 6
-	const int16_t scroll = MROWS - DwinMenu_GradientMix.index; // Scrolled-up lines
+	const int8_t scroll = MROWS - DwinMenu_GradientMix.index; // Scrolled-up lines
 	#define ACSCROL(L) (scroll + (L))
 #else
 	#define ACSCROL(L) (L)
@@ -413,30 +427,30 @@ inline void Draw_Mixer_Gradient_Menu() {
 	#define ACLINE(L) MBASE(ACSCROL(L))
 	#define ACVISI(L) WITHIN(ACSCROL(L), 0, MROWS)
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_GRADIENT, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (ACVISI(0)) Draw_Back_First(DwinMenu_GradientMix.now == 0);             // < Back
 	
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_START, LBLX, ACLINE(GRADIENT_CASE_ZPOS_START));
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_Z, LBLX+GET_ICON_X(START), ACLINE(GRADIENT_CASE_ZPOS_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_START, LBLX, ACLINE(GRADIENT_CASE_ZPOS_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_START)+6, ACLINE(GRADIENT_CASE_ZPOS_START));
 	HMI_Value.Auto_Zstart_scale = mixer.gradient.start_z*MINUNITMULT;
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(GRADIENT_CASE_ZPOS_START), HMI_Value.Auto_Zstart_scale);
 	Draw_Menu_Line(GRADIENT_CASE_ZPOS_START,ICON_ZPOS_RISE);
 	
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_END, LBLX, ACLINE(GRADIENT_CASE_ZPOS_END));
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_Z, LBLX+GET_ICON_X(END), ACLINE(GRADIENT_CASE_ZPOS_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_END, LBLX, ACLINE(GRADIENT_CASE_ZPOS_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_END)+6, ACLINE(GRADIENT_CASE_ZPOS_END));
 	HMI_Value.Auto_Zend_scale = mixer.gradient.end_z*MINUNITMULT;
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(2), HMI_Value.Auto_Zend_scale);
 	Draw_Menu_Line(GRADIENT_CASE_ZPOS_END,ICON_ZPOS_DROP);
 
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_START, LBLX, ACLINE(GRADIENT_CASE_VTOOL_START));
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_VTOOL, LBLX+GET_ICON_X(START), ACLINE(GRADIENT_CASE_VTOOL_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_START, LBLX, ACLINE(GRADIENT_CASE_VTOOL_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_VTOOL2, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_START)+6, ACLINE(GRADIENT_CASE_VTOOL_START));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(3), mixer.gradient.start_vtool);
 	Draw_Menu_Line(GRADIENT_CASE_VTOOL_START,ICON_VTOOL_RISE);
 	
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_END, LBLX, ACLINE(GRADIENT_CASE_VTOOL_END));
-	DWIN_Show_MultiLanguage_String(GRADIENT_MENU_VTOOL, LBLX+GET_ICON_X(END), ACLINE(GRADIENT_CASE_VTOOL_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_END, LBLX, ACLINE(GRADIENT_CASE_VTOOL_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_VTOOL2, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_END)+6, ACLINE(GRADIENT_CASE_VTOOL_END));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(4), mixer.gradient.end_vtool); 
 	Draw_Menu_Line(GRADIENT_CASE_VTOOL_END,ICON_VTOOL_DROP);
   
@@ -453,18 +467,17 @@ void HMI_Adjust_Gradient_Zpos_Start() {
 			last_Z_scale = HMI_Value.Auto_Zstart_scale;
 			DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_START), HMI_Value.Auto_Zstart_scale);
 			DwinMenuID = DWMENU_MIXER_GRADIENT;			
-			mixer.gradient.start_z = (float)HMI_Value.Auto_Zstart_scale / MINUNITMULT;
-			dwinLCD.UpdateLCD();
-			return;
+			mixer.gradient.start_z = (float)HMI_Value.Auto_Zstart_scale / MINUNITMULT;			
 	  }
-		
-	  if ((HMI_Value.Auto_Zstart_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Auto_Zstart_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
-	  else if ((last_Z_scale - HMI_Value.Auto_Zstart_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Auto_Zstart_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;		
-		NOLESS(HMI_Value.Auto_Zstart_scale, 0);
-		NOMORE(HMI_Value.Auto_Zstart_scale, Z_MAX_POS*MINUNITMULT);
-		DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_START), HMI_Value.Auto_Zstart_scale);		
+		else{
+		  if ((HMI_Value.Auto_Zstart_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Auto_Zstart_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
+		  else if ((last_Z_scale - HMI_Value.Auto_Zstart_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Auto_Zstart_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;		
+			NOLESS(HMI_Value.Auto_Zstart_scale, 0);
+			NOMORE(HMI_Value.Auto_Zstart_scale, Z_MAX_POS*MINUNITMULT);
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_START), HMI_Value.Auto_Zstart_scale);		
+		}			
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -479,18 +492,19 @@ void HMI_Adjust_Gradient_Zpos_End() {
 			last_Z_scale = HMI_Value.Auto_Zend_scale;
 			DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_END), HMI_Value.Auto_Zend_scale);
 			DwinMenuID = DWMENU_MIXER_GRADIENT;
-			mixer.gradient.end_z = (float)HMI_Value.Auto_Zend_scale / MINUNITMULT;
-			dwinLCD.UpdateLCD();
-			return;
+			mixer.gradient.end_z = (float)HMI_Value.Auto_Zend_scale / MINUNITMULT;			
 	  }		
-	  if ((HMI_Value.Auto_Zend_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Auto_Zend_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
-	  else if ((last_Z_scale - HMI_Value.Auto_Zend_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Auto_Zend_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
-	   NOLESS(HMI_Value.Auto_Zend_scale, 0);	
-		 NOMORE(HMI_Value.Auto_Zend_scale, Z_MAX_POS*MINUNITMULT);	
-		 DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_END), HMI_Value.Auto_Zend_scale);		
-		 dwinLCD.UpdateLCD();
+		else {
+		  if ((HMI_Value.Auto_Zend_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Auto_Zend_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
+		  else if ((last_Z_scale - HMI_Value.Auto_Zend_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Auto_Zend_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
+			
+			NOLESS(HMI_Value.Auto_Zend_scale, 0);	
+			NOMORE(HMI_Value.Auto_Zend_scale, Z_MAX_POS*MINUNITMULT);	
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_ZPOS_END), HMI_Value.Auto_Zend_scale);		
+		}			 
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -501,12 +515,12 @@ void HMI_Adjust_Gradient_VTool_Start() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_START), mixer.gradient.start_vtool);			
 			DwinMenuID = DWMENU_MIXER_GRADIENT;
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(mixer.gradient.start_vtool, 0);
-		NOMORE(mixer.gradient.start_vtool, MIXING_VIRTUAL_TOOLS-1);
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_START), mixer.gradient.start_vtool);
+		else {
+			NOLESS(mixer.gradient.start_vtool, 0);
+			NOMORE(mixer.gradient.start_vtool, MIXING_VIRTUAL_TOOLS-1);
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_START), mixer.gradient.start_vtool);
+		}			
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -518,12 +532,12 @@ void HMI_Adjust_Gradient_VTool_End() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_END), mixer.gradient.end_vtool);			
 			DwinMenuID = DWMENU_MIXER_GRADIENT;
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(mixer.gradient.end_vtool, 0);
-		NOMORE(mixer.gradient.end_vtool, MIXING_VIRTUAL_TOOLS-1);
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_END), mixer.gradient.end_vtool);
+		else {
+			NOLESS(mixer.gradient.end_vtool, 0);
+			NOMORE(mixer.gradient.end_vtool, MIXING_VIRTUAL_TOOLS-1);
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_GradientMix.index + GRADIENT_CASE_VTOOL_END), mixer.gradient.end_vtool);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -603,32 +617,43 @@ inline void Draw_Mixer_Random_Menu() {
 	DwinMenu_RandomMix.reset();
 	DwinMenu_RandomMix.index = _MAX(DwinMenu_RandomMix.now, MROWS);
 	
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_RANDOM, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	
 	Draw_Back_First(DwinMenu_RandomMix.now == RANDOM_CASE_BACK); // < Back
 	//Z start
-	DWIN_Show_MultiLanguage_String(RANDOM_MENU_START, LBLX, MBASE(RANDOM_CASE_ZPOS_START));
-	DWIN_Show_MultiLanguage_String(RANDOM_MENU_Z, LBLX+GET_ICON_X(START), MBASE(RANDOM_CASE_ZPOS_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_START, LBLX, MBASE(RANDOM_CASE_ZPOS_START));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_START)+6, MBASE(RANDOM_CASE_ZPOS_START));	
 	HMI_Value.Random_Zstart_scale = mixer.random_mix.start_z*MINUNITMULT;
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(RANDOM_CASE_ZPOS_START), HMI_Value.Random_Zstart_scale);
 	Draw_Menu_Line(RANDOM_CASE_ZPOS_START,ICON_ZPOS_RISE);
+	
 	//Z END
-	DWIN_Show_MultiLanguage_String(RANDOM_MENU_END, LBLX, MBASE(RANDOM_CASE_ZPOS_END));
-	DWIN_Show_MultiLanguage_String(RANDOM_MENU_Z, LBLX+GET_ICON_X(END), MBASE(RANDOM_CASE_ZPOS_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_END, LBLX, MBASE(RANDOM_CASE_ZPOS_END));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MIX_END)+6, MBASE(RANDOM_CASE_ZPOS_END));
 	HMI_Value.Random_Zend_scale = mixer.random_mix.end_z*MINUNITMULT;
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(RANDOM_CASE_ZPOS_END), HMI_Value.Random_Zend_scale);
 	Draw_Menu_Line(RANDOM_CASE_ZPOS_END,ICON_ZPOS_DROP);
-	//Height
-	Draw_Menu_Line(RANDOM_CASE_HEIGHT,ICON_CURSOR);
-	HMI_Value.Random_Height = mixer.random_mix.height*MINUNITMULT;
+	
+	//Height		
+#if ENABLED(OPTION_DWINLCD_MENUV2)	
+	DWIN_Show_MultiLanguage_String(MTSTRING_RANDOM_HEIGTH, LBLX, MBASE(RANDOM_CASE_HEIGHT));
+#else
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(RANDOM_CASE_HEIGHT), PSTR("Height:"));
+#endif
+	HMI_Value.Random_Height = mixer.random_mix.height*MINUNITMULT;	
 	DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(RANDOM_CASE_HEIGHT), HMI_Value.Random_Height);
-	//Extruders
-	Draw_Menu_Line(RANDOM_CASE_EXTRUDERS,ICON_CURSOR);
+	Draw_Menu_Line(RANDOM_CASE_HEIGHT,ICON_CURSOR);
+	
+	//Extruders	
+#if ENABLED(OPTION_DWINLCD_MENUV2)		
+	DWIN_Show_MultiLanguage_String(MTSTRING_RANDOM_EXTRUDERS, LBLX, MBASE(RANDOM_CASE_EXTRUDERS));
+#else
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(RANDOM_CASE_EXTRUDERS), PSTR("Extruders:"));
+#endif	
 	DWIN_Draw_IntValue_Default(1, MENUVALUE_X+4*8, MBASE(RANDOM_CASE_EXTRUDERS), mixer.random_mix.extruders);
+	Draw_Menu_Line(RANDOM_CASE_EXTRUDERS,ICON_CURSOR);
 	
  if (DwinMenu_RandomMix.now) Draw_Menu_Cursor(DwinMenu_RandomMix.now); 
 }
@@ -643,16 +668,17 @@ void HMI_Adjust_Random_Zpos_Start() {
 			last_Z_scale = HMI_Value.Random_Zstart_scale;
 			DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_START), HMI_Value.Random_Zstart_scale);			
 			mixer.random_mix.start_z = (float)HMI_Value.Random_Zstart_scale / MINUNITMULT;
-			DwinMenuID = DWMENU_MIXER_RANDOM;
-			dwinLCD.UpdateLCD();
-			return;
+			DwinMenuID = DWMENU_MIXER_RANDOM;			
 	  }		
-	  if ((HMI_Value.Random_Zstart_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Random_Zstart_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
-	  else if ((last_Z_scale - HMI_Value.Random_Zstart_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Random_Zstart_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
-		NOLESS(HMI_Value.Random_Zstart_scale, 0);		
-		DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_START), HMI_Value.Random_Zstart_scale);
+		else {
+		  if ((HMI_Value.Random_Zstart_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Random_Zstart_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
+		  else if ((last_Z_scale - HMI_Value.Random_Zstart_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Random_Zstart_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
+			
+			NOLESS(HMI_Value.Random_Zstart_scale, 0);		
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_START), HMI_Value.Random_Zstart_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -668,17 +694,17 @@ void HMI_Adjust_Random_Zpos_End() {
 			DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_END), HMI_Value.Random_Zend_scale);			
 			mixer.random_mix.end_z = (float)HMI_Value.Random_Zend_scale / MINUNITMULT;
 			DwinMenuID = DWMENU_MIXER_RANDOM;
-			dwinLCD.UpdateLCD();
-			return;
 	  }
-		
-	  if ((HMI_Value.Random_Zend_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Random_Zend_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
-	  else if ((last_Z_scale - HMI_Value.Random_Zend_scale) > (Z_MAX_POS) * MINUNITMULT)
-			HMI_Value.Random_Zend_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
-	   NOLESS(HMI_Value.Random_Zend_scale, 0);		 
-		 DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_END), HMI_Value.Random_Zend_scale);
-		 dwinLCD.UpdateLCD();
+		else {
+		  if ((HMI_Value.Random_Zend_scale - last_Z_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Random_Zend_scale = last_Z_scale + (Z_MAX_POS) * MINUNITMULT;
+		  else if ((last_Z_scale - HMI_Value.Random_Zend_scale) > (Z_MAX_POS) * MINUNITMULT)
+				HMI_Value.Random_Zend_scale = last_Z_scale - (Z_MAX_POS) * MINUNITMULT;
+			
+		   NOLESS(HMI_Value.Random_Zend_scale, 0);		 
+			 DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_ZPOS_END), HMI_Value.Random_Zend_scale);
+		}
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -692,19 +718,19 @@ void HMI_Adjust_Random_Height() {
 			last_Height = HMI_Value.Random_Height;
 			DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_HEIGHT), HMI_Value.Random_Height);			
 			DwinMenuID = DWMENU_MIXER_RANDOM;
-			dwinLCD.UpdateLCD();
-			return;
 	  }
-		
-	  if ((HMI_Value.Random_Height - last_Height) > 100 * MINUNITMULT)
-			HMI_Value.Random_Height = last_Height + 100 * MINUNITMULT;
-	  else if ((last_Height - HMI_Value.Random_Height) > Z_MAX_POS * MINUNITMULT)
-			HMI_Value.Random_Height = last_Height - Z_MAX_POS * MINUNITMULT;
-	   NOLESS(HMI_Value.Random_Height, 0);
-		 NOMORE(HMI_Value.Random_Height, Z_MAX_POS * MINUNITMULT);
-		 mixer.random_mix.height = (float)HMI_Value.Random_Height / MINUNITMULT;
-		 DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_HEIGHT), HMI_Value.Random_Height);
-		 dwinLCD.UpdateLCD();
+		else {
+			if ((HMI_Value.Random_Height - last_Height) > 100 * MINUNITMULT)
+				HMI_Value.Random_Height = last_Height + 100 * MINUNITMULT;
+			else if ((last_Height - HMI_Value.Random_Height) > Z_MAX_POS * MINUNITMULT)
+				HMI_Value.Random_Height = last_Height - Z_MAX_POS * MINUNITMULT;
+			NOLESS(HMI_Value.Random_Height, 0);
+			
+			NOMORE(HMI_Value.Random_Height, Z_MAX_POS * MINUNITMULT);
+			mixer.random_mix.height = (float)HMI_Value.Random_Height / MINUNITMULT;
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_HEIGHT), HMI_Value.Random_Height);
+		}
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -716,12 +742,12 @@ void HMI_Adjust_Random_Extruders() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(1, MENUVALUE_X+4*8, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_EXTRUDERS), mixer.random_mix.extruders);			
 			DwinMenuID = DWMENU_MIXER_RANDOM;
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(mixer.random_mix.extruders, 1);
-		NOMORE(mixer.random_mix.extruders, MIXING_STEPPERS);		
-		DWIN_Draw_Select_IntValue_Default(1, MENUVALUE_X+4*8, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_EXTRUDERS), mixer.random_mix.extruders);
+		else {
+			NOLESS(mixer.random_mix.extruders, 1);
+			NOMORE(mixer.random_mix.extruders, MIXING_STEPPERS);		
+			DWIN_Draw_Select_IntValue_Default(1, MENUVALUE_X+4*8, MBASE(MROWS -DwinMenu_RandomMix.index + RANDOM_CASE_EXTRUDERS), mixer.random_mix.extruders);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -799,13 +825,13 @@ void HMI_Adjust_Mixer_Vtool() {
 			DwinMenuID = DWMENU_MIXER;
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MIXER_CASE_VTOOL), mixer.selected_vtool);	
-			mixer.update_mix_from_vtool();
-			dwinLCD.UpdateLCD();
-			return;
+			mixer.update_mix_from_vtool();			
 		}
-		NOLESS(mixer.selected_vtool, 0);
-		NOMORE(mixer.selected_vtool, (MIXING_VIRTUAL_TOOLS-1));
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MIXER_CASE_VTOOL), mixer.selected_vtool);
+		else {
+			NOLESS(mixer.selected_vtool, 0);
+			NOMORE(mixer.selected_vtool, (MIXING_VIRTUAL_TOOLS-1));
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MIXER_CASE_VTOOL), mixer.selected_vtool);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -899,7 +925,7 @@ static void Item_Config_Filament(const uint8_t row) {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 static void Item_Config_Powerloss(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PowerLossRecovery:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Power Loss Recovery:"));
 	Draw_Menu_Line(row,ICON_CURSOR);
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(recovery.enabled));	
 }
@@ -929,6 +955,304 @@ static void Item_Config_WifiBaudrate(const uint8_t row) {
 #endif
 #endif
 
+#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+static void Item_Config_MixerEnable(const uint8_t row) {
+ DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Mixing Feature:"));
+ Draw_Menu_Line(row,ICON_CURSOR);
+ DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(mixer.mixing_enabled)); 
+}
+
+#if ENABLED(SWITCH_EXTRUDER_MENU)
+inline PGM_P _getString_SwitchExtruder(){
+	switch(HMI_Value.switchExtruder){
+		default:
+			HMI_Value.switchExtruder = SE_DEFAULT;
+	#if (MIXING_STEPPERS== 3)
+		case SE_E1E2E3:
+			return PSTR("E1-E2-E3");
+		case SE_E1E3E2:
+			return PSTR("E1-E3-E4");
+		case SE_E2E1E3:
+			return PSTR("E2-E1-E3");
+		case SE_E2E3E1:
+			return PSTR("E2-E3-E1");
+		case SE_E3E1E2:
+			return PSTR("E3-E1-E2");
+		case SE_E3E2E1:
+			return PSTR("E3-E2-E1");		
+	#endif
+	
+	#if (MIXING_STEPPERS == 4)
+		case SE_E1E2E3E4:
+			return PSTR("E1-E2-E3-E4");
+		case SE_E1E2E4E3:
+			return PSTR("E1-E2-E4-E3");
+		case SE_E1E3E2E4:
+			return PSTR("E1-E3-E2-E4");
+		case SE_E1E3E4E2:
+			return PSTR("E1-E3-E4-E2");
+		case SE_E1E4E2E3:
+			return PSTR("E1-E4-E2-E3");
+		case SE_E1E4E3E2:
+			return PSTR("E1-E4-E3-E2");
+			
+		case SE_E2E1E3E4:
+			return PSTR("E2-E1-E3-E4");
+		case SE_E2E1E4E3:
+			return PSTR("E2-E1-E4-E3");
+		case SE_E2E3E1E4:
+			return PSTR("E2-E3-E1-E4");
+		case SE_E2E3E4E1:
+			return PSTR("E2-E3-E4-E1");
+		case SE_E2E4E1E3:
+			return PSTR("E2-E4-E1-E3");
+		case SE_E2E4E3E1:
+			return PSTR("E2-E4-E3-E1");
+			
+		case SE_E3E1E2E4:
+			return PSTR("E3-E1-E2-E4");
+		case SE_E3E1E4E2:
+			return PSTR("E3-E1-E4-E2");				
+		case SE_E3E2E1E4:
+			return PSTR("E3-E2-E1-E4");
+		case SE_E3E2E4E1:
+			return PSTR("E3-E2-E4-E1");	
+		case SE_E3E4E1E2:
+			return PSTR("E3-E4-E1-E2");
+		case SE_E3E4E2E1:
+			return PSTR("E3-E4-E2-E1");	
+			
+		case SE_E4E1E2E3:
+			return PSTR("E4-E1-E2-E3");	
+		case SE_E4E1E3E2:
+			return PSTR("E4-E1-E3-E2");	
+		case SE_E4E2E1E3:
+			return PSTR("E4-E2-E1-E3");
+		case SE_E4E2E3E1:
+			return PSTR("E4-E2-E3-E1");
+		case SE_E4E3E1E2:
+			return PSTR("E4-E3-E1-E2");
+		case SE_E4E3E2E1:
+			return PSTR("E4-E3-E2-E1");		
+	#endif
+	}
+}
+
+
+inline void switch_extruder_sequence(){
+	switch(HMI_Value.switchExtruder){
+		default:
+			HMI_Value.switchExtruder = SE_DEFAULT;
+			
+	#if (MIXING_STEPPERS == 3)	
+		case SE_E1E2E3:
+			mixer.reset_collector(0);	mixer.normalize(0);		
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);	
+			break;
+		case SE_E1E3E2:
+			mixer.reset_collector(0);	mixer.normalize(0);		
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);	
+			break;			
+		case SE_E2E1E3:
+			mixer.reset_collector(1);	mixer.normalize(0);		
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);	
+			break;			
+		case SE_E2E3E1:
+			mixer.reset_collector(1);	mixer.normalize(0);		
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);	
+			break;			
+		case SE_E3E1E2:
+			mixer.reset_collector(2);	mixer.normalize(0);		
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);	
+			break;			
+		case SE_E3E2E1:
+			mixer.reset_collector(2);	mixer.normalize(0);		
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);	
+			break;			
+	#endif
+	
+	#if (MIXING_STEPPERS == 4)		
+		case SE_E1E2E3E4:
+			mixer.reset_collector(0);	mixer.normalize(0);		
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+			break;
+		case SE_E1E2E4E3:
+			mixer.reset_collector(0);	mixer.normalize(0);		
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+			break;
+		case SE_E1E3E2E4:
+			mixer.reset_collector(0);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+  		break;
+		case SE_E1E3E4E2:
+			mixer.reset_collector(0);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;
+		case SE_E1E4E2E3:
+			mixer.reset_collector(0);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+  		break;
+		case SE_E1E4E3E2:
+			mixer.reset_collector(0);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;
+						
+		case SE_E2E1E3E4:			
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+  		break;
+		case SE_E2E1E4E3:
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+  		break;
+		case SE_E2E3E1E4:
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+  		break;
+		case SE_E2E3E4E1:
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;
+		case SE_E2E4E1E3:
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+  		break;
+		case SE_E2E4E3E1:
+			mixer.reset_collector(1);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;
+
+			
+		case SE_E3E1E2E4:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+  		break;
+		case SE_E3E1E4E2:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;	
+		case SE_E3E2E1E4:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(3);	mixer.normalize(3);			
+  		break;
+		case SE_E3E2E4E1:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(3);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;
+		case SE_E3E4E1E2:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;
+		case SE_E3E4E2E1:
+			mixer.reset_collector(2);	mixer.normalize(0);
+			mixer.reset_collector(3);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;
+			
+		case SE_E4E1E2E3:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+  		break;
+		case SE_E4E1E3E2:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(0);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;
+		case SE_E4E2E1E3:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(2);	mixer.normalize(3);			
+  		break;
+		case SE_E4E2E3E1:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(1);	mixer.normalize(1);
+			mixer.reset_collector(2);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;			
+		case SE_E4E3E1E2:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(0);	mixer.normalize(2);
+			mixer.reset_collector(1);	mixer.normalize(3);			
+  		break;
+		case SE_E4E3E2E1:
+			mixer.reset_collector(3);	mixer.normalize(0);
+			mixer.reset_collector(2);	mixer.normalize(1);
+			mixer.reset_collector(1);	mixer.normalize(2);
+			mixer.reset_collector(0);	mixer.normalize(3);			
+  		break;
+	#endif			
+	}
+}
+
+static void Item_Config_SwitchExtruder(const uint8_t row) {
+ DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Extr.Sequence:"));
+ Draw_Menu_Line(row,ICON_CURSOR);
+ DWIN_Draw_MaskString_Default(216-12*MIXING_STEPPERS, MBASE(row), _getString_SwitchExtruder()); 
+}
+#endif
+
+#endif
+
+#if ABL_GRID
+static void Item_Config_Leveling(const uint8_t row) {
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Leveling:"));
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row),F_STRING_ONOFF(HMI_flag.Leveling_Menu_Fg));	
+	Draw_Menu_Line(row,ICON_CURSOR);
+}
+
+static void Item_Config_ActiveLevel(const uint8_t row) {
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Active Autolevel:"));
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(planner.leveling_active));		
+	Draw_Menu_Line(row,ICON_CURSOR);
+}
+#endif
+
 #if ENABLED(OPTION_BED_COATING)
 static void Item_Config_bedcoating(const uint8_t row) { 
 	HMI_Value.coating_thickness = (int16_t)(coating_thickness * MAXUNITMULT);
@@ -941,7 +1265,10 @@ static void Item_Config_bedcoating(const uint8_t row) {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 static void Item_Config_MaxHotendTemp(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), (int16_t)(HMI_Value.max_hotendtemp));
+	if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+		DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
+	else
+		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
@@ -960,21 +1287,6 @@ static void Item_Config_PIDTune(const uint8_t row) {
 }
 #endif
 
-
-#if ABL_GRID
-static void Item_Config_Leveling(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Leveling:"));
-	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row),F_STRING_ONOFF(HMI_flag.Leveling_Menu_Fg));	
-	Draw_Menu_Line(row,ICON_CURSOR);
-}
-
-static void Item_Config_ActiveLevel(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Active Autolevel:"));
-	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(planner.leveling_active));		
-	Draw_Menu_Line(row,ICON_CURSOR);
-}
-#endif
-
 void Draw_Config_Menu(const uint8_t MenuItem) {	
 	DwinMenuID = DWMENU_CONFIG;
 	DwinMenu_configure.set(MenuItem);
@@ -982,7 +1294,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	
 	TERN_(OPTION_HOTENDMAXTEMP,HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT));
 #if CONFIG_CASE_TOTAL > MROWS
-	const int16_t scroll = MROWS - DwinMenu_configure.index;
+	const int8_t scroll = MROWS - DwinMenu_configure.index;
 	#define COSCROL(L) (scroll + (L))
 #else
 	#define COSCROL(L) (L)
@@ -990,9 +1302,13 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#define COVISI(L) WITHIN(COSCROL(L), 0, MROWS)
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);	
-	//DWIN_Show_MultiLanguage_String(MTSTRING_CONFIG, TITLE_X, TITLE_Y);
+#if ENABLED(OPTION_DWINLCD_MENUV2)
+	dwinLCD.JPG_CacheTo1(get_title_picID());
+	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_CONFIGRE, TITLE_X, TITLE_Y);
+	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);	
+#else	
 	DWIN_Draw_UnMaskString_Default(14, 7, PSTR("Configure")); 
-
+#endif
 	if (COVISI(CONFIG_CASE_BACK)) Draw_Back_First(DwinMenu_configure.now == CONFIG_CASE_BACK);  // < Back 
 
 	#if ENABLED(FWRETRACT) 
@@ -1016,20 +1332,28 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 
 	#if ENABLED(OPTION_WIFI_MODULE) 
-	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 							// WIFI
-	 #if ENABLED(OPTION_WIFI_BAUDRATE)
-	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));// WIFI Baudrate
-	 #endif
+	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 									// WIFI	 
 	#endif
 	
- 	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){			
+ 	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){	
+	#if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE)
+	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));			// WIFI Baudrate
+	#endif
+	
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+	 if (COVISI(CONFIG_CASE_MIXERENABLE)) Item_Config_MixerEnable(COSCROL(CONFIG_CASE_MIXERENABLE));					// mixing feature:
+	 #if ENABLED(SWITCH_EXTRUDER_MENU)
+	 if (COVISI(CONFIG_CASE_SWITCHEXTRUDER)) Item_Config_SwitchExtruder(COSCROL(CONFIG_CASE_SWITCHEXTRUDER));	// switch extruder:
+	 #endif
+	#endif	
+	
 	#if ENABLED(OPTION_BED_COATING) 
-	 if (COVISI(CONFIG_CASE_COATING)) 	Item_Config_bedcoating(COSCROL(CONFIG_CASE_COATING));  	 	//coating thickness
+	 if (COVISI(CONFIG_CASE_COATING)) 	Item_Config_bedcoating(COSCROL(CONFIG_CASE_COATING));  	 			//coating thickness
 	#endif
 
 	#if ABL_GRID 		
-	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 			// auto LEVELING
-	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); // auto LEVELING
+	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 				// auto lelevling
+	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); // Active lelevling
 	#endif	 
 	 
 	#if ENABLED(OPTION_HOTENDMAXTEMP) 
@@ -1038,7 +1362,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	
 	#if EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
 	 if (COVISI(CONFIG_CASE_PIDTUNE)) 	Item_Config_PIDTune(COSCROL(CONFIG_CASE_PIDTUNE));  	 	// PID AutoTune:
-	#endif	 
+	#endif
  }
  if (DwinMenu_configure.now) Draw_Menu_Cursor(COSCROL(DwinMenu_configure.now));
  Draw_Status_Area();
@@ -1095,7 +1419,7 @@ inline void Draw_Retract_Menu() {
 	DwinMenu_fwretract.reset();	
 	
 #if RETRACT_CASE_TOTAL > MROWS
-	const int16_t scroll = MROWS - DwinMenu_fwretract.index;
+	const int8_t scroll = MROWS - DwinMenu_fwretract.index;
 	#define RESCROL(L) (scroll + (L))
 #else
 	#define RESCROL(L) (L)
@@ -1123,13 +1447,13 @@ void HMI_Retract_MM() {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
-			fwretract.settings.retract_length = (float)HMI_Value.Retract_MM_scale/MINUNITMULT;
-			dwinLCD.UpdateLCD();			
-			return;
+			fwretract.settings.retract_length = (float)HMI_Value.Retract_MM_scale/MINUNITMULT;			
 		}
-		NOLESS(HMI_Value.Retract_MM_scale, 2*MINUNITMULT);
-		NOMORE(HMI_Value.Retract_MM_scale, 30*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
+		else {
+			NOLESS(HMI_Value.Retract_MM_scale, 2*MINUNITMULT);
+			NOMORE(HMI_Value.Retract_MM_scale, 30*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_MM), HMI_Value.Retract_MM_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1141,13 +1465,13 @@ void HMI_Retract_V() {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
-			fwretract.settings.retract_feedrate_mm_s = (float)HMI_Value.Retract_V_scale/MINUNITMULT;
-			dwinLCD.UpdateLCD();
-			return;
+			fwretract.settings.retract_feedrate_mm_s = (float)HMI_Value.Retract_V_scale/MINUNITMULT;			
 		}
-		NOLESS(HMI_Value.Retract_V_scale, 5*MINUNITMULT);
-		NOMORE(HMI_Value.Retract_V_scale, 50*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
+		else {
+			NOLESS(HMI_Value.Retract_V_scale, 5*MINUNITMULT);
+			NOMORE(HMI_Value.Retract_V_scale, 50*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_V), HMI_Value.Retract_V_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1161,12 +1485,12 @@ void HMI_Retract_ZHOP() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
 			fwretract.settings.retract_zraise = (float)HMI_Value.Retract_ZHOP_scale/MINUNITMULT;
-			dwinLCD.UpdateLCD();			
-			return;
 		}
-		NOLESS(HMI_Value.Retract_ZHOP_scale, 0);
-		NOMORE(HMI_Value.Retract_ZHOP_scale, 10*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
+		else {
+			NOLESS(HMI_Value.Retract_ZHOP_scale, 0);
+			NOMORE(HMI_Value.Retract_ZHOP_scale, 10*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RETRACT_ZHOP), HMI_Value.Retract_ZHOP_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1179,12 +1503,12 @@ void HMI_UnRetract_MM() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
 			fwretract.settings.retract_recover_extra = (float)HMI_Value.unRetract_MM_scale/MAXUNITMULT;
-			dwinLCD.UpdateLCD();			
-			return;
 		}
-		NOLESS(HMI_Value.unRetract_MM_scale, 0);
-		NOMORE(HMI_Value.unRetract_MM_scale, 10*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
+		else {
+			NOLESS(HMI_Value.unRetract_MM_scale, 0);
+			NOMORE(HMI_Value.unRetract_MM_scale, 10*MAXUNITMULT);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_MM), HMI_Value.unRetract_MM_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1196,13 +1520,13 @@ void HMI_UnRetract_V() {
 			DwinMenuID = DWMENU_SET_RETRACT;
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
-			fwretract.settings.retract_recover_feedrate_mm_s = (float)HMI_Value.unRetract_V_scale/MINUNITMULT;
-			dwinLCD.UpdateLCD();			
-			return;
+			fwretract.settings.retract_recover_feedrate_mm_s = (float)HMI_Value.unRetract_V_scale/MINUNITMULT;		
 		}
-		NOLESS(HMI_Value.unRetract_V_scale, 5*MINUNITMULT);
-		NOMORE(HMI_Value.unRetract_V_scale, 50*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
+		else {
+			NOLESS(HMI_Value.unRetract_V_scale, 5*MINUNITMULT);
+			NOMORE(HMI_Value.unRetract_V_scale, 50*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_RECOVER_V), HMI_Value.unRetract_V_scale);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1344,7 +1668,7 @@ inline void Draw_PIDTune_Menu() {
 	DwinMenu_PIDTune.reset();
 
 #if PIDTUNE_CASE_TOTAL > MROWS
-	const int16_t scroll = MROWS - DwinMenu_PIDTune.index;
+	const int8_t scroll = MROWS - DwinMenu_PIDTune.index;
 	#define PIDSCROL(L) (scroll + (L))
 #else
 	#define PIDSCROL(L) (L)
@@ -1372,12 +1696,12 @@ void HMI_PIDTune_KP() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KP), HMI_Value.PIDKp);
 			thermalManager.temp_hotend[0].pid.Kp = (float)HMI_Value.PIDKp/MINUNITMULT;
-			dwinLCD.UpdateLCD();			
-			return;
 		}
-		NOLESS(HMI_Value.PIDKp, 0);
-		NOMORE(HMI_Value.PIDKp, 999*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KP), HMI_Value.PIDKp);
+		else {
+			NOLESS(HMI_Value.PIDKp, 0);
+			NOMORE(HMI_Value.PIDKp, 999*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KP), HMI_Value.PIDKp);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1391,12 +1715,12 @@ void HMI_PIDTune_KI() {
 			DWIN_Draw_Small_Float22(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KI), HMI_Value.PIDKi);
 			thermalManager.temp_hotend[0].pid.Ki = scalePID_i(HMI_Value.PIDKi/MAXUNITMULT);
 			thermalManager.updatePID();
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(HMI_Value.PIDKi, 0);
-		NOMORE(HMI_Value.PIDKi, 300*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KI), HMI_Value.PIDKi);
+		else {
+			NOLESS(HMI_Value.PIDKi, 0);
+			NOMORE(HMI_Value.PIDKi, 300*MAXUNITMULT);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KI), HMI_Value.PIDKi);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1411,38 +1735,35 @@ void HMI_PIDTune_KD() {
 			DWIN_Draw_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KD), HMI_Value.PIDKd);
 			thermalManager.temp_hotend[0].pid.Kd = scalePID_d(HMI_Value.PIDKd/MINUNITMULT);
 			thermalManager.updatePID();
-			dwinLCD.UpdateLCD();			
-			return;
 		}
-		NOLESS(HMI_Value.PIDKd, 0);
-		NOMORE(HMI_Value.PIDKd, 300*MINUNITMULT);		
-		DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KD), HMI_Value.PIDKd);
+		else {
+			NOLESS(HMI_Value.PIDKd, 0);
+			NOMORE(HMI_Value.PIDKd, 300*MINUNITMULT);		
+			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X-8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_KD), HMI_Value.PIDKd);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
 
 #if ENABLED(PID_AUTOTUNE_MENU)
 void HMI_PID_AutoTune() {
-	char string_Buf[50]={0};
+	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
 			DwinMenuID = DWMENU_PID_TUNE;
 			EncoderRate.enabled = false;			
-			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_AUTO), HMI_Value.PIDAutotune_Temp);
-			dwinLCD.UpdateLCD();
-			DWIN_FEEDBACK_CONFIRM();			
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C4 U1\nM500"),HMI_Value.PIDAutotune_Temp);
-			queue.inject(string_Buf);
-			Draw_Config_Menu(CONFIG_CASE_PIDTUNE);
-			return;
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_AUTO), HMI_Value.PIDAutotune_Temp);			
+			DWIN_status = ID_SM_PIDAUTOTUNE;
+			DWIN_FEEDBACK_CONFIRM();
 		}
-		NOLESS(HMI_Value.PIDAutotune_Temp, 180);
-		NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_AUTO), HMI_Value.PIDAutotune_Temp);
+		else {
+			NOLESS(HMI_Value.PIDAutotune_Temp, 180);
+			NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_AUTO), HMI_Value.PIDAutotune_Temp);
+		}
 		dwinLCD.UpdateLCD();
-	}
+	}	
 }
 #endif
 
@@ -1513,25 +1834,25 @@ void HMI_PIDTune() {
 //
 static void Item_Motion_Feedrate(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEED);
-	DWIN_Show_MultiLanguage_String(MOTION_MENU_FEEDRATE, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX, MBASE(row));
 	Draw_More_Icon(row);
 }
 
 static void Item_Motion_Accel(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXACCELERATED);
-	DWIN_Show_MultiLanguage_String(MOTION_MENU_ACC, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCELERATION, LBLX, MBASE(row));
 	Draw_More_Icon(row);
 }
 
 static void Item_Motion_Jerk(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXJERK);
-	DWIN_Show_MultiLanguage_String(MOTION_MENU_JERK, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX, MBASE(row));
 	Draw_More_Icon(row);
 }
 
 static void Item_Motion_Steps(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEP);
-	DWIN_Show_MultiLanguage_String(MOTION_MENU_STEPS, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
 	Draw_More_Icon(row);
 }
 
@@ -1542,7 +1863,7 @@ static void Draw_Motion_Menu(const uint8_t MenuItem = 0) {
 	 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MOTION, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Draw_Back_First(DwinMenu_motion.now == MOTION_CASE_BACK);
@@ -1560,33 +1881,33 @@ static void Draw_Motion_Menu(const uint8_t MenuItem = 0) {
 //
 static void Item_Feedrate_MaxX(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDX);
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_FEEDRATE, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+GET_ICON_X(MAX)+GET_ICON_X(FEEDRATE), MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_FEEDRATE)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[X_AXIS]);
 }
 
 static void Item_Feedrate_MaxY(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDY);
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_FEEDRATE, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+GET_ICON_X(MAX)+GET_ICON_X(FEEDRATE), MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_FEEDRATE)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[Y_AXIS]);
 }
 
 static void Item_Feedrate_MaxZ(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDZ);
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_FEEDRATE, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+GET_ICON_X(MAX)+GET_ICON_X(FEEDRATE), MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_FEEDRATE)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[Z_AXIS]);
 }
 
 static void Item_Feedrate_MaxE(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDE);
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_FEEDRATE, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(FEEDRATE_MENU_E, LBLX+GET_ICON_X(MAX)+GET_ICON_X(FEEDRATE), MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_FEEDRATE)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[E_AXIS]);
 }
 
@@ -1594,7 +1915,7 @@ inline void Draw_Max_Speed_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	DwinMenu_feedrate.reset();
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_FEEDRATE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Draw_Back_First(DwinMenu_feedrate.now == MAXFEEDRATE_CASE_BACK);	
@@ -1651,15 +1972,17 @@ void HMI_MaxFeedspeedXYZE() {
 			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
 				planner.set_max_feedrate(HMI_flag.axis, HMI_Value.Max_Feedspeed);
 			DWIN_Draw_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
-			return;
 		}
-		// MaxFeedspeed limit
-		if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
-			NOMORE(HMI_Value.Max_Feedspeed, default_max_feedrate[HMI_flag.axis]*2);
-		if (HMI_Value.Max_Feedspeed < MIN_MAXFEEDSPEED) 
-			HMI_Value.Max_Feedspeed = MIN_MAXFEEDSPEED;
-		// MaxFeedspeed value
-		DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
+		else {
+			// MaxFeedspeed limit
+			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+				NOMORE(HMI_Value.Max_Feedspeed, default_max_feedrate[HMI_flag.axis]*2);
+			if (HMI_Value.Max_Feedspeed < MIN_MAXFEEDSPEED) 
+				HMI_Value.Max_Feedspeed = MIN_MAXFEEDSPEED;
+			// MaxFeedspeed value
+			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
+		}
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -1669,33 +1992,33 @@ void HMI_MaxFeedspeedXYZE() {
 //
 inline void Item_Accel_MaxX(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXACCX);
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_ACCEL, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_X, LBLX+GET_ICON_X(MAX)+GET_ICON_X(ACCEL)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_ACCEL)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
 }
 
 inline void Item_Accel_MaxY(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXACCY);
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_ACCEL, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_Y, LBLX+GET_ICON_X(MAX)+GET_ICON_X(ACCEL)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_ACCEL)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
 }
 
 inline void Item_Accel_MaxZ(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXACCZ);
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_ACCEL, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_Z, LBLX+GET_ICON_X(MAX)+GET_ICON_X(ACCEL)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_ACCEL)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
 }
 
 inline void Item_Accel_MaxE(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXACCE);
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_ACCEL, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(ACCEL_MENU_E, LBLX+GET_ICON_X(MAX)+GET_ICON_X(ACCEL)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_ACCEL)+12, MBASE(row));
 	DWIN_Draw_IntValue_Default(5,CONFIGVALUE_X-8, MBASE(row), planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
 }
 
@@ -1704,7 +2027,7 @@ inline void Draw_Max_Accel_Menu() {
 	DwinMenu_accel.reset();
 	//DwinMenu_accel.index = _MAX(DwinMenu_accel.now, MROWS);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_ACCEL, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Draw_Back_First(DwinMenu_accel.now == 0);
@@ -1728,15 +2051,17 @@ void HMI_MaxAccelerationXYZE() {
 			else if (HMI_flag.axis == E_AXIS) planner.set_max_acceleration(E_AXIS, HMI_Value.Max_Acceleration);
 		#endif
 			DWIN_Draw_IntValue_Default(5, CONFIGVALUE_X-8, MBASE(DwinMenu_accel.now), HMI_Value.Max_Acceleration);
-			return;
 		}
-		// Max Acceleration limit
-		if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
-			NOMORE(HMI_Value.Max_Acceleration, default_max_acceleration[HMI_flag.axis]*2);
-		if (HMI_Value.Max_Acceleration < MIN_MAXACCELERATION) 
-			HMI_Value.Max_Acceleration = MIN_MAXACCELERATION;
-		// Max Acceleration value
-		DWIN_Draw_Select_IntValue_Default(5, CONFIGVALUE_X-8, MBASE(DwinMenu_accel.now), HMI_Value.Max_Acceleration);
+		else {
+			// Max Acceleration limit
+			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+				NOMORE(HMI_Value.Max_Acceleration, default_max_acceleration[HMI_flag.axis]*2);
+			if (HMI_Value.Max_Acceleration < MIN_MAXACCELERATION) 
+				HMI_Value.Max_Acceleration = MIN_MAXACCELERATION;
+			// Max Acceleration value
+			DWIN_Draw_Select_IntValue_Default(5, CONFIGVALUE_X-8, MBASE(DwinMenu_accel.now), HMI_Value.Max_Acceleration);
+		}
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -1777,33 +2102,33 @@ void HMI_MaxAcceleration() {
 #if HAS_CLASSIC_JERK
 static void Item_Jerk_MaxX(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKX);
-	DWIN_Show_MultiLanguage_String(JERK_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_JERK, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_X, LBLX+GET_ICON_X(MAX)+GET_ICON_X(JERK)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_JERK)+12, MBASE(row));
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[X_AXIS] * MINUNITMULT);
 }
 
 static void Item_Jerk_MaxY(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKY);
-	DWIN_Show_MultiLanguage_String(JERK_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_JERK, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_Y, LBLX+GET_ICON_X(MAX)+GET_ICON_X(JERK)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_JERK)+12, MBASE(row));
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[Y_AXIS] * MINUNITMULT);
 }
 
 static void Item_Jerk_MaxZ(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKZ);
-	DWIN_Show_MultiLanguage_String(JERK_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_JERK, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_Z, LBLX+GET_ICON_X(MAX)+GET_ICON_X(JERK)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_JERK)+12, MBASE(row));
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[Z_AXIS] * MINUNITMULT);
 }
 
 static void Item_Jerk_MaxE(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKE);
-	DWIN_Show_MultiLanguage_String(JERK_MENU_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_JERK, LBLX+GET_ICON_X(MAX), MBASE(row));
-	DWIN_Show_MultiLanguage_String(JERK_MENU_E, LBLX+GET_ICON_X(MAX)+GET_ICON_X(JERK)+6, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_JERK)+12, MBASE(row));
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[E_AXIS] * MINUNITMULT);
 }
 
@@ -1812,7 +2137,7 @@ inline void Draw_Max_Jerk_Menu() {
 	DwinMenu_jerk.reset();
 	//DwinMenu_jerk.index = _MAX(DwinMenu_jerk.now, MROWS);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_JERK, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Draw_Back_First(DwinMenu_jerk.now == 0);
@@ -1833,15 +2158,17 @@ void HMI_MaxJerkXYZE() {
 			if(WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
 				planner.set_max_jerk(HMI_flag.axis, ((float)HMI_Value.Max_Jerk / MINUNITMULT));
 				DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(DwinMenu_jerk.now), HMI_Value.Max_Jerk);
-				return;
 		}
-		// Max Jerk limit
-		if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
-			NOMORE(HMI_Value.Max_Jerk, default_max_jerk[HMI_flag.axis] * 2 * MINUNITMULT);
-			NOLESS(HMI_Value.Max_Jerk, (MIN_MAXJERK) * MINUNITMULT);
+		else {
+			// Max Jerk limit
+			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
+				NOMORE(HMI_Value.Max_Jerk, default_max_jerk[HMI_flag.axis] * 2 * MINUNITMULT);
+				NOLESS(HMI_Value.Max_Jerk, (MIN_MAXJERK) * MINUNITMULT);
+			}
+			// Max Jerk value
+			DWIN_Draw_Selected_Small_Float21(CONFIGVALUE_X+8, MBASE(DwinMenu_jerk.now), HMI_Value.Max_Jerk);
 		}
-		// Max Jerk value
-		DWIN_Draw_Selected_Small_Float21(CONFIGVALUE_X+8, MBASE(DwinMenu_jerk.now), HMI_Value.Max_Jerk);
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -1879,29 +2206,29 @@ void HMI_MaxJerk() {
 //
 static void Item_Steps_X(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPX);
-	DWIN_Show_MultiLanguage_String(STEP_MENU_STEP, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(STEP_MENU_X, LBLX+GET_ICON_X(STEP)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
 }
 
 static void Item_Steps_Y(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPY);
-	DWIN_Show_MultiLanguage_String(STEP_MENU_STEP, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(STEP_MENU_Y, LBLX+GET_ICON_X(STEP)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
 }
 
 static void Item_Steps_Z(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPZ);
-	DWIN_Show_MultiLanguage_String(STEP_MENU_STEP, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(STEP_MENU_Z, LBLX+GET_ICON_X(STEP)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
 }
 
 static void Item_Steps_E(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPE);
-	DWIN_Show_MultiLanguage_String(STEP_MENU_STEP, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(STEP_MENU_E, LBLX+GET_ICON_X(STEP)+6, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
 }
 
@@ -1909,7 +2236,7 @@ inline void Draw_Steps_Menu() {
 	DwinMenu_step.reset();
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_STEP, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	
@@ -1930,15 +2257,17 @@ void HMI_StepXYZE() {
 			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
 				planner.settings.axis_steps_per_mm[HMI_flag.axis] = (float)HMI_Value.Max_Step / MINUNITMULT;
 			DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
-			return;
 		}
-		// Step/mm limit
-		if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
-			NOMORE(HMI_Value.Max_Step, default_axis_steps_per_unit[HMI_flag.axis]*4*MINUNITMULT);
-			NOLESS(HMI_Value.Max_Step, MIN_STEP*MINUNITMULT);
+		else {
+			// Step/mm limit
+			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
+				NOMORE(HMI_Value.Max_Step, default_axis_steps_per_unit[HMI_flag.axis]*4*MINUNITMULT);
+				NOLESS(HMI_Value.Max_Step, MIN_STEP*MINUNITMULT);
+			}
+			// Step/mm value
+			DWIN_Draw_Selected_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
 		}
-		// Step/mm value
-		DWIN_Draw_Selected_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
+		dwinLCD.UpdateLCD();
 	}
 }
 
@@ -1989,7 +2318,7 @@ void HMI_Motion() {
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_motion.now) {
 		case 0: // Back
-			Draw_Control_Menu(CONTROL_CASE_MOTION);
+			Draw_Control_Menu(CONTROL_CASE_MOTION + mixing_menu_adjust());
 		break;
 		
 		case MOTION_CASE_FEEDRATE:  // Max speed
@@ -2034,20 +2363,20 @@ inline void Draw_Bltouch_Menu() {
 	//DwinMenu_bltouch.index = _MAX(DwinMenu_bltouch.now, MROWS);
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_BLTOUCH, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
 	Draw_Back_First(DwinMenu_bltouch.now == 0);
-	DWIN_Show_MultiLanguage_String(BLTOUCH_MENU_RESET, LBLX, MBASE(BLTOUCH_CASE_RESET));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH_RESET, LBLX, MBASE(BLTOUCH_CASE_RESET));
 	Draw_Menu_Line(BLTOUCH_CASE_RESET,ICON_BLTOUCH_RESET);
-	DWIN_Show_MultiLanguage_String(BLTOUCH_MENU_TEST, LBLX, MBASE(BLTOUCH_CASE_TEST));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH_TEST, LBLX, MBASE(BLTOUCH_CASE_TEST));
 	Draw_Menu_Line(BLTOUCH_CASE_TEST,ICON_BLTOUCH_TEST);
-	DWIN_Show_MultiLanguage_String(BLTOUCH_MENU_STOW, LBLX, MBASE(BLTOUCH_CASE_STOW));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH_STOW, LBLX, MBASE(BLTOUCH_CASE_STOW));
 	Draw_Menu_Line(BLTOUCH_CASE_STOW,ICON_BLTOUCH_STOW);	
-	DWIN_Show_MultiLanguage_String(BLTOUCH_MENU_DEPLOY, LBLX, MBASE(BLTOUCH_CASE_DEPLOY));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH_DEPLOY, LBLX, MBASE(BLTOUCH_CASE_DEPLOY));
 	Draw_Menu_Line(BLTOUCH_CASE_DEPLOY,ICON_BLTOUCH_DEPLOY);	
-	DWIN_Show_MultiLanguage_String(BLTOUCH_MENU_MODE, LBLX, MBASE(BLTOUCH_CASE_SW));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BLTOUCH_MODE, LBLX, MBASE(BLTOUCH_CASE_SW));
 	Draw_Menu_Line(BLTOUCH_CASE_SW,ICON_BLTOUCH_SW);
 	if (DwinMenu_bltouch.now) Draw_Menu_Cursor(DwinMenu_bltouch.now);	
 }
@@ -2066,7 +2395,7 @@ void HMI_Option_Bltouch() {
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_bltouch.now) {
 			case 0: 					// Back
-				Draw_Control_Menu(CONTROL_CASE_BLTOUCH);
+				Draw_Control_Menu(CONTROL_CASE_BLTOUCH + mixing_menu_adjust());
 			break;
 
 			case BLTOUCH_CASE_RESET: 	// Reset
@@ -2110,18 +2439,18 @@ void HMI_Adjust_Coating_Thickness() {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
 			last_G = HMI_Value.coating_thickness;
-			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_COATING), HMI_Value.coating_thickness);			
-			dwinLCD.UpdateLCD();
-			coating_thickness = (float)HMI_Value.coating_thickness/MAXUNITMULT;			
-			return;
-	 }		
-		if ((HMI_Value.coating_thickness - last_G) > 10*MAXUNITMULT)
-			HMI_Value.coating_thickness = last_G + 10*MAXUNITMULT;
-		else if ((last_G - HMI_Value.coating_thickness) > 10*MAXUNITMULT)
-			HMI_Value.coating_thickness = last_G - 10*MAXUNITMULT;
-		NOLESS(HMI_Value.coating_thickness, 0);
-		NOMORE(HMI_Value.coating_thickness, 10*MAXUNITMULT);		
-		DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_COATING), HMI_Value.coating_thickness);
+			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_COATING), HMI_Value.coating_thickness);						
+			coating_thickness = (float)HMI_Value.coating_thickness/MAXUNITMULT;						
+	 	}		
+		else {
+			if ((HMI_Value.coating_thickness - last_G) > 10*MAXUNITMULT)
+				HMI_Value.coating_thickness = last_G + 10*MAXUNITMULT;
+			else if ((last_G - HMI_Value.coating_thickness) > 10*MAXUNITMULT)
+				HMI_Value.coating_thickness = last_G - 10*MAXUNITMULT;
+			NOLESS(HMI_Value.coating_thickness, 0);
+			NOMORE(HMI_Value.coating_thickness, 10*MAXUNITMULT);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_COATING), HMI_Value.coating_thickness);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -2134,15 +2463,24 @@ void HMI_Adjust_hotend_MaxTemp() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.max_hotendtemp)) {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
-			DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);			
+			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+				DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+			else 
+				DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);	
 			thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
-			if(thermalManager.heater_maxtemp[0] > HEATER_0_MAXTEMP)	DWIN_Show_Status_Message(COLOR_RED, PSTR("Caution, it may damage the hotend!"));
-			dwinLCD.UpdateLCD();
-			return;
+			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT){
+				DWIN_FEEDBACK_WARNNING();
+				DWIN_Show_Status_Message(COLOR_RED, PSTR("Caution!! HOTEND may be damaged."));
+			}
 		}
-		NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
-		NOMORE(HMI_Value.max_hotendtemp, (260+HOTEND_OVERSHOOT));		
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+		else{
+			NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
+			NOMORE(HMI_Value.max_hotendtemp, (HOTEND_MAXTEMP - HOTEND_OVERSHOOT));
+			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+			else
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -2160,13 +2498,13 @@ void HMI_PID_AutoTune() {
 			DWIN_FEEDBACK_CONFIRM();
 			ZERO(string_Buf);
 			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C4 U1\nM500"),HMI_Value.PIDAutotune_Temp);
-			queue.inject(string_Buf);
-			dwinLCD.UpdateLCD();
-			return;
+			queue.inject(string_Buf);			
 		}
-		NOLESS(HMI_Value.PIDAutotune_Temp, 180);
-		NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDTUNE), HMI_Value.PIDAutotune_Temp);
+		else {
+			NOLESS(HMI_Value.PIDAutotune_Temp, 180);
+			NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDTUNE), HMI_Value.PIDAutotune_Temp);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -2181,16 +2519,37 @@ void HMI_Adjust_WiFi_BaudRate(){
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
-			dwinLCD.UpdateLCD();			
-			return;
 		}
-		NOLESS(WiFi_BaudRate, 0);
-		NOMORE(WiFi_BaudRate, 3);
-		DWIN_Draw_Select_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+		else {
+			NOLESS(WiFi_BaudRate, 0);
+			NOMORE(WiFi_BaudRate, 3);
+			DWIN_Draw_Select_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+		}
 		dwinLCD.UpdateLCD();		
 	}
 }
 #endif
+
+#if ENABLED(SWITCH_EXTRUDER_MENU)
+void HMI_Adjust_Extruder_Sequence() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int8(encoder_diffState, &HMI_Value.switchExtruder)) {
+			DwinMenuID = DWMENU_CONFIG;
+			EncoderRate.enabled = false;
+			DWIN_Draw_MaskString_Default(216-12*MIXING_STEPPERS, MBASE(CONFIG_CASE_SWITCHEXTRUDER + MROWS - DwinMenu_configure.index), _getString_SwitchExtruder());
+			switch_extruder_sequence();
+		}
+		else {
+			NOLESS(HMI_Value.switchExtruder, SE_DEFAULT);			
+			NOMORE(HMI_Value.switchExtruder, SE_END-1);
+			DWIN_Draw_MaskString_Default_Color(COLOR_BLUE, 216-12*MIXING_STEPPERS, MBASE(CONFIG_CASE_SWITCHEXTRUDER + MROWS - DwinMenu_configure.index), _getString_SwitchExtruder());
+		}
+		dwinLCD.UpdateLCD();		
+	}
+}
+#endif
+
 
 void HMI_Config() {
  ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -2204,33 +2563,31 @@ void HMI_Config() {
 					DwinMenu_configure.index = DwinMenu_configure.now;
 					// Scroll up and draw a blank bottom line
 					Scroll_Menu(DWIN_SCROLL_UP);
+					if(DwinMenu_configure.index == CONFIG_CASE_BACK){}
 					
 				#if ENABLED(FWRETRACT)
-					if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
 				#endif
 				
 				#if ENABLED(OPTION_REPEAT_PRINTING) 
-					if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
 				#endif
 				
 				#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-					if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
 				#endif
 				
 				#if ENABLED(POWER_LOSS_RECOVERY)
-					if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
 				#endif
 				
 				#if ENABLED(OPTION_AUTOPOWEROFF)
-					if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
 				#endif
 				
 				#if ENABLED(OPTION_WIFI_MODULE)
-					if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
-					#if ENABLED(OPTION_WIFI_BAUDRATE) 
-					if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
-					#endif
-				#endif				
+					else if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
+				#endif
 				}
 				else 
 					Move_Highlight(1, DwinMenu_configure.now + MROWS - DwinMenu_configure.index);
@@ -2241,49 +2598,58 @@ void HMI_Config() {
 				DwinMenu_configure.index = DwinMenu_configure.now;
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
+
+				if(DwinMenu_configure.index == CONFIG_CASE_BACK){}
 				
 			#if ENABLED(FWRETRACT)
-				if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_RETRACT) Item_Config_Retract(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_REPEAT_PRINTING) 
-				if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_REPRINT) Item_Config_Reprint(MROWS);
 			#endif
 			
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-				if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
 			#endif
 			
 			#if ENABLED(POWER_LOSS_RECOVERY)
-				if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_POWERLOSS) Item_Config_Powerloss(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_AUTOPOWEROFF)
-				if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_WIFI_MODULE)
-				if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
 				#if ENABLED(OPTION_WIFI_BAUDRATE) 
-				if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
 				#endif
 			#endif			
+
+			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+			 else if(DwinMenu_configure.index == CONFIG_CASE_MIXERENABLE) 	Item_Config_MixerEnable(MROWS);
+			 #if ENABLED(SWITCH_EXTRUDER_MENU)
+			 else if(DwinMenu_configure.index == CONFIG_CASE_SWITCHEXTRUDER) 	Item_Config_SwitchExtruder(MROWS);			 
+			 #endif
+			#endif	
 			
 			#if ENABLED(OPTION_BED_COATING) 
-				if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_COATING) Item_Config_bedcoating(MROWS);
 			#endif			
 			
 			#if ABL_GRID
-				if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
-				if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_LEVELING) Item_Config_Leveling(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
-				if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
+				else if(DwinMenu_configure.index == CONFIG_CASE_HOTENDMAXTEMP) Item_Config_MaxHotendTemp(MROWS);			
 			#endif			
 			
 			#if EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
-				if(DwinMenu_configure.index == CONFIG_CASE_PIDTUNE) Item_Config_PIDTune(MROWS);			
+				else if(DwinMenu_configure.index == CONFIG_CASE_PIDTUNE) Item_Config_PIDTune(MROWS);			
 			#endif			 
 			}
 			else 
@@ -2324,6 +2690,13 @@ void HMI_Config() {
 			 #endif			
 			#endif
 			
+			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_MIXERENABLE) Item_Config_MixerEnable(0);
+				#if ENABLED(SWITCH_EXTRUDER_MENU)
+				else if(DwinMenu_configure.index - MROWS  == CONFIG_CASE_SWITCHEXTRUDER) 	Item_Config_SwitchExtruder(0);
+				#endif
+			#endif
+			
 			#if ABL_GRID
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LEVELING) Item_Config_Leveling(0);
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(0);
@@ -2351,7 +2724,7 @@ void HMI_Config() {
 					Draw_Tune_Menu(TUNE_CASE_CONFIG);
 				}
 				else{
-					Draw_Control_Menu(CONTROL_CASE_CONFIG);					
+					Draw_Control_Menu(CONTROL_CASE_CONFIG + mixing_menu_adjust());					
 				}
 		  break;
 #if ENABLED(FWRETRACT) 
@@ -2419,13 +2792,52 @@ void HMI_Config() {
 				}			
 			break;
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
-      case CONFIG_CASE_WIFISPEED:			
+      case CONFIG_CASE_WIFISPEED:
+				_BREAK_WHILE_PRINTING
+
 				DwinMenuID = DWMENU_SET_WIFIBAUDRATE;
 				DWIN_Draw_Select_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
 			break;
 	#endif		
  #endif
-	 		
+ 
+	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		case CONFIG_CASE_MIXERENABLE:	
+				_BREAK_WHILE_PRINTING
+					
+				mixer.mixing_enabled = !mixer.mixing_enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_MIXERENABLE + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(mixer.mixing_enabled));				
+				if(mixer.mixing_enabled){
+				#if ENABLED(OPTION_HOTENDMAXTEMP)
+					if(thermalManager.degTargetHotend(0) >= HEATER_0_MAXTEMP - HOTEND_OVERSHOOT){
+						thermalManager.setTargetHotend(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT,0);
+					}
+					HMI_Value.max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
+					thermalManager.heater_maxtemp[0] = HEATER_0_MAXTEMP;
+				#endif
+					DWIN_FEEDBACK_WARNNING();
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("CAUTION! Require Mixing HOTEND."));
+				}
+				else{
+					DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Mixing feature turn off !"));					
+				}
+				settings.save();
+			break;
+			
+		#if ENABLED(SWITCH_EXTRUDER_MENU)
+		case CONFIG_CASE_SWITCHEXTRUDER:	
+				_BREAK_WHILE_PRINTING
+					
+				if(mixer.mixing_enabled){
+					DWIN_FEEDBACK_WARNNING();
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on Mixing HOTEND!!"));
+					break;
+				}					
+				DwinMenuID = DWMENU_SET_SWITCHEXTRUDER;
+				DWIN_Draw_MaskString_Default_Color(COLOR_BLUE, 216-12*MIXING_STEPPERS, MBASE(CONFIG_CASE_SWITCHEXTRUDER + MROWS - DwinMenu_configure.index), _getString_SwitchExtruder()); 
+			break;
+		#endif
+	#endif	 		
  
 	#if ABL_GRID
 	  case CONFIG_CASE_LEVELING:
@@ -2461,10 +2873,17 @@ void HMI_Config() {
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
       case CONFIG_CASE_HOTENDMAXTEMP:
 				_BREAK_WHILE_PRINTING
-			
+
+				#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+				if(mixer.mixing_enabled){
+					DWIN_FEEDBACK_WARNNING();
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on Mixing HOTEND!!"));
+					break;
+				}
+				#endif				
 				DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
 				HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
-				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);			
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);				
 			break;
 	#endif//OPTION_HOTENDMAXTEMP
 
@@ -2507,33 +2926,35 @@ inline void Draw_SetPreHeatPLA_Menu(){
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_PLA, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
 	Draw_Back_First();
-	
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_NOZZLE, LBLX, MBASE(PREHEAT_CASE_TEMP));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_TEMP, LBLX+58, MBASE(PREHEAT_CASE_TEMP));
+
+#if HAS_HOTEND
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX, MBASE(PREHEAT_CASE_TEMP));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_NOZZLE)+6, MBASE(PREHEAT_CASE_TEMP));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[0].hotend_temp);
 	Draw_Menu_Line(PREHEAT_CASE_TEMP, ICON_SETENDTEMP);
+#endif	
 	
 #if HAS_HEATED_BED
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_BED, LBLX, MBASE(PREHEAT_CASE_BED));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_TEMP, LBLX+33, MBASE(PREHEAT_CASE_BED));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BED, LBLX, MBASE(PREHEAT_CASE_BED));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_BED)+6, MBASE(PREHEAT_CASE_BED));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_BED), ui.material_preset[0].bed_temp);
 	Draw_Menu_Line(PREHEAT_CASE_BED, ICON_SETBEDTEMP);
 #endif
 
 #if HAS_FAN
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_FAN_SPEED, LBLX, MBASE(PREHEAT_CASE_FAN));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FANSPEED, LBLX, MBASE(PREHEAT_CASE_FAN));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_FAN), ui.material_preset[0].fan_speed);
 	Draw_Menu_Line(PREHEAT_CASE_FAN, ICON_FANSPEED);
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_STORE, LBLX, MBASE(PREHEAT_CASE_SAVE));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_SETTINGS, LBLX+50, MBASE(PREHEAT_CASE_SAVE));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STORE, LBLX, MBASE(PREHEAT_CASE_SAVE));
+	DWIN_Show_MultiLanguage_String(MTSTRING_SETTINGS, LBLX+get_MultiLanguageString_Width(MTSTRING_STORE)+6, MBASE(PREHEAT_CASE_SAVE));
 	Draw_Menu_Line(PREHEAT_CASE_SAVE, ICON_WRITEEEPROM);
 #endif
 } 
@@ -2549,33 +2970,33 @@ inline void Draw_SetPreHeatABS_Menu(){
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_ABS, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 
 	Draw_Back_First();
 	
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_NOZZLE, LBLX, MBASE(PREHEAT_CASE_TEMP));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_TEMP, LBLX+58, MBASE(PREHEAT_CASE_TEMP));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX, MBASE(PREHEAT_CASE_TEMP));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_NOZZLE)+6, MBASE(PREHEAT_CASE_TEMP));	
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[1].hotend_temp);
 	Draw_Menu_Line(PREHEAT_CASE_TEMP, ICON_SETENDTEMP);
 	
 #if HAS_HEATED_BED
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_BED, LBLX, MBASE(PREHEAT_CASE_BED));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_TEMP, LBLX+33, MBASE(PREHEAT_CASE_BED));
+	DWIN_Show_MultiLanguage_String(MTSTRING_BED, LBLX, MBASE(PREHEAT_CASE_BED));
+	DWIN_Show_MultiLanguage_String(MTSTRING_TEMP, LBLX+get_MultiLanguageString_Width(MTSTRING_BED)+6, MBASE(PREHEAT_CASE_BED));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_BED), ui.material_preset[1].bed_temp);	
 	Draw_Menu_Line(PREHEAT_CASE_BED, ICON_SETBEDTEMP);
 #endif
 
 #if HAS_FAN
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_FAN_SPEED, LBLX, MBASE(PREHEAT_CASE_FAN));
+	DWIN_Show_MultiLanguage_String(MTSTRING_FANSPEED, LBLX, MBASE(PREHEAT_CASE_FAN));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_FAN), ui.material_preset[1].fan_speed);
 	Draw_Menu_Line(PREHEAT_CASE_FAN, ICON_FANSPEED);
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_STORE, LBLX, MBASE(PREHEAT_CASE_SAVE));
-	DWIN_Show_MultiLanguage_String(PLA_ABS_MENU_SETTINGS, LBLX+50, MBASE(PREHEAT_CASE_SAVE));
+	DWIN_Show_MultiLanguage_String(MTSTRING_STORE, LBLX, MBASE(PREHEAT_CASE_SAVE));
+	DWIN_Show_MultiLanguage_String(MTSTRING_SETTINGS, LBLX+get_MultiLanguageString_Width(MTSTRING_STORE)+6, MBASE(PREHEAT_CASE_SAVE));
 	Draw_Menu_Line(PREHEAT_CASE_SAVE, ICON_WRITEEEPROM);
 #endif
 }
@@ -2595,7 +3016,7 @@ void HMI_PLAPreheatSetting() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
    switch (DwinMenu_PreheatPLA.now) {
     case 0: // Back
-			Draw_Control_Menu(CONTROL_CASE_SETPLA);
+			Draw_Control_Menu(CONTROL_CASE_SETPLA + mixing_menu_adjust());
      break;
     #if HAS_HOTEND
      case PREHEAT_CASE_TEMP: // Nozzle temperature
@@ -2650,7 +3071,7 @@ void HMI_ABSPreheatSetting() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_PreheatABS.now) {
 			case 0: // Back
-				Draw_Control_Menu(CONTROL_CASE_SETABS);
+				Draw_Control_Menu(CONTROL_CASE_SETABS + mixing_menu_adjust());
 			break;
 		#if HAS_HOTEND
 			case PREHEAT_CASE_TEMP: // Set nozzle temperature
@@ -2703,21 +3124,21 @@ void HMI_Control() {
 
 	// Avoid flicker by updating only the previous menu
 	if (encoder_diffState == ENCODER_DIFF_CW) {
-		if (DwinMenu_control.inc(CONTROL_CASE_END)) {
+		if (DwinMenu_control.inc(CONTROL_CASE_END + mixing_menu_adjust())) {
 			if (DwinMenu_control.now > MROWS && DwinMenu_control.now > DwinMenu_control.index) {
 				DwinMenu_control.index = DwinMenu_control.now;
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);		
-				if (DwinMenu_control.index == CONTROL_CASE_SETPLA ) Item_Control_PLA(MROWS);
-				if (DwinMenu_control.index == CONTROL_CASE_SETABS ) Item_Control_ABS(MROWS);
-#if ENABLED(BLTOUCH)
-				if(DwinMenu_control.index == CONTROL_CASE_BLTOUCH) Item_Control_BLtouch(MROWS);
-#endif
-#if ENABLED(EEPROM_SETTINGS)
-				if(DwinMenu_control.index == CONTROL_CASE_SAVE) Item_Control_Save(MROWS);
-				if(DwinMenu_control.index == CONTROL_CASE_LOAD)	Item_Control_Load(MROWS);
-				if(DwinMenu_control.index == CONTROL_CASE_RESET)	Item_Control_Reset(MROWS);
-#endif		
+				if (DwinMenu_control.index == CONTROL_CASE_SETPLA + mixing_menu_adjust()) Item_Control_PLA(MROWS);
+				else if (DwinMenu_control.index == CONTROL_CASE_SETABS + mixing_menu_adjust()) Item_Control_ABS(MROWS);
+			#if ENABLED(BLTOUCH)
+				else if(DwinMenu_control.index == CONTROL_CASE_BLTOUCH + mixing_menu_adjust()) Item_Control_BLtouch(MROWS);
+			#endif
+			#if ENABLED(EEPROM_SETTINGS)
+				else if(DwinMenu_control.index == CONTROL_CASE_SAVE + mixing_menu_adjust()) Item_Control_Save(MROWS);
+				else if(DwinMenu_control.index == CONTROL_CASE_LOAD + mixing_menu_adjust())	Item_Control_Load(MROWS);
+				else if(DwinMenu_control.index == CONTROL_CASE_RESET + mixing_menu_adjust())	Item_Control_Reset(MROWS);
+			#endif		
 			}
 			else {
 				Move_Highlight(1, DwinMenu_control.now + MROWS - DwinMenu_control.index);
@@ -2725,18 +3146,18 @@ void HMI_Control() {
 		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_CCW) {
-		if (DwinMenu_control.dec()) {
+		if (DwinMenu_control.dec()) {			
 			if (DwinMenu_control.now < DwinMenu_control.index - MROWS) {
 				DwinMenu_control.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
 				if (DwinMenu_control.index - MROWS == CONTROL_CASE_BACK) Draw_Back_First();    		
 			#if ENABLED(MIXING_EXTRUDER)
-				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MIXER ) Item_Control_Mixer(0);
+				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MIXER + mixing_menu_adjust()) Item_Control_Mixer(0);
 			#endif
-				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_CONFIG ) Item_Control_Config(0);
-				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MOTION ) Item_Control_Motion(0);
-				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_SETPLA ) Item_Control_PLA(0);
-				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_SETABS ) Item_Control_ABS(0);		
+				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_CONFIG + mixing_menu_adjust()) Item_Control_Config(0);
+				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_MOTION + mixing_menu_adjust()) Item_Control_Motion(0);
+				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_SETPLA + mixing_menu_adjust()) Item_Control_PLA(0);
+				else if (DwinMenu_control.index - MROWS == CONTROL_CASE_SETABS + mixing_menu_adjust()) Item_Control_ABS(0);		
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_control.now + MROWS - DwinMenu_control.index);
@@ -2744,7 +3165,12 @@ void HMI_Control() {
 		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		switch (DwinMenu_control.now) {
+		uint8_t current_menu = DwinMenu_control.now;
+		#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		if(!mixer.mixing_enabled && DwinMenu_control.now > 0)
+			current_menu = DwinMenu_control.now + 1;		
+		#endif
+		switch (current_menu) {
 			case 0: // Back				
 				Draw_Main_Menu(false, MAIN_CASE_CONTROL);
 			break;

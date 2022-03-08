@@ -839,7 +839,16 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
     host_action_kill();
   #endif
 
-  minkill(steppers_off);
+	#if HAS_DWIN_LCD
+	if(marlin_state == MF_KILLED){
+		LOOP_L_N(i, 5){
+			watchdog_refresh();		
+			for(int j=2000; j--;) DELAY_US(500);
+		}
+	}
+	#endif
+	
+  minkill(steppers_off);	
 }
 
 void minkill(const bool steppers_off/*=false*/) {
@@ -850,7 +859,7 @@ void minkill(const bool steppers_off/*=false*/) {
   cli(); // Stop interrupts
 
   // Wait to ensure all interrupts stopped
-  for (int i = 1000; i--;) DELAY_US(250);
+  for (int i = 1000; i--;) DELAY_US(200);
 
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
@@ -861,7 +870,7 @@ void minkill(const bool steppers_off/*=false*/) {
   steppers_off ? disable_all_steppers() : disable_e_steppers();
 
   TERN_(PSU_CONTROL, PSU_OFF());
-
+	
   TERN_(HAS_SUICIDE, suicide());
 
   #if HAS_KILL

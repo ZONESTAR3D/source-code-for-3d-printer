@@ -70,37 +70,34 @@ static void Item_Info_Board(const uint8_t row) {
 }
 
 static void Item_Info_Extruder_Num(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder Num:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Extruder Num:")+1)*MENU_CHR_W, MBASE(row),PSTR(STRINGIFY(E_STEPPERS)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder Number:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Extruder Number:")+1)*MENU_CHR_W, MBASE(row),PSTR(STRINGIFY(E_STEPPERS)));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 
-#if ENABLED(OPTION_BGM)
-#define EXTRUDER_MODEL				"BGM"
-#else
-#define EXTRUDER_MODEL				"Titan"
-#endif
 static void Item_Info_Extruder_Model(const uint8_t row) {
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder Model:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Extruder Model:")+1)*MENU_CHR_W, MBASE(row), PSTR(EXTRUDER_MODEL));
+#if ENABLED(OPTION_BGM)
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Extruder Model:")+1)*MENU_CHR_W, MBASE(row), PSTR("Dual Gear"));
+#else
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Extruder Model:")+1)*MENU_CHR_W, MBASE(row), PSTR("Titan"));
+#endif
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 
 
 #if ENABLED(OPTION_DUALZ_DRIVE)
-#define Z_Drive						"DUAL Z"
 static void Item_Info_DualZ_Drive(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Z Drive:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Z Drive:")+1)*MENU_CHR_W, MBASE(row), PSTR(Z_Drive));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Z Drives:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Z Drives:")+1)*MENU_CHR_W, MBASE(row), PSTR("Dual"));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 #endif
 
 #if ENABLED(OPTION_Z2_ENDSTOP)
-#define Z_Endstop					"DUAL Endstop"
 static void Item_Info_DualZ_Endstop(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Z Endstop:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Z Endstop:")+1)*MENU_CHR_W, MBASE(row), PSTR(Z_Endstop));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Z Endstops:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Z Endstops:")+1)*MENU_CHR_W, MBASE(row), PSTR("Dual"));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 #endif
@@ -131,25 +128,25 @@ static void Item_Info_LevelSensor(const uint8_t row) {
 
 static void Item_Info_Thermistor(const uint8_t row) {
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Thermistor:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Thermistor:")+1)*MENU_CHR_W, MBASE(row), PSTR("100k with 4.7k pull-up"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Thermistor:")+1)*MENU_CHR_W, MBASE(row), PSTR("NTC 100KOHM B3960"));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 
 static void Item_Info_Bed(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Hot bed:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Hot bed:"))*MENU_CHR_W, MBASE(row), PSTR("MINTEMP:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("MINTEMP:") + strlen("Hot bed:"))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(BED_MINTEMP)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: "));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("HotBed: "))*MENU_CHR_W, MBASE(row), PSTR("MINTEMP:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("MINTEMP:") + strlen("HotBed: "))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(BED_MINTEMP)));
 	DWIN_Draw_UnMaskString_Default(175, MBASE(row), PSTR("MAXTEMP:"));
-	DWIN_Draw_UnMaskString_Default(175 + (strlen("MAXTEMP:"))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(BED_MAXTEMP)));
+	DWIN_Draw_UnMaskString_Default(175 + (strlen("MAXTEMP:"))*MENU_CHR_W, MBASE(row), PSTR("115"));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 
 static void Item_Info_Hot(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Hot end:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("Hot end:"))*MENU_CHR_W, MBASE(row), PSTR("MINTEMP:"));
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("MINTEMP:")+strlen("Hot end:"))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(HEATER_0_MINTEMP)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: "));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("HotEnd: "))*MENU_CHR_W, MBASE(row), PSTR("MINTEMP:"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO + (strlen("MINTEMP:")+strlen("Hotend: "))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(HEATER_0_MINTEMP)));
 	DWIN_Draw_UnMaskString_Default(175, MBASE(row), PSTR("MAXTEMP:"));
-	DWIN_Draw_UnMaskString_Default(175 + (strlen("MAXTEMP:"))*MENU_CHR_W, MBASE(row), PSTR(STRINGIFY(HEATER_0_MAXTEMP)));
+	DWIN_Draw_UnMaskString_Default(175 + (strlen("MAXTEMP:"))*MENU_CHR_W, MBASE(row), PSTR("235"));
 	dwinLCD.Draw_Line(LINE_COLOR, 16, MBASE(row) + 33, 256, MBASE(row) + 34);
 }
 
@@ -167,7 +164,7 @@ void Draw_Info_Menu() {
 	DwinMenu_infor.reset();
 	
 #if(INFO_CASE_TOTAL > MROWS)
-	const int16_t iscroll = MROWS - DwinMenu_infor.index; // Scrolled-up lines
+	const int8_t iscroll = MROWS - DwinMenu_infor.index; // Scrolled-up lines
 	#define ICSCROL(L) (iscroll + (L))
 #else
 	#define ICSCROL(L) (L)
@@ -177,7 +174,7 @@ void Draw_Info_Menu() {
 
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
 	
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_INFO, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (ICVISI(CONTROL_CASE_BACK)) Draw_Back_First(DwinMenu_infor.now == INFO_CASE_BACK);

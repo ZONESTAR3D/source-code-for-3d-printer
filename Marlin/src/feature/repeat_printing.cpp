@@ -408,29 +408,6 @@ void RePrint::RepeatPrinting_process() {
 			//RePrint_status = REPRINT_CHECK_FILEEXIST;
 			RePrint_status = REPRINT_PRINTNEXTONT;
 			break;
-
-	#if 0
-		case REPRINT_CHECK_FILEEXIST:		
-			if(card.fileExists(rePrint_filename)){ 
-				RepeatPrint_temp_ms = now + 1000UL;
-				do{
-					now = millis();
-					idle();
-				}while(PENDING(now, RepeatPrint_temp_ms));
-				card.endFilePrint(TERN_(SD_RESORT, true));
-			  queue.clear();			  
-			  print_job_timer.stop();
-				RePrint_status = REPRINT_PRINTNEXTONT;
-			}
-			else {
-				TERN_(HAS_DWIN_LCD, DWIN_Draw_PrintDone_Confirm());	
-				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_RED, PSTR("Fail to open file!")));
-				TERN_(HAS_LCD_MENU, ui.set_status_P(PSTR("Fail to open file!")));		
-				DWIN_FEEDBACK_WARNNING();		
-				RepeatPrinting_Reset();
-			}
-			break;
-	#endif		
 	
 		case REPRINT_PRINTNEXTONT:
 			TERN_(HAS_DWIN_LCD, Updata_RePrint_Popup_Window(REPRINT_PRINTNEXTONT));

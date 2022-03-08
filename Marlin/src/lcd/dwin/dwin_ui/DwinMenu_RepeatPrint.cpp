@@ -91,7 +91,7 @@ void Draw_RepeatPrint_Menu() {
 	DwinMenu_reprint.reset();
 
 #if REPRINT_CASE_TOTAL > MROWS
-	const int16_t scroll = MROWS - DwinMenu_reprint.index;
+	const int8_t scroll = MROWS - DwinMenu_reprint.index;
 	#define RESCROL(L) (scroll + (L))
 #else
 	#define RESCROL(L) (L)

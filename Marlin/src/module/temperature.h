@@ -37,6 +37,10 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
+#ifdef OPTION_HOTENDMAXTEMP
+#define	HOTEND_MAXTEMP	 275
+#endif
+
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
@@ -590,7 +594,15 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-
+		
+	  #if 0//ENABLED(OPTION_HOTENDMAXTEMP)
+			static int16_t getHotendRangeMax(const uint8_t E_NAME){
+				return temp_range[HOTEND_INDEX].maxtemp;
+			}
+			static int16_t getHotendRangeRawMax(const uint8_t E_NAME){
+				return temp_range[HOTEND_INDEX].raw_max;
+			}
+		#endif
       static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #ifdef MILLISECONDS_PREHEAT_TIME
@@ -599,7 +611,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());				
         temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }

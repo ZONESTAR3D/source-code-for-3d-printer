@@ -218,10 +218,10 @@ inline void _check_Powerloss_resume(){
 
 	auto update_selection = [&](const bool sel) {
 		HMI_flag.select_flag = sel;
-		const uint16_t c1 = sel ? COLOR_BG_WINDOW : SELECT_COLOR;
+		const uint16_t c1 = sel ? COLOR_BG_WINDOW : COLOR_RED;
 		dwinLCD.Draw_Rectangle(0, c1, 25, 306, 126, 345);
 		dwinLCD.Draw_Rectangle(0, c1, 24, 305, 127, 346);
-		const uint16_t c2 = sel ? SELECT_COLOR : COLOR_BG_WINDOW;
+		const uint16_t c2 = sel ? COLOR_RED : COLOR_BG_WINDOW;
 		dwinLCD.Draw_Rectangle(0, c2, 145, 306, 246, 345);
 		dwinLCD.Draw_Rectangle(0, c2, 144, 305, 247, 346);
 	};
@@ -252,8 +252,18 @@ inline void _check_Powerloss_resume(){
 					return;
 				}
 				else {
-					update_selection(encoder_diffState == ENCODER_DIFF_CW);
 					DWIN_FEEDBACK_TICK();
+					update_selection(encoder_diffState == ENCODER_DIFF_CW);					
+				#if ENABLED(OPTION_DWINLCD_MENUV2)	
+					if(HMI_flag.select_flag){
+						DWIN_Show_ICON(ICON_CANCEL_E,  26, 307);
+						DWIN_Show_ICON(ICON_CONTINUE_C, 146, 307);
+					}
+					else{
+						DWIN_Show_ICON(ICON_CANCEL_C,  26, 307);
+						DWIN_Show_ICON(ICON_CONTINUE_E, 146, 307);
+					}
+				#endif					
 				}
 				dwinLCD.UpdateLCD();
 			}
@@ -293,11 +303,28 @@ void DWIN_Show_M117(const char * const message){
 }
 
 #if ENABLED(MIXING_EXTRUDER)
-inline void DWIN_Show_Mixing_status() {
-	static uint8_t last_mixer_percent[MIXING_STEPPERS] = {0};
-  static int8_t last_vtool = -1;
+inline void DWIN_Show_Extruder_status() {
+	static int8_t last_vtool = -1;
+	static uint8_t last_mixer_percent[MIXING_STEPPERS] = {0};  
 	static bool bupdata = false;
-	if(DwinMenuID == DWMENU_PRINTING){		
+	
+	if(DwinMenuID != DWMENU_PRINTING) return;	
+	
+#if ENABLED(OPTION_MIXING_SWITCH)
+	if(!mixer.mixing_enabled){
+		//vool changed?
+		if(last_vtool != mixer.selected_vtool){
+			if(mixer.selected_vtool > E_STEPPERS){
+				mixer.selected_vtool = 0;
+				mixer.T(0);				
+			}
+			last_vtool = mixer.selected_vtool;
+		}
+		DWIN_Refresh_ExtruerFAN_State();
+	}
+	else	
+#endif
+	{		
 		//vool changed?
 		if(last_vtool != mixer.selected_vtool){
 			last_vtool = mixer.selected_vtool;
@@ -315,7 +342,7 @@ inline void DWIN_Show_Mixing_status() {
 		}
 		if(bupdata){
 			MIXER_STEPPER_LOOP(i) last_mixer_percent[i] = mixer.percentmix[i];
-			DWIN_Refresh_Mix_Rate();
+			DWIN_Refresh_ExtruerFAN_State();
 			Draw_Print_ProgressMixModel();		
 			bupdata = false;
 		}
@@ -409,19 +436,22 @@ inline void DWIN_Update_Variable() {
 	DWIN_Show_Z_Position(true);
 
 	/*Mixing*/
-	TERN_(MIXING_EXTRUDER, DWIN_Show_Mixing_status());
+	TERN_(MIXING_EXTRUDER, DWIN_Show_Extruder_status());
 }
 
 void Popup_Window_Temperature(const char *msg, int8_t heaterid) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
 	Draw_Popup_Bkgd_105();
 	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 165);
+	
 	if(heaterid == -1)
 		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10 )/2, 280, PSTR("HEATBED "));
 	else
-		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2, 280, PSTR("HOT END "));
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+7)*10)/2, 280, PSTR("HOTEND "));
 	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 280, (char*)msg);
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 300, PSTR("Please check it!"));		
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 310, PSTR("Please check it!"));
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 22*10)/2, 340, PSTR("Power off after 5 S !!"));
+	dwinLCD.UpdateLCD();
 }
 
 
@@ -443,7 +473,7 @@ inline void _check_autoshutdown(){
 		//is heating?
 		if(thermalManager.temp_hotend[0].target > 50 || thermalManager.temp_bed.target > 25){
 			HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-		}		
+		}
 		else if(HMI_flag.free_close_timer_rg == 0){
 			queue.inject_P(PSTR("M81"));
 			HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
@@ -466,10 +496,13 @@ void _reset_shutdown_timer(){
 
 void Stop_and_return_mainmenu() {
 	HMI_Value.Percentrecord = 0;
-	HMI_Value.remain_time = 0;		
+	HMI_Value.remain_time = 0;
+#ifdef SD_FINISHED_RELEASECOMMAND
+  queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+#endif
 	TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
 	TERN_(OPTION_AUTOPOWEROFF, _setAutoPowerDown());
-	TERN_(MIXING_EXTRUDER, mixer.reset_vtools());
+	TERN_(MIXING_EXTRUDER, mixer.reset_vtools());	
 	HMI_Value.print_speed = feedrate_percentage = 100;
 	DWIN_status = ID_SM_IDLE;
 	Draw_Main_Menu();		
@@ -583,7 +616,7 @@ void DWIN_HandleScreen() {
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	  case DWMENU_SET_HOTENDMAXTEMP:			HMI_Adjust_hotend_MaxTemp(); break;
-	#endif	
+	#endif
 
 	#if ENABLED(PID_EDIT_MENU)
 		case DWMENU_PID_TUNE:								HMI_PIDTune(); break;
@@ -598,6 +631,10 @@ void DWIN_HandleScreen() {
 
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
 		case DWMENU_SET_WIFIBAUDRATE: 			HMI_Adjust_WiFi_BaudRate(); break;
+	#endif
+
+	#if ENABLED(SWITCH_EXTRUDER_MENU)
+		case DWMENU_SET_SWITCHEXTRUDER:			HMI_Adjust_Extruder_Sequence(); break;
 	#endif
 	
 	#if ENABLED(BLTOUCH)
@@ -710,6 +747,25 @@ void HMI_DWIN_Init() {
 	Draw_Main_Menu(true);
 }
 
+/***********************************************************
+// Multi-language strings for title menu store in 6 and 7
+// EN/ES/RU stored in 7.jpg
+// FR/PT stored in 6.jpg
+***********************************************************/
+uint8_t get_title_picID(){	
+	switch (HMI_flag.language+1){
+		default:
+		case LANGUAGE_CASE_EN:
+		case LANGUAGE_CASE_SP:
+		case LANGUAGE_CASE_RU:
+			return 7;
+			
+		case LANGUAGE_CASE_FR:
+		case LANGUAGE_CASE_PT:
+			return 6;		
+	}
+}
+
 void EachMomentUpdate() {	
 	
 	static millis_t next_rts_update_ms = 0;
@@ -793,7 +849,14 @@ void EachMomentUpdate() {
 	}	
 	else if(DWIN_status == ID_SM_STOPED){
 		Stop_and_return_mainmenu();
-	}	
+	}
+	else if(DWIN_status == ID_SM_PIDAUTOTUNE){
+		char string_Buf[50]={0};
+		//ZERO(string_Buf);
+		sprintf_P(string_Buf,PSTR("M303 S%3d E0 C4 U1\nM500"),HMI_Value.PIDAutotune_Temp);
+		queue.inject(string_Buf);
+		DWIN_status = ID_SM_IDLE;
+	}
 	dwinLCD.UpdateLCD();
   //TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 }

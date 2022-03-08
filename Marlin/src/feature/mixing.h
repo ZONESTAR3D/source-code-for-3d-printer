@@ -97,14 +97,15 @@ typedef struct {
  * @details Contains data and behaviors for a Mixing Extruder
  */
 class Mixer {
-  public:
+  public:	
+	static bool mixing_enabled;
   static mixer_perc_t percentmix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100, also editable from LCD
   static float collector[MIXING_STEPPERS];    			// M163 components
   static int8_t selected_vtool;
   static mixer_comp_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
   
   static void init(); // Populate colors at boot time
-  static void reset_vtools();
+  static void reset_vtools(bool force_reset = false);
   static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level

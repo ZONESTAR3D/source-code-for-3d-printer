@@ -34,11 +34,11 @@
 #endif
 
 inline void echo_mix() {
-  #if (MIXING_2_IN_1_OUT)
+  #if (MIXING_STEPPERS == 2)
 	  SERIAL_ECHOPAIR(" (", int(mixer.percentmix[0]), "%|", int(mixer.percentmix[1]), "%)");
-  #elif(MIXING_3_IN_1_OUT)
+  #elif(MIXING_STEPPERS == 3)
 	  SERIAL_ECHOPAIR(" (", int(mixer.percentmix[0]), "%|", int(mixer.percentmix[1]), "%|", int(mixer.percentmix[2]), "%)");
-  #elif(MIXING_4_IN_1_OUT)
+  #elif(MIXING_STEPPERS == 4)
 	  SERIAL_ECHOPAIR(" (", int(mixer.percentmix[0]), "%|", int(mixer.percentmix[1]), "%|",int(mixer.percentmix[2]), "%|",int(mixer.percentmix[3]), "%)");
   #endif
 }

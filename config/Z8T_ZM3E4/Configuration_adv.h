@@ -430,7 +430,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 90
+#define FAN_MIN_PWM 1
 #define FAN_MAX_PWM 255
 
 /**
@@ -1629,15 +1629,16 @@
     #endif
   #endif
   
-  #define BABYSTEP_DISPLAY_TOTAL          	// Display total babysteps since last G28
-
-  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
+  #define BABYSTEP_DISPLAY_TOTAL          	// Display total babysteps since last G28 
+  //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
 
+	#ifdef SERIAL_PORT_2
   #define PROCESS_M290_ASAP				  	//Process M290 command as soon as possible
+  #endif
 #endif
 
 // @section extruder
@@ -1999,15 +2000,15 @@
   #define FWRETRACT_AUTORETRACT           			// Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
     #define MIN_AUTORETRACT 0.02           			// (mm) Don't convert E moves under this length
-    #define MAX_AUTORETRACT 10.0         	 			// (mm) Don't convert E moves over this length
+    #define MAX_AUTORETRACT 20.0         	 			// (mm) Don't convert E moves over this length
   #endif
   #define RETRACT_LENGTH 								10 	 		// (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP 					15  		// (mm) Default swap retract length (positive value)
-  #define RETRACT_FEEDRATE      				40			// (mm/s) Default feedrate for retracting
+  #define RETRACT_LENGTH_SWAP 					12  		// (mm) Default swap retract length (positive value)
+  #define RETRACT_FEEDRATE      				30			// (mm/s) Default feedrate for retracting
   #define RETRACT_ZRAISE        				0   		// (mm) Default retract Z-raise
-  #define RETRACT_RECOVER_LENGTH 	  		0.01   	// (mm) Default additional recover length (added to retract length on recover)
-  #define RETRACT_RECOVER_LENGTH_SWAP 	0.02   	// (mm) Default additional swap recover length (added to retract length on recover from toolchange)
-  #define RETRACT_RECOVER_FEEDRATE 	  	30   	 	// (mm/s) Default feedrate for recovering from retraction
+  #define RETRACT_RECOVER_LENGTH 	  		0.00   	// (mm) Default additional recover length (added to retract length on recover)
+  #define RETRACT_RECOVER_LENGTH_SWAP 	0.00   	// (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+  #define RETRACT_RECOVER_FEEDRATE 	  	25   	 	// (mm/s) Default feedrate for recovering from retraction
   #define RETRACT_RECOVER_FEEDRATE_SWAP 30 			// (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
     #define RETRACT_SYNC_MIXING         				// Retract and restore all mixing steppers simultaneously
@@ -3574,6 +3575,8 @@
   //#define SERVICE_NAME_3      "Service 3"
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
+
+
 
 // @section develop
 

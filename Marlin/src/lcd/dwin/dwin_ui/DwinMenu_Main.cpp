@@ -98,9 +98,9 @@ void Draw_File_Menu() {
 	DwinMenuID = DWMENU_FILE;
 	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
-	dwinLCD.JPG_CacheTo1(HMI_flag.Title_Menu_Backup);
+	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_SDPRINT, TITLE_X, TITLE_Y);
-	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_FILE, 14+GET_ICON_X(FILE), 7);
+	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_FILE, TITLE_X+get_MultiLanguageString_Width(MTSTRING_TITLE_SDPRINT)+6, 7);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	Redraw_SD_List();	
 	Draw_Status_Area();

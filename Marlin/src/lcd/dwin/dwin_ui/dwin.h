@@ -106,9 +106,9 @@
 #define POWERDOWN_MACHINE_TIMER 					900//(900*1000/DWIN_SCROLL_UPDATE_INTERVAL)
 
 #if ENABLED(MIXING_EXTRUDER)
-#define	HOTEND_WARNNING_TEMP	230
+#define	HOTEND_WARNNING_TEMP	235
 #else
-#define	HOTEND_WARNNING_TEMP	HEATER_0_MAXTEMP
+#define	HOTEND_WARNNING_TEMP	(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
 #endif
 
 typedef enum{
@@ -121,6 +121,9 @@ typedef enum{
 	ID_SM_STOPED,					//	
 #if ENABLED(OPTION_REPEAT_PRINTING)	
 	ID_SM_REPEATPRITING,	
+#endif
+#if ENABLED(PID_AUTOTUNE_MENU)
+	ID_SM_PIDAUTOTUNE,
 #endif
 	ID_SM_RUNOUTING,
 	ID_SM_RETURN_MAIN
@@ -232,6 +235,8 @@ typedef enum {
 	DWMENU_PID_KD,
 	DWMENU_PID_AUTOTUNE,
 	DWMENU_SET_WIFIBAUDRATE,
+	//
+	DWMENU_SET_SWITCHEXTRUDER,
 	
 	//Repeat printing
 	DWMENU_SET_REPRINT = 100,	
@@ -356,19 +361,57 @@ extern _emDWIN_MENUID_ DwinMenuID;
 #define Menu_control_end_info_X			Menu_control_end_reset_X + 30
 #define Menu_control_end_info_Y			Menu_control_end_reset_Y
 
-
-
 typedef struct Mixer_Display_cfg{
-	uint16_t Extruder_X_Coordinate[E_STEPPERS] = {0};
-	uint8_t Extruder_Int_Number[E_STEPPERS] = {0};
+	uint16_t Extruder_X_Coordinate[MIXING_STEPPERS] = {0};
+	uint8_t Extruder_Int_Number[MIXING_STEPPERS] = {0};
 	uint16_t VTool_X_Coordinate = 0;
 	uint8_t VTool_Int_Number = 0;
-	uint8_t Extruder_X_Start_Coordinate[5] = {0,0,34,19,8};
-	uint8_t Extruder_X_Start_Gap[5] = {0,0,78,63,52};
-	uint8_t Y_Coordinate = 143;
 }MIXER_DIS;
 extern MIXER_DIS MixerDis;
 
+#if ENABLED(SWITCH_EXTRUDER_MENU)
+typedef enum{
+	SE_DEFAULT = 0,
+#if (MIXING_STEPPERS == 3)
+	SE_E1E2E3 = SE_DEFAULT,	
+	SE_E1E3E2,
+	SE_E2E1E3,
+	SE_E2E3E1,
+	SE_E3E1E2,
+	SE_E3E2E1,
+#endif
+#if (MIXING_STEPPERS == 4)
+	SE_E1E2E3E4 = SE_DEFAULT,
+	SE_E1E2E4E3,	//E3<-->E4
+	SE_E1E3E2E4,	//E2<-->E3
+	SE_E1E3E4E2,	//E2<-->E3
+	SE_E1E4E2E3,	//	
+	SE_E1E4E3E2,	//
+	
+	SE_E2E1E3E4,	//
+	SE_E2E1E4E3,	//	
+	SE_E2E3E1E4,	//
+	SE_E2E3E4E1,	//
+	SE_E2E4E1E3,	//
+	SE_E2E4E3E1,	//
+	
+	SE_E3E1E2E4,	//	
+	SE_E3E1E4E2,	//		
+	SE_E3E2E1E4,	//
+	SE_E3E2E4E1,	//	
+	SE_E3E4E1E2,	//
+	SE_E3E4E2E1,	//
+
+	SE_E4E1E2E3,	//
+	SE_E4E1E3E2,	//
+	SE_E4E2E1E3,	//
+	SE_E4E2E3E1,	//
+	SE_E4E3E1E2,	//
+	SE_E4E3E2E1,	//
+#endif
+	SE_END,
+}_emSwitchExtruder;
+#endif
 
 typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
@@ -436,6 +479,10 @@ typedef struct {
 	uint8_t Percentrecord = 0;
 	uint16_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
+	
+	#if ENABLED(SWITCH_EXTRUDER_MENU)	
+	int8_t switchExtruder = SE_DEFAULT;
+	#endif
 } HMI_value_t;
 extern HMI_value_t HMI_Value;
 
@@ -466,7 +513,6 @@ typedef struct {
 
 	uint8_t	clean_status_delay = 0;
 	uint8_t language;
-  uint8_t Title_Menu_Backup = 0;
 	
   #if ENABLED(OPTION_WIFI_MODULE)  
   uint8_t wifi_link_timer;
@@ -560,7 +606,7 @@ extern DwinMenu DwinMenu_reprint;
 void _reset_shutdown_timer();
 #endif
 void set_status_bar_showtime(const uint8_t t);
-
+uint8_t get_title_picID();
 void Popup_Window_Temperature(const char *msg, int8_t heaterid);
 void Stop_and_return_mainmenu();
 void HMI_DWIN_Init();

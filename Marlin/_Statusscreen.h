@@ -39,7 +39,7 @@
 
 #ifdef MIX_STATUS_SCREEN_IMAGE
 
-#if (MIXING_4_IN_1_OUT)
+#if (MIXING_STEPPERS == 4)
 #define	STATUS_LOGO_X			5
 #define STATUS_LOGO_Y           8 
 #define STATUS_LOGO_WIDTH       56
@@ -59,7 +59,7 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 	B00000000,B00000000,B00000000,B01101100,B00000000,B00000000,B00000000,
 	B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
 };
-#elif(MIXING_3_IN_1_OUT)
+#elif(MIXING_STEPPERS == 3)
 #define	STATUS_LOGO_X			5
 #define STATUS_LOGO_Y           8 
 #define STATUS_LOGO_WIDTH       40
@@ -79,7 +79,7 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 	B00000000,B00000000,B01101100,B00000000,B00000000,
 	B00000000,B00000000,B00000000,B00000000,B00000000
 };
-#else//(MIXING_2_IN_1_OUT)
+#else//(MIXING_STEPPERS == 2)
 #define	STATUS_LOGO_X			5
 #define STATUS_LOGO_Y           8 
 #define STATUS_LOGO_WIDTH       40
@@ -211,13 +211,13 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 #define STATUS_HEATERS_XSPACE   20
 
 #ifdef MIX_STATUS_SCREEN_IMAGE
-	#if (MIXING_4_IN_1_OUT)
+	#if (MIXING_STEPPERS == 4)
 	  #define STATUS_HEATERS_X      65
 	  #define STATUS_BED_X          82
-	#elif(MIXING_3_IN_1_OUT)
+	#elif(MIXING_STEPPERS == 3)
 	  #define STATUS_HEATERS_X      52
 	  #define STATUS_BED_X          74
-	#else
+	#else//(MIXING_STEPPERS == 2)
 	  #define STATUS_HEATERS_X      52
 	  #define STATUS_BED_X          74	  
 	#endif

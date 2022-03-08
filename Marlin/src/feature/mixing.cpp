@@ -36,8 +36,14 @@ Mixer mixer;
   #include "../core/serial.h"
 #endif
 
+#if ENABLED(OPTION_MIXING_SWITCH)
+bool Mixer::mixing_enabled = DEFAULT_MIXING_SWITCH;
+#else
+bool Mixer::mixing_enabled = true;
+#endif
+
 // Used up to Planner level
-int8_t  	  Mixer::selected_vtool = 0;
+int8_t	Mixer::selected_vtool = 0;
 float         Mixer::collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
 mixer_comp_t  Mixer::color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
 mixer_perc_t Mixer::percentmix[MIXING_STEPPERS];
@@ -104,7 +110,7 @@ void Mixer::normalize(const uint8_t tool_index) {
 
 }
 
-#if MIXING_2_IN_1_OUT
+#if (MIXING_STEPPERS == 2)
 void Mixer::init_collector(const uint8_t index){
 	switch(index){
 		default:
@@ -174,9 +180,7 @@ void Mixer::init_collector(const uint8_t index){
 		break;
 	}	
 }
-#endif
-
-#if MIXING_3_IN_1_OUT
+#elif (MIXING_STEPPERS == 3)
 void Mixer::init_collector(const uint8_t index){
 	switch(index){
 		default:
@@ -262,9 +266,7 @@ void Mixer::init_collector(const uint8_t index){
 		break;
 	}
 }
-#endif
-
-#if MIXING_4_IN_1_OUT
+#elif (MIXING_STEPPERS == 4)
 void Mixer::init_collector(const uint8_t index)
 {
 	switch(index){
@@ -368,7 +370,10 @@ void Mixer::init_collector(const uint8_t index)
 	}
 }
 #endif
-void Mixer::reset_vtools() {
+
+void Mixer::reset_vtools(bool force_reset/* = false */) {
+
+	if(!mixer.mixing_enabled && !force_reset) return;
 
 #if 0
   // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
@@ -425,9 +430,8 @@ void Mixer::reset_vtools() {
 
 // called at boot
 void Mixer::init() {
-
-  mixer.selected_vtool = 0;
-  reset_vtools();
+  
+  reset_vtools(true);
 
   #if HAS_MIXER_SYNC_CHANNEL
     // AUTORETRACT_TOOL gets the same amount of all filaments

@@ -54,17 +54,18 @@ enum{
 #if ENABLED(BABYSTEPPING)
   TUNE_CASE_ZOFF,
 #endif
+	TUNE_CASE_CONFIG,
 #if ENABLED(MIXING_EXTRUDER)
   TUNE_CASE_MIXER,
-#endif 
-  TUNE_CASE_CONFIG,
+#endif   
   TUNE_CASE_END
 };
 #define	TUNE_CASE_TOTAL	(2+HAS_HOTEND+HAS_HEATED_BED+HAS_FAN+ENABLED(BABYSTEPPING)+ENABLED(MIXING_EXTRUDER))
 
 #if ENABLED(MIXING_EXTRUDER)
-void DWIN_Refresh_Mix_Rate();
+void DWIN_Refresh_ExtruerFAN_State();
 #endif
+
 void Redraw_SD_List();
 void Draw_Printing_Menu(const bool with_update = false);
 void Draw_Print_ProgressBar();

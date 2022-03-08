@@ -41,8 +41,8 @@
 #define COLOR_RED         0xF00F  // Red background color
 #define COLOR_BLUE        0x001F  // 
 #define COLOR_BG_WINDOW   0x31E8  //
-#define COLOR_BG_BLUE     0x1125  //1125// Dark blue background color
-#define COLOR_BG_DEEPBLUE 0x000F  //1125// Dark blue background color
+#define COLOR_BG_BLUE     0x1986  //1125// Dark blue background color
+#define COLOR_BG_DEEPBLUE 0x000F  // Dark blue background color
 #define COLOR_BG_BLACK    0x0000  //841// Black background color      
 #define COLOR_BG_RED      0xF00F  // Red background color
 #define POP_TEXT_COLOR  	0xD6BA  // Popup font background color
@@ -51,6 +51,8 @@
 #define BARFILL_COLOR     0x10E4  // Fill color of progress bar
 #define SELECT_COLOR      0x33BB  // Selected color
 
+//00010 001001 00101
+//00011 001100 00110
 // Picture ID
 #define	IMAGE_CACHE_ID1		1
 
@@ -172,7 +174,7 @@ enum{
 #define DWIN_Draw_Select_IntValue_Default(n,x,y,v)	dwinLCD.Draw_IntValue(true, true, 0, font8x16, SELECT_COLOR, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_Warn_IntValue_Default(n,x,y,v)		dwinLCD.Draw_IntValue(true, true, 0, font8x16, COLOR_RED, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_String_FIL(x, y, s)								dwinLCD.Draw_String(false, true, FIL_FONT, FIL_TEXT_COLOR, FIL_WINDOW_COLOR, x, y, s)
-
+#define	DWIN_Draw_IntValue_FONT14(c,n,x,y,v)				dwinLCD.Draw_IntValue(true, true, 0, font14x28, c, COLOR_BG_BLACK, n, x, y, v)
 
 bool Apply_Encoder_int16(const ENCODER_DiffState &encoder_diffState, int16_t *valref);
 bool Apply_Encoder_uint8(const ENCODER_DiffState &encoder_diffState, uint8_t *valref);
@@ -183,6 +185,7 @@ void Draw_Menu_Icon(const uint8_t line, const uint8_t icon);
 void Draw_More_Icon(const uint8_t line);
 void Draw_Menu_Cursor(const uint8_t line);
 void DWIN_Show_MultiLanguage_String(uint8_t ItemID, uint16_t x, uint16_t y);
+uint16_t get_MultiLanguageString_Width(uint8_t ItemID);
 void DWIN_Show_ICON(uint8_t picID, uint16_t x, uint16_t y);
 void Draw_Back_First(const bool is_sel=true);
 void Draw_Popup_Bkgd_60();
