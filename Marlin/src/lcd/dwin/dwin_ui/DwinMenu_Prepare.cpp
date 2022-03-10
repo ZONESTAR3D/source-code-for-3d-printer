@@ -1242,8 +1242,8 @@ void HMI_Filament_PurgeLength() {
 			dwinLCD.UpdateLCD();
 			return;
 		}
-		NOLESS(HMI_Value.purgelength, 0);
-		NOMORE(HMI_Value.purgelength, 2*FILAMENT_UNLOAD_PURGE_LENGTH);
+		NOLESS(HMI_Value.purgelength, 1);
+		NOMORE(HMI_Value.purgelength, 800);
 		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PURGELENGTH + MROWS - DwinMenu_filament.index), HMI_Value.purgelength);
 		dwinLCD.UpdateLCD();
 	}
@@ -1252,7 +1252,8 @@ void HMI_Filament_PurgeLength() {
 static void Dwin_filament_action(uint8_t action){
 	const feedRate_t old_feedrate = feedrate_mm_s;
 	static uint8_t mux = 1; 
-	static uint8_t t = 2;
+	static uint16_t t = 2;
+	char statusbar_str[40]={0};
 	
 #if ENABLED(MIXING_EXTRUDER)
 	const uint8_t extruder = HMI_Value.load_extruder-1;
@@ -1289,8 +1290,14 @@ static void Dwin_filament_action(uint8_t action){
 		//purge		
 		current_position.e += HMI_Value.purgelength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
-		t = HMI_Value.purgelength*mux/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Slowly loading, please wait..."), t<2?2:t);
+		t = HMI_Value.purgelength*mux/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;		
+		if(t < 60)
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %2d seconds..."), t);
+		else
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dM%2dS..."), t/60, t%60);
+			
+		
+		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();
 		HMI_flag.Is_purged = true;
@@ -1301,7 +1308,11 @@ static void Dwin_filament_action(uint8_t action){
 		current_position.e -= HMI_Value.purgelength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE*mux;
 		t = HMI_Value.purgelength/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Slowly unloading, please wait..."), t<2?2:t);
+		if(t < 60)
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %2d seconds..."), t);
+		else
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dM%2dS..."), t/60, t%60);
+		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		set_status_bar_showtime(t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();
@@ -1312,7 +1323,11 @@ static void Dwin_filament_action(uint8_t action){
 		current_position.e += HMI_Value.feedlength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_FAST_LOAD_FEEDRATE*mux;
 		t = HMI_Value.feedlength/FILAMENT_CHANGE_FAST_LOAD_FEEDRATE;
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Quickly loading, please wait..."), t<2?2:t);
+		if(t < 60)
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %2d seconds..."), t);
+		else
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dM%2dS..."), t/60, t%60);
+		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();
 		HMI_flag.Is_retracted = false;
@@ -1322,8 +1337,8 @@ static void Dwin_filament_action(uint8_t action){
 		if(!HMI_flag.Is_purged){
 			current_position.e += FILAMENT_UNLOAD_PURGE_LENGTH*mux;
 			feedrate_mm_s = FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
-			t = FILAMENT_UNLOAD_PURGE_LENGTH*mux/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
-			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("First purge a little..."), t<2?2:t);
+			t = FILAMENT_UNLOAD_PURGE_LENGTH*mux/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;			
+			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Purge a little first..."), t<2?2:t);
 			planner.buffer_line(current_position, feedrate_mm_s, active_extruder);		
 			planner.synchronize();
 		}
@@ -1331,7 +1346,7 @@ static void Dwin_filament_action(uint8_t action){
 		if(!HMI_flag.Is_retracted){
 			current_position.e -= PAUSE_PARK_RETRACT_LENGTH*mux;
 			feedrate_mm_s = PAUSE_PARK_RETRACT_FEEDRATE*mux;
-			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Quickly retract..."));		
+			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Fast retracting..."));		
 			planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 			planner.synchronize();
 			HMI_flag.Is_retracted = true;
@@ -1340,7 +1355,11 @@ static void Dwin_filament_action(uint8_t action){
 		current_position.e -= HMI_Value.feedlength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_UNLOAD_FEEDRATE*mux;		
 		t = HMI_Value.feedlength/FILAMENT_CHANGE_UNLOAD_FEEDRATE;
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Quickly unloading, please wait..."), t<2?2:t);		
+		if(t < 60)
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %2d seconds..."), t);
+		else
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dM%2dS..."), t/60, t%60);
+		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();		
 	}

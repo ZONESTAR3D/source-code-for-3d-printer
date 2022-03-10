@@ -124,7 +124,7 @@ DwinMenu DwinMenu_tune;
 //Infor
 DwinMenu DwinMenu_infor;
 
-void set_status_bar_showtime(const uint8_t t){
+void set_status_bar_showtime(const uint16_t t){
 	HMI_flag.clean_status_delay = t;
 }
 
@@ -771,7 +771,7 @@ void EachMomentUpdate() {
 	static millis_t next_rts_update_ms = 0;
 	const millis_t ms = millis();	
 	if (PENDING(ms, next_rts_update_ms)) 	return;
-	next_rts_update_ms = ms + DWIN_SCROLL_UPDATE_INTERVAL;
+	next_rts_update_ms = ms + 1000;
 	
 	#if ENABLED(DEBUG_DWIN_LCD)
 	if(old_DwinMenuID != DwinMenuID || old_DwinStatus != DWIN_status){
@@ -829,7 +829,7 @@ void EachMomentUpdate() {
 	else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
 		_check_kill_times_ElapsedTime();
 		#if DISABLED(PARK_HEAD_ON_PAUSE)
-		if(HMI_flag.clean_status_delay ==0){			
+		if(HMI_flag.clean_status_delay == 0){			
 			if(DWIN_status == ID_SM_RESUMING && printingIsActive() && !runout.filament_ran_out && wait_for_heatup == false){
 				DWIN_status = ID_SM_PRINTING;
 				Draw_Printing_Menu();

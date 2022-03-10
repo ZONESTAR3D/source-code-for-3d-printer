@@ -101,9 +101,8 @@
 #define	DWIN_FEEDBACK_WARNNING()
 #endif
 
-#define DWIN_SCROLL_UPDATE_INTERVAL 			1000
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL 	10000
-#define POWERDOWN_MACHINE_TIMER 					900//(900*1000/DWIN_SCROLL_UPDATE_INTERVAL)
+#define POWERDOWN_MACHINE_TIMER 					900	//seconds
 
 #if ENABLED(MIXING_EXTRUDER)
 #define	HOTEND_WARNNING_TEMP	235
@@ -511,7 +510,7 @@ typedef struct {
 		#endif
 		;
 
-	uint8_t	clean_status_delay = 0;
+	uint16_t	clean_status_delay = 0;
 	uint8_t language;
 	
   #if ENABLED(OPTION_WIFI_MODULE)  
@@ -605,7 +604,7 @@ extern DwinMenu DwinMenu_reprint;
 #if ENABLED(OPTION_AUTOPOWEROFF)
 void _reset_shutdown_timer();
 #endif
-void set_status_bar_showtime(const uint8_t t);
+void set_status_bar_showtime(const uint16_t t);
 uint8_t get_title_picID();
 void Popup_Window_Temperature(const char *msg, int8_t heaterid);
 void Stop_and_return_mainmenu();

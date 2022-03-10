@@ -374,13 +374,10 @@ void GcodeSuite::G28() {
     #if Z_HOME_DIR < 0
 
       if (doZ) {
-        TERN_(BLTOUCH, bltouch.init());
-				
+        TERN_(BLTOUCH, bltouch.init());				
 				TERN_(OPTION_PL08N, probe.stow());
 				TERN_(OPTION_ZLSENSOR, probe.stow());
-
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
-
         probe.move_z_after_homing();
 
       } // doZ

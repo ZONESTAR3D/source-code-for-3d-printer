@@ -77,9 +77,9 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
-#define CUSTOM_MACHINE_NAME 			"Z9-E4"
+#define CUSTOM_MACHINE_NAME 			"Z9V5-MK4"
 #define	FIRMWARE_VERSION					"V1.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-03-01"
+#define	STRING_DISTRIBUTION_DATE  "2021-03-10"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -89,7 +89,7 @@
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
+#define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
@@ -1294,7 +1294,7 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 #define AUTO_BED_LEVELING_BILINEAR
@@ -1306,7 +1306,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
 #define RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -1417,7 +1417,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
 #define LCD_BED_LEVELING
 #endif
 

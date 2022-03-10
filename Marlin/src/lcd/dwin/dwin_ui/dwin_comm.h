@@ -197,8 +197,8 @@ void Clear_Dwin_Area(const uint8_t area);
 void Draw_Title(PGM_P title);
 void Draw_Wifi_Title(PGM_P title);
 
-void DWIN_Show_Status_Message(const uint16_t color, char *string, const uint8_t show_seconds = 3);
-void DWIN_Show_Status_Message(uint16_t color, PGM_P string, const uint8_t show_seconds = 3);
+void DWIN_Show_Status_Message(const uint16_t color, char *string, const uint16_t show_seconds = 3);
+void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint16_t show_seconds = 3);
 
 void Draw_Popup_Bkgd_105();
 void Add_Menu_Line();

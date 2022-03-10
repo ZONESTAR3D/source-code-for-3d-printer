@@ -35,12 +35,7 @@ Mixer mixer;
 #ifdef MIXER_NORMALIZER_DEBUG
   #include "../core/serial.h"
 #endif
-
-#if ENABLED(OPTION_MIXING_SWITCH)
 bool Mixer::mixing_enabled = DEFAULT_MIXING_SWITCH;
-#else
-bool Mixer::mixing_enabled = true;
-#endif
 
 // Used up to Planner level
 int8_t	Mixer::selected_vtool = 0;
