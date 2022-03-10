@@ -46,8 +46,8 @@
   #define COLOR_MASK 0x7F
 #endif
 
-#if DISABLED(DEFAULT_MIXING_SWITCH)
-#define	DEFAULT_MIXING_SWITCH true
+#if !defined(DEFAULT_MIXING_SWITCH)
+#define	DEFAULT_MIXING_SWITCH 	true
 #endif
 
 typedef int8_t mixer_perc_t;

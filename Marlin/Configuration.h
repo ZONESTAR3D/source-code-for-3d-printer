@@ -78,7 +78,7 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK4"
-#define	FIRMWARE_VERSION					"V1.0.0"
+#define	FIRMWARE_VERSION					"V3.0"
 #define	STRING_DISTRIBUTION_DATE  "2021-03-10"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
@@ -86,6 +86,7 @@
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY
+#define OPTION_DWINLCD_MENUV2					//DWIN LCD MENU V2
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
@@ -2384,9 +2385,6 @@
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
 #define ZONESTAR_DWIN_LCD
-#ifdef ZONESTAR_DWIN_LCD
-#define OPTION_DWINLCD_MENUV2
-#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
