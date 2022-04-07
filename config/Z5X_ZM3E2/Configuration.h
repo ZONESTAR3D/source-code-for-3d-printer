@@ -67,7 +67,35 @@
 // config/examples/SCARA and customize for your machine.
 //
 
+//===========================================================================
 // @section info
+// Choose the name from boards.h that matches your setup
+#ifndef MOTHERBOARD
+  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E2
+#endif
+
+//===========================================================================
+// Name displayed in the LCD "Ready" message and Info menu
+//===========================================================================
+#define SHORT_BUILD_VERSION 		  "marlin-2.0.8"
+#define CUSTOM_MACHINE_NAME 		  "Z5X"
+#define	FIRMWARE_VERSION			  "V1.2.0"
+#define	STRING_DISTRIBUTION_DATE	  "2021-01-09"
+#define EEPROM_VERSION 				  "V82"					//modify it if need reload EEPROM
+#define STRING_CONFIG_H_AUTHOR 		  "(ZONESTAR, Hally)" 	// Who made the changes.
+#define WEBSITE_URL 				  "www.zonestar3d.com"
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//  options for Z5X
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+#define	OPTION_MICROSTEP   16  		//32 64 128
+#define	OPTION_AUTOPOWEROFF
+#define OPTION_FROD
+
+//#define	OPTION_TITAN
+//#define	OPTION_BGM
+#define	OPTION_PL08N
+//#define   OPTION_3DTOUCH					//Probe use 3DTouch or BLTouch
+
 
 /**
  * LCD LANGUAGE
@@ -85,66 +113,6 @@
    'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
  */
 #define LCD_LANGUAGE en
-//===========================================================================
-// Name displayed in the LCD "Ready" message and Info menu
-//===========================================================================
-#define SHORT_BUILD_VERSION 		  "marlin-2.0.8"
-#define CUSTOM_MACHINE_NAME 		  "Z5X"
-#define	FIRMWARE_VERSION			  "V1.2.0"
-#define	STRING_DISTRIBUTION_DATE	  "2021-01-09"
-#define EEPROM_VERSION 				  "V82"					//modify it if need reload EEPROM
-#define STRING_CONFIG_H_AUTHOR 		  "(ZONESTAR, Hally)" 	// Who made the changes.
-#define WEBSITE_URL 				  "www.zonestar3d.com"
-
-#define	OPTION_MICROSTEP   16  		//32 64 128
-
-#define	OPTION_AUTOPOWEROFF
-//#define	OPTION_TITAN				    //Titan Extruder
-#define	OPTION_PL08N 			        //Probe use PL_08N
-//#define   OPTION_3DTOUCH					//Probe use 3DTouch or BLTouch
-
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//Micro steps setting for Motor Driver
-/*
-Description:
-  There are two pins MS1 and MS2 on the ZM3E2 control board, you can set the 
-  different micro steps to get better resolution
-  Hardward:
-  	MS1 <->  PA13 
-  	MS2 <->  PA14 
-*/
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//Titan Extruder
-/*
-Description:
-  In the older version, Z9 use a normal extruder part, from 2020-05, we have
-  upgrade it to a Titan exturder, by using Titan extuder, it can provide more
-  torque to extruder.
-  After enable Titan extruder, we need to modify the extruder motor direction
-  and change the e-steps/mm parameter to about 420.  
-*/
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//Power off after printer
-/*
-Description:
-  a POWER push button (Non self locking button) can be connected to the control 
-  board, when power on, you need to push button until LCD show LOGO, add a M81 
-  command in the ENDcode of slicing software, it can realize automatic shutdown 
-  after printing. 
-  NOTE: It is only shut down the control board, but not the Power supply
-  Hardware:
-  -a push button should connect to the power on jumper.
-  -a LED connect to VCC & GND
-*/
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
 #define SHOW_BOOTSCREEN
 
@@ -186,12 +154,6 @@ Description:
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
-
-// Choose the name from boards.h that matches your setup
-#ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E2
-#endif
-
 // Name displayed in the LCD "Ready" message and Info menu
 //#define CUSTOM_MACHINE_NAME "3D Printer"
 
@@ -211,10 +173,6 @@ Description:
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
-// For ZONESTAR R2S or any "multi-extruder" that shares a single heater on hotend.
-//#define SHARE_HOTEND_HEATER
-
-
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
 #if ENABLED(SINGLENOZZLE)
@@ -223,7 +181,7 @@ Description:
 #endif
 
 /**
- * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
+ * Prusa MK2 Single Nozzle Multi-Material Multiplexer, and variants.
  *
  * This device allows one stepper driver on a control board to drive
  * two to eight stepper motors, one at a time, in a manner suitable
@@ -242,7 +200,7 @@ Description:
 #endif
 
 /**
- * Průša Multi-Material Unit v2
+ * Prusa Multi-Material Unit v2
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * Requires EXTRUDERS = 5
@@ -511,11 +469,11 @@ Description:
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
 #define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      3  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -540,7 +498,7 @@ Description:
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      130
+#define BED_MAXTEMP      125
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -843,11 +801,11 @@ Description:
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 50 } // ...or, set your own edit limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 200, 200, 12, 25 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -856,10 +814,10 @@ Description:
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 3000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 3000, 3000, 200, 10000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -871,8 +829,8 @@ Description:
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -884,15 +842,15 @@ Description:
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 8.0
-  #define DEFAULT_YJERK 8.0
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK 0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -1190,11 +1148,7 @@ Description:
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
-#ifdef OPTION_TITAN
-#define	EXTRUDER_DIR false
-#else
-#define	EXTRUDER_DIR true
-#endif//!OPTION_TITAN
+#define	EXTRUDER_DIR (true^ENABLED(OPTION_TITAN))
 
 // @section extruder
 // For direct drive extruder v9 set to true, for geared extruder set to false.
@@ -1210,12 +1164,9 @@ Description:
 // @section homing
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
-
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
-
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
-
 //#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -1274,9 +1225,11 @@ Description:
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
+#if ENABLED(OPTION_FROD)
 #define FILAMENT_RUNOUT_SENSOR
+#endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+  #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
@@ -1406,7 +1359,7 @@ Description:
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1471,7 +1424,7 @@ Description:
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET_LFRB { 20, 20, 20, 20 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.1   // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CORNERS_Z_HOP       5.0   // (mm) Z height of nozzle between leveling points
+  #define LEVEL_CORNERS_Z_HOP       8.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
 #endif
 
@@ -1619,12 +1572,12 @@ Description:
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 190
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 220
+#define PREHEAT_2_TEMP_HOTEND 225
 #define PREHEAT_2_TEMP_BED    100
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
@@ -1643,7 +1596,7 @@ Description:
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS/2), 20 }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MIN_POS+5), 20 }
   #define NOZZLE_PARK_X_ONLY          // X move only is required to park
   //#define NOZZLE_PARK_Y_ONLY          // Y move only is required to park
   #define NOZZLE_PARK_Z_RAISE_MIN   2   // (mm) Always raise Z by at least this distance

@@ -115,7 +115,7 @@
 
 //
 // Hephestos 2 24V heated bed upgrade kit.
-// 
+// https://store.bq.com/en/heated-bed-kit-hephestos2
 //
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -3575,8 +3575,6 @@
   //#define SERVICE_NAME_3      "Service 3"
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
-
-
 
 // @section develop
 

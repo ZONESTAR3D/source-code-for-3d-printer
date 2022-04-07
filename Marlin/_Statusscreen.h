@@ -100,7 +100,7 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 	B00000000,B00000000,B00000000,B00000000,B00000000
 };
 #endif
-#elif 1//Z5
+#elif 0//Z5
 #define STATUS_LOGO_Y           5 
 #define STATUS_LOGO_WIDTH       40
 const unsigned char status_logo_bmp[] PROGMEM = {
@@ -151,7 +151,7 @@ const unsigned char status_logo_bmp[] PROGMEM = {
   B00000000,B00000000,B00000000,B00000000,B00000000,
   B00000000,B00000000,B00000000,B00000000,B00000000
 };
-#elif 0 //Z6
+#elif 1 //Z6
 #define STATUS_LOGO_Y           5 
 #define STATUS_LOGO_WIDTH       40
 const unsigned char status_logo_bmp[] PROGMEM = {

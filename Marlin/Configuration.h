@@ -78,30 +78,30 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK4"
-#define	FIRMWARE_VERSION					"V3.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-03-10"
+#define	FIRMWARE_VERSION					"V1.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-04-07"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY
-#define OPTION_DWINLCD_MENUV2					//DWIN LCD MENU V2
+#define	OPTION_DWINLCD_MENUV2					//Used DWON LCD V2
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 #define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
 #define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is on
-#define	DEFAULT_MIXING_SWITCH	false		//Default mixing feature is off
+#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 //===========================================================================
 //optional feature
+//#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
+//#define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
@@ -192,7 +192,6 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
-//#define	SHARE_HOTEND_HEATER
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
@@ -497,7 +496,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   5
+#define HEATER_0_MINTEMP   0
 #define HEATER_1_MINTEMP   5
 #define HEATER_2_MINTEMP   5
 #define HEATER_3_MINTEMP   5
@@ -505,7 +504,7 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        5
+#define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -544,9 +543,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_Kp  50.10// 30.30
+    #define DEFAULT_Ki   2.81//  1.41
+    #define DEFAULT_Kd 161.40//162.77
   #endif
 #endif // PIDTEMP
 
@@ -800,7 +799,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 50 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1295,7 +1294,7 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 #define AUTO_BED_LEVELING_BILINEAR
@@ -1307,7 +1306,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
 #define RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -1347,13 +1346,8 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
-  #ifdef OPTION_MAX_SIZE
-  #define GRID_MAX_POINTS_X 		7
-  #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#else
 	#define GRID_MAX_POINTS_X 		5
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#endif
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN
   #define PROBING_MARGIN_FRONT	PROBING_MARGIN
@@ -1418,7 +1412,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if ANY(OPTION_PL08N, OPTION_3DTOUCH, OPTION_ZLSENSOR)
+#if ANY(OPTION_PL08N, OPTION_3DTOUCH,OPTION_ZLSENSOR)
 #define LCD_BED_LEVELING
 #endif
 

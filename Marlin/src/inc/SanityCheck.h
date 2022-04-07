@@ -82,7 +82,7 @@
 	#error "SWITCH_EXTRUDER_MENU require MIXING_EXTRUDER & OPTION_MIXING_SWITCH & ZONESTAR_DWIN_LCD"
 #endif
 
-#if ((MIXING_STEPPERS != 3) && (MIXING_STEPPERS != 4))
+#if (ENABLED(MIXING_EXTRUDER) && (MIXING_STEPPERS != 3) && (MIXING_STEPPERS != 4))
 	#error "SWITCH_EXTRUDER_MENU only can work on 3 & 4 extruders machine currently"
 #endif
 

@@ -158,6 +158,7 @@ typedef enum {
 	DWMENU_MOVE_EXTALL,	
 	
 	DWMENU_FILAMENT = 20,
+	DWMENU_FILAMENT_PREHEAT,
 	DWMENU_FILAMENT_EXTRUDER,
 	DWMENU_FILAMENT_FEEDLENGTH,
 	DWMENU_FILAMENT_PURGELENGTH,
@@ -169,7 +170,7 @@ typedef enum {
 	DWMENU_LEVEL_DONECONFIRM, 
 		
   //Control menu  
-  DWMENU_MIXER = 30,
+  DWMENU_MIXER,
   DWMENU_CONFIG,
   DWMENU_MOTION,
   DWMENU_POWERDOWN,
@@ -457,6 +458,13 @@ typedef struct {
   #if HAS_HOTEND	
 	int16_t Current_E_Scale[E_STEPPERS];
 	float Last_E_Coordinate[E_STEPPERS];
+	
+	//load and unload filament
+	uint8_t	load_extruder = 1;
+	int16_t nozzle_Temp    = 200;
+	int16_t	feedlength = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+	int16_t	purgelength = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+	
 	#if ENABLED(MIXING_EXTRUDER)
 	int8_t old_mix_mode = -1;
 	int16_t Current_EAll_Scale    = 0;
@@ -465,11 +473,6 @@ typedef struct {
 	mixer_perc_t mix_percent[MIXING_STEPPERS] = {0};
 	#endif
   #endif
-
-	//load and unload filament
-	uint8_t	load_extruder = 1;
-	int16_t	feedlength = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
-	int16_t	purgelength = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
 	
 	#if (ENABLED(OPTION_REPEAT_PRINTING) && HAS_REPEATPRINT_BASE)
 	int16_t RePrintBaseHeigth  = 0;

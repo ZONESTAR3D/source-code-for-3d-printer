@@ -92,10 +92,9 @@
 
 #else
 
-  // Standard directly connected LCD implementations
+  // Standard directly connected LCD implementations	
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
-
 #endif
 
 #include "../fontutils.h"

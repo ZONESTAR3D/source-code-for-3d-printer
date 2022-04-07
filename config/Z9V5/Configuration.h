@@ -83,8 +83,8 @@
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					"V1.3.7"
-#define	STRING_DISTRIBUTION_DATE  "2022-03-08"
+#define	FIRMWARE_VERSION					"V1.3.8"
+#define	STRING_DISTRIBUTION_DATE  "2022-04-02"
 #define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
@@ -832,11 +832,11 @@
  */
 
 #if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 800 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 766 }
 #elif ENABLED(OPTION_TMC2209_ALL_MOTOR)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 383 }
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 400 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 383 }
 #endif
 
 /**

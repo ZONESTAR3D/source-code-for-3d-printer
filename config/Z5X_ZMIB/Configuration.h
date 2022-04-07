@@ -74,42 +74,24 @@
   #define MOTHERBOARD BOARD_ZMIB_V2
 #endif
 
-
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z5X"
-#define	FIRMWARE_VERSION			  	"V5.1.0"
-#define	STRING_DISTRIBUTION_DATE	  "2021-11-09"
+#define	FIRMWARE_VERSION			  	"V5.2.0"
+#define	STRING_DISTRIBUTION_DATE	  "2022-04-01"
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR 		  "(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				  "www.zonestar3d.com"
-
-//#define	OPTION_TITAN				//Titan Extruder
-//#define	OPTION_PL08N 			    //Probe use PL_08N
-
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//Titan Extruder
-/*
-Description:
-  In the older version, Z9 use a normal extruder part, from 2020-05, we have
-  upgrade it to a Titan exturder, by using Titan extuder, it can provide more
-  torque to extruder.
-  After enable Titan extruder, we need to modify the extruder motor direction
-  and change the e-steps/mm parameter to about 420.  
-*/
+//  options for Z5X
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+#define OPTION_FROD
 
-
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//PL_08N Leveling sensor or 3D touch Leveling sensor
-/*
-Description:
-  connect PL-08N to 
-  Hardware:
-  Z- - Probe Pin  
-*/
+//#define	OPTION_TITAN
+//#define	OPTION_BGM
+//#define	OPTION_PL08N
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 #if DISABLED(OPTION_TFTLCD)
 
@@ -172,7 +154,6 @@ Description:
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
-
 // Name displayed in the LCD "Ready" message and Info menu
 //#define CUSTOM_MACHINE_NAME "3D Printer"
 
@@ -192,10 +173,6 @@ Description:
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
-// For ZONESTAR R2S or any "multi-extruder" that shares a single heater on hotend.
-//#define SHARE_HOTEND_HEATER
-
-
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
 #if ENABLED(SINGLENOZZLE)
@@ -204,7 +181,7 @@ Description:
 #endif
 
 /**
- * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
+ * Prusa MK2 Single Nozzle Multi-Material Multiplexer, and variants.
  *
  * This device allows one stepper driver on a control board to drive
  * two to eight stepper motors, one at a time, in a manner suitable
@@ -223,7 +200,7 @@ Description:
 #endif
 
 /**
- * Průša Multi-Material Unit v2
+ * Prusa Multi-Material Unit v2
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * Requires EXTRUDERS = 5
@@ -521,7 +498,7 @@ Description:
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      130
+#define BED_MAXTEMP      125
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -547,9 +524,9 @@ Description:
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  30.30
-    #define DEFAULT_Ki   1.41
-    #define DEFAULT_Kd 162.77
+    #define DEFAULT_Kp  22.20
+    #define DEFAULT_Ki   1.08
+    #define DEFAULT_Kd 114.00
   #endif
 #endif // PIDTEMP
 
@@ -789,7 +766,7 @@ Description:
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#ifdef OPTION_TITAN
+#if EITHER(OPTION_TITAN, OPTION_BGM)
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
 #else
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 85 }
@@ -800,11 +777,11 @@ Description:
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 16, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 100 } // ...or, set your own edit limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 200, 200, 12, 25 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -813,10 +790,10 @@ Description:
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 3000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 3000, 3000, 200, 10000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -827,9 +804,9 @@ Description:
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION           800    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -841,15 +818,15 @@ Description:
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 8.0
-  #define DEFAULT_YJERK 8.0
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK 0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -892,7 +869,7 @@ Description:
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#ifdef OPTION_PL08N
+#if ENABLED(OPTION_PL08N)
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
@@ -914,7 +891,7 @@ Description:
  *      - normally-closed switches to GND and D32.
  *      - normally-open switches to 5V and D32.
  */
-//#define Z_MIN_PROBE_PIN 	10 		//AUX2_SEN
+//#define Z_MIN_PROBE_PIN 	16 		//AUX2_SEN
 
 /**
  * Probe Type
@@ -938,7 +915,6 @@ Description:
 #if ENABLED(OPTION_PL08N)
 #define FIX_MOUNTED_PROBE
 #endif
-
 /**
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
@@ -955,6 +931,7 @@ Description:
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
 //#define BLTOUCH
+
 
 /**
  * Pressure sensor with a BLTouch-like interface
@@ -1041,14 +1018,14 @@ Description:
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 30, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 25, 0, -3}
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 		30
+#define PROBING_MARGIN 25
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (133*60)
+#define XY_PROBE_SPEED (100*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -1090,8 +1067,8 @@ Description:
 #define Z_PROBE_LOW_POINT          -8 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN 	-8
-#define Z_PROBE_OFFSET_RANGE_MAX 	 8
+#define Z_PROBE_OFFSET_RANGE_MIN 	-5
+#define Z_PROBE_OFFSET_RANGE_MAX 	 0
 
 // Enable the M48 repeatability test to test probe accuracy
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -1136,7 +1113,7 @@ Description:
 // @section extruder
 
 #define DISABLE_E false             // Disable the extruder when not stepping
-#define DISABLE_INACTIVE_EXTRUDER   // Keep only the active extruder enabled
+//#define DISABLE_INACTIVE_EXTRUDER // Keep only the active extruder enabled
 
 // @section machine
 
@@ -1144,11 +1121,7 @@ Description:
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
-#ifdef OPTION_TITAN
-#define	EXTRUDER_DIR false
-#else
-#define	EXTRUDER_DIR true
-#endif//!OPTION_TITAN
+#define	EXTRUDER_DIR (true^ENABLED(OPTION_TITAN))
 
 // @section extruder
 // For direct drive extruder v9 set to true, for geared extruder set to false.
@@ -1164,12 +1137,9 @@ Description:
 // @section homing
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
-
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
-
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
-
 //#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
@@ -1202,7 +1172,7 @@ Description:
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-#define MIN_SOFTWARE_ENDSTOPS
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -1228,7 +1198,9 @@ Description:
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
+#if ENABLED(OPTION_FROD)
 #define FILAMENT_RUNOUT_SENSOR
+#endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -1291,7 +1263,8 @@ Description:
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-#ifdef OPTION_PL08N
+ 
+#if ENABLED(OPTION_PL08N)
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 #define AUTO_BED_LEVELING_BILINEAR
@@ -1303,7 +1276,7 @@ Description:
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#ifdef OPTION_PL08N
+#if ENABLED(OPTION_PL08N)
 #define RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -1313,12 +1286,11 @@ Description:
  * NOTE: Requires a lot of PROGMEM!
  */
 //#define DEBUG_LEVELING_FEATURE
-
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -1351,7 +1323,7 @@ Description:
   #define PROBING_MARGIN_FRONT	PROBING_MARGIN
   #define PROBING_MARGIN_BACK		PROBING_MARGIN
 
-  #define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
+  //#define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1410,7 +1382,7 @@ Description:
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#ifdef OPTION_PL08N
+#if ENABLED(OPTION_PL08N)
 #define LCD_BED_LEVELING
 #endif
 
@@ -1455,7 +1427,7 @@ Description:
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#ifdef OPTION_PL08N
+#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #define Z_SAFE_HOMING
 #endif
 
@@ -1595,8 +1567,9 @@ Description:
  *    P1  Raise the nozzle always to Z-park height.
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
+#if ENABLED(OPTION_FROD)
 #define NOZZLE_PARK_FEATURE
-
+#endif
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MIN_POS+5), 20 }
@@ -1771,7 +1744,7 @@ Description:
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 
 /**
- * Info Screen Style (0:Classic, 1:Průša)
+ * Info Screen Style (0:Classic, 1:Prusa)
  *
  * :[0:'Classic', 1:'Prusa']
  */
@@ -1863,7 +1836,7 @@ Description:
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-#define INDIVIDUAL_AXIS_HOMING_MENU
+//#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
 // SPEAKER/BUZZER
@@ -1880,8 +1853,8 @@ Description:
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 	50
-#define LCD_FEEDBACK_FREQUENCY_HZ 			2000
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+//#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
 //=============================================================================
 //======================== LCD / Controller Selection =========================
@@ -2415,7 +2388,7 @@ Description:
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.

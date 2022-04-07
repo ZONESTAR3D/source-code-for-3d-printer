@@ -326,20 +326,20 @@ EXP1_PIN10	D37										BEEPER_PIN
 //================================================================================
 #if EITHER(ZONESTAR_LCD2004_ADCKEY, ZONESTAR_LCD2004_KNOB)
 #define	LCDSCREEN_NAME	"ZONESTAR LCD2004 KNOB"
-#define LCD_PINS_RS 	16
-#define LCD_PINS_ENABLE 17
-#define LCD_PINS_D4 	23
-#define LCD_PINS_D5 	25
-#define LCD_PINS_D6 	27
-#define LCD_PINS_D7 	29
+#define LCD_PINS_RS 		16			//EXP1_PIN7
+#define LCD_PINS_ENABLE 17			//EXP1_PIN8
+#define LCD_PINS_D4 		23			//EXP1_PIN6
+#define LCD_PINS_D5 		25			//EXP1_PIN5
+#define LCD_PINS_D6 		27			//EXP1_PIN4
+#define LCD_PINS_D7 		29			//EXP1_PIN3
 #elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 #define	LCDSCREEN_NAME	"Reprap LCD2004 KNOB"
-#define LCD_PINS_RS 		16
-#define LCD_PINS_ENABLE 17
-#define LCD_PINS_D4 		23
-#define LCD_PINS_D5 		25
-#define LCD_PINS_D6 		27
-#define LCD_PINS_D7 		29
+#define LCD_PINS_RS 		16			//EXP1_PIN7
+#define LCD_PINS_ENABLE 17			//EXP1_PIN8
+#define LCD_PINS_D4 		23			//EXP1_PIN6
+#define LCD_PINS_D5 		25			//EXP1_PIN5
+#define LCD_PINS_D6 		27			//EXP1_PIN4
+#define LCD_PINS_D7 		29			//EXP1_PIN3
 #endif
 
 //================================================================================

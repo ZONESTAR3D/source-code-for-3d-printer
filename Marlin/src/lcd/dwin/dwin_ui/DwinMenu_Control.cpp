@@ -1265,7 +1265,7 @@ static void Item_Config_bedcoating(const uint8_t row) {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 static void Item_Config_MaxHotendTemp(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
-	if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+	if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
 		DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
 	else
 		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
@@ -2463,7 +2463,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.max_hotendtemp)) {
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
-			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+			if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
 				DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
 			else 
 				DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);	
@@ -2476,7 +2476,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 		else{
 			NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
 			NOMORE(HMI_Value.max_hotendtemp, (HOTEND_MAXTEMP - HOTEND_OVERSHOOT));
-			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
+			if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
 				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
 			else
 				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
@@ -2782,7 +2782,7 @@ void HMI_Config() {
 				HMI_AudioFeedback(settings.save());
 			  if(WiFi_Enabled){
 					queue.wifi_Handshake_ok = false;
-					HMI_flag.wifi_link_timer = 12;
+					HMI_flag.wifi_link_timer = 30;
 					WIFI_onoff();
 					DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Turn on WiFi and connecting...."));
 			  }

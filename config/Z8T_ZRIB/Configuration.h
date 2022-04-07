@@ -79,8 +79,8 @@
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 	  	"Z8T_M3"
-#define	FIRMWARE_VERSION		  	  "V2.1.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-11-15"
+#define	FIRMWARE_VERSION		  	  "V2.2.0"
+#define	STRING_DISTRIBUTION_DATE  "2021-03-29"
 #define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 			        "www.zonestar3d.com"
@@ -109,6 +109,10 @@
 //#define	OPTION_TMC2225_EXTRUDER 	//TMC2225 be used to all extruder motor
 //#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+#define	OPTION_MIXING_SWITCH					//Mixing feature ON/OFF Menu
+#define	SWITCH_EXTRUDER_MENU					//Extruder Sequence MENU
+#define	OPTION_DWINLCD_MENUV2					//Used DWON LCD V2
+
 //===========================================================================
 
 /**
@@ -525,15 +529,15 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      130
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
+#define HEATER_3_MAXTEMP 250
+#define HEATER_4_MAXTEMP 250
+#define HEATER_5_MAXTEMP 250
+#define HEATER_6_MAXTEMP 250
+#define HEATER_7_MAXTEMP 250
+#define BED_MAXTEMP      125
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -624,8 +628,8 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP   170
+//#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP   				170
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -827,11 +831,11 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 8, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 100 } // ...or, set your own edit limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 200, 200, 12, 25 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -840,10 +844,10 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 3000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 3000, 3000, 200, 10000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -855,8 +859,8 @@
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -868,15 +872,15 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 8.0
-  #define DEFAULT_YJERK 8.0
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK 0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -2423,6 +2427,7 @@
 #if ENABLED(OPTION_LCDDWIN)
 #define ZONESTAR_DWIN_LCD
 #define	LCD_SERIAL_PORT				2		//D16=TXD2 D17=RXD2
+
 #endif
 
 //

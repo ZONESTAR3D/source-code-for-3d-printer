@@ -1,6 +1,0 @@
----- DEFAULT_MIXING_SWITCH Matches (5 in 4 files) ----
-Configuration.h (m:\working\code210\marlin):#define	DEFAULT_MIXING_SWITCH	false		//Default mixing feature is off
-Mixing.cpp (m:\working\code210\marlin\src\feature):bool Mixer::mixing_enabled = DEFAULT_MIXING_SWITCH;
-Mixing.h (m:\working\code210\marlin\src\feature):#if DISABLED(DEFAULT_MIXING_SWITCH)
-Mixing.h (m:\working\code210\marlin\src\feature):#define	DEFAULT_MIXING_SWITCH true
-Settings.cpp (m:\working\code210\marlin\src\module):	mixer.mixing_enabled = DEFAULT_MIXING_SWITCH;		

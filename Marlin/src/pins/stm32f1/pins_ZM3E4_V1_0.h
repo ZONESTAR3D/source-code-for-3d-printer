@@ -313,11 +313,11 @@
 #define LCD_PINS_D6         PE8    
 #define LCD_PINS_D7         PE15
 
-#define BTN_EN1 			PA10
-#define BTN_EN2 			PB4
-#define BTN_ENC 			PE13
-#define BEEPER_PIN 		PE11
-#define KILL_PIN 			PB5
+#define BTN_EN1 						PA10
+#define BTN_EN2 						PB4
+#define BTN_ENC 						PE13
+#define BEEPER_PIN 					PE11
+#define KILL_PIN 						PB5
 #endif
 
 
@@ -330,7 +330,7 @@
 #define LCD_PINS_D6         PE8    
 #define LCD_PINS_D7         PE15 
 
-#define ADC_KEYPAD_PIN		PE13//PC0			//PIN6 of AUX1
+#define ADC_KEYPAD_PIN			PE13//PC0			//PIN6 of AUX1
 #endif
 
 #if ENABLED(ZONESTAR_DWIN_LCD)

@@ -561,6 +561,7 @@ void DWIN_HandleScreen() {
 	#endif   
 #endif	
 		case DWMENU_FILAMENT:  							HMI_Filament();  break;
+		case DWMENU_FILAMENT_PREHEAT: 			HMI_Filament_PretHeat();  break;
 		case DWMENU_FILAMENT_EXTRUDER:			HMI_Filament_Extuder();  break;
 		case DWMENU_FILAMENT_FEEDLENGTH:  	HMI_Filament_FeedLength();  break;
 		case DWMENU_FILAMENT_PURGELENGTH: 	HMI_Filament_PurgeLength();  break;

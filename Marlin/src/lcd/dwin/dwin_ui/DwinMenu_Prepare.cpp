@@ -1068,7 +1068,11 @@ void HMI_MoveAxis() {
 extern fil_change_settings_t fc_settings[EXTRUDERS];
 static void Item_Filament_Preheat(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_PREHEAT, LBLX, MBASE(row));	
-	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+5, MBASE(row));	
+	DWIN_Show_MultiLanguage_String(MTSTRING_NOZZLE, LBLX+get_MultiLanguageString_Width(MTSTRING_PREHEAT)+5, MBASE(row));
+	if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+		DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.nozzle_Temp);
+	else
+		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.nozzle_Temp);
 	Draw_Menu_Line(row, ICON_CURSOR);
 }
 
@@ -1186,6 +1190,30 @@ void Draw_Filament_Menu() {
 	if (DwinMenu_filament.now) Draw_Menu_Cursor(FSCROL(DwinMenu_filament.now));
 }
 
+void HMI_Filament_PretHeat() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.nozzle_Temp)) {
+			DwinMenuID = DWMENU_FILAMENT;
+			if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
+				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PREHEAT + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);				
+			else
+				DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PREHEAT + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);
+			thermalManager.setTargetHotend(HMI_Value.nozzle_Temp, 0);
+		}
+		else {
+			NOLESS(HMI_Value.nozzle_Temp, EXTRUDE_MINTEMP);
+			NOMORE(HMI_Value.nozzle_Temp, TERN(OPTION_HOTENDMAXTEMP,HMI_Value.max_hotendtemp,(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+			if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
+				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);				
+			else
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PREHEAT + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);
+		}
+		dwinLCD.UpdateLCD();
+	}	
+}
+
+
 void HMI_Filament_Extuder() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
@@ -1195,23 +1223,23 @@ void HMI_Filament_Extuder() {
 				DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);
 			else
 				DWIN_Draw_MaskString_Default(MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(HMI_Value.load_extruder, 1);		
-	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
-		if(!mixer.mixing_enabled){
-			NOMORE(HMI_Value.load_extruder, E_STEPPERS);
+		else {
+			NOLESS(HMI_Value.load_extruder, 1);		
+		#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+			if(!mixer.mixing_enabled){
+				NOMORE(HMI_Value.load_extruder, E_STEPPERS);
+			}
+			else
+		#endif
+			{
+				NOMORE(HMI_Value.load_extruder, (E_STEPPERS+1));
+			}
+			if(HMI_Value.load_extruder <= E_STEPPERS)
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);
+			else
+				DWIN_Draw_MaskString_Default_Color(SELECT_COLOR, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));			
 		}
-		else
-	#endif
-		{
-			NOMORE(HMI_Value.load_extruder, (E_STEPPERS+1));
-		}
-		if(HMI_Value.load_extruder <= E_STEPPERS)
-			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);
-		else
-			DWIN_Draw_MaskString_Default_Color(SELECT_COLOR, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1222,12 +1250,12 @@ void HMI_Filament_FeedLength() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.feedlength)) {
 			DwinMenuID = DWMENU_FILAMENT;
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_FEEDLENGTH + MROWS - DwinMenu_filament.index), HMI_Value.feedlength);
-			dwinLCD.UpdateLCD();
-			return;
 		}
-		NOLESS(HMI_Value.feedlength, FILAMENT_UNLOAD_PURGE_LENGTH);
-		NOMORE(HMI_Value.feedlength, 999);
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_FEEDLENGTH + MROWS - DwinMenu_filament.index), HMI_Value.feedlength);
+		else {
+			NOLESS(HMI_Value.feedlength, FILAMENT_UNLOAD_PURGE_LENGTH);
+			NOMORE(HMI_Value.feedlength, 999);
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_FEEDLENGTH + MROWS - DwinMenu_filament.index), HMI_Value.feedlength);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1238,13 +1266,13 @@ void HMI_Filament_PurgeLength() {
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.purgelength)) {
 			DwinMenuID = DWMENU_FILAMENT;
-			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PURGELENGTH + MROWS - DwinMenu_filament.index), HMI_Value.purgelength);
-			dwinLCD.UpdateLCD();
-			return;
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PURGELENGTH + MROWS - DwinMenu_filament.index), HMI_Value.purgelength);			
 		}
-		NOLESS(HMI_Value.purgelength, 1);
-		NOMORE(HMI_Value.purgelength, 800);
-		DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PURGELENGTH + MROWS - DwinMenu_filament.index), HMI_Value.purgelength);
+		else {
+			NOLESS(HMI_Value.purgelength, 1);
+			NOMORE(HMI_Value.purgelength, 800);
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PURGELENGTH + MROWS - DwinMenu_filament.index), HMI_Value.purgelength);
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1294,7 +1322,7 @@ static void Dwin_filament_action(uint8_t action){
 		if(t < 60)
 			sprintf_P(statusbar_str, PSTR("Loading, please wait %2d seconds..."), t);
 		else
-			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dM%2dS..."), t/60, t%60);
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dm%2ds ..."), t/60, t%60);
 			
 		
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
@@ -1311,7 +1339,7 @@ static void Dwin_filament_action(uint8_t action){
 		if(t < 60)
 			sprintf_P(statusbar_str, PSTR("Unloading, please wait %2d seconds..."), t);
 		else
-			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dM%2dS..."), t/60, t%60);
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dm%2ds ..."), t/60, t%60);
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		set_status_bar_showtime(t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
@@ -1326,7 +1354,7 @@ static void Dwin_filament_action(uint8_t action){
 		if(t < 60)
 			sprintf_P(statusbar_str, PSTR("Loading, please wait %2d seconds..."), t);
 		else
-			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dM%2dS..."), t/60, t%60);
+			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dm%2ds ..."), t/60, t%60);
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();
@@ -1358,7 +1386,7 @@ static void Dwin_filament_action(uint8_t action){
 		if(t < 60)
 			sprintf_P(statusbar_str, PSTR("Unloading, please wait %2d seconds..."), t);
 		else
-			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dM%2dS..."), t/60, t%60);
+			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dm%2ds ..."), t/60, t%60);
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();		
@@ -1410,16 +1438,21 @@ void HMI_Filament() {
 			break;
 
 			case FILAMENT_CASE_PREHEAT:
-				thermalManager.setTargetHotend(200, 0);
+				DwinMenuID = DWMENU_FILAMENT_PREHEAT;
+				//thermalManager.setTargetHotend(200, 0);
+				if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
+					DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);
+				else
+					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_PREHEAT + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);					
+				EncoderRate.enabled = true;
 			break;
 			
 			case FILAMENT_CASE_EXTRUDER:
 				DwinMenuID = DWMENU_FILAMENT_EXTRUDER;
 				if(HMI_Value.load_extruder <= E_STEPPERS)
 					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.load_extruder);				
-				else{
-					DWIN_Draw_MaskString_Default_Color(SELECT_COLOR, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));
-				}
+				else
+					DWIN_Draw_MaskString_Default_Color(SELECT_COLOR, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), PSTR("All"));				
 				EncoderRate.enabled = false;
 			break;					
 		

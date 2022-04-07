@@ -156,6 +156,7 @@ void HMI_Move_Extr(uint8_t extr);
 void HMI_Move_AllExtr(); 
 #endif
 #endif
+void HMI_Filament_PretHeat();
 void HMI_Filament_Extuder();
 void HMI_Filament_FeedLength();
 void HMI_Filament_PurgeLength();
