@@ -36,10 +36,10 @@
 1. Download firmware source code to your PC and unzip it.  
 ![](./config/download.jpg)    
 2. Choose and replace config files  
-   - Find and copy the configuration files of your machine from the "config" directory  
+   - Find the configuration files of your machine from the "config" directory  
    - Copy and replace configuration.h and configuration_adv.h to "marlin" directory  
    - Copy and replace platformio.ini to root directory of the source code  
-   - You may need to modify the file "configuration.h" and "configuration_adv.h" according to the setting of your machine.  
+   - Modify "configuration.h" and "configuration_adv.h" according to the setting of your machine if need.  
 3. Open the project in Visual Stuido Code  
 Use the "Open Folder…" command in the Visual Studio Code "File" menu to open the source code directory which you stored, e.g. "main".  
 
@@ -48,7 +48,7 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
    - **32bits control board(ZM3E2/ZM3E4)**: firmware.bin file.
    - **8bits control board(ZMIB/ZRIB)**: firmware.hex file.
 2. Wait for the build finished.
-3. find the *firmware.bin* or *firmware.HEX* file in the ".pio/build/STM32F103VE_ZM3E4V2_USB(or others)" of your source code directory
+3. Find the *firmware.bin (32-bits control board)* or *firmware.HEX (8-bits control board)* file in the ".pio/build/{board}" of the source code directory
 
 ---
 ## Upload firmware to your 3d printer
