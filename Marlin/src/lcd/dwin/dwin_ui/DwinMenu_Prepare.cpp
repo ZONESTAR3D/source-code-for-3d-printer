@@ -208,7 +208,7 @@ void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,co
 
 void DWIN_PopMenu_LevelingDone() {
 	if(IS_SD_PRINTING() || IS_SD_PAUSED()){
-		Draw_Printing_Menu(true);	
+		Draw_Printing_Menu(PRINT_CASE_PAUSE, true);	
 	}
 	else{
 		if(DwinMenuID == DWMENU_LEVEL_BEDLEVELING) {
@@ -326,7 +326,7 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 //
 //Prepare >> HOME
 //
-void Popup_Window_HomeAll(const bool parking=false) {
+inline void Popup_Window_HomeAll(const bool parking=false) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
@@ -334,7 +334,16 @@ void Popup_Window_HomeAll(const bool parking=false) {
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 23) / 2, 260, PSTR("Please wait until done."));
 }
 
-void Popup_Window_HomeX(const bool parking=false) {
+#if ENABLED(COMBINE_HOMEINGXY_MENU)
+inline void Popup_Window_HomeXY(const bool parking=false) {
+	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Draw_Popup_Bkgd_60();
+	DWIN_Show_ICON(ICON_WAITING, 86, 105);
+	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing X&Y"));
+	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 23) / 2, 260, PSTR("Please wait until done."));
+}
+#else
+inline void Popup_Window_HomeX(const bool parking=false) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
@@ -342,15 +351,16 @@ void Popup_Window_HomeX(const bool parking=false) {
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 23) / 2, 260, PSTR("Please wait until done."));
 }
 
-void Popup_Window_HomeY(const bool parking=false) {
+inline void Popup_Window_HomeY(const bool parking=false) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing Y"));
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 23) / 2, 260, PSTR("Please wait until done."));
 }
+#endif
 
-void Popup_Window_HomeZ(const bool parking=false) {
+inline void Popup_Window_HomeZ(const bool parking=false) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
@@ -364,6 +374,14 @@ inline void Item_Home_All(const uint8_t row){
 	Draw_Menu_Line(row,ICON_HOME_ALL);
 }
 
+#if ENABLED(COMBINE_HOMEINGXY_MENU)
+inline void Item_Home_XY(const uint8_t row){
+	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+24, MBASE(row));
+	Draw_Menu_Line(row,ICON_HOME_ALL);
+}
+#else
 inline void Item_Home_X(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
@@ -373,9 +391,9 @@ inline void Item_Home_X(const uint8_t row){
 inline void Item_Home_Y(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
-	Draw_Menu_Line(row,ICON_HOME_X);
+	Draw_Menu_Line(row,ICON_HOME_Y);
 }
-
+#endif
 inline void Item_Home_Z(const uint8_t row){
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));
@@ -404,9 +422,13 @@ void Draw_Home_Menu() {
 	if(HVISI(HOME_CASE_BACK)) Draw_Back_First(DwinMenu_home.now == HOME_CASE_BACK);
 	
 	if(HVISI(HOME_CASE_BACK)) Item_Home_All(HSCROL(HOME_CASE_ALL));
+#if ENABLED(COMBINE_HOMEINGXY_MENU)
+	if(HVISI(HOME_CASE_XY)) Item_Home_XY(HSCROL(HOME_CASE_XY));	
+#else
 	if(HVISI(HOME_CASE_X)) Item_Home_X(HSCROL(HOME_CASE_X));
-	if(HVISI(HOME_CASE_X)) Item_Home_Y(HSCROL(HOME_CASE_Y));
-	if(HVISI(HOME_CASE_X)) Item_Home_Z(HSCROL(HOME_CASE_Z));
+	if(HVISI(HOME_CASE_Y)) Item_Home_Y(HSCROL(HOME_CASE_Y));
+#endif
+	if(HVISI(HOME_CASE_Z)) Item_Home_Z(HSCROL(HOME_CASE_Z));
 	
 	if(DwinMenu_home.now) Draw_Menu_Cursor(HSCROL(DwinMenu_home.now));
 }
@@ -439,7 +461,15 @@ void HMI_Home() {
 				Popup_Window_HomeAll();
 			break;
 
-			case HOME_CASE_X: 										
+		#if ENABLED(COMBINE_HOMEINGXY_MENU)
+			case HOME_CASE_XY: 										
+				DwinMenuID = DWMENU_POP_HOME;
+				DwinMenu_home.index = MROWS;
+				TERN(HOME_Y_BEFORE_X, queue.inject_P(PSTR("G28 YX")), queue.inject_P(PSTR("G28 XY")));				
+				Popup_Window_HomeXY();
+			break;
+		#else
+			case HOME_CASE_X:
 				DwinMenuID = DWMENU_POP_HOME;
 				DwinMenu_home.index = MROWS;
 				queue.inject_P(PSTR("G28 X0"));
@@ -452,6 +482,7 @@ void HMI_Home() {
 				queue.inject_P(PSTR("G28 Y0"));
 				Popup_Window_HomeY();
 			break;
+		#endif
 
 			case HOME_CASE_Z: 										
 				DwinMenuID = DWMENU_POP_HOME;
@@ -586,7 +617,7 @@ void HMI_Temperature() {
 			 if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 				 DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
 			 else
-	     	DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
+	     	 DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
 	     EncoderRate.enabled = true;
 	     break;
 	   #endif
@@ -1203,7 +1234,7 @@ void HMI_Filament_PretHeat() {
 		}
 		else {
 			NOLESS(HMI_Value.nozzle_Temp, EXTRUDE_MINTEMP);
-			NOMORE(HMI_Value.nozzle_Temp, TERN(OPTION_HOTENDMAXTEMP,HMI_Value.max_hotendtemp,(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+			NOMORE(HMI_Value.nozzle_Temp, TERN(OPTION_HOTENDMAXTEMP, thermalManager.hotend_maxtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
 			if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
 				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);				
 			else
@@ -1341,7 +1372,7 @@ static void Dwin_filament_action(uint8_t action){
 		else
 			sprintf_P(statusbar_str, PSTR("Unloading, please wait %1dm%2ds ..."), t/60, t%60);
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
-		set_status_bar_showtime(t<2?2:t);
+		set_status_msg_showtime(t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();
 		HMI_flag.Is_retracted = true;
@@ -1439,7 +1470,6 @@ void HMI_Filament() {
 
 			case FILAMENT_CASE_PREHEAT:
 				DwinMenuID = DWMENU_FILAMENT_PREHEAT;
-				//thermalManager.setTargetHotend(200, 0);
 				if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
 					DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);
 				else
@@ -1682,7 +1712,7 @@ void HMI_BedLeveling() {
 		if(DwinMenuID == DWMENU_LEVEL_DONECONFIRM){
 			encoder_diffState = ENCODER_DIFF_NO;			
 			if(IS_SD_PRINTING() || IS_SD_PAUSED()){
-				Draw_Printing_Menu(true);
+				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 			}
 			else{
 				DwinMenu_leveling.reset();
@@ -1965,7 +1995,8 @@ void HMI_Powerdown() {
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_powerdown.now) {
 			case 0: 
-				queue.inject_P(PSTR("M81"));				
+				//queue.inject_P(PSTR("M81"));
+				suicide();
 			break;
 			
 			case 1: 

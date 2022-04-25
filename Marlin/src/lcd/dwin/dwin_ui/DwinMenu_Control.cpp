@@ -925,16 +925,16 @@ static void Item_Config_Filament(const uint8_t row) {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 static void Item_Config_Powerloss(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Power Loss Recovery:"));
 	Draw_Menu_Line(row,ICON_CURSOR);
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Power Loss Recovery:"));	
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(recovery.enabled));	
 }
 #endif
 
 #if ENABLED(OPTION_AUTOPOWEROFF)
 static void Item_Config_Shutdown(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Shutdown:"));
 	Draw_Menu_Line(row,ICON_CURSOR);
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Shutdown:"));	
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
 }
 #endif
@@ -948,18 +948,21 @@ static void Item_Config_Wifi(const uint8_t row) {
 
 #if ENABLED(OPTION_WIFI_BAUDRATE)
 static void Item_Config_WifiBaudrate(const uint8_t row) {
- DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi BaudRate:"));
- Draw_Menu_Line(row,ICON_CURSOR);
- DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(row), Table_Baudrate[WiFi_BaudRate]);
+	Draw_Menu_Line(row,ICON_CURSOR);
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi BaudRate:"));	
+	DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(row), Table_Baudrate[WiFi_BaudRate]);
 }
 #endif
 #endif
 
 #if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 static void Item_Config_MixerEnable(const uint8_t row) {
- DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Mixing Feature:"));
- Draw_Menu_Line(row,ICON_CURSOR);
- DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(mixer.mixing_enabled)); 
+  Draw_Menu_Line(row,ICON_CURSOR);
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Hotend Type:"));
+ 	if(mixer.mixing_enabled)
+		DWIN_Draw_MaskString_Default(LBRX-strlen("    Mixing")*8, MBASE(row), PSTR("    Mixing")); 
+	else
+		DWIN_Draw_MaskString_Default(LBRX-strlen("Non-mixing")*8, MBASE(row), PSTR("Non-mixing"));  	
 }
 
 #if ENABLED(SWITCH_EXTRUDER_MENU)
@@ -1265,10 +1268,10 @@ static void Item_Config_bedcoating(const uint8_t row) {
 #if ENABLED(OPTION_HOTENDMAXTEMP)
 static void Item_Config_MaxHotendTemp(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Max Hotend Temp:"));
-	if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
-		DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
+	if(thermalManager.hotend_maxtemp > HOTEND_WARNNING_TEMP)
+		DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(row), thermalManager.hotend_maxtemp);
 	else
-		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.max_hotendtemp);
+		DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), thermalManager.hotend_maxtemp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 #endif
@@ -1292,7 +1295,6 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	DwinMenu_configure.set(MenuItem);
 	DwinMenu_configure.index = _MAX(DwinMenu_configure.now, MROWS);
 	
-	TERN_(OPTION_HOTENDMAXTEMP,HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT));
 #if CONFIG_CASE_TOTAL > MROWS
 	const int8_t scroll = MROWS - DwinMenu_configure.index;
 	#define COSCROL(L) (scroll + (L))
@@ -1332,7 +1334,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 
 	#if ENABLED(OPTION_WIFI_MODULE) 
-	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 									// WIFI	 
+	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 					// WIFI	 
 	#endif
 	
  	if(!IS_SD_PRINTING() && !IS_SD_PAUSED()){	
@@ -2460,26 +2462,30 @@ void HMI_Adjust_Coating_Thickness() {
 void HMI_Adjust_hotend_MaxTemp() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if (encoder_diffState != ENCODER_DIFF_NO) {
-		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.max_hotendtemp)) {
+		if (Apply_Encoder_int16(encoder_diffState, &thermalManager.hotend_maxtemp)) {
 			DwinMenuID = DWMENU_CONFIG;
-			EncoderRate.enabled = false;
-			if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
-				DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
-			else 
-				DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);	
-			thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
-			if(HMI_Value.max_hotendtemp > HEATER_0_MAXTEMP - HOTEND_OVERSHOOT){
-				DWIN_FEEDBACK_WARNNING();
+			EncoderRate.enabled = false;			
+		#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+			if(thermalManager.hotend_maxtemp > HOTEND_WARNNING_TEMP && mixer.mixing_enabled) 
+		#else
+			if(thermalManager.hotend_maxtemp > HOTEND_WARNNING_TEMP) 
+		#endif
+			{
+				DWIN_FEEDBACK_WARNNING();				
 				DWIN_Show_Status_Message(COLOR_RED, PSTR("Caution!! HOTEND may be damaged."));
+				DWIN_Draw_Warn_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), thermalManager.hotend_maxtemp);
 			}
+			else
+				DWIN_Draw_IntValue_Default(3,MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), thermalManager.hotend_maxtemp);	
+			HMI_AudioFeedback(settings.save());
 		}
 		else{
-			NOLESS(HMI_Value.max_hotendtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
-			NOMORE(HMI_Value.max_hotendtemp, (HOTEND_MAXTEMP - HOTEND_OVERSHOOT));
-			if(HMI_Value.max_hotendtemp > HOTEND_WARNNING_TEMP)
-				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+			NOLESS(thermalManager.hotend_maxtemp, HOTEND_WARNNING_TEMP);
+			NOMORE(thermalManager.hotend_maxtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
+			if(thermalManager.hotend_maxtemp > HOTEND_WARNNING_TEMP)
+				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), thermalManager.hotend_maxtemp);
 			else
-				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), HMI_Value.max_hotendtemp);
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_HOTENDMAXTEMP), thermalManager.hotend_maxtemp);
 		}
 		dwinLCD.UpdateLCD();
 	}
@@ -2519,6 +2525,8 @@ void HMI_Adjust_WiFi_BaudRate(){
 			DwinMenuID = DWMENU_CONFIG;
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+			DWIN_Show_Status_Message(COLOR_RED, PSTR("Reset machine to apply!"), 5);
+			HMI_AudioFeedback(settings.save());
 		}
 		else {
 			NOLESS(WiFi_BaudRate, 0);
@@ -2529,6 +2537,31 @@ void HMI_Adjust_WiFi_BaudRate(){
 	}
 }
 #endif
+
+#if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_QRCODE)
+void Popup_Window_WiFiLink(char *strIPAddress) {
+	Clear_Dwin_Area(AREA_MENU|AREA_BOTTOM);
+	Draw_Popup_Bkgd_60();
+	DwinMenuID = DWMENU_POP_WIFILINK;
+	if(strcmp(strIPAddress, "192.168.0.1") == 0)
+		DWIN_Draw_MaskString_Default_PopMenu((272-strlen("WiFi hotspot:ZONESTAR3DP")*10)/2, 75, PSTR("WiFi hotspot:ZONESTAR3DP"));		
+	else
+		DWIN_Draw_MaskString_Default_PopMenu((272-strlen("Connect to router")*10)/2, 75, PSTR("Connect to router"));	
+	DWIN_Draw_MaskString_Default_PopMenu((272-strlen("Scan the QR code")*10)/2,95 , PSTR("Scan the QR code"));
+	DWIN_Draw_MaskString_Default_PopMenu((272-strlen("to control by WiFi")*10)/2,115 , PSTR("to control by WiFi"));
+	dwinLCD.Draw_QRCode((272-46*3)/2, 145, 3, strIPAddress);		
+	DWIN_Draw_MaskString_Default_PopMenu((272-strlen("Press the knob to exit")*10)/2, 145+46*3+15, PSTR("Press the knob to exit"));
+}
+
+void HMI_Pop_WiFiLink() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();	
+	if(encoder_diffState == ENCODER_DIFF_NO) return;
+	else if(encoder_diffState == ENCODER_DIFF_ENTER){		
+		Draw_Config_Menu(CONFIG_CASE_WIFI);
+	}
+}
+#endif
+
 
 #if ENABLED(SWITCH_EXTRUDER_MENU)
 void HMI_Adjust_Extruder_Sequence() {
@@ -2558,7 +2591,7 @@ void HMI_Config() {
  // Avoid flicker by updating only the previous menu
 	if (encoder_diffState == ENCODER_DIFF_CW) {
 		if(IS_SD_PRINTING() || IS_SD_PAUSED()){
-			if(DwinMenu_configure.inc(CONFIG_TUNE_CASE_END)){					
+			if(DwinMenu_configure.inc(CONFIG_TUNE_CASE_TOTAL+1)){					
 				if (DwinMenu_configure.now > MROWS && DwinMenu_configure.now > DwinMenu_configure.index) {
 					DwinMenu_configure.index = DwinMenu_configure.now;
 					// Scroll up and draw a blank bottom line
@@ -2724,7 +2757,7 @@ void HMI_Config() {
 					Draw_Tune_Menu(TUNE_CASE_CONFIG);
 				}
 				else{
-					Draw_Control_Menu(CONTROL_CASE_CONFIG + mixing_menu_adjust());					
+					Draw_Control_Menu(CONTROL_CASE_CONFIG + mixing_menu_adjust());
 				}
 		  break;
 #if ENABLED(FWRETRACT) 
@@ -2778,18 +2811,18 @@ void HMI_Config() {
  #if ENABLED(OPTION_WIFI_MODULE)
 			case CONFIG_CASE_WIFI:	 	 	
 				WiFi_Enabled = !WiFi_Enabled;
-				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));
-				HMI_AudioFeedback(settings.save());
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));				
 			  if(WiFi_Enabled){
 					queue.wifi_Handshake_ok = false;
-					HMI_flag.wifi_link_timer = 30;
+					HMI_flag.wifi_link_timer = WIFI_LINK_CHECK_TIME;
 					WIFI_onoff();
 					DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Turn on WiFi and connecting...."));
 			  }
 				else{
 					DwinMenuID = DWMENU_CONFIG;
 					WIFI_onoff();
-				}			
+				}
+				HMI_AudioFeedback(settings.save());				
 			break;
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
       case CONFIG_CASE_WIFISPEED:
@@ -2806,22 +2839,22 @@ void HMI_Config() {
 				_BREAK_WHILE_PRINTING
 					
 				mixer.mixing_enabled = !mixer.mixing_enabled;
-				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_MIXERENABLE + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(mixer.mixing_enabled));				
-				if(mixer.mixing_enabled){
+				if(mixer.mixing_enabled) {					
 				#if ENABLED(OPTION_HOTENDMAXTEMP)
-					if(thermalManager.degTargetHotend(0) >= HEATER_0_MAXTEMP - HOTEND_OVERSHOOT){
-						thermalManager.setTargetHotend(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT,0);
-					}
-					HMI_Value.max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
-					thermalManager.heater_maxtemp[0] = HEATER_0_MAXTEMP;
+					thermalManager.hotend_maxtemp = HOTEND_WARNNING_TEMP;
+					if(thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP)
+						thermalManager.setTargetHotend(HOTEND_WARNNING_TEMP, 0);
 				#endif
+					DWIN_Draw_MaskString_Default(LBRX-strlen("    Mixing")*8, MBASE(CONFIG_CASE_MIXERENABLE + MROWS - DwinMenu_configure.index), PSTR("    Mixing")); 
 					DWIN_FEEDBACK_WARNNING();
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("CAUTION! Require Mixing HOTEND."));
 				}
-				else{
-					DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Mixing feature turn off !"));					
+				else {
+					DWIN_Draw_MaskString_Default(LBRX-strlen("Non-Mixing")*8, MBASE(CONFIG_CASE_MIXERENABLE + MROWS - DwinMenu_configure.index), PSTR("Non-Mixing"));
+					DWIN_FEEDBACK_WARNNING();
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("CAUTION! Require Non-mixing HOTEND"));
 				}
-				settings.save();
+				HMI_AudioFeedback(settings.save());
 			break;
 			
 		#if ENABLED(SWITCH_EXTRUDER_MENU)
@@ -2830,7 +2863,7 @@ void HMI_Config() {
 					
 				if(mixer.mixing_enabled){
 					DWIN_FEEDBACK_WARNNING();
-					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on Mixing HOTEND!!"));
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't change in Mixing HOTEND !"));
 					break;
 				}					
 				DwinMenuID = DWMENU_SET_SWITCHEXTRUDER;
@@ -2875,15 +2908,15 @@ void HMI_Config() {
 				_BREAK_WHILE_PRINTING
 
 				#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
-				if(mixer.mixing_enabled){
+				if(mixer.mixing_enabled) {
 					DWIN_FEEDBACK_WARNNING();
-					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on Mixing HOTEND!!"));
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Don't change on Mixing HOTEND!!"));
+					thermalManager.hotend_maxtemp = HOTEND_WARNNING_TEMP;
 					break;
 				}
 				#endif				
 				DwinMenuID = DWMENU_SET_HOTENDMAXTEMP;
-				HMI_Value.max_hotendtemp = (int16_t)(thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
-				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), HMI_Value.max_hotendtemp);				
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(CONFIG_CASE_HOTENDMAXTEMP + MROWS -DwinMenu_configure.index), thermalManager.hotend_maxtemp);				
 			break;
 	#endif//OPTION_HOTENDMAXTEMP
 

@@ -63,6 +63,9 @@
 #define DWIN_SCROLL_RIGHT   			1		//DONOT CHANGE IT
 #define DWIN_SCROLL_UP   					2		//DONOT CHANGE IT
 #define DWIN_SCROLL_DOWN 					3		//DONOT CHANGE IT
+
+#define DWIN_SENDBUF_SIZE	100
+
 class DWINLCD{
 	public:					
 		/*-------------------------------------- System variable function --------------------------------------*/
@@ -149,17 +152,7 @@ class DWINLCD{
 		//	x/y: Upper-left coordinate of the string
 		//	*string: The string
 		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
-		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, PGM_P string) {	
-			char str_buf[50] = {0};
-			uint8_t i;
-			for(i=0; i<49; i++) { 
-				str_buf[i] = pgm_read_byte(string);
-				string++;
-				if(str_buf[i] == 0) break;
-			}
-			str_buf[49] ='\0';
-			Draw_String(widthAdjust, bShow, size, color, bColor, x, y, str_buf);
-		}
+		static void Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, PGM_P string);
 		
 		// Draw a positive integer
 		//	bShow: true=display background color; false=don't display background color
@@ -195,6 +188,13 @@ class DWINLCD{
 		// Draw JPG and cached in #0 virtual display area
 		// id: Picture ID
 		static void JPG_ShowAndCache(const uint8_t id);
+
+		//Draw a QR code
+		//x/y: Upper-left point
+		//pixcel: Pixel size occupied by each point of QR code
+		//data: Display data, up to 154 bytes.
+		static void Draw_QRCode(const uint16_t x, const uint16_t y, const uint8_t pixcel, char *string);
+		static void Draw_QRCode(const uint16_t x, const uint16_t y, const uint8_t pixcel, PGM_P string);
 		
 		// Draw an Icon
 		//	libID: Icon library ID

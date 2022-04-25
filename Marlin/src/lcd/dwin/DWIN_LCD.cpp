@@ -37,7 +37,7 @@
 
 DWINLCD dwinLCD;
 
-uint8_t DWIN_SendBuf[100] = { 0xAA };
+uint8_t DWIN_SendBuf[DWIN_SENDBUF_SIZE] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
 uint8_t receivedType;
@@ -243,6 +243,28 @@ void DWINLCD::Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_String(i, string);
   DWIN_Send(i);
 }
+void DWINLCD::Draw_String(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, PGM_P string) {
+  size_t i = 0;	
+  DWIN_Byte(i, 0x11);
+  // Bit 7: widthAdjust
+  // Bit 6: bShow
+  // Bit 5-4: Unused (0)
+  // Bit 3-0: size
+  DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
+  DWIN_Word(i, color);
+  DWIN_Word(i, bColor);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+	char str_buf = 0;
+	for(uint8_t j = DWIN_SENDBUF_SIZE-12; j>0; j--) { 
+		str_buf = pgm_read_byte(string);
+		string++;
+		DWIN_Byte(i, str_buf);
+		if(str_buf == 0) break;
+	}		 
+  DWIN_Send(i);
+}
 					  
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
@@ -340,6 +362,37 @@ void DWINLCD::JPG_ShowAndCache(const uint8_t id) {
   DWIN_Byte(i, id);
   DWIN_Send(i);
 }
+
+//Draw a QR code
+//x/y: Upper-left point
+//pixcel: Pixel size occupied by each point of QR code
+//data: Display data, up to 154 bytes.
+void DWINLCD::Draw_QRCode(const uint16_t x, const uint16_t y, const uint8_t pixcel, char *string) {
+	size_t i = 0;	
+  DWIN_Byte(i, 0x21);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y); 
+	DWIN_Byte(i, pixcel);
+	DWIN_String(i, string);
+  DWIN_Send(i);
+}
+
+void DWINLCD::Draw_QRCode(const uint16_t x, const uint16_t y, const uint8_t pixcel, PGM_P string) {
+	size_t i = 0;	
+  DWIN_Byte(i, 0x21);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y); 
+	DWIN_Byte(i, pixcel);
+	char str_buf = 0;
+	for(uint8_t j = DWIN_SENDBUF_SIZE-7; j>0; j--) {
+		str_buf = pgm_read_byte(string);
+		DWIN_Byte(i, str_buf);
+		if(str_buf == 0) break;
+		string++;
+	}
+  DWIN_Send(i);
+}
+
 
 // Draw an Icon
 //  libID: Icon library ID

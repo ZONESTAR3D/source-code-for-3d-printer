@@ -58,6 +58,7 @@ GCodeQueue queue;
 
 #ifdef HAS_WIFI_SERIAL
 bool GCodeQueue::wifi_Handshake_ok = false; 
+bool GCodeQueue::wifi_M117_message = false;
 #endif
 
 
@@ -568,7 +569,7 @@ void GCodeQueue::get_serial_commands() {
 				//Check if WiFi is connected 
 				#if (HAS_MULTI_SERIAL && HAS_WIFI_SERIAL)
 					if(i == ID_SERIAL_WIFI){
-				  	if (strstr_P(command, PSTR("M117")) != nullptr)		wifi_Handshake_ok = true;
+				  	if (strstr_P(command, PSTR("M117")) != nullptr)		wifi_M117_message = true;
 				  }
 				#endif			
 

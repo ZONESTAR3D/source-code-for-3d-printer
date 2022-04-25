@@ -49,13 +49,13 @@
 //=============================================================================
 // ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
 //=============================================================================
-//	PA0					//	PB0		HEAT_1			//	PC0	   		AXU_SDA			  
-//	PA1     		    //	PB1     FAN1            //	PC1         TEMP_E1               
-//	PA2	    HEAT_BED	//	PB2	    BOOT1           //	PC2	        TEMP_E0           
-//	PA3	    PWR_HOLD    //	PB3	    SPI3_SCK        //	PC3	        TEMP_BED
-//	PA4     SD_CS		//	PB4     SPI3_MISO       //	PC4         SD_DETECT
-//	PA5     SD_SCK      //	PB5     SPI3_MOSI       //	PC5         HEAT_0
-//	PA6     SD_MISO 	//	PB6     SERVO3          //	PC6         E1_STEP
+//	PA0									//	PB0		HEAT_1			//	PC0	   		AXU_SDA			  
+//	PA1     		    		//	PB1     FAN1            //	PC1         TEMP_E1               
+//	PA2	    HEAT_BED		//	PB2	    BOOT1           //	PC2	        TEMP_E0           
+//	PA3	    PWR_HOLD  	//	PB3	    SPI3_SCK        //	PC3	        TEMP_BED
+//	PA4     SD_CS				//	PB4     SPI3_MISO       //	PC4         SD_DETECT
+//	PA5     SD_SCK    	//	PB5     SPI3_MOSI       //	PC5         HEAT_0
+//	PA6     SD_MISO 		//	PB6     SERVO3          //	PC6         E1_STEP
 //	PA7     SD_MOSI     //	PB7     SERVO2          //	PC7         E1_EN
 //	PA8     X_DIR      	//	PB8     FAN2/SERVO1     //	PC8         FIL_RUNOUT_PIN
 //	PA9     UART1_RX   	//	PB9     SERVO0          //	PC9         E0_DIR
@@ -259,12 +259,17 @@
 #define SUICIDE_PIN        PA3
 #define FIL_RUNOUT_PIN	   PC8
 
+//SD card
 #define ENABLE_SPI1
 #define SD_DETECT_PIN      PC4
 #define SCK_PIN            PA5
 #define MISO_PIN           PA6
 #define MOSI_PIN           PA7
+#if SD_CONNECTION_IS(ONBOARD)
+#define ONBOARD_SD_CS_PIN	 PA4
+#else
 #define SS_PIN             PA4
+#endif
 
 //WiFi. Functions
 #define WIFI_RST          PC15

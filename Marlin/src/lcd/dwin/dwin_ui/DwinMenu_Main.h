@@ -37,6 +37,7 @@ enum{
 	MAIN_CASE_END,
 };
 
+void Draw_ICON_WIFI();
 void Draw_Main_Menu(const bool with_update = false, const uint8_t MenuItem = 0); 
 void Draw_File_Menu();
 void HMI_MainMenu();

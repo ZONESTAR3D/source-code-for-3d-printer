@@ -49,7 +49,8 @@ public:
 		* WiFi handshack is okay
 	  */
 	#ifdef HAS_WIFI_SERIAL
-	static bool wifi_Handshake_ok; 
+	static bool wifi_Handshake_ok;
+	static bool wifi_M117_message;
 	#endif
   /**
    * GCode line number handling. Hosts may include line numbers when sending

@@ -37,8 +37,10 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#ifdef OPTION_HOTENDMAXTEMP
-#define	HOTEND_MAXTEMP	 275
+#if ENABLED(MIXING_EXTRUDER)
+#define	HOTEND_WARNNING_TEMP	235
+#else
+#define	HOTEND_WARNNING_TEMP	(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
 #endif
 
 #define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
@@ -300,6 +302,7 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 
 #endif
 
+
 class Temperature {
 
   public:
@@ -307,10 +310,9 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-			#if ENABLED(OPTION_HOTENDMAXTEMP)
-      static uint16_t heater_maxtemp[HOTENDS];
-			#else
 			static const uint16_t heater_maxtemp[HOTENDS];
+			#if ENABLED(OPTION_HOTENDMAXTEMP)
+			static int16_t hotend_maxtemp;
 			#endif
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
@@ -594,16 +596,7 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-		
-	  #if 0//ENABLED(OPTION_HOTENDMAXTEMP)
-			static int16_t getHotendRangeMax(const uint8_t E_NAME){
-				return temp_range[HOTEND_INDEX].maxtemp;
-			}
-			static int16_t getHotendRangeRawMax(const uint8_t E_NAME){
-				return temp_range[HOTEND_INDEX].raw_max;
-			}
-		#endif
-      static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
+		    static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #ifdef MILLISECONDS_PREHEAT_TIME
           if (celsius == 0)

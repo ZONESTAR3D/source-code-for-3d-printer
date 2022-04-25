@@ -29,11 +29,19 @@
 #include "dwin_comm.h"
 #include "dwin.h"
 
+#if ENABLED(CODEPENDENT_XY_HOMING)
+//#define	COMBINE_HOMEINGXY_MENU
+#endif
+
 enum {
 	HOME_CASE_BACK = 0,
-	HOME_CASE_ALL,
+	HOME_CASE_ALL,	
+#if ENABLED(COMBINE_HOMEINGXY_MENU)
+	HOME_CASE_XY,
+#else
 	HOME_CASE_X,
 	HOME_CASE_Y,
+#endif
 	HOME_CASE_Z,
 	HOME_CASE_END
 };

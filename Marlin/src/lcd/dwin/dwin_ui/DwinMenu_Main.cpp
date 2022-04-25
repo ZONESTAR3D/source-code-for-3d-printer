@@ -79,7 +79,7 @@ inline void Draw_ICON_Infor(const bool selected) {
 
 
 #if ENABLED(OPTION_WIFI_MODULE)
-inline void Draw_ICON_WIFI(){
+void Draw_ICON_WIFI(){
 	if(queue.wifi_Handshake_ok && WiFi_Enabled){
 		DWIN_Show_ICON(ICON_WIFI, 0, 0);
 	}

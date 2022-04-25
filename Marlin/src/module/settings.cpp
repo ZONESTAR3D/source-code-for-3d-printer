@@ -174,8 +174,6 @@ static const float     _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 #endif
 
-
-
 extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
 
 /**
@@ -279,10 +277,12 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_DWIN_LCD
   uint8_t dwin_last_language;
-  //uint8_t dwin_last_Title_Memu;	
 	bool dwin_autoLeveling_Menu;
-	bool dwin_autoshutdown; 
+	bool dwin_autoshutdown;	
+	bool first_power_on;
 	#endif
+
+	
 
 	//
 	//WiFi feature
@@ -302,7 +302,7 @@ typedef struct SettingsDataStruct {
 	#endif
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	uint16_t max_hotendtemp;
+	int16_t max_hotendtemp;
 	#endif
 
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -861,6 +861,10 @@ void MarlinSettings::postprocess() {
 			_FIELD_TEST(dwin_autoshutdown);
 			const bool dwin_autoshutdown = TERN(OPTION_AUTOPOWEROFF, HMI_flag.Autoshutdown_enabled, false);
 			EEPROM_WRITE(dwin_autoshutdown);
+
+			_FIELD_TEST(first_power_on);
+			const bool first_power_on = TERN(OPTION_GUIDE_QRCODE, HMI_flag.first_power_on, false);		
+			EEPROM_WRITE(first_power_on);
 		}
 		#endif
 
@@ -897,7 +901,7 @@ void MarlinSettings::postprocess() {
 		#if ENABLED(OPTION_HOTENDMAXTEMP)
 		{
 			_FIELD_TEST(max_hotendtemp);
-			const uint16_t max_hotendtemp = thermalManager.heater_maxtemp[0];
+			const int16_t max_hotendtemp = thermalManager.hotend_maxtemp;
 			EEPROM_WRITE(max_hotendtemp);
 		}		
 		#endif
@@ -1815,6 +1819,11 @@ void MarlinSettings::postprocess() {
 				bool dwin_autoshutdown = false;				
 				EEPROM_READ(dwin_autoshutdown);
 				TERN_(OPTION_AUTOPOWEROFF,HMI_flag.Autoshutdown_enabled = dwin_autoshutdown);
+
+				_FIELD_TEST(first_power_on);												
+				bool first_power_on = false;				
+				EEPROM_READ(first_power_on);
+				TERN_(OPTION_GUIDE_QRCODE,HMI_flag.first_power_on = first_power_on);
 			}
 			#endif
 
@@ -1851,9 +1860,8 @@ void MarlinSettings::postprocess() {
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
 			{
 				_FIELD_TEST(max_hotendtemp);
-				const uint16_t &max_hotendtemp = HMI_Value.max_hotendtemp;				
-				EEPROM_READ(max_hotendtemp);
-				thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT;
+				const int16_t &max_hotendtemp = thermalManager.hotend_maxtemp;				
+				EEPROM_READ(max_hotendtemp);				
 			}			
 			#endif
 
@@ -2788,6 +2796,7 @@ void MarlinSettings::reset() {
   HMI_flag.language = 0;
 	TERN_(LCD_BED_LEVELING,  HMI_flag.Leveling_Menu_Fg = DEFAULT_AUTO_LEVELING);
 	TERN_(OPTION_AUTOPOWEROFF,  HMI_flag.Autoshutdown_enabled = false);
+	TERN_(OPTION_GUIDE_QRCODE,  HMI_flag.first_power_on = true);
 #endif//HAS_DWIN_LCD
 
 	//
@@ -2803,8 +2812,7 @@ void MarlinSettings::reset() {
 	//
 	// maxiums hotend temp
 	//
-	TERN_(OPTION_HOTENDMAXTEMP,  HMI_Value.max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
-	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.heater_maxtemp[0] = HMI_Value.max_hotendtemp + HOTEND_OVERSHOOT);
+	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.hotend_maxtemp = HOTEND_WARNNING_TEMP);
 
 	//
 	// mixing enabled

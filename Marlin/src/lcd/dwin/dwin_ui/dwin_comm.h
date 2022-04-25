@@ -73,7 +73,8 @@
 #define	TROWS					6			// Total menu lines
 #define	TITLE_HEIGHT	30		// Title bar height
 #define	MLINE					53		// Menu line height
-#define	LBLX					55		// Menu item label X
+#define	LBLX					55		// Menu item label X - left
+#define	LBRX					240		// Menu item label X - right
 #define	LBLX_INFO			25		// Info Menu item label X
 #define	MENU_CHR_W		8			// menu char width
 #define	MENU_CHR_H		16		// menu char height
@@ -162,6 +163,7 @@ enum{
 #define DWIN_Draw_MaskString_Default_Color(c,x,y,s)	dwinLCD.Draw_String(false, true, font8x16, c, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_MaskString_FONT12(a,b,x,y,s) 			dwinLCD.Draw_String(false, true, font12x24, a, b, x, y, s)
 #define	DWIN_Draw_MaskString_Default_PopMenu(x,y,s) dwinLCD.Draw_String(false, true, font10x20, POP_TEXT_COLOR, COLOR_BG_WINDOW, x, y, s)
+#define	DWIN_Draw_MaskString_PopMenu_Color(c,x,y,s) dwinLCD.Draw_String(false, true, font10x20, c, COLOR_BG_WINDOW, x, y, s)
 #define	DWIN_Draw_UnMaskString_Default(x,y,s) 			dwinLCD.Draw_String(false, false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_UnMaskString_FONT10(x,y,s) 				dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_UnMaskString_FONT10_TITLE(x,y,s) 	dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLUE, x, y, s)
@@ -176,6 +178,7 @@ enum{
 #define DWIN_Draw_String_FIL(x, y, s)								dwinLCD.Draw_String(false, true, FIL_FONT, FIL_TEXT_COLOR, FIL_WINDOW_COLOR, x, y, s)
 #define	DWIN_Draw_IntValue_FONT14(c,n,x,y,v)				dwinLCD.Draw_IntValue(true, true, 0, font14x28, c, COLOR_BG_BLACK, n, x, y, v)
 
+bool Apply_Encoder_uint16(const ENCODER_DiffState &encoder_diffState, uint16_t *valref);
 bool Apply_Encoder_int16(const ENCODER_DiffState &encoder_diffState, int16_t *valref);
 bool Apply_Encoder_uint8(const ENCODER_DiffState &encoder_diffState, uint8_t *valref);
 bool Apply_Encoder_int8(const ENCODER_DiffState &encoder_diffState, int8_t *valref);

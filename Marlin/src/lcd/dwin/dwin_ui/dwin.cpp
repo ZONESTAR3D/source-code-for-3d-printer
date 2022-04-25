@@ -124,7 +124,7 @@ DwinMenu DwinMenu_tune;
 //Infor
 DwinMenu DwinMenu_infor;
 
-void set_status_bar_showtime(const uint16_t t){
+void set_status_msg_showtime(const uint16_t t){
 	HMI_flag.clean_status_delay = t;
 }
 
@@ -191,22 +191,24 @@ inline void _setAutoPowerDown(){
 
 
 #if ENABLED(OPTION_WIFI_MODULE)
-inline void _check_wifi(){
-	if(WiFi_Enabled && queue.wifi_Handshake_ok){
-		HMI_flag.wifi_link_timer = 0;		
-		if(DwinMenuID == DWMENU_MAIN)	DWIN_Show_ICON(ICON_WIFI, 0, 0);
-	}		
-}
-
 inline void _check_wifi_feedback(){	
 	if(WiFi_Enabled && HMI_flag.wifi_link_timer > 0){
 		HMI_flag.wifi_link_timer--;
 		if(queue.wifi_Handshake_ok){
+			DWIN_FEEDBACK_CONFIRM();
 			HMI_flag.wifi_link_timer = 0;			
-			if(DwinMenuID == DWMENU_MAIN) DWIN_Show_ICON(ICON_WIFI, 0, 0);
+			if(DwinMenuID == DWMENU_MAIN)	Draw_ICON_WIFI();
+		}
+		else if(HMI_flag.wifi_link_timer == (WIFI_LINK_CHECK_TIME/3)) {
+			DWIN_FEEDBACK_TIPS();
+			DWIN_Show_Status_Message(COLOR_RED, PSTR("WiFi is optional, did it install?"), 0);
 		}
 		else if(HMI_flag.wifi_link_timer == 0){
-			DWIN_Show_Status_Message(COLOR_RED, PSTR("WiFi connect fail!"));
+			WiFi_Enabled = false;
+			settings.save();
+			if(DwinMenuID == DWMENU_CONFIG) Draw_Config_Menu(CONFIG_CASE_WIFI);
+			DWIN_FEEDBACK_WARNNING();
+			DWIN_Show_Status_Message(COLOR_RED, PSTR("WiFi connect fail!"), 5);
 		}		
 	}
 }
@@ -273,13 +275,13 @@ inline void _check_Powerloss_resume(){
 		DWIN_status = ID_SM_PRINTING;
 		queue.inject_P(PSTR("M1000"));
 		DwinMenu_print.reset();
-		Draw_Printing_Menu(true);
+		Draw_Printing_Menu(PRINT_CASE_TUNE, true);
 	}
 }
 #endif//(ENABLED(POWER_LOSS_RECOVERY))
 
 void DWIN_Show_M117(const char * const message){
-	#define MAX_WIFI_MESSAGE_LENGTH 27
+	#define MAX_WIFI_MESSAGE_LENGTH 40
 	#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 	
 	char status_message[MAX_WIFI_MESSAGE_LENGTH+1] = {0};
@@ -296,10 +298,49 @@ void DWIN_Show_M117(const char * const message){
 	};	
 	uint8_t maxLen = pend - message;
 	strncpy(status_message, message, maxLen);
-	status_message[maxLen] = '\0';
-
-	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 0);	
-	TERN_(OPTION_WIFI_MODULE, _check_wifi());
+	status_message[maxLen] = '\0';	
+#if ENABLED(OPTION_WIFI_MODULE)
+	if(WiFi_Enabled && queue.wifi_M117_message){
+		queue.wifi_M117_message = false;
+		queue.wifi_Handshake_ok = true;
+		HMI_flag.wifi_link_timer = 0;		
+		if(DwinMenuID == DWMENU_MAIN)	Draw_ICON_WIFI();
+		
+	#if ENABLED(OPTION_WIFI_QRCODE)
+		bool bgotIPAddress = false;
+		uint8_t IPNumber[4] = {0,0,0,0};
+		char temp_str[5] = {0};
+		uint8_t i, j=0, k=0;
+		for(i=0; i <= maxLen; i++) {
+			if(status_message[i] == ' ') continue;
+			temp_str[j] = status_message[i];
+			if(temp_str[j] == '.' || temp_str[j] == 0 || temp_str[j] == '\r' || temp_str[j] == '\n') {
+				temp_str[j+1] = '\0';
+				IPNumber[k] = (uint8_t)atoi(temp_str);
+				if(IPNumber[k] == 255 || (k == 0 && (IPNumber[k] < 192 || IPNumber[k] > 223))) break;	
+				if(k >= 3) { bgotIPAddress = true; break;	}
+				k++;
+				j=0;
+			}
+			else{
+				j++;
+				if(j > 3) break;
+			}
+		}
+		char IPAddress_message[50] = {0};
+		if(bgotIPAddress)	{
+			if(DwinMenuID == DWMENU_CONTROL || DwinMenuID == DWMENU_CONFIG || DwinMenuID == DWMENU_POP_WIFILINK){
+				sprintf_P(status_message, PSTR("%d.%d.%d.%d"),IPNumber[0], IPNumber[1], IPNumber[2], IPNumber[3]);
+				Popup_Window_WiFiLink(status_message);
+			}
+			sprintf_P(IPAddress_message, PSTR("Device IP address = %d.%d.%d.%d"),IPNumber[0], IPNumber[1], IPNumber[2], IPNumber[3]);			
+			DWIN_Show_Status_Message(COLOR_WHITE,IPAddress_message, 0);
+			return;
+		}
+	#endif
+	}
+#endif
+	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 6);	
 }
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -409,7 +450,7 @@ inline void DWIN_Update_Variable() {
 		if(DwinMenuID == DWMENU_POP_FROD_HEAT && ((++flash_mask&0x01) == 0x01))
 			DWIN_Draw_UnMaskString_FONT10(State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, PSTR("    "));		
 		else 
-			DWIN_Draw_IntValue_FONT10((thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP)?COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));					
+			DWIN_Draw_IntValue_FONT10((thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP) ? COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));					
 		last_temp_hotend_target = thermalManager.degTargetHotend(0);
 	}
 #endif
@@ -505,7 +546,7 @@ void Stop_and_return_mainmenu() {
 	TERN_(MIXING_EXTRUDER, mixer.reset_vtools());	
 	HMI_Value.print_speed = feedrate_percentage = 100;
 	DWIN_status = ID_SM_IDLE;
-	Draw_Main_Menu();		
+	Draw_Main_Menu();
 }
 
 void DWIN_HandleScreen() {	
@@ -634,6 +675,10 @@ void DWIN_HandleScreen() {
 		case DWMENU_SET_WIFIBAUDRATE: 			HMI_Adjust_WiFi_BaudRate(); break;
 	#endif
 
+	#if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_QRCODE)
+	case DWMENU_POP_WIFILINK: 						HMI_Pop_WiFiLink(); break;
+	#endif
+
 	#if ENABLED(SWITCH_EXTRUDER_MENU)
 		case DWMENU_SET_SWITCHEXTRUDER:			HMI_Adjust_Extruder_Sequence(); break;
 	#endif
@@ -674,6 +719,15 @@ void DWIN_HandleScreen() {
 	#endif		
 		
 		case DWMENU_POP_WAITING:						HMI_Waiting(); break;
+
+	#if ENABLED(OPTION_NEWS_QRCODE)
+		case DWMENU_POP_NEWSLINK:						HMI_Pop_NewsLink(); break;
+	#endif
+	
+	#if ENABLED(OPTION_GUIDE_QRCODE)
+		case DWMENU_POP_USERGUIDELINK:			HMI_Pop_UserGuideLink(); break;
+	#endif
+	
   default: break;
 	}
 }
@@ -745,6 +799,13 @@ void HMI_DWIN_Init() {
 		delay(20);
 	}
 	HMI_SetLanguage_PicCache();	
+	#if ALL(EEPROM_SETTINGS, OPTION_GUIDE_QRCODE)
+	if(HMI_flag.first_power_on){
+		Draw_Info_Menu();
+		Popup_Window_UserGuideLink();		
+		return;
+	}
+	#endif
 	Draw_Main_Menu(true);
 }
 
@@ -815,17 +876,16 @@ void EachMomentUpdate() {
 	else if(DWIN_status == ID_SM_PRINTING){
 		TERN_(POWER_LOSS_RECOVERY,recovery.save(false));
 		_Update_printing_Timer();		
-		#if ENABLED(BABYSTEPPING)
-		if(DwinMenuID == DWMENU_TUNE_BABYSTEPS){
-			if(HMI_flag.babyshowtime > 0){
-				HMI_flag.babyshowtime--;
-				if(HMI_flag.babyshowtime == 0){
+		
+		if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_TUNE){
+			if(HMI_flag.autoreturntime > 0){
+				HMI_flag.autoreturntime--;
+				if(HMI_flag.autoreturntime == 0){
 					EncoderRate.enabled = false;	
-					Draw_Printing_Menu();
+					Draw_Printing_Menu(PRINT_CASE_TUNE, true);
 				}
 			} 	
 		}
-		#endif
 	}	
 	else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
 		_check_kill_times_ElapsedTime();
@@ -833,11 +893,11 @@ void EachMomentUpdate() {
 		if(HMI_flag.clean_status_delay == 0){			
 			if(DWIN_status == ID_SM_RESUMING && printingIsActive() && !runout.filament_ran_out && wait_for_heatup == false){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu();
+				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 			}			
 			else if(DWIN_status == ID_SM_PAUSING && printingIsPaused() && !planner.has_blocks_queued() && !runout.filament_ran_out && wait_for_heatup == false){
 				DWIN_status = ID_SM_PAUSED;
-				Draw_Printing_Menu();
+				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 			}
 		}
 		#endif
@@ -845,7 +905,7 @@ void EachMomentUpdate() {
 	else if(DWIN_status == ID_SM_PAUSED){		
 		if(!printingIsPaused()){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu();
+				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 		}
 	}	
 	else if(DWIN_status == ID_SM_STOPED){

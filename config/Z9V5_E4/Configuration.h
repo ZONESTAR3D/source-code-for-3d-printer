@@ -76,9 +76,9 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V2.4.6"
-#define	STRING_DISTRIBUTION_DATE  "2022-04-22"
+#define CUSTOM_MACHINE_NAME 			"Z9V5-E4"
+#define	FIRMWARE_VERSION					"V1.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-04-20"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -90,7 +90,7 @@
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
+#define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 #define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
@@ -98,8 +98,8 @@
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
-#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
+#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
+#define	DEFAULT_MIXING_SWITCH		false	//Default mixing feature is off
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
@@ -114,7 +114,7 @@
 #define	BED_COATING_THICKNESS	1.0			//stikcer thickness
 #endif
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK3"
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Document-and-User-Guide"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
@@ -519,14 +519,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
+#define HEATER_3_MAXTEMP 250
+#define HEATER_4_MAXTEMP 250
+#define HEATER_5_MAXTEMP 250
+#define HEATER_6_MAXTEMP 250
+#define HEATER_7_MAXTEMP 250
 #define BED_MAXTEMP      125
 
 //===========================================================================
@@ -2491,6 +2491,10 @@
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
   //#define RGB_LED_W_PIN -1
+  	#define RGB_LED_R_PIN PE9
+  	#define RGB_LED_G_PIN PE14
+  	#define RGB_LED_B_PIN PE15
+  	#define RGB_LED_W_PIN PE8
 #endif
 
 // Support for Adafruit NeoPixel LED driver

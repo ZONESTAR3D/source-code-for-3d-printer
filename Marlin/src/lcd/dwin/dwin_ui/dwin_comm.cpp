@@ -80,6 +80,16 @@
   #include "../../../feature/mixing.h"
 #endif
 
+bool Apply_Encoder_uint16(const ENCODER_DiffState &encoder_diffState, uint16_t *valref) {
+  if (encoder_diffState == ENCODER_DIFF_CW)
+    *valref += (uint16_t)EncoderRate.encoderMoveValue;
+  else if (encoder_diffState == ENCODER_DIFF_CCW)
+    *valref -= (uint16_t)EncoderRate.encoderMoveValue;
+  else if (encoder_diffState == ENCODER_DIFF_ENTER)
+    return true;
+  return false;
+}
+
 bool Apply_Encoder_int16(const ENCODER_DiffState &encoder_diffState, int16_t *valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
     *valref += (int16_t)EncoderRate.encoderMoveValue;
@@ -217,7 +227,7 @@ void Erase_Menu_Text(const uint8_t line){
 //updata Z position
 void DWIN_Show_Z_Position(bool bshowICON){	
 	static float last_z_pos = -9999.99;	
-	if(bshowICON) DWIN_Show_ICON(ICON_ZOFFSET, State_icon_Zoffset_X, State_icon_Zoffset_Y);
+	if(bshowICON) DWIN_Show_ICON(ICON_HOME_Z, State_icon_Zoffset_X, State_icon_Zoffset_Y);
 	if(TEST(axis_known_position, Z_AXIS)){
 		if(last_z_pos != current_position.z || bshowICON){
 			dwinLCD.Draw_SignedFloatValue(DWIN_FONT_STAT, COLOR_WHITE, COLOR_BG_BLACK, State_text_Zoffset_inum, State_text_Zoffset_fnum, State_text_Zoffset_X, State_text_Zoffset_Y, MAXUNITMULT*current_position.z);
@@ -240,9 +250,9 @@ void Draw_Status_Area() {
 	//
 #if HAS_HOTEND
 	DWIN_Show_ICON(ICON_HOTENDTEMP, State_icon_extruder_X, State_icon_extruder_Y);
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.degHotend(0));
+	DWIN_Draw_IntValue_FONT10((thermalManager.degHotend(0) > HOTEND_WARNNING_TEMP ? COLOR_RED : COLOR_WHITE), State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.degHotend(0));
 	DWIN_Draw_UnMaskString_FONT10(State_string_extruder_X, State_string_extruder_Y, PSTR("/"));
-	DWIN_Draw_IntValue_FONT10(COLOR_WHITE, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));
+	DWIN_Draw_IntValue_FONT10((thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP ? COLOR_RED : COLOR_WHITE), State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, thermalManager.degTargetHotend(0));
 #endif
 #if HOTENDS > 1
 	// dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_HOTENDTEMP, 13, 381);
@@ -288,12 +298,15 @@ void HMI_ETemp() {
 			switch (HMI_flag.show_mode){
 				case SHOWED_TEMPERATURE:
 					DwinMenuID = DWMENU_TEMPERATURE;
-					DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+					if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+					else
+						DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
 					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
 				break;
 				
 				case SHOWED_PEHEAT_PLA:
-					DwinMenuID = DWMENU_PREHEAT_PLA;					
+					DwinMenuID = DWMENU_PREHEAT_PLA;
 					DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
 					ui.material_preset[0].hotend_temp = HMI_Value.E_Temp;
 				break;
@@ -306,7 +319,10 @@ void HMI_ETemp() {
 				
 				default:
 					DwinMenuID = DWMENU_TUNE;
-					DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+					if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+					else
+						DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
 					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
 				break;
 			}			
@@ -314,12 +330,11 @@ void HMI_ETemp() {
 				Clear_Dwin_Area(AREA_BOTTOM);
 				DWIN_Show_Status_Message(COLOR_RED, PSTR("Warnning, High temperature!"));
 				DWIN_FEEDBACK_WARNNING();
-				//set_status_bar_showtime(3);
 			}
 			return;
 		}
 		// E_Temp limit
-		NOMORE(HMI_Value.E_Temp, (thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT)));
+		NOMORE(HMI_Value.E_Temp, TERN(OPTION_HOTENDMAXTEMP, thermalManager.hotend_maxtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
 		NOLESS(HMI_Value.E_Temp, 0);
 		// E_Temp value
 		if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
@@ -446,13 +461,13 @@ void ICON_YESorNO(uint8_t Option){
 void DWIN_Show_Status_Message(const uint16_t color, char *string, const uint16_t show_seconds ){
 	Clear_Dwin_Area(AREA_BOTTOM);
 	dwinLCD.Draw_String(true, true, font8x16, color, COLOR_BG_BLACK, 10, 455, string);
-	set_status_bar_showtime(show_seconds);
+	set_status_msg_showtime(show_seconds);
 }
 
 void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint16_t show_seconds ){
 	Clear_Dwin_Area(AREA_BOTTOM);
 	dwinLCD.Draw_String(true, true, font8x16, color, COLOR_BG_BLACK, 10, 455, string);
-	set_status_bar_showtime(show_seconds);
+	set_status_msg_showtime(show_seconds);
 }
 
 #endif // HAS_DWIN_LCD

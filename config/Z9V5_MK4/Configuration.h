@@ -76,32 +76,35 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK4"
 #define	FIRMWARE_VERSION					"V1.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-04-07"
-#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define	STRING_DISTRIBUTION_DATE  "2022-04-20"
+#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
+#define EEPROM_VERSION 			    	"V83"
 //===========================================================================
 //default feature, usually keep it enable
-#define	SWITCH_EXTRUDER_SQUENCY
+#define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
+#define	OPTION_DWINLCD_MENUV2					//Used DWIN LCD MENU V2
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_DWINLCD_MENUV2					//Used DWON LCD V2
-#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 #define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
-#define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is on
+#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
+#define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 //===========================================================================
 //optional feature
+#define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
@@ -110,9 +113,16 @@
 #if ENABLED(OPTION_BED_COATING)
 #define	BED_COATING_THICKNESS	1.0			//stikcer thickness
 #endif
+#if ENABLED(OPTION_GUIDE_QRCODE)
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Document-and-User-Guide"
+#endif
+#if ENABLED(OPTION_NEWS_QRCODE)
+#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
+#endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
+#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
@@ -1579,8 +1589,8 @@
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
+#define PREHEAT_2_LABEL       "PET"
+#define PREHEAT_2_TEMP_HOTEND 230
 #define PREHEAT_2_TEMP_BED     85
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 

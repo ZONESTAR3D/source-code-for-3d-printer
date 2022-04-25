@@ -67,7 +67,7 @@ void DWIN_Refresh_ExtruerFAN_State();
 #endif
 
 void Redraw_SD_List();
-void Draw_Printing_Menu(const bool with_update = false);
+void Draw_Printing_Menu(const uint8_t MenuItem = 0, const bool with_update = false);
 void Draw_Print_ProgressBar();
 void Draw_Print_ElapsedTime();
 void Draw_Print_RemainTime();

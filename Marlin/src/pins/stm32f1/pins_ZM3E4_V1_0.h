@@ -257,12 +257,17 @@
 #define SUICIDE_PIN        PA3
 #define FIL_RUNOUT_PIN	   PC8
 
+//SD card
 #define ENABLE_SPI1
 #define SD_DETECT_PIN      PC4
 #define SCK_PIN            PA5
 #define MISO_PIN           PA6
 #define MOSI_PIN           PA7
+#if SD_CONNECTION_IS(ONBOARD)
+#define ONBOARD_SD_CS_PIN	 PA4
+#else
 #define SS_PIN             PA4
+#endif
 
 //WiFi. Functions
 #define WIFI_RST          PC15

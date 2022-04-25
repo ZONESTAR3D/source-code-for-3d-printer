@@ -77,31 +77,38 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		"Marlin-2.0.8"
 #ifdef OPTION_Z9V5_PRO
-#define CUSTOM_MACHINE_NAME 		"Z9V5Pro-MK1(2)"
+#define CUSTOM_MACHINE_NAME 			"Z9V5Pro-MK1(2)"
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					"V1.3.8"
-#define	STRING_DISTRIBUTION_DATE  "2022-04-02"
-#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define	FIRMWARE_VERSION					"2.0.1"
+#define	STRING_DISTRIBUTION_DATE  "2022-04-22"
+#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
-#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
-#define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-#define	OPTION_PL08N 			    				//Probe use PL_08N
-#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+#define	OPTION_DWINLCD_MENUV2				//Used DWIN LCD MENU V2
+#define	OPTION_AUTOPOWEROFF					//Power off after printer
+#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to Z2 motor connector)
+#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to Z2- connector)
+#define	OPTION_PL08N 			    			//Probe use PL_08N
+#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
+#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_MIXING_SWITCH				//Enable/disable mixing feature on LCD MENU
+#define	OPTION_GUIDE_QRCODE         //Add a User Guide link QRcode on first power on
+#define	OPTION_NEWS_QRCODE					//Add a Update News QRcode on Info Menu
+#define	SWITCH_EXTRUDER_MENU				//Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
+#define	DEFAULT_MIXING_SWITCH	true	//Default mixing feature is on
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
-#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_WIFI_QRCODE					//Show a QRcode while WiFi is connected to help vist Web3D
 //#define	OPTION_BGM								//BGM extruder
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
@@ -113,9 +120,10 @@
  * ZLSENSOR, you have to connect the ZLSENSOR to EXP1 connector and enable 
  * this option
 */
+#ifdef OPTION_ZLSENSOR
 //#define ZLSENSOR_ON_EXP1						//
+#endif
 //==========================================================================
-
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
 #if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
@@ -124,9 +132,17 @@
 #define	BED_COATING_THICKNESS	0.0			//stikcer thickness
 #endif
 #endif
+//User guide QRcode
+#if ENABLED(OPTION_GUIDE_QRCODE)
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Document-and-User-Guide"
+#endif
+#if ENABLED(OPTION_NEWS_QRCODE)
+#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
+#endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
+#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 
@@ -143,7 +159,6 @@
   #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
   #endif
 #endif
-
 //===========================================================================
 /**
  * LCD LANGUAGE
@@ -555,14 +570,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 250
-#define HEATER_1_MAXTEMP 250
-#define HEATER_2_MAXTEMP 250
-#define HEATER_3_MAXTEMP 250
-#define HEATER_4_MAXTEMP 250
-#define HEATER_5_MAXTEMP 250
-#define HEATER_6_MAXTEMP 250
-#define HEATER_7_MAXTEMP 250
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      125
 
 //===========================================================================
@@ -832,11 +847,11 @@
  */
 
 #if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 766 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 800 }
 #elif ENABLED(OPTION_TMC2209_ALL_MOTOR)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 383 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 383 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 400 }
 #endif
 
 /**
@@ -844,7 +859,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 50 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1396,13 +1411,8 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
-  #ifdef OPTION_MAX_SIZE
-  #define GRID_MAX_POINTS_X 		7
-  #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#else
 	#define GRID_MAX_POINTS_X 		5
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
-	#endif
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN
   #define PROBING_MARGIN_FRONT	PROBING_MARGIN
@@ -1635,7 +1645,7 @@
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PET"
-#define PREHEAT_2_TEMP_HOTEND 220
+#define PREHEAT_2_TEMP_HOTEND 230
 #define PREHEAT_2_TEMP_BED     85
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 

@@ -104,12 +104,6 @@
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL 	10000
 #define POWERDOWN_MACHINE_TIMER 					900	//seconds
 
-#if ENABLED(MIXING_EXTRUDER)
-#define	HOTEND_WARNNING_TEMP	235
-#else
-#define	HOTEND_WARNNING_TEMP	(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
-#endif
-
 typedef enum{
 	ID_SM_START = 0,
 	ID_SM_IDLE,
@@ -255,7 +249,10 @@ typedef enum {
 	DWMENU_POP_PAUSEORSTOP,	
 	DWMENU_POP_WAITING,
 	DWMENU_POP_REPEATPRINTING,
-
+	DWMENU_POP_USERGUIDELINK,
+	DWMENU_POP_NEWSLINK,
+	DWMENU_POP_WIFILINK,
+	
 	DWMENU_END
 }_emDWIN_MENUID_;
 
@@ -414,8 +411,8 @@ typedef enum{
 #endif
 
 typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
+  TERN_(HAS_HOTEND,     int16_t E_Temp    = 150);
+  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 30);
   TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
 	TERN_(PID_AUTOTUNE_MENU,int16_t PIDAutotune_Temp = 200);
   int16_t print_speed     = 100;
@@ -433,9 +430,6 @@ typedef struct {
   int16_t Random_Height = 0;
 	#if ENABLED(OPTION_BED_COATING)
   int16_t coating_thickness = 0;
-	#endif
-	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	int16_t max_hotendtemp = HEATER_0_MAXTEMP - HOTEND_OVERSHOOT;
 	#endif
 
 	#if ENABLED(FWRETRACT)
@@ -482,7 +476,7 @@ typedef struct {
 	uint16_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
 	
-	#if ENABLED(SWITCH_EXTRUDER_MENU)	
+	#if ENABLED(SWITCH_EXTRUDER_MENU)
 	int8_t switchExtruder = SE_DEFAULT;
 	#endif
 } HMI_value_t;
@@ -502,6 +496,10 @@ typedef struct {
    			lcd_sd_status:1,
    			Is_purged:1,
    			Is_retracted:1
+   
+		#if ENABLED(OPTION_GUIDE_QRCODE)
+			 ,first_power_on:1
+		#endif		
 		#if (ABL_GRID)
 				,Leveling_Menu_Fg:1			
 		#endif
@@ -535,9 +533,7 @@ typedef struct {
 	#if ENABLED(DWIN_AUTO_TEST)
 	uint8_t auto_test_flag = 0x55; //0x55: disable, 0xAA: enabled
   #endif
-	#if ENABLED(BABYSTEPPING)
-	uint8_t babyshowtime = 0;
-	#endif
+	uint8_t autoreturntime = 0;
 	
   AxisEnum axis;
 } HMI_Flag_t;
@@ -607,7 +603,7 @@ extern DwinMenu DwinMenu_reprint;
 #if ENABLED(OPTION_AUTOPOWEROFF)
 void _reset_shutdown_timer();
 #endif
-void set_status_bar_showtime(const uint16_t t);
+void set_status_msg_showtime(const uint16_t t);
 uint8_t get_title_picID();
 void Popup_Window_Temperature(const char *msg, int8_t heaterid);
 void Stop_and_return_mainmenu();
