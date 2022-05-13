@@ -613,7 +613,7 @@ void HMI_Temperature() {
 	   #if HAS_HOTEND
 	    case TEMP_CASE_ETEMP: // Nozzle temperature
 	     DwinMenuID = DWMENU_SET_ETMP;			 
-	     HMI_Value.E_Temp = thermalManager.degTargetHotend(0);			
+	     HMI_Value.E_Temp = _MAX(thermalManager.degTargetHotend(0), EXTRUDE_MINTEMP);
 			 if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 				 DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
 			 else
@@ -1005,7 +1005,7 @@ void HMI_MoveAxis() {
 	#if HAS_HOTEND
 			case AXISMOVE_CASE_EX1: // Extruder1
 				// window tips
-			#if ENABLED(PREVENT_COLD_EXTRUSION)
+			#if 1//EITHER(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1021,7 +1021,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 1)
 			case AXISMOVE_CASE_EX2: // Extruder2
 			// window tips
-			#if ENABLED(PREVENT_COLD_EXTRUSION)
+			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1038,7 +1038,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 2)
 			case AXISMOVE_CASE_EX3: // Extruder3
 			// window tips
-			#if ENABLED(PREVENT_COLD_EXTRUSION)
+			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1055,7 +1055,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 3)
 			case AXISMOVE_CASE_EX4: // Extruder4
 			// window tips
-			#if ENABLED(PREVENT_COLD_EXTRUSION)
+			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1072,7 +1072,7 @@ void HMI_MoveAxis() {
 		#if ENABLED(MIXING_EXTRUDER)
 			case AXISMOVE_CASE_EXALL: // Extruderall
 			// window tips
-			#if ENABLED(PREVENT_COLD_EXTRUSION)
+			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1321,7 +1321,7 @@ static void Dwin_filament_action(uint8_t action){
 	const uint8_t old_extruder = active_extruder;
 #endif
 
-#if ENABLED(PREVENT_COLD_EXTRUSION)
+#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
 	if(thermalManager.degHotend(0) < EXTRUDE_MINTEMP)	{ 
 		DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 		DWIN_FEEDBACK_WARNNING();

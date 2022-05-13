@@ -341,8 +341,7 @@ void HMI_Info() {
 		#if ENABLED(DWIN_AUTO_TEST)
 			case INFO_CASE_DATE:				
 				if(++testmode_click_times >= 5){
-					testmode_click_times = 0;
-					HMI_flag.auto_test_flag = 0xaa;
+					testmode_click_times = 0;					
 					autotest.HMI_StartTest();
 				}
 			break;
@@ -359,6 +358,12 @@ void HMI_Info() {
 				Popup_Window_NewsLink();
 			break;
 		#endif
+
+	#if ENABLED(OPTION_AUTOTEST_MENU)
+		case INFO_CASE_AUTOTEST:
+			//Draw_Test_Menu();
+			break;
+	#endif
 			
 			default:	break;
 		}

@@ -998,7 +998,7 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{  1,292, 90,306},										//mixer
 		{  1,263, 68,276},										//bltouch
 		{ 70,263,100,276},										//pla
-		{101,263,123,276},										//abs
+		{101,263,133,276},										//abs
 		{134,262,216,276},										//feedrate
 		{  1,244, 87,262},										//accel 
 		{ 57,208,108,222},										//jerk

@@ -81,9 +81,14 @@ void Autotest::Check_Rotary(){
 	if (encoder_diffState == ENCODER_DIFF_CW || encoder_diffState == ENCODER_DIFF_CCW) DWIN_FEEDBACK_TICK();
 	if (encoder_diffState == ENCODER_DIFF_CW && testflag.rotary_counter_rg < 255) testflag.rotary_counter_rg++;
 	else if(encoder_diffState == ENCODER_DIFF_CCW && testflag.rotary_counter_rg > 0) testflag.rotary_counter_rg--;
-	else if(encoder_diffState == ENCODER_DIFF_ENTER) {
-		DWIN_FEEDBACK_TIPS();
-		testflag.rotary_click_rg++;		
+	else if(encoder_diffState == ENCODER_DIFF_ENTER) {		
+		if(testflag.autoloop_fg) { 
+			DWIN_FEEDBACK_TIPS();
+			testflag.rotary_click_rg++;
+		}
+		else {
+			testflag.loops = CHECK_END;//exist
+		}
 	}
 	Autotest_ShowKnob(testflag.rotary_counter_rg);
 }
@@ -121,7 +126,7 @@ inline void Autotest::AutoTest_ShowTemperature(){
 		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS_MSG(ID_LINE_BTEMP), (uint32_t)test_temp_hotbed_target);
 	}
 	//FAN
-	if((thermalManager.degHotend(0) <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.loops > CHECK_FAN_SPEED)){
+	if((thermalManager.degHotend(0) <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.loops > CHECK_FANS)){
 		thermalManager.set_fan_speed(0, 0);
 		if(!testflag.fan_fg){
 			testflag.fan_fg = 1;
@@ -235,7 +240,7 @@ bool Autotest::DWIN_AutoTesting() {
 			  DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD2), PSTR("SD Size(M):"));
 				DRAW_INT_RED_FONT12(COLOR_BG_BLACK, 5, (strlen("SD Size(M):")+1)*WIDTH, YPOS_MSG(ID_LINE_SD2), CardReader::sd2card.cardSize()/2000);				
 		 		test_timer = 0;
-				testflag.loops++;				
+				if(testflag.autoloop_fg) testflag.loops++;				
 			}
 			else{
 				if(test_timer++ >= 50) {
@@ -258,61 +263,65 @@ bool Autotest::DWIN_AutoTesting() {
 	 case CHECK_PREPARE_HEAT:
 	 		if(test_timer++ >= 100){
 				test_timer = 0;
+				
 				//check current temp of hotend
 				test_temp_hotend_first = thermalManager.degHotend(0);
-				if(test_temp_hotend_first <= 1){					
-					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend test fail!"));
+				if(test_temp_hotend_first < 5){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend too cool!"));
 					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
-				else if(test_temp_hotend_first >= 150){					
+				else if(test_temp_hotend_first > 150){					
 					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hotend too hot!"));
 					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
+				
 				//check current temp of hotbed
 				test_temp_hotbed_first = thermalManager.degBed();
-				if(test_temp_hotbed_first <= 1){					
-					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed test fail!"));
+				if(test_temp_hotbed_first < 5){					
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed too cool!"));
 					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
-				else if(test_temp_hotbed_first >= 60){					
+				else if(test_temp_hotbed_first > 60){					
 					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed too hot!"));
 					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
-				thermalManager.setTargetHotend(max(test_temp_hotend_first + 20, 60), 0);
+				thermalManager.setTargetHotend(max(test_temp_hotend_first + 20, 80), 0);
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_ETEMP_INFO)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hot end Heating..."));
 				thermalManager.setTargetBed(max(test_temp_hotbed_first + 20, 60));
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_BTEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_BTEMP_INFO)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed Heating..."));				
-				testflag.loops++;
+				testflag.loops = CHECK_PREPARE_HEAT2;
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
-				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Testing Hotend/Hotbed"));
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Testing Hotend / Hotbed"));
 				DWIN_FEEDBACK_WARNNING();
 	 		}
 		break;
 
 	case CHECK_PREPARE_HEAT2:
+		//If the hotend doesn't raise 5 degree and the hotbed doesn't raise 2 degree within 30 seconds, say fail.
 		if(test_timer++ >= 100){
 			test_timer = 0;
-			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0 && thermalManager.degBed() >= test_temp_hotbed_first + 1.0){
+			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0 && thermalManager.degBed() >= test_temp_hotbed_first + 2.0){
+				//renew the target temperature of hotend and hotbed
 				test_temp_hotend_first = thermalManager.degHotend(0);
 				test_temp_hotbed_first = thermalManager.degBed();
-				testflag.loops++;
+				testflag.loops = CHECK_HOTEND_TEMP;
 			} 
 			else{
 				temp_test_timer++;
-				if(temp_test_timer > 20){
+				if(temp_test_timer > 30){
 					temp_test_timer = 0;
-					if(thermalManager.degHotend(0) <= test_temp_hotend_first + 2.0)
+					if(thermalManager.degHotend(0) < test_temp_hotend_first + 5.0)
 						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hot end test fail!"));
-					if(thermalManager.degBed() <= test_temp_hotbed_first + 2.0)
+					if(thermalManager.degBed() < test_temp_hotbed_first + 2.0)
 						DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed test fail!"));
 					thermalManager.setTargetBed(0);
-					testflag.loops = CHECK_FAN_SPEED;
+					if(testflag.autoloop_fg) testflag.loops = CHECK_FANS_PREPARE;
 				}				
 			}
 		}		
@@ -322,45 +331,47 @@ bool Autotest::DWIN_AutoTesting() {
 			//raised 2 degree within 5 seconds
 			test_timer++;
 			if(test_timer%100 == 0) DWIN_FEEDBACK_TICK(); 
-			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0){
+			if(thermalManager.degHotend(0) >= test_temp_hotend_first + 2.0) {
 				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hot end test OK!  "));
+				testflag.loops = CHECK_HOTBED_TEMP;
 			}
-			else if(test_timer > 500){ 
+			else if(test_timer > 500){
 				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Please check Hotend!"));
+				testflag.loops = CHECK_HOTBED_TEMP;
 			}
-			else break;
-			
-			test_timer = 0;
-			testflag.loops++;			
 			break;
 
 		case CHECK_HOTBED_TEMP:
 			//raised 2 degree within 10 seconds
 			test_timer++;
 			if(test_timer%100 == 0) DWIN_FEEDBACK_TICK(); 				
-			if(thermalManager.degBed() >= test_temp_hotbed_first + 1.0){
+			if(thermalManager.degBed() >= test_temp_hotbed_first + 2.0){
 				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed test OK!  "));
+				thermalManager.setTargetBed(0);
+				if(testflag.autoloop_fg) testflag.loops = CHECK_FANS_PREPARE;
 			}
-			else if(test_timer > 500){
+			else if(test_timer > 1000){
 				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Please check Hotbed!"));
-			}
-			else break;
-			
-			thermalManager.setTargetBed(0);
-			thermalManager.set_fan_speed(0, 255);
-			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Extruder Fan On!"));
-
-			test_timer = 0;
-			testflag.loops++;
-			testflag.fan_fg = 0;
-			test_counter = 0;
-			dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
-			DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch the FANs"));
-			DWIN_FEEDBACK_WARNNING();
+				thermalManager.setTargetBed(0);
+				if(testflag.autoloop_fg) testflag.loops = CHECK_FANS_PREPARE;
+			}			
 			break;
 
-		case CHECK_FAN_SPEED:
-			test_timer++;			
+		case CHECK_FANS_PREPARE:				
+				thermalManager.set_fan_speed(0, 255);
+				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Extruder Fan On!"));
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch the FANs"));
+				DWIN_FEEDBACK_WARNNING();
+				test_timer = 0;				
+				testflag.fan_fg = 0;
+				test_counter = 0;
+				testflag.loops = CHECK_FANS;
+			break;
+
+		case CHECK_FANS:
+			test_timer++;
+			//check cooling fan
 			thermalManager.checkExtruderAutoFans();
 			if(test_counter == 0){
 				if((thermalManager.degHotend(0) >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 5) || (test_timer > 2000)){
@@ -369,16 +380,17 @@ bool Autotest::DWIN_AutoTesting() {
 					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Cooling Fan On!"));
 				}
 			}
-			else if(test_counter == 1 && test_timer > 300){					
-					test_timer = 0;
-					test_counter = 0;
-					testflag.loops++;					
+			//check extruder fan
+			if(test_counter == 1 && test_timer > 300) {
 					thermalManager.set_fan_speed(0, 0);
 					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Extruder Fan Off!"));
 					thermalManager.setTargetHotend(0, 0);
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
 					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch X&Y motors"));
 					DWIN_FEEDBACK_WARNNING();
+					test_timer = 0;
+					test_counter = 0;
+					if(testflag.autoloop_fg) testflag.loops = CHECK_XY_MOTOR;
 			}
 			break;			
 
@@ -405,96 +417,112 @@ bool Autotest::DWIN_AutoTesting() {
 				if(test_counter++ >=5){
 					test_counter = 0;
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
-					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("XY Motor Off"));
-					testflag.loops++;
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("XY Motor Off"));					
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
 					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch Z motors"));
 					DWIN_FEEDBACK_WARNNING();
+					if(testflag.autoloop_fg) testflag.loops = CHECK_Z_MOTOR;
 				}			
 			}
 			break;
 
 		
 		case CHECK_Z_MOTOR:
-			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
-			if(test_counter >= 6)
+			test_timer++;
+			if(test_counter >= 6){
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("Z-R Motor On..."));
-			else
+			}
+			else{
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
+			#if (NUM_Z_STEPPER_DRIVERS == 2)
 				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("Z-L Motor On..."));
-
-			if(test_timer++ >= 100){
-				test_timer = 0;
-				test_dir = !test_dir;					
-			#if (NUM_Z_STEPPER_DRIVERS >= 2)
-				if(test_counter++ >= 11)
 			#else
-				if(test_counter++ >= 5)
+				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("Z Axis Motor On"));
+			#endif
+			}
+
+			if(test_timer >= 100){
+				test_timer = 0;
+				test_dir = !test_dir;
+				test_counter++;
+			#if (NUM_Z_STEPPER_DRIVERS == 2)
+				if(test_counter >= 11)
+			#else
+				if(test_counter >= 5)
 			#endif
 				{
 					test_counter = 0;					
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_ZMOTOR), DWIN_WIDTH, YPOS(ID_LINE_ZMOTOR)+ROW_GAP);
 					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_ZMOTOR), PSTR("Z Axis Motors Off"));
-					testflag.loops++;
 					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
 					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch extrude motors"));
-					DWIN_FEEDBACK_WARNNING();					
+					DWIN_FEEDBACK_WARNNING();
+					if(testflag.autoloop_fg) testflag.loops = CHECK_EXTRUDER_MOTOR;
 				}
 			}
 			break;
 
-		case CHECK_MOTOR_E1:
-			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder1 Motor"));
-			 if(test_timer++ >= 100){
-			 	test_timer = 0;
+		case CHECK_EXTRUDER_MOTOR:
+			test_timer++;
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
+		#if (E_STEPPERS > 1)
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder1 Motor"));
+		#else
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder Motor"));	
+		#endif
+			if(test_timer >= 100){
+				test_timer = 0;
 				test_dir = !test_dir;
-			  if(test_dir) {
-			 		queue.inject_P(PSTR("T0\nG92 E0\nG1 E10 F3000"));
-			  }
+				if(test_dir) {
+					queue.inject_P(PSTR("T0\nG92 E0\nG1 E10 F3000"));
+				}
 				else{
 					queue.inject_P(PSTR("T0\nG92 E0\nG1 E-10 F3000"));
 				}
 
-				if(test_counter++ >=3){
+				if(test_counter++ >= 3){
 					test_counter = 0;					
 					testflag.loops++;
 				}
-			 }
+			}
 			break;
 
 			
 	#if (E_STEPPERS > 1)
 		case CHECK_MOTOR_E2:
-			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_YELLOW, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder2 Motor"));
-			 if(test_timer++ >= 100){
-			 	test_timer = 0;
+			test_timer++;
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_YELLOW, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder2 Motor"));
+			if(test_timer >= 100){
+				test_timer = 0;
 				test_dir = !test_dir;
-			  if(test_dir) {
-			 		queue.inject_P(PSTR("T1\nG92 E0\nG1 E10 F3000"));
-			  }
+				if(test_dir) {
+					queue.inject_P(PSTR("T1\nG92 E0\nG1 E10 F3000"));
+				}
 				else{
 					queue.inject_P(PSTR("T1\nG92 E0\nG1 E-10 F3000"));
 				}
 
-				if(test_counter++ >=3){
+				if(test_counter++ >= 3){
 					test_counter = 0;					
 					testflag.loops++;
 				}
-			 }
+			}
 			break;
 	#endif
 
 	#if (E_STEPPERS > 2)
 		case CHECK_MOTOR_E3:
-			 dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-			 DRAW_STRING_FONT12(COLOR_BG_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder3 Motor"));
-			 if(test_timer++ >= 100){
-			 	test_timer = 0;
+			test_timer++;
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_BG_RED, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder3 Motor"));
+			if(test_timer >= 100){
+				test_timer = 0;
 				test_dir = !test_dir;
-			  if(test_dir) {
-			 		queue.inject_P(PSTR("T2\nG92 E0\nG1 E10 F3000"));
-			  }
+				if(test_dir) {
+					queue.inject_P(PSTR("T2\nG92 E0\nG1 E10 F3000"));
+				}
 				else{
 					queue.inject_P(PSTR("T2\nG92 E0\nG1 E-10 F3000"));
 				}
@@ -503,15 +531,16 @@ bool Autotest::DWIN_AutoTesting() {
 					test_counter = 0;
 					testflag.loops++;
 				}
-			 }
+			}
 			break;
 	#endif
 
 	#if (E_STEPPERS > 3)
 		case CHECK_MOTOR_E4:
+			test_timer++;
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
 			DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Test Extruder4 Motor"));
-			if(test_timer++ >= 100){
+			if(test_timer >= 100){
 				test_timer = 0;
 				test_dir = !test_dir;
 				if(test_dir) {
@@ -527,84 +556,91 @@ bool Autotest::DWIN_AutoTesting() {
 			}
 		break;
 	#endif
+
+		case CHECK_MOTOR_END:
+			disable_all_steppers();
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extrude Motors Off"));
+			if(testflag.autoloop_fg) testflag.loops = CHECK_ENDSTOPS_PREPARE;
+			break;
 	
-		case CHECK_MOTORS_END:
-				disable_all_steppers();
-				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_EXTRUDER), DWIN_WIDTH, YPOS(ID_LINE_EXTRUDER)+ROW_GAP);
-				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_EXTRUDER), PSTR("Extrude Motors Off"));
-				
-				AutoTest_ShowSWStatus(1);
-				testflag.Endstops = 0;
+		case CHECK_ENDSTOPS_PREPARE:
+			AutoTest_ShowSWStatus(1);
+			testflag.Endstops = 0;
 		#if !PIN_EXISTS(Z2_MIN)	
-				testflag.Endstops |= 1<<3;
+			testflag.Endstops |= 1<<3;
 		#endif
 		#if !PIN_EXISTS(FIL_RUNOUT)
-				testflag.Endstops |= 1<<4;
+			testflag.Endstops |= 1<<4;
 		#endif
 		#if !PIN_EXISTS(Z_MIN_PROBE)
-				testflag.Endstops |= 1<<5;
+			testflag.Endstops |= 1<<5;
 		#endif					
-				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW_RESULT), DWIN_WIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
-				for(uint8_t i=0; i<6; i++){ 					
-					if((testflag.Endstops & (1<<i)) == 0)
-						DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("--"));
-					else
-						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("OK"));
-				}
-				test_timer = 0;
-				testflag.loops++;			
-				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
-				DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("To press the ENDSTOPs"));
-				DWIN_FEEDBACK_WARNNING();
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_SW_RESULT), DWIN_WIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
+			for(uint8_t i=0; i < 6; i++){ 					
+				if((testflag.Endstops & (1<<i)) == 0)
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("--"));
+				else
+					DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("OK"));
+			}						
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("To press the ENDSTOPs"));
+			DWIN_FEEDBACK_WARNNING();
+			
+			test_timer = 0;
+			testflag.loops = CHECK_ENDSTOPS;	
 		break;
 
 		case CHECK_ENDSTOPS:
+			test_timer++;
 			AutoTest_Watch_SW();			
-		  if(++test_timer >= 12){
+		  if(test_timer >= 12){
 			 	test_timer = 0;								
-				AutoTest_ShowSWStatus(0);
+				AutoTest_ShowSWStatus(0);				
 				for(uint8_t i=0; i<6; i++){
 					if((testflag.Endstops & (1<<i)) == 0 && (old_swstatus[i] == 0x0 && swstatus[i] == 0x07)){
 						testflag.Endstops |= (1<<i);
 						dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS(ID_LINE_SW_RESULT), LSTART+WIDTH/2+i*SWWIDTH+SWWIDTH, YPOS(ID_LINE_SW_RESULT)+ROW_GAP);
 						DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_WINDOW, LSTART+WIDTH/2+i*SWWIDTH, YPOS_MSG(ID_LINE_SW_RESULT), PSTR("OK"));							
 					}				
-				}				
-				if(testflag.Endstops == 0x3f){
-					testflag.loops++;
+				}
+				for(uint8_t i=0; i<6; i++) old_swstatus[i] = swstatus[i];				
+				if(testflag.autoloop_fg && testflag.Endstops == 0x3f){					
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Rotate and click knob"));
+					DWIN_FEEDBACK_WARNNING();					
 					testflag.rotary_click_rg = 0;
 					testflag.rotary_counter_rg = 0;
 					test_dir = 0;
 					test_timer = 0;
-					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
-					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Rotate and click knob"));
-					DWIN_FEEDBACK_WARNNING();
-				}
-				for(uint8_t i=0; i<6; i++) old_swstatus[i] = swstatus[i];
+					testflag.loops = CHECK_KEY;
+				}				
 		  }			
 			break;
 
 		case CHECK_KEY:	
+			test_timer++;
 			AutoTest_Watch_SW();
-			if(test_timer++ >= 12){
+			if(test_timer >= 12) {
 				test_timer = 0;
 				AutoTest_ShowSWStatus(0);
 			}
-			if((testflag.rotary_click_rg >= 5) && (testflag.rotary_counter_rg > 10)){
-				testflag.loops++;					
-			}
+			if((testflag.autoloop_fg) && (testflag.rotary_click_rg >= 5) && (testflag.rotary_counter_rg > 10)) testflag.loops  = CHECK_END;
 			break;
 
 		case CHECK_END:		
-			testflag.loops = 0;
+			testflag.loops = CHECK_START;
+			HMI_flag.auto_test_flag = 0x55;
 			return true;
 	}		
 	return false;
 }
 
-void Autotest::HMI_StartTest() {	
-	testflag.loops = 0;
-
+void Autotest::HMI_StartTest(uint8_t check_state/* = CHECK_START*/, bool auto_loop /*= true*/) {	
+	testflag.loops = check_state;
+	testflag.autoloop_fg = auto_loop;
+	
+	HMI_flag.auto_test_flag = 0xaa;
 	thermalManager.setTargetHotend(0, 0);
 	thermalManager.setTargetBed(0);
 	
@@ -624,7 +660,7 @@ void Autotest::HMI_StartTest() {
 
 	//bottom bar
 	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, YPOS(ID_LINE_KNOB), DWIN_WIDTH, YPOS(ID_LINE_KNOB)+ROW_GAP);	
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART, YPOS(ID_LINE_KNOB), PSTR("Rotary:"));
-	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART+XCENTER(0), YPOS(ID_LINE_KNOB), PSTR("Buzzer:"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART, YPOS_MSG(ID_LINE_KNOB), PSTR("Rotary:"));
+	DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLUE, LSTART+XCENTER(0), YPOS_MSG(ID_LINE_KNOB), PSTR("Buzzer:"));
 }
 #endif

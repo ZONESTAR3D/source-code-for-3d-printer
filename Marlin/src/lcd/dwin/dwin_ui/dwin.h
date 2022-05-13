@@ -157,14 +157,13 @@ typedef enum {
 	DWMENU_FILAMENT_FEEDLENGTH,
 	DWMENU_FILAMENT_PURGELENGTH,
 	DWMENU_LEVELING,
-	DWMENU_POP_LEVEL_CATCH,
 	DWMENU_LEVEL_CATCHOFFSET,
 	DWMENU_LEVEL_SETOFFSET,
 	DWMENU_LEVEL_BEDLEVELING,	
 	DWMENU_LEVEL_DONECONFIRM, 
 		
   //Control menu  
-  DWMENU_MIXER,
+  DWMENU_MIXER = 30,
   DWMENU_CONFIG,
   DWMENU_MOTION,
   DWMENU_POWERDOWN,
@@ -219,11 +218,13 @@ typedef enum {
  	DWMENU_SET_RETRACT_ZHOP,
  	DWMENU_SET_UNRETRACT_MM,
  	DWMENU_SET_UNRETRACT_V,	
+ 	//Case light brightness
+ 	DWMENU_SET_CASELIGHTBRIGHTNESS,
 	//BED Coating
 	DWMENU_SET_BEDCOATING,	
 	DWMENU_SET_HOTENDMAXTEMP,
 	//
-	DWMENU_PID_TUNE,
+	DWMENU_PID_TUNE = 90,
 	DWMENU_PID_KP,
 	DWMENU_PID_KI,
 	DWMENU_PID_KD,
@@ -242,6 +243,7 @@ typedef enum {
 
 	// Pop Menu
 	DWMENU_POP_HOME = 110,
+	DWMENU_POP_LEVEL_CATCH,	
 	DWMENU_POP_STOPPRINT,
 	DWMENU_POP_FROD_OPTION,
 	DWMENU_POP_FROD_INSERT,
@@ -411,7 +413,7 @@ typedef enum{
 #endif
 
 typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = 150);
+  TERN_(HAS_HOTEND,     int16_t E_Temp    = EXTRUDE_MINTEMP);
   TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 30);
   TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
 	TERN_(PID_AUTOTUNE_MENU,int16_t PIDAutotune_Temp = 200);
@@ -473,7 +475,7 @@ typedef struct {
 	#endif
 		
 	uint8_t Percentrecord = 0;
-	uint16_t remain_time = 0;
+	millis_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
 	
 	#if ENABLED(SWITCH_EXTRUDER_MENU)

@@ -429,21 +429,30 @@ void Draw_Print_ProgressBar() {
 }
 
 void Draw_Print_ElapsedTime() {
- duration_t elapsed = print_job_timer.duration(); // print timer
- DWIN_Draw_MaskIntValue_Default(2, 42, 212, elapsed.value / 3600);
- DWIN_Draw_MaskString_Default(58, 212, PSTR(":"));
- DWIN_Draw_MaskIntValue_Default(2, 66, 212, (elapsed.value % 3600) / 60);
+	#define	ELAPSEDTIME_STAR_X	40
+	duration_t elapsed = print_job_timer.duration(); // print timer	
+	char elapsed_string[20];
+	//if(elapsed.hour() < 100)
+		sprintf_P(elapsed_string, PSTR("%02d:%02d:%02d"), (int)(elapsed.hour()%100), (uint8_t)(elapsed.minute()%60), (uint8_t)(elapsed.second()%60));
+	//else
+	//	sprintf_P(elapsed_string, PSTR("%03d:%02d:%02d"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60), (uint8_t)(elapsed.second()%60));	
+	DWIN_Draw_MaskString_Default(ELAPSEDTIME_STAR_X, 212, elapsed_string);
 }
 
 void Draw_Print_RemainTime() {
-	if(HMI_Value.remain_time > 0){
-		DWIN_Draw_MaskIntValue_Default(2, 176, 212, HMI_Value.remain_time / 3600);
-		DWIN_Draw_MaskString_Default(192, 212, PSTR(":"));
-		DWIN_Draw_MaskIntValue_Default(2, 200, 212, (HMI_Value.remain_time % 3600) / 60);
-	}
-	else{
-		DWIN_Draw_MaskString_Default(176, 212, PSTR("--:--"));
-	}
+	#define	REMAINTIME_STAR_X	192
+	duration_t elapsed = HMI_Value.remain_time; // remain timer
+	
+	if(HMI_Value.remain_time <= 0)
+		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, PSTR("--:--"));
+	else {
+		char elapsed_string[20];
+		//if(elapsed.hour() < 100)
+			sprintf_P(elapsed_string, PSTR("%02d:%02d"), (int)(elapsed.hour()%100), (uint8_t)(elapsed.minute()%60));
+		//else
+		//	sprintf_P(elapsed_string, PSTR("%03d:%02d"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60));	
+		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, elapsed_string);
+	}	
 }
 
 #if(E_STEPPERS == 4)
@@ -1101,7 +1110,7 @@ void HMI_Tune() {
 		#if HAS_HOTEND
 		 	case TUNE_CASE_ETEMP: // Nozzle temp
 				DwinMenuID = DWMENU_SET_ETMP;
-				HMI_Value.E_Temp = thermalManager.degTargetHotend(0);
+				HMI_Value.E_Temp = _MAX(thermalManager.degTargetHotend(0), EXTRUDE_MINTEMP);
 				if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
 					DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
 				else

@@ -38,10 +38,11 @@ enum {
 	CHECK_PREPARE_HEAT2,
 	CHECK_HOTEND_TEMP,
 	CHECK_HOTBED_TEMP,
-	CHECK_FAN_SPEED,
+	CHECK_FANS_PREPARE,
+	CHECK_FANS,
 	CHECK_XY_MOTOR,
 	CHECK_Z_MOTOR,
-	CHECK_MOTOR_E1,
+	CHECK_EXTRUDER_MOTOR,
 	#if (E_STEPPERS > 1)
 	CHECK_MOTOR_E2,
 	#endif
@@ -51,7 +52,8 @@ enum {
 	#if (E_STEPPERS > 3)
 	CHECK_MOTOR_E4,
 	#endif
-	CHECK_MOTORS_END,
+	CHECK_MOTOR_END,
+	CHECK_ENDSTOPS_PREPARE,
 	CHECK_ENDSTOPS,
 	CHECK_KEY,
 	CHECK_END
@@ -62,14 +64,15 @@ typedef struct {
 	uint8_t rotary_counter_rg = 0;
 	uint8_t rotary_click_rg = 0;
 	uint8_t Endstops;	
-	bool fan_fg:1;	
+	bool fan_fg:1;
+	bool autoloop_fg:1;
 }_stAutotest_t;
 
 class Autotest {
 public:		
 		void Check_Rotary();
 		bool DWIN_AutoTesting();		
-		void HMI_StartTest();
+		void HMI_StartTest(uint8_t check_state = CHECK_START, bool auto_loop = true);
 		static _stAutotest_t testflag;
 
 private:		

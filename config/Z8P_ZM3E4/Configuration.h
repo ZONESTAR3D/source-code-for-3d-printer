@@ -90,8 +90,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V2.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-04-25"
+#define	FIRMWARE_VERSION		  		"V2.1.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-13"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -117,7 +117,7 @@
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 #define	OPTION_DWINLCD_MENUV2					//Used DWON LCD V2
 //===========================================================================
-//optional, need to open it if you upgrade these parts
+//optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected

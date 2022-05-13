@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V2.4.6"
-#define	STRING_DISTRIBUTION_DATE  "2022-04-22"
+#define	FIRMWARE_VERSION					"V2.4.8"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-13"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"

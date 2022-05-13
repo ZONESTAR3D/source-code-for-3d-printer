@@ -148,37 +148,46 @@ inline void _check_kill_times_ElapsedTime(){
 	}
 }
 
+
 inline void _Update_printing_Timer(){
 	// print process
 	if(card.isPrinting()){
+		// Print time so far
+		duration_t elapsed = print_job_timer.duration(); // print timer
+		static uint16_t last_Printtime = 0;
+		const uint16_t seconds = elapsed.value % 3600;
+		if (last_Printtime != seconds) { // 1 second update
+			last_Printtime = seconds;
+			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
+
+		#if HAS_PRINT_PROGRESS_PERMYRIAD
+			// Update remaining time
+			const uint16_t card_permyriad = card.permyriadDone();
+			static uint16_t last_cardpermyriad = 20000;
+			if(last_cardpermyriad != card_permyriad){
+				last_cardpermyriad = card_permyriad;
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value-HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/HMI_Value.card_permyriad - elapsed.value;
+			}
+		#endif
+		}
+		
+		//Print Process Percent
 		const uint8_t card_pct = card.percentDone();
-		static uint8_t last_cardpercentValue = 101;
+		static uint8_t last_cardpercentValue = 255;
 	
 		if(last_cardpercentValue != card_pct) { // print percent
 			last_cardpercentValue = card_pct;
 			if(card_pct) {
 				HMI_Value.Percentrecord = card_pct;
 				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
+				
+			// Update remaining time	
+			#if (!HAS_PRINT_PROGRESS_PERMYRIAD)
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time:elapsed.value) * 100)/HMI_Value.Percentrecord - elapsed.value;
+				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
+			#endif
 			}
-		}
-		duration_t elapsed = print_job_timer.duration(); // print timer
-
-		// Print time so far
-		static uint16_t last_Printtime = 0;
-		const uint16_t min = (elapsed.value % 3600) / 60;
-		if (last_Printtime != min) { // 1 minute update
-			last_Printtime = min;			
-			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
-		}
-
-		// Estimate remaining time every 20 seconds
-		const millis_t ms = millis();	
-		static millis_t next_remain_time_update = 0;
-		if(HMI_Value.Percentrecord >= 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) {
-			 HMI_Value.remain_time = (((elapsed.value - HMI_Value.dwin_heat_time) * 100) / HMI_Value.Percentrecord) - (elapsed.value - HMI_Value.dwin_heat_time);
-			 next_remain_time_update += 20 * 1000UL;
-			 if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
-		}
+		}		
 	}
 }
 
@@ -340,7 +349,7 @@ void DWIN_Show_M117(const char * const message){
 	#endif
 	}
 #endif
-	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 6);	
+	DWIN_Show_Status_Message(COLOR_WHITE,status_message, 15);	
 }
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -652,6 +661,10 @@ void DWIN_HandleScreen() {
 		case DWMENU_SET_UNRETRACT_V:				HMI_UnRetract_V(); break;
 	#endif	
 
+	#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+		case DWMENU_SET_CASELIGHTBRIGHTNESS: HMI_Adjust_Brightness();break;
+	#endif
+
 	#if ENABLED(OPTION_BED_COATING)
 	  case DWMENU_SET_BEDCOATING:					HMI_Adjust_Coating_Thickness(); break;
 	#endif
@@ -926,8 +939,10 @@ void DWIN_Update() {
 #if ENABLED(DWIN_AUTO_TEST)
 	if(HMI_flag.auto_test_flag == 0xaa){
 		if(autotest.DWIN_AutoTesting()){
-			HMI_flag.auto_test_flag = 0x55;
-			Draw_Main_Menu(true);
+			if(autotest.testflag.autoloop_fg)
+				Draw_Main_Menu(true);
+			else
+				Draw_Info_Menu();
 		}
 	}
 	else

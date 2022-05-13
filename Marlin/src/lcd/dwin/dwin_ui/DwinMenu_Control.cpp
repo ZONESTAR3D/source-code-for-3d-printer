@@ -29,6 +29,11 @@
 #if HAS_DWIN_LCD
 #include "dwin.h"
 
+#if ENABLED(CASE_LIGHT_MENU)
+#include "../../../feature/caselight.h"
+#endif
+
+#define _BREAK_WHILE_PRINTING {if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()) break;}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //Control >>> Main
@@ -939,6 +944,19 @@ static void Item_Config_Shutdown(const uint8_t row) {
 }
 #endif
 
+#if ENABLED(CASE_LIGHT_MENU)
+static void Item_Config_Backlight(const uint8_t row) {
+	Draw_Menu_Line(row,ICON_CURSOR);
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Backlight:"));
+	#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(caselight.on));
+	#else
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), caselight.brightness);
+	#endif
+}
+#endif
+
+
 #if ENABLED(OPTION_WIFI_MODULE)
 static void Item_Config_Wifi(const uint8_t row) {
  DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi:"));
@@ -1041,193 +1059,194 @@ inline PGM_P _getString_SwitchExtruder(){
 	}
 }
 
-
+#define MIX_SWITCH(FROM, TO)	do{mixer.reset_collector(FROM); mixer.normalize(TO);}while(0)
 inline void switch_extruder_sequence(){
+	
 	switch(HMI_Value.switchExtruder){
 		default:
 			HMI_Value.switchExtruder = SE_DEFAULT;
 			
 	#if (MIXING_STEPPERS == 3)	
 		case SE_E1E2E3:
-			mixer.reset_collector(0);	mixer.normalize(0);		
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);	
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(2, 2);
 			break;
 		case SE_E1E3E2:
-			mixer.reset_collector(0);	mixer.normalize(0);		
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);	
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(1, 2);
 			break;			
-		case SE_E2E1E3:
-			mixer.reset_collector(1);	mixer.normalize(0);		
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);	
+		case SE_E2E1E3:		
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(2, 2);
 			break;			
 		case SE_E2E3E1:
-			mixer.reset_collector(1);	mixer.normalize(0);		
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);	
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(0, 2);
 			break;			
 		case SE_E3E1E2:
-			mixer.reset_collector(2);	mixer.normalize(0);		
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);	
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(1, 2);
 			break;			
 		case SE_E3E2E1:
-			mixer.reset_collector(2);	mixer.normalize(0);		
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);	
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(0, 2);	
 			break;			
 	#endif
 	
 	#if (MIXING_STEPPERS == 4)		
 		case SE_E1E2E3E4:
-			mixer.reset_collector(0);	mixer.normalize(0);		
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(3, 3);
 			break;
 		case SE_E1E2E4E3:
-			mixer.reset_collector(0);	mixer.normalize(0);		
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(2, 3);	
 			break;
 		case SE_E1E3E2E4:
-			mixer.reset_collector(0);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(3, 3);	
   		break;
 		case SE_E1E3E4E2:
-			mixer.reset_collector(0);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(1, 3);	
   		break;
 		case SE_E1E4E2E3:
-			mixer.reset_collector(0);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(2, 3);
   		break;
 		case SE_E1E4E3E2:
-			mixer.reset_collector(0);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(1, 3);
   		break;
-						
+			
 		case SE_E2E1E3E4:			
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(3, 3);
   		break;
 		case SE_E2E1E4E3:
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(2, 3);
   		break;
 		case SE_E2E3E1E4:
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(3, 3);
   		break;
 		case SE_E2E3E4E1:
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(0, 3);
   		break;
 		case SE_E2E4E1E3:
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(2, 3);	
   		break;
 		case SE_E2E4E3E1:
-			mixer.reset_collector(1);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(1, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(0, 3);			
   		break;
 
 			
 		case SE_E3E1E2E4:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(3, 3);		
   		break;
 		case SE_E3E1E4E2:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(1, 3);				
   		break;	
 		case SE_E3E2E1E4:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(3);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(3, 3);					
   		break;
 		case SE_E3E2E4E1:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(3);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(3, 2);
+			MIX_SWITCH(0, 3);		
   		break;
 		case SE_E3E4E1E2:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(1, 3);		
   		break;
 		case SE_E3E4E2E1:
-			mixer.reset_collector(2);	mixer.normalize(0);
-			mixer.reset_collector(3);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(2, 0);
+			MIX_SWITCH(3, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(0, 3);				
   		break;
 			
 		case SE_E4E1E2E3:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(2, 3);		
   		break;
 		case SE_E4E1E3E2:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(0);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(1, 3);			
   		break;
 		case SE_E4E2E1E3:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(2);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(2, 3);			
   		break;
 		case SE_E4E2E3E1:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(1);	mixer.normalize(1);
-			mixer.reset_collector(2);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(1, 1);
+			MIX_SWITCH(2, 2);
+			MIX_SWITCH(0, 3);			
   		break;			
 		case SE_E4E3E1E2:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(0);	mixer.normalize(2);
-			mixer.reset_collector(1);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(0, 2);
+			MIX_SWITCH(1, 3);	
   		break;
 		case SE_E4E3E2E1:
-			mixer.reset_collector(3);	mixer.normalize(0);
-			mixer.reset_collector(2);	mixer.normalize(1);
-			mixer.reset_collector(1);	mixer.normalize(2);
-			mixer.reset_collector(0);	mixer.normalize(3);			
+			MIX_SWITCH(3, 0);
+			MIX_SWITCH(2, 1);
+			MIX_SWITCH(1, 2);
+			MIX_SWITCH(0, 3);	
   		break;
 	#endif			
 	}
@@ -1333,6 +1352,10 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	if (COVISI(CONFIG_CASE_SHUTDOWN)) Item_Config_Shutdown(COSCROL(CONFIG_CASE_SHUTDOWN));  	 // shutdown
 	#endif
 
+	#if ENABLED(CASE_LIGHT_MENU)
+	if (COVISI(CONFIG_CASE_BACKLIGHT)) 	Item_Config_Backlight(COSCROL(CONFIG_CASE_BACKLIGHT)); // Backlight
+	#endif
+	
 	#if ENABLED(OPTION_WIFI_MODULE) 
 	 if (COVISI(CONFIG_CASE_WIFI)) 	Item_Config_Wifi(COSCROL(CONFIG_CASE_WIFI));  	 					// WIFI	 
 	#endif
@@ -1578,7 +1601,7 @@ void HMI_Retract() {
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_fwretract.now) {
 			case 0: 									// Back				
-				Draw_Config_Menu(CONFIG_CASE_RETRACT);
+				Draw_Config_Menu(CONFIG_CASE_RETRACT);				
 			break;
 
 			case RETRACT_CASE_AUTO: 					// auto
@@ -1629,6 +1652,27 @@ void HMI_Retract() {
  dwinLCD.UpdateLCD();
 }
 #endif
+
+#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+void HMI_Adjust_Brightness() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if(caselight.brightness == 255 && encoder_diffState == ENCODER_DIFF_CW) return;
+		if(caselight.brightness == 0 && encoder_diffState == ENCODER_DIFF_CCW) return;
+		if (Apply_Encoder_uint8(encoder_diffState, &caselight.brightness)) {
+			DwinMenuID = DWMENU_CONFIG;
+			EncoderRate.enabled = false;
+			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_BACKLIGHT), caselight.brightness);			
+			if(!IS_SD_PRINTING() && !IS_SD_PAUSED() && !IS_SD_FILE_OPEN()) HMI_AudioFeedback(settings.save());
+		}
+		else
+			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_BACKLIGHT), caselight.brightness);		
+		caselight.update_brightness();
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -2618,6 +2662,10 @@ void HMI_Config() {
 					else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
 				#endif
 				
+				#if ENABLED(CASE_LIGHT_MENU)
+					else if(DwinMenu_configure.index == CONFIG_CASE_BACKLIGHT) Item_Config_Backlight(MROWS);
+				#endif
+				
 				#if ENABLED(OPTION_WIFI_MODULE)
 					else if(DwinMenu_configure.index == CONFIG_CASE_WIFI) Item_Config_Wifi(MROWS);
 				#endif
@@ -2652,6 +2700,10 @@ void HMI_Config() {
 			
 			#if ENABLED(OPTION_AUTOPOWEROFF)
 				else if(DwinMenu_configure.index == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(MROWS);
+			#endif
+			
+			#if ENABLED(CASE_LIGHT_MENU)
+				else if(DwinMenu_configure.index == CONFIG_CASE_BACKLIGHT) Item_Config_Backlight(MROWS);
 			#endif
 			
 			#if ENABLED(OPTION_WIFI_MODULE)
@@ -2716,6 +2768,10 @@ void HMI_Config() {
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_SHUTDOWN) Item_Config_Shutdown(0);
 			#endif
 			
+			#if ENABLED(CASE_LIGHT_MENU)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_BACKLIGHT) Item_Config_Backlight(0);
+			#endif
+			
 			#if ENABLED(OPTION_WIFI_MODULE)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_WIFI) Item_Config_Wifi(0);
 			 #if ENABLED(OPTION_WIFI_BAUDRATE)
@@ -2748,8 +2804,7 @@ void HMI_Config() {
 			}
 		}
 	}
-	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		#define _BREAK_WHILE_PRINTING {if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()) break;}
+	else if (encoder_diffState == ENCODER_DIFF_ENTER) {		
 	  switch (DwinMenu_configure.now) {
       case 0: 									// Back
 				if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()){
@@ -2760,23 +2815,23 @@ void HMI_Config() {
 					Draw_Control_Menu(CONTROL_CASE_CONFIG + mixing_menu_adjust());
 				}
 		  break;
-#if ENABLED(FWRETRACT) 
+	#if ENABLED(FWRETRACT) 
 			case CONFIG_CASE_RETRACT: 				// RETRACT			
 				DwinMenuID = DWMENU_SET_RETRACT;
 				DwinMenu_fwretract.index = MROWS;
-				Draw_Retract_Menu();				
+				Draw_Retract_Menu();
 			break;
- #endif
+  #endif
 			 
- #if ENABLED(OPTION_REPEAT_PRINTING)
+  #if ENABLED(OPTION_REPEAT_PRINTING)
 			case CONFIG_CASE_REPRINT:				
 				DwinMenuID = DWMENU_SET_REPRINT;
 				DwinMenu_reprint.index = MROWS;
 				Draw_RepeatPrint_Menu();
 			break;
- #endif
+  #endif
 	 
- #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 			case CONFIG_CASE_FILAMENT:  				// FILAMENT
 				DwinMenuID = DWMENU_CONFIG;
 				runout.enabled = !runout.enabled;
@@ -2785,10 +2840,13 @@ void HMI_Config() {
 					queue.inject_P(PSTR("M412 S1"));		
 				else
 					queue.inject_P(PSTR("M412 S0"));
+				
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());		
 		   break;
- #endif
+  #endif
 	 
- #if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(POWER_LOSS_RECOVERY)
 			case CONFIG_CASE_POWERLOSS:  			// POWERLOSS	 		
 				DwinMenuID = DWMENU_CONFIG;
 				recovery.enabled = !recovery.enabled;
@@ -2797,18 +2855,38 @@ void HMI_Config() {
 					queue.inject_P(PSTR("M413 S1"));			
 				else
 					queue.inject_P(PSTR("M413 S0"));
+				
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());					
 			break;
- #endif
+  #endif
 		
- #if ENABLED(OPTION_AUTOPOWEROFF)
+  #if ENABLED(OPTION_AUTOPOWEROFF)
 			case CONFIG_CASE_SHUTDOWN:
 				DwinMenuID = DWMENU_CONFIG;
 				HMI_flag.Autoshutdown_enabled = !HMI_flag.Autoshutdown_enabled;
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_SHUTDOWN + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
+				
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());		
 			break;
- #endif
-   
- #if ENABLED(OPTION_WIFI_MODULE)
+  #endif
+
+  #if ENABLED(CASE_LIGHT_MENU)
+ 			case CONFIG_CASE_BACKLIGHT:
+			#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
+				DwinMenuID = DWMENU_CONFIG;
+				caselight.on = !caselight.on;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_BACKLIGHT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(caselight.on));
+				caselight.update(false);
+			#else
+				DwinMenuID = DWMENU_SET_CASELIGHTBRIGHTNESS;
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X + 8, MBASE(CONFIG_CASE_BACKLIGHT + MROWS - DwinMenu_configure.index), caselight.brightness);								
+			#endif			
+			break;
+  #endif  
+	
+  #if ENABLED(OPTION_WIFI_MODULE)
 			case CONFIG_CASE_WIFI:	 	 	
 				WiFi_Enabled = !WiFi_Enabled;
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));				
@@ -2822,17 +2900,19 @@ void HMI_Config() {
 					DwinMenuID = DWMENU_CONFIG;
 					WIFI_onoff();
 				}
+				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());				
 			break;
-	#if ENABLED(OPTION_WIFI_BAUDRATE)
+	 #if ENABLED(OPTION_WIFI_BAUDRATE)
       case CONFIG_CASE_WIFISPEED:
 				_BREAK_WHILE_PRINTING
 
 				DwinMenuID = DWMENU_SET_WIFIBAUDRATE;
 				DWIN_Draw_Select_IntValue_Default(6, MENUVALUE_X-16, MBASE(CONFIG_CASE_WIFISPEED + MROWS -DwinMenu_configure.index), Table_Baudrate[WiFi_BaudRate]);
+				HMI_AudioFeedback(settings.save());	
 			break;
-	#endif		
- #endif
+	 #endif		
+  #endif
  
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 		case CONFIG_CASE_MIXERENABLE:	
