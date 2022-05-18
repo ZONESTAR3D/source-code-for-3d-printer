@@ -73,56 +73,48 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
+//#define	OPTION_MAX_SIZE				//500x500x400
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 			"Z9V5-MK4"
-#define	FIRMWARE_VERSION					"V1.0.2"
-#define	STRING_DISTRIBUTION_DATE  "2022-05-13"
+//ATTENTION: V3.0.0 only applied for Z9V5_MK3
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
+#ifdef OPTION_MAX_SIZE
+#define CUSTOM_MACHINE_NAME 			"Z9V5Pro-MK3(Max)"
+#else
+#define CUSTOM_MACHINE_NAME 			"Z9V5Pro-MK3"
+#endif
+#define	FIRMWARE_VERSION					"V2.2.3_beta"
+#define	STRING_DISTRIBUTION_DATE  "2021-01-06"
+#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
 #define WEBSITE_URL 							"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
-#define EEPROM_VERSION 			    	"V83"
 //===========================================================================
 //default feature, usually keep it enable
-#define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
-#define	OPTION_DWINLCD_MENUV2					//Used DWIN LCD MENU V2
+#define	SWITCH_EXTRUDER_SQUENCY
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_PL08N									//Probe use PL-08N
+#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
+#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
-#define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
-#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
-#define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
-#define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
-#define	DEFAULT_MIXING_SWITCH		false	//Default mixing feature is off
 //===========================================================================
 //optional feature
-#define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
+#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //==========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	1.0			//stikcer thickness
-#endif
-#if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK4"
-#endif
-#if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
+#define	BED_COATING_THICKNESS	0.0			//stikcer thickness
 #endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
-#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
@@ -519,14 +511,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
+#define HEATER_3_MAXTEMP 250
+#define HEATER_4_MAXTEMP 250
+#define HEATER_5_MAXTEMP 250
+#define HEATER_6_MAXTEMP 250
+#define HEATER_7_MAXTEMP 250
 #define BED_MAXTEMP      125
 
 //===========================================================================
@@ -553,9 +545,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  50.10// 30.30
-    #define DEFAULT_Ki   2.81//  1.41
-    #define DEFAULT_Kd 161.40//162.77
+    #define DEFAULT_Kp  72.20// 30.30
+    #define DEFAULT_Ki   5.50//  1.41
+    #define DEFAULT_Kd 222.00//162.77
   #endif
 #endif // PIDTEMP
 
@@ -578,7 +570,7 @@
  */
 //#define PIDTEMPBED
 
-//#define BED_LIMIT_SWITCHING
+#define BED_LIMIT_SWITCHING
 
 /**
  * Max Bed Power
@@ -809,7 +801,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 16, 100 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -822,10 +814,10 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
+#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 2000, 2000, 200, 10000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -836,9 +828,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION           500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION           800    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1500    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -850,15 +842,15 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 18.0
-  #define DEFAULT_YJERK 18.0
+  #define DEFAULT_XJERK 8.0
+  #define DEFAULT_YJERK 8.0
   #define DEFAULT_ZJERK 0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.8, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -872,7 +864,7 @@
  *   https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.12  // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.08  // (mm) Distance from real junction edge
   #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
@@ -1193,12 +1185,22 @@
 // @section machine
 
 // The size of the print bed
+#ifdef OPTION_MAX_SIZE
+#define X_BED_SIZE 510
+#define Y_BED_SIZE 510
+#else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
+#endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
+#ifdef OPTION_MAX_SIZE
+#define X_MIN_POS -5
+#define Y_MIN_POS -18
+#else
 #define X_MIN_POS 0
-#define Y_MIN_POS -15
+#define Y_MIN_POS -18
+#endif
 
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
@@ -1356,8 +1358,13 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
+  #ifdef OPTION_MAX_SIZE
+  #define GRID_MAX_POINTS_X 		7
+  #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
+	#else
 	#define GRID_MAX_POINTS_X 		5
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
+	#endif
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN
   #define PROBING_MARGIN_FRONT	PROBING_MARGIN
@@ -1435,7 +1442,11 @@
 // Add a menu item to move between bed corners for manual bed adjustment
 #define LEVEL_BED_CORNERS
 #if ENABLED(LEVEL_BED_CORNERS)
+	#if ENABLED(OPTION_MAX_SIZE)
+  #define LEVEL_CORNERS_INSET_LFRB { 40, 110, 40, 110 } // (mm) Left, Front, Right, Back insets
+  #else
   #define LEVEL_CORNERS_INSET_LFRB { 20, 20, 20, 20 } // (mm) Left, Front, Right, Back insets
+	#endif
   #define LEVEL_CORNERS_HEIGHT      0.1   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       8.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
@@ -1590,7 +1601,7 @@
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PET"
-#define PREHEAT_2_TEMP_HOTEND 230
+#define PREHEAT_2_TEMP_HOTEND 220
 #define PREHEAT_2_TEMP_BED     85
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 

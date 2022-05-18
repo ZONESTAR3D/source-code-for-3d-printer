@@ -73,68 +73,48 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
-#define OPTION_Z9V5_PRO				//Dwin LCD, Glass bed
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#ifdef OPTION_Z9V5_PRO
-#define CUSTOM_MACHINE_NAME 			"Z9V5Pro-MK1(2)"
-#else
-#define CUSTOM_MACHINE_NAME 			"Z9V5"
-#endif
-#define	FIRMWARE_VERSION					"2.0.3"
-#define	STRING_DISTRIBUTION_DATE  "2022-05-17"
+#define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
+#define	FIRMWARE_VERSION					"V2.4.8"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-13"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
-#define EEPROM_VERSION 			    	"V83"						//modify it if need auto inilize EEPROM after upload firmware
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
+#define EEPROM_VERSION 			    	"V83"
 //===========================================================================
 //default feature, usually keep it enable
-#define	SWITCH_EXTRUDER_SQUENCY
-#define	OPTION_DWINLCD_MENUV2				//Used DWIN LCD MENU V2
-#define	OPTION_AUTOPOWEROFF					//Power off after printer
-#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to Z2 motor connector)
-#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_PL08N 			    			//Probe use PL_08N
-#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
-#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
-#define	OPTION_MIXING_SWITCH				//Enable/disable mixing feature on LCD MENU
-#define	OPTION_GUIDE_QRCODE         //Add a User Guide link QRcode on first power on
-#define	OPTION_NEWS_QRCODE					//Add a Update News QRcode on Info Menu
-#define	SWITCH_EXTRUDER_MENU				//Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
-#define	DEFAULT_MIXING_SWITCH	true	//Default mixing feature is on
+#define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
+#define	OPTION_DWINLCD_MENUV2					//Used DWIN LCD MENU V2
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
+#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
+#define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
+#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
+#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+#define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
+#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
+#define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
+#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
+#define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
+#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 //===========================================================================
 //optional feature
-#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE					//Show a QRcode while WiFi is connected to help vist Web3D
-//#define	OPTION_BGM								//BGM extruder
-//#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
-//#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
-//#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
-//==========================================================================
-//Special
-/* for Z9V5-MK2, if the serial number V1xxxxxxxxxx and you want to use 
- * ZLSENSOR, you have to connect the ZLSENSOR to EXP1 connector and enable 
- * this option
-*/
-#ifdef OPTION_ZLSENSOR
-//#define ZLSENSOR_ON_EXP1						//
-#endif
+#define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+//#define	OPTION_BGM									//BGM extruder
+//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
+//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //==========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#if	ENABLED(OPTION_Z9V5_PRO) && ENABLED(OPTION_PL08N)
-#define	BED_COATING_THICKNESS	3.5			//glass thickness
-#else
-#define	BED_COATING_THICKNESS	0.0			//stikcer thickness
+#define	BED_COATING_THICKNESS	1.0			//stikcer thickness
 #endif
-#endif
-//User guide QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK2"
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK3"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
@@ -145,42 +125,11 @@
 #define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
-
-#if ENABLED(OPTION_Z9V5_PRO)
-  #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
-  #if ENABLED(OPTION_3DTOUCH)
-  #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
-  #endif
-#else															//LCD12864 connect to EXP1																	
-	#if ENABLED(OPTION_3DTOUCH)
-	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
-	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
-	#else
-  #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
-  #endif
+#define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
+#if ENABLED(OPTION_3DTOUCH)
+#define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
 #endif
 //===========================================================================
-/**
- * LCD LANGUAGE
- *
- * Select the language to display on the LCD. These languages are available:
- *
- *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, it, jp_kana,
- *   ko_KR, nl, pl, pt, pt_br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
- *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 
-   'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 
-   'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp_kana':'Japanese', 
-   'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 
-   'pt_br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 
-   'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
- */
-#define LCD_LANGUAGE en
-
-#ifdef OPTION_Z9V5_PRO
-#undef LCD_LANGUAGE
-#endif
-
 /**
  * *** VENDORS PLEASE READ ***
  *
@@ -587,15 +536,16 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 	255     		// Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX 	BANG_MAX 		// Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 		0.95      	// Smoothing factor within any PID loop
+#define BANG_MAX 	255     // Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 		0.95      // Smoothing factor within any PID loop
 
-#if ENABLED(PIDTEMP)	
-  #define PID_EDIT_MENU         	// Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  #define PID_AUTOTUNE_MENU     	// Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+#if ENABLED(PIDTEMP)
+  #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
+  #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
+
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
@@ -973,12 +923,7 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
-#if BOTH(OPTION_ZLSENSOR, ZLSENSOR_ON_EXP1)
-#define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
-#define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
-#else
 #define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
-#endif
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif
@@ -2257,9 +2202,7 @@
 //
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
-#ifndef OPTION_Z9V5_PRO
-#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
-#endif
+//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
 
@@ -2442,13 +2385,10 @@
 //
 //#define DWIN_CREALITY_LCD
 
-
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
-#ifdef OPTION_Z9V5_PRO
 #define ZONESTAR_DWIN_LCD
-#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
@@ -2551,10 +2491,6 @@
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
   //#define RGB_LED_W_PIN -1
-  	#define RGB_LED_R_PIN PE9
-  	#define RGB_LED_G_PIN PE14
-  	#define RGB_LED_B_PIN PE15
-  	#define RGB_LED_W_PIN PE8
 #endif
 
 // Support for Adafruit NeoPixel LED driver

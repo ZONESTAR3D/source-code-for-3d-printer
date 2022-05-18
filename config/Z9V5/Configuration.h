@@ -82,8 +82,8 @@
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					"2.0.2"
-#define	STRING_DISTRIBUTION_DATE  "2022-04-25"
+#define	FIRMWARE_VERSION					"2.0.3"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-17"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.

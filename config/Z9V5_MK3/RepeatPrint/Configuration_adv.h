@@ -38,7 +38,7 @@
 /**
  * Automatic Repeat Printing Settings
 **/
-//#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
+#define	OPTION_REPEAT_PRINTING			//Repeat printing feature
 #if ENABLED(OPTION_REPEAT_PRINTING)
 #define RPARML_MIN_ENDSTOP_INVERTING	true
 #define RPARMR_MIN_ENDSTOP_INVERTING	true
@@ -527,15 +527,15 @@
 /**
  * M355 Case Light on-off / brightness
  */
-#define CASE_LIGHT_ENABLE
+//#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 								PB0       // Override the default pin if needed
-  #define INVERT_CASE_LIGHT 						false     // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON 				true      // Set default power-up state on
+  #define CASE_LIGHT_PIN 				PB0               // Override the default pin if needed
+  #define INVERT_CASE_LIGHT 			false           // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON 		true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   		// Set default power-up brightness (0-255, requires PWM pin)
   //#define CASE_LIGHT_MAX_PWM 128            		// Limit pwm
   //#define CASE_LIGHT_MENU                   		// Add Case Light options to the LCD menu
-  #define CASE_LIGHT_NO_BRIGHTNESS          		// Disable brightness control. Enable for non-PWM lighting.
+  //#define CASE_LIGHT_NO_BRIGHTNESS          		// Disable brightness control. Enable for non-PWM lighting.
   //#define CASE_LIGHT_USE_NEOPIXEL           		// Use NeoPixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
@@ -2071,7 +2071,7 @@
     // Load / Unload
     #define TOOLCHANGE_FS_LENGTH              12  // (mm) Load / Unload length
     #define TOOLCHANGE_FS_EXTRA_RESUME_LENGTH  0  // (mm) Extra length for better restart, fine tune by LCD/Gcode)
-    #define TOOLCHANGE_FS_RETRACT_SPEED   (35*60) // (mm/min) (Unloading)
+    #define TOOLCHANGE_FS_RETRACT_SPEED   (50*60) // (mm/min) (Unloading)
     #define TOOLCHANGE_FS_UNRETRACT_SPEED (25*60) // (mm/min) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
     // Longer prime to clean out a SINGLENOZZLE
@@ -2102,7 +2102,7 @@
      *   - Switch spools automatically on filament runout
      *   - Switch to a different nozzle on an extruder jam
      */
-    //#define TOOLCHANGE_MIGRATION_FEATURE
+    #define TOOLCHANGE_MIGRATION_FEATURE
 
   #endif
 

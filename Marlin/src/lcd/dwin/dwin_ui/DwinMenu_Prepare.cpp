@@ -1257,7 +1257,8 @@ void HMI_Filament_Extuder() {
 		}
 		else {
 			NOLESS(HMI_Value.load_extruder, 1);		
-		#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		#if 0//BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
+		//don't allow to use all extruder on no-mixing hotend
 			if(!mixer.mixing_enabled){
 				NOMORE(HMI_Value.load_extruder, E_STEPPERS);
 			}
@@ -1346,7 +1347,7 @@ static void Dwin_filament_action(uint8_t action){
 	mixer.normalize();
 #endif
 	if(action == FILAMENT_CASE_PURGE){
-		//purge		
+		//purge	== slolyw load
 		current_position.e += HMI_Value.purgelength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
 		t = HMI_Value.purgelength*mux/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;		
@@ -1363,7 +1364,7 @@ static void Dwin_filament_action(uint8_t action){
 		HMI_flag.Is_retracted = false;
 	}
 	else if(action == FILAMENT_CASE_RETRACT){		
-		//unload		
+		//unload == slolyw unload
 		current_position.e -= HMI_Value.purgelength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE*mux;
 		t = HMI_Value.purgelength/FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE;
@@ -1378,7 +1379,7 @@ static void Dwin_filament_action(uint8_t action){
 		HMI_flag.Is_retracted = true;
 	} 
 	else if(action == FILAMENT_CASE_LOAD){		
-		//load		
+		//load == quickly load
 		current_position.e += HMI_Value.feedlength*mux;
 		feedrate_mm_s = FILAMENT_CHANGE_FAST_LOAD_FEEDRATE*mux;
 		t = HMI_Value.feedlength/FILAMENT_CHANGE_FAST_LOAD_FEEDRATE;
@@ -1391,7 +1392,9 @@ static void Dwin_filament_action(uint8_t action){
 		planner.synchronize();
 		HMI_flag.Is_retracted = false;
 	}
-	else if(action == FILAMENT_CASE_UNLOAD){		
+	else if(action == FILAMENT_CASE_UNLOAD){
+		//quickly unload
+		
 		//purge
 		if(!HMI_flag.Is_purged){
 			current_position.e += FILAMENT_UNLOAD_PURGE_LENGTH*mux;
