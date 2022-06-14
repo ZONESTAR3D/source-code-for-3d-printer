@@ -3610,8 +3610,6 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
-
-
 // @section develop
 
 //

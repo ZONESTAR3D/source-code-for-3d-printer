@@ -142,7 +142,7 @@ static void Item_Info_Bed(const uint8_t row) {
 	Draw_Menu_Line(row);
 }
 
-static void Item_Info_Hot(const uint8_t row) {
+static void Item_Info_Hotend(const uint8_t row) {
 	#define _HOTEND_MAXYEMP (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MINTEMP:" STRINGIFY(HEATER_0_MINTEMP) " MAXTEMP:235"));
 	Draw_Menu_Line(row);
@@ -154,6 +154,79 @@ static void Item_Info_RepeatPrint(const uint8_t row) {
 	Draw_Menu_Line(row);
 }
 #endif
+
+#if ENABLED(OPTION_TEST_MENU)
+static void Show_TestItem_String(const uint8_t row, const bool bHighlight){
+	switch(HMI_Value.test_item) {
+		default:
+		case TEST_ALL:
+			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("     All      "));
+		break;
+		
+		case TEST_SDCARD:
+			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("   SD Card    "));	
+		break;
+
+		case TEST_HEATERSANDFANS:
+			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("Heaters & FANs"));	
+		break;
+
+		case TEST_MOTORS:
+			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("    Motors    "));	
+		break;
+
+		case TEST_ENDSTOPS:
+			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("   ENDSTOPS   "));	
+		break;
+	}
+}
+
+static void Item_Info_Test(const uint8_t row) {
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Test item:"));
+	Show_TestItem_String(row, false);
+	Draw_Menu_Line(row);
+}
+
+void HMI_Adjust_Test_item() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int8(encoder_diffState, &HMI_Value.test_item)) {
+			EncoderRate.enabled = false;
+			Show_TestItem_String(MROWS + INFO_CASE_TEST -DwinMenu_infor.index, false);
+			switch(HMI_Value.test_item) {
+				default:
+				case TEST_ALL:
+					autotest.HMI_StartTest(CHECK_START, true);
+				break;
+				
+				case TEST_SDCARD:
+					autotest.HMI_StartTest(CHECK_SD, false);
+				break;
+				
+				case TEST_HEATERSANDFANS:
+					autotest.HMI_StartTest(CHECK_PREPARE_HEAT, false);
+				break;
+				
+				case TEST_MOTORS:
+					autotest.HMI_StartTest(CHECK_XY_MOTOR, false);
+				break;
+				
+				case TEST_ENDSTOPS:
+					autotest.HMI_StartTest(CHECK_ENDSTOPS_PREPARE, false);
+				break;					
+			}
+	  }
+		else{		  
+			NOLESS(HMI_Value.test_item, TEST_ALL);
+			NOMORE(HMI_Value.test_item, TEST_ENDSTOPS);
+			Show_TestItem_String(MROWS + INFO_CASE_TEST-DwinMenu_infor.index, true);
+		}			
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif				
+
 
 #define	STRING_PRODUCT_MODEL		"Model: " CUSTOM_MACHINE_NAME
 #if ENABLED(OPTION_GUIDE_QRCODE)
@@ -195,29 +268,47 @@ void Draw_Info_Menu() {
 	#define ICLINE(L) MBASE(ICSCROL(L))
 	#define ICVISI(L) WITHIN(ICSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS|AREA_BOTTOM);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_INFO, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
-	if (ICVISI(CONTROL_CASE_BACK)) Draw_Back_First(DwinMenu_infor.now == INFO_CASE_BACK);
-	
+	if (ICVISI(INFO_CASE_BACK)) Draw_Back_First(DwinMenu_infor.now == INFO_CASE_BACK);	
 	if(ICVISI(INFO_CASE_MODEL)) Item_Info_Model(ICSCROL(INFO_CASE_MODEL));
 	if(ICVISI(INFO_CASE_VERSION)) Item_Info_Version(ICSCROL(INFO_CASE_VERSION));
-	if(ICVISI(INFO_CASE_DATE)) Item_Info_Date(ICSCROL(INFO_CASE_DATE));
-	
+	if(ICVISI(INFO_CASE_DATE)) Item_Info_Date(ICSCROL(INFO_CASE_DATE));	
 #if ENABLED(OPTION_GUIDE_QRCODE)
 	if(ICVISI(INFO_CASE_VIEWGUIDE)) Item_Info_Guide(ICSCROL(INFO_CASE_VIEWGUIDE));
 #endif
-
 #if ENABLED(OPTION_NEWS_QRCODE)
 	if(ICVISI(INFO_CASE_NEWS)) Item_Info_News(ICSCROL(INFO_CASE_NEWS));
 #endif
-
 	if(ICVISI(INFO_CASE_WEBSITE)) Item_Info_Website(ICSCROL(INFO_CASE_WEBSITE));	
 	if(ICVISI(INFO_CASE_FIRMWARE)) Item_Info_Firmware(ICSCROL(INFO_CASE_FIRMWARE));
 	if(ICVISI(INFO_CASE_BOARD)) Item_Info_Board(ICSCROL(INFO_CASE_BOARD));
+
+/*	
 	if(ICVISI(INFO_CASE_EXTRUDER_NUM)) Item_Info_Extruder_Num(ICSCROL(INFO_CASE_EXTRUDER_NUM));	
+	if(ICVISI(INFO_CASE_EXTRUDER_MODEL)) Item_Info_Extruder_Model(ICSCROL(INFO_CASE_EXTRUDER_MODEL));	
+#if ENABLED(OPTION_DUALZ_DRIVE)
+	if(ICVISI(INFO_CASE_DUALZ_DRIVE)) Item_Info_DualZ_Drive(ICSCROL(INFO_CASE_DUALZ_DRIVE));	
+#endif	
+#if ENABLED(OPTION_Z2_ENDSTOP)
+	if(ICVISI(INFO_CASE_DUALZ_ENDSTOP)) Item_Info_DualZ_Endstop(ICSCROL(INFO_CASE_DUALZ_ENDSTOP));	
+#endif	
+	if(ICVISI(INFO_CASE_BAUDRATE)) Item_Info_Baudrate(ICSCROL(INFO_CASE_BAUDRATE));	
+	if(ICVISI(INFO_CASE_PROTOCOL)) Item_Info_Protocol(ICSCROL(INFO_CASE_PROTOCOL));	
+	if(ICVISI(INFO_CASE_LEVELSENSOR)) Item_Info_LevelSensor(ICSCROL(INFO_CASE_LEVELSENSOR));	
+	if(ICVISI(INFO_CASE_THERMISTOR)) Item_Info_Thermistor(ICSCROL(INFO_CASE_THERMISTOR));		
+	if(ICVISI(INFO_CASE_BED)) Item_Info_Bed(ICSCROL(INFO_CASE_BED)); 	
+	if(ICVISI(INFO_CASE_HOTEND)) Item_Info_Hotend(ICSCROL(INFO_CASE_HOTEND)); 
+#if ENABLED(OPTION_REPEAT_PRINTING)
+	if(ICVISI(INFO_CASE_REPRINT)) Item_Info_RepeatPrint(ICSCROL(INFO_CASE_REPRINT));
+#endif
+#if ENABLED(OPTION_TEST_MENU)
+	if(ICVISI(INFO_CASE_TEST)) Item_Info_Test(ICSCROL(INFO_CASE_TEST));
+#endif
+*/
 	if (DwinMenu_infor.now)	Draw_Menu_Cursor(ICSCROL(DwinMenu_infor.now));	
 	Draw_Status_Area();
 }
@@ -244,6 +335,7 @@ void HMI_Pop_NewsLink() {
 }
 #endif
 
+
 /* Info */
 void HMI_Info() {
 
@@ -255,6 +347,7 @@ void HMI_Info() {
 	#endif
 
 	if (encoder_diffState == ENCODER_DIFF_CW) {
+		testmode_click_times = 0;
 		if (DwinMenu_infor.inc(INFO_CASE_END)) {
 			if (DwinMenu_infor.now > MROWS && DwinMenu_infor.now > DwinMenu_infor.index) {
 				DwinMenu_infor.index = DwinMenu_infor.now;
@@ -286,17 +379,20 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index == INFO_CASE_LEVELSENSOR) Item_Info_LevelSensor(MROWS);				
 				else if(DwinMenu_infor.index == INFO_CASE_THERMISTOR) Item_Info_Thermistor(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_BED) Item_Info_Bed(MROWS);
-				else if(DwinMenu_infor.index == INFO_CASE_HOT) Item_Info_Hot(MROWS);
-				#if ENABLED(OPTION_REPEAT_PRINTING)
+				else if(DwinMenu_infor.index == INFO_CASE_HOTEND) Item_Info_Hotend(MROWS);
+			#if ENABLED(OPTION_REPEAT_PRINTING)
 				else if(DwinMenu_infor.index == INFO_CASE_REPRINT) Item_Info_RepeatPrint(MROWS);
-				#endif
-				
+			#endif				
+			#if ENABLED(OPTION_TEST_MENU)
+				else if(DwinMenu_infor.index == INFO_CASE_TEST) Item_Info_Test(MROWS);
+			#endif				
 			}
 			else 
 				Move_Highlight(1, DwinMenu_infor.now + MROWS - DwinMenu_infor.index);
 		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_CCW) {
+		testmode_click_times = 0;
 		if (DwinMenu_infor.dec()) {
 			if (DwinMenu_infor.now < DwinMenu_infor.index - MROWS) {
 				DwinMenu_infor.index--;
@@ -325,6 +421,9 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_MODEL) Item_Info_Model(0);				
 			#if ENABLED(OPTION_REPEAT_PRINTING)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_REPRINT) Item_Info_RepeatPrint(0);
+			#endif
+			#if ENABLED(OPTION_TEST_MENU)
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_TEST) Item_Info_Test(0);
 			#endif
 			}
 			else {
@@ -359,11 +458,13 @@ void HMI_Info() {
 			break;
 		#endif
 
-	#if ENABLED(OPTION_AUTOTEST_MENU)
-		case INFO_CASE_AUTOTEST:
-			//Draw_Test_Menu();
+		#if BOTH(DWIN_AUTO_TEST, OPTION_TEST_MENU)
+		case INFO_CASE_TEST:
+			DwinMenuID = DWMENU_SET_TESTITEM;			
+			Show_TestItem_String(MROWS + INFO_CASE_TEST - DwinMenu_infor.index, true);
+	  	EncoderRate.enabled = true;
 			break;
-	#endif
+		#endif
 			
 			default:	break;
 		}

@@ -336,7 +336,6 @@ void HMI_SelectFile() {
 		#endif
 		
 			// Start choice and print SD file
-			HMI_flag.heat_flag = true;   
 			HMI_flag.show_mode = SHOWED_TUNE;
 			card.openAndPrintFile(card.filename);
 

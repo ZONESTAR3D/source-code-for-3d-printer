@@ -42,17 +42,16 @@ void GcodeSuite::M163() {
 	if(!mixer.mixing_enabled) return;
 #endif
 
-  if (mix_index < MIXING_STEPPERS){
+  if (mix_index < MIXING_STEPPERS)
   	mixer.set_collector(mix_index, parser.floatval('P'));
-  }
-	else if(mix_index > MIXING_STEPPERS){
+/*	
+	else if(mix_index > MIXING_STEPPERS)
   	mixer.reset_vtools();
-  }
 #if ENABLED(USE_PRECENT_MIXVALUE)	
-	if(mix_index == MIXING_STEPPERS-1){ 	
+	else if(mix_index == MIXING_STEPPERS-1)
 		mixer.copy_collector_to_percentmix();
-	}
 #endif 
+*/
 }
 
 /**

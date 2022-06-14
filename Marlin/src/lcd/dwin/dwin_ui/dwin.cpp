@@ -519,9 +519,9 @@ inline void Draw_Freedown_Machine(){
 }
 
 inline void _check_autoshutdown(){
-	if((HMI_flag.Autoshutdown_enabled) && (DwinMenuID == DWMENU_POP_STOPPRINT || DwinMenuID == DWMENU_MAIN)){
+	if(HMI_flag.Autoshutdown_enabled && (DwinMenuID == DWMENU_POP_STOPPRINT || DwinMenuID == DWMENU_MAIN)){
 		//is heating?
-		if(thermalManager.temp_hotend[0].target > 50 || thermalManager.temp_bed.target > 25){
+		if(thermalManager.degTargetHotend(0) > 50 || thermalManager.degTargetBed() > 25){
 			HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
 		}
 		else if(HMI_flag.free_close_timer_rg == 0){
@@ -535,7 +535,16 @@ inline void _check_autoshutdown(){
 		}
 		Draw_Freedown_Machine();
 	}
-	else 
+	else if(HMI_flag.Is_shutdown) {		
+		if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()){
+			HMI_flag.Is_shutdown = false;
+		} 
+		else if(thermalManager.degHotend(0) < 80){
+			HMI_flag.Is_shutdown = false;
+			queue.inject_P(PSTR("M81"));
+		}
+	}
+	else
 		HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;	
 }
 
@@ -730,7 +739,11 @@ void DWIN_HandleScreen() {
  	#if ENABLED(BABYSTEPPING)
 		case DWMENU_TUNE_BABYSTEPS:					HMI_Pop_BabyZstep(); break;
 	#endif		
-		
+	
+	#if ENABLED(OPTION_TEST_MENU)
+		case DWMENU_SET_TESTITEM:						HMI_Adjust_Test_item(); break;
+	#endif
+	
 		case DWMENU_POP_WAITING:						HMI_Waiting(); break;
 
 	#if ENABLED(OPTION_NEWS_QRCODE)
@@ -939,10 +952,12 @@ void DWIN_Update() {
 #if ENABLED(DWIN_AUTO_TEST)
 	if(HMI_flag.auto_test_flag == 0xaa){
 		if(autotest.DWIN_AutoTesting()){
-			if(autotest.testflag.autoloop_fg)
-				Draw_Main_Menu(true);
-			else
+	#if ENABLED(OPTION_TEST_MENU)
+			if(!autotest.testflag.autorun)
 				Draw_Info_Menu();
+			else
+	#endif				
+				Draw_Main_Menu(true);				
 		}
 	}
 	else

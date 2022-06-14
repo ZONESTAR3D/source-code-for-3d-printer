@@ -35,9 +35,7 @@ enum {
   CHECK_START = 0,
 	CHECK_SD,
 	CHECK_PREPARE_HEAT,
-	CHECK_PREPARE_HEAT2,
-	CHECK_HOTEND_TEMP,
-	CHECK_HOTBED_TEMP,
+	CHECK_HEATER,
 	CHECK_FANS_PREPARE,
 	CHECK_FANS,
 	CHECK_XY_MOTOR,
@@ -55,17 +53,18 @@ enum {
 	CHECK_MOTOR_END,
 	CHECK_ENDSTOPS_PREPARE,
 	CHECK_ENDSTOPS,
-	CHECK_KEY,
-	CHECK_END
+	CHECK_FINISHED,
+	CHECK_KNOB,	
+	CHECK_END,	
 };
 
 typedef struct { 
-	uint8_t loops = 0;
-	uint8_t rotary_counter_rg = 0;
-	uint8_t rotary_click_rg = 0;
+	uint8_t state = 0;
+	uint8_t rotary_counter = 0;
+	uint8_t click_counter = 0;
 	uint8_t Endstops;	
 	bool fan_fg:1;
-	bool autoloop_fg:1;
+	bool autorun:1;
 }_stAutotest_t;
 
 class Autotest {
@@ -78,7 +77,7 @@ public:
 private:		
 		inline void AutoTest_ShowSWStatus(bool bfirst);
 		inline void AutoTest_ShowTemperature();
-		inline void Autotest_ShowKnob(uint8_t );
+		inline void Autotest_ShowKnob();
 		inline void AutoTest_Watch_SW();	
 };
 

@@ -73,6 +73,7 @@
 
 //#define	DEBUG_DWIN_LCD
 #define	DWIN_AUTO_TEST
+//#define	OPTION_TEST_MENU
 
 #include "../language/dwin_multi_language.h"
 #include "../dwin_lcd.h"
@@ -159,8 +160,8 @@ typedef enum {
 	DWMENU_LEVELING,
 	DWMENU_LEVEL_CATCHOFFSET,
 	DWMENU_LEVEL_SETOFFSET,
-	DWMENU_LEVEL_BEDLEVELING,	
-	DWMENU_LEVEL_DONECONFIRM, 
+	DWMENU_LEVEL_BEDLEVELING,
+	DWMENU_LEVEL_DONECONFIRM,
 		
   //Control menu  
   DWMENU_MIXER = 30,
@@ -240,6 +241,9 @@ typedef enum {
 	DWMENU_SET_REPRINT_BEDTEMP,
 	DWMENU_SET_REPRINT_ZHEIGTH,
 	DWMENU_SET_REPRINT_BASEHEIGTH,
+
+	//
+	 DWMENU_SET_TESTITEM,
 
 	// Pop Menu
 	DWMENU_POP_HOME = 110,
@@ -412,6 +416,17 @@ typedef enum{
 }_emSwitchExtruder;
 #endif
 
+#if ENABLED(OPTION_TEST_MENU)
+typedef enum{
+	TEST_ALL = 0,
+	TEST_SDCARD,
+	TEST_HEATERSANDFANS,
+	TEST_MOTORS,
+	TEST_ENDSTOPS,
+}_emTestTtem;
+
+#endif
+
 typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = EXTRUDE_MINTEMP);
   TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 30);
@@ -478,9 +493,8 @@ typedef struct {
 	millis_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
 	
-	#if ENABLED(SWITCH_EXTRUDER_MENU)
-	int8_t switchExtruder = SE_DEFAULT;
-	#endif
+	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
+	TERN_(OPTION_TEST_MENU, int8_t test_item  = TEST_ALL);
 } HMI_value_t;
 extern HMI_value_t HMI_Value;
 
@@ -494,11 +508,11 @@ typedef enum{
 
 typedef struct {  
   bool 	select_flag:1,
-   			heat_flag:1,  					// 0: heating done  1: during heating
    			lcd_sd_status:1,
    			Is_purged:1,
-   			Is_retracted:1
-   
+   			Is_retracted:1,
+   			Is_shutdown:1
+   			
 		#if ENABLED(OPTION_GUIDE_QRCODE)
 			 ,first_power_on:1
 		#endif		

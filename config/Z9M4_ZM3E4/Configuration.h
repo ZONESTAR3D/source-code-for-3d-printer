@@ -77,13 +77,13 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
-#define	FIRMWARE_VERSION			    "V1.7.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-01-14"
-#define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
+#define	FIRMWARE_VERSION			    "V2.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-19"
+#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 				      "www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
+#define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
 //default
 //default feature, usually keep it enable
@@ -95,18 +95,29 @@
 #define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
 //===========================================================================
 //optional feature
-//#define	OPTION_LCDDWIN				  		//
-//#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-//#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
+#define	OPTION_LCDDWIN				  			//
+//#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
 //#define	OPTION_BGM									//BGM extruder
-//#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
+#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
 //#define	OPTION_TMC220X_EXTRUDER			//TMC220x be used to  extruder motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 //#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
 //#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
+#ifdef OPTION_LCDDWIN
+#ifdef OPTION_WIFI_MODULE
+//#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
+#endif
+#define	OPTION_DWINLCD_MENUV2
+#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_MIXING_SWITCH				//Enable/disable mixing feature on LCD MENU
+#define	OPTION_GUIDE_QRCODE         //Add a User Guide link QRcode on first power on
+#define	SWITCH_EXTRUDER_MENU				//Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
+#define	DEFAULT_MIXING_SWITCH	true	//Default mixing feature is on
+#endif
 //===========================================================================
 //Speical
 //#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
@@ -117,9 +128,14 @@
 #if ENABLED(OPTION_BED_COATING)
 #define	BED_COATING_THICKNESS	0.2			//stikcer thickness
 #endif
+//User guide QRcode
+#if ENABLED(OPTION_GUIDE_QRCODE)
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9M4"
+#endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
+#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 
@@ -549,14 +565,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 250
-#define HEATER_1_MAXTEMP 250
-#define HEATER_2_MAXTEMP 250
-#define HEATER_3_MAXTEMP 250
-#define HEATER_4_MAXTEMP 250
-#define HEATER_5_MAXTEMP 250
-#define HEATER_6_MAXTEMP 250
-#define HEATER_7_MAXTEMP 250
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      125
 
 //===========================================================================

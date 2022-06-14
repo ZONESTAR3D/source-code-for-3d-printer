@@ -94,6 +94,10 @@
 	#error "You can only select one between OPTION_PL08N, OPTION_ZLSENSOR and OPTION_3DTOUCH"
 #endif
 
+#if (MOTHERBOARD == BOARD_ZONESTAR_ZM3E2 && ENABLED(OPTION_3DTOUCH) && ENABLED(OPTION_WIFI_MODULE))
+	#error "You can only select one between OPTION_3DTOUCH and OPTION_WIFI_MODULE"
+#endif
+
 #if DISABLED(OPTION_LCDDWIN) && ENABLED(PROBE_ON_EXP1)
 	#error "EXP1 has been used by LCD12864, it must disable PROBE_ON_EXP1"
 #endif

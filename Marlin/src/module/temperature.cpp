@@ -3230,7 +3230,6 @@ void Temperature::tick() {
       if (wait_for_heatup) {
         wait_for_heatup = false;
         #if HAS_DWIN_LCD
-          HMI_flag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // print timer
           HMI_Value.dwin_heat_time = elapsed.value;
         #else

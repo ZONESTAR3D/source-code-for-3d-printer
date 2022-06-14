@@ -79,17 +79,17 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #ifdef Z5S
 #define CUSTOM_MACHINE_NAME 	  	"Z5S"
 #elif defined(Z5SM2)
 #define CUSTOM_MACHINE_NAME 	  	"Z5SM2"
 #endif
-#define	FIRMWARE_VERSION		  	  "V1.0"
-#define	STRING_DISTRIBUTION_DATE  "2021-10-11"
-#define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define	FIRMWARE_VERSION		  	  "V1.1"
+#define	STRING_DISTRIBUTION_DATE  "2022-05-17"
+#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 			        "www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
 #define	DEFAULT_AUTO_LEVELING			true		//Auto leveling feature is on
@@ -97,24 +97,24 @@
 #define	OPTION_MICROSTEP   				16  		//32 64 128
 //===========================================================================
 //Optional feature
-#define	OPTION_WIFI_MODULE
-//#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+//#define	OPTION_WIFI_MODULE
+//#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
 //#define OPTION_TITAN								//TITAN Extruder
-#define OPTION_BGM										//BGM Extruder
+//#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_AUTOPOWEROFF					//Power off after printer
-//#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
-//#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to E0 motor wire )
 //#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen (EXP1 connector)
 //#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob (EXP1 connector)
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR (Z- connector)
-//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch (AUX2 connector)
+//#define	OPTION_3DTOUCH								//Probe use 3DTouch or BLTouch (AUX2 connector)
 //===========================================================================
 //Bed coating
 #if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	0.4		//stikcer thickness
+#define	BED_COATING_THICKNESS	1.0			//stikcer thickness
 #endif
 //===========================================================================
+//UART port
 #if ENABLED(OPTION_WIFI_MODULE)
+#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 
@@ -553,7 +553,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      130
+#define BED_MAXTEMP      125
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -644,7 +644,7 @@
  *
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
-#define PREVENT_COLD_EXTRUSION
+//#define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP   170
 
 /**
@@ -847,7 +847,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 8, 60 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -860,10 +860,10 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 2000, 2000, 200, 10000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -875,8 +875,8 @@
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)

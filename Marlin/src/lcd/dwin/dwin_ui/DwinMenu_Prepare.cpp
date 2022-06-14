@@ -1005,7 +1005,7 @@ void HMI_MoveAxis() {
 	#if HAS_HOTEND
 			case AXISMOVE_CASE_EX1: // Extruder1
 				// window tips
-			#if 1//EITHER(PREVENT_COLD_EXTRUSION)
+			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1021,7 +1021,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 1)
 			case AXISMOVE_CASE_EX2: // Extruder2
 			// window tips
-			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
+			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1038,7 +1038,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 2)
 			case AXISMOVE_CASE_EX3: // Extruder3
 			// window tips
-			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
+			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1055,7 +1055,7 @@ void HMI_MoveAxis() {
 		#if(E_STEPPERS > 3)
 			case AXISMOVE_CASE_EX4: // Extruder4
 			// window tips
-			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
+			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1072,7 +1072,7 @@ void HMI_MoveAxis() {
 		#if ENABLED(MIXING_EXTRUDER)
 			case AXISMOVE_CASE_EXALL: // Extruderall
 			// window tips
-			#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
+			#if ENABLED(PREVENT_COLD_EXTRUSION)
 				if (thermalManager.degHotend(0) < EXTRUDE_MINTEMP) {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 					DWIN_FEEDBACK_WARNNING();
@@ -1322,7 +1322,7 @@ static void Dwin_filament_action(uint8_t action){
 	const uint8_t old_extruder = active_extruder;
 #endif
 
-#if 1//ENABLED(PREVENT_COLD_EXTRUSION)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
 	if(thermalManager.degHotend(0) < EXTRUDE_MINTEMP)	{ 
 		DWIN_Show_Status_Message(COLOR_RED, PSTR("Nozzle is too cool!"));
 		DWIN_FEEDBACK_WARNNING();
@@ -1982,12 +1982,13 @@ static void Popup_Window_Powerdown() {
 	DWIN_Show_MultiLanguage_String(MTSTRING_POWER_OUTAGE, TITLE_X, TITLE_Y);
 	DWIN_Show_ICON(ICON_POWER_DOWN, 86, 95);
 	ICON_YESorNO(DwinMenu_powerdown.now);
-	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (DWIN_WIDTH - 12 * 17) / 2, 290, PSTR("Confirm Shutdown?"));
+	DWIN_Draw_MaskString_Default_PopMenu((DWIN_WIDTH - 10 * 17) / 2, 290, PSTR("Confirm Shutdown?"));
 }
 
 void HMI_Powerdown() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
-	if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+	if (HMI_flag.Is_shutdown || encoder_diffState == ENCODER_DIFF_NO) return;
 
 	if (encoder_diffState == ENCODER_DIFF_CW) {
 		if (DwinMenu_powerdown.inc(2)) ICON_YESorNO(DwinMenu_powerdown.now);
@@ -1997,9 +1998,19 @@ void HMI_Powerdown() {
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_powerdown.now) {
-			case 0: 
-				//queue.inject_P(PSTR("M81"));
-				suicide();
+			case 0:
+				thermalManager.disable_all_heaters();
+				if(thermalManager.degHotend(0) > 80){
+					HMI_flag.Is_shutdown = true;
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 14, 228, 258, 330);
+					DWIN_FEEDBACK_CONFIRM();
+					DWIN_Draw_MaskString_Default_PopMenu((DWIN_WIDTH - 10 * 22) / 2, 240, PSTR("Machine will shut down"));
+					DWIN_Draw_MaskString_Default_PopMenu((DWIN_WIDTH - 10 * 21) / 2, 270, PSTR("after hotend is cool."));
+				}
+				else{
+					//queue.inject_P(PSTR("M81"));
+					suicide();
+				}
 			break;
 			
 			case 1: 
