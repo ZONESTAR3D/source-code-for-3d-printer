@@ -1,5 +1,5 @@
 ## ZONESTAR 3D Printer Firmware Source Code
-###  Configured machines list   
+###  [Configured machines list](./config/)
 |     Config     |         Model       |    Control board    |  
 |----------------|---------------------|---------------------|  
 |  D805S_ZM3E4   |    D805S(M2/R2)     |       ZM3E4         |  
