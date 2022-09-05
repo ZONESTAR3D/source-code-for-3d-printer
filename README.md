@@ -50,7 +50,8 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
    - **32bits control board(ZM3E2/ZM3E4)**: firmware.bin file.
    - **8bits control board(ZMIB/ZRIB)**: firmware.hex file.
 2. Wait for the build finished.
-3. Find the *firmware.bin (32-bits control board)* or *firmware.HEX (8-bits control board)* file in the ".pio/build/{board}" of the source code directory
+3. Find the *firmware.bin (32-bits control board)* or *firmware.HEX (8-bits control board)* file in the ".pio/build/{board}" of the source code directory.    
+:point_right:[ZONESTAR 3D Printer firmware Bin/Hex file](https://github.com/ZONESTAR3D/Firmware)
 
 ------
 ## Upload firmware to your 3d printer
