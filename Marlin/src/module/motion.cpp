@@ -88,10 +88,6 @@ uint8_t axis_homed, axis_known_position; // = 0
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-float home_z_offset = DEFAULT_HOMEZ_OFFSET;
-#endif
-
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
@@ -1414,10 +1410,6 @@ void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-	#if ENABLED(OPTION_HOMEZ_OFFSET) && Z_HOME_DIR < 0	 
-		if (axis == Z_AXIS) current_position.z -= home_z_offset;
-	#endif
-	
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
 
   TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));

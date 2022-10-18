@@ -52,10 +52,6 @@ constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-extern float home_z_offset;
-#endif
-
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 

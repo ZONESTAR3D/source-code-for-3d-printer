@@ -479,19 +479,21 @@ inline void abortSDPrinting() {
   queue.clear();
   quickstop_stepper();
   print_job_timer.stop();
-  #if DISABLED(SD_ABORT_NO_COOLDOWN)
-    thermalManager.disable_all_heaters();
-  #endif
-  #if !HAS_CUTTER
+#if DISABLED(SD_ABORT_NO_COOLDOWN)
+	thermalManager.disable_all_heaters();
+#endif
+
+#if !HAS_CUTTER
     thermalManager.zero_fan_speeds();
-  #else
+#else
     cutter.kill();              // Full cutter shutdown including ISR control
-  #endif
+#endif
+
   wait_for_heatup = false;
   TERN_(POWER_LOSS_RECOVERY, recovery.purge());
-  #ifdef EVENT_GCODE_SD_ABORT
-    queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));		
-	#endif
+#ifdef EVENT_GCODE_SD_ABORT
+	queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));		
+#endif
 	TERN_(HAS_DWIN_LCD, DWIN_status = ID_SM_STOPED);  
 	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrinting_Reset());
 	TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());

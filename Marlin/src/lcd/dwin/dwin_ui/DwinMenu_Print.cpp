@@ -223,12 +223,7 @@ void HMI_SDCardInit() {
 
 #if ENABLED(BABYSTEPPING)
 inline void _init_baby_zoffset(){
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-	babyzoffset.current = home_z_offset;
-#else
-	babyzoffset.current = 0.0;
-#endif
-	babyzoffset.last = babyzoffset.current;
+	babyzoffset.last = babyzoffset.current = babyzoffset.first = 0.0;
 	babystep.axis_total[BS_TOTAL_IND(Z_AXIS)] = babyzoffset.last * planner.settings.axis_steps_per_mm[Z_AXIS];
 	HMI_Value.babyZoffset_Scale = babyzoffset.last * MAXUNITMULT;
 }
@@ -798,21 +793,22 @@ static void _Apply_ZOffset(){
 		babyzoffset.current  = (float)HMI_Value.babyZoffset_Scale/MAXUNITMULT;
 		if(babyzoffset.last != babyzoffset.current ){
 		   babystep.add_mm(Z_AXIS, babyzoffset.current - babyzoffset.last);			
-			 babyzoffset.last = babyzoffset.current ;
+			 babyzoffset.last = babyzoffset.current;
 		}
 	}		
 }
 
-#if ENABLED(OPTION_HOMEZ_OFFSET)
+
 /****
 	if baby Z offset is ajusted while printing, save it to home Z offset.
 */
+#if HAS_OFFSET_MENU
 inline void save_Zoffset(){
-	if(babyzoffset.last != home_z_offset && babyzoffset.last > 0) {
-		home_z_offset = babyzoffset.last;
+	if(ABS(babyzoffset.last - babyzoffset.first) > 0.1) {
+		home_offset.z += (babyzoffset.first - babyzoffset.last);		
 		settings.save();
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Z offset stored!"), 6);
-	}
+		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Home Z offset changed!"), 6);
+	}	
 }
 #endif
 
@@ -1084,7 +1080,7 @@ void HMI_PauseOrStop() {
 				TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
 				wait_for_heatup = wait_for_user = false;
 				card.flag.abort_sd_printing = true;
-				#if BOTH(BABYSTEPPING, OPTION_HOMEZ_OFFSET)
+				#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU)
 				save_Zoffset();
 				#endif
 			}
@@ -1252,7 +1248,7 @@ void DWIN_Draw_PrintDone_Confirm(){
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 14 * 12) / 2, 200, PSTR("Click to exit!"));
 	//dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y_START);
 	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 250);
-#if BOTH(BABYSTEPPING, OPTION_HOMEZ_OFFSET)
+#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU )
 	save_Zoffset();
 #endif
 }

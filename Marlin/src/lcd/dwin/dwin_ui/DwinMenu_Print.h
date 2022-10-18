@@ -67,6 +67,7 @@ enum{
 
 #if ENABLED(BABYSTEPPING)
 typedef struct {
+	float first;
 	float current;
 	float last;
 } baby_step_t;

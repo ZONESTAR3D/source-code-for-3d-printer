@@ -119,6 +119,7 @@ typedef enum{
 #endif
 #if ENABLED(PID_AUTOTUNE_MENU)
 	ID_SM_PIDAUTOTUNE,
+	ID_SM_PIDAUTOTUNING,
 #endif
 	ID_SM_RUNOUTING,
 	ID_SM_RETURN_MAIN
@@ -221,13 +222,18 @@ typedef enum {
  	DWMENU_SET_RETRACT_ZHOP,
  	DWMENU_SET_UNRETRACT_MM,
  	DWMENU_SET_UNRETRACT_V,	
+ 	
+ 	//Home Offset
+ 	DWMENU_SET_HOMEOFFSET = 90,	 	 	
+ 	DWMENU_SET_HOMEOFFSET_X,
+ 	DWMENU_SET_HOMEOFFSET_Y,
+	DWMENU_SET_HOMEOFFSET_Z,
+	DWMENU_SET_HOMEZOFFSET = DWMENU_SET_HOMEOFFSET_Z,
  	//Case light brightness
- 	DWMENU_SET_CASELIGHTBRIGHTNESS,
-	//Home Z Offset
-	DWMENU_SET_HOMEZOFFSET,	
+ 	DWMENU_SET_CASELIGHTBRIGHTNESS,	
 	DWMENU_SET_HOTENDMAXTEMP,
 	//
-	DWMENU_PID_TUNE = 90,
+	DWMENU_PID_TUNE = 100,
 	DWMENU_PID_KP,
 	DWMENU_PID_KI,
 	DWMENU_PID_KD,
@@ -237,18 +243,19 @@ typedef enum {
 	DWMENU_SET_SWITCHEXTRUDER,
 	
 	//Repeat printing
-	DWMENU_SET_REPRINT = 100,	
+	DWMENU_SET_REPRINT = 110,	
 	DWMENU_SET_REPRINT_TIMES,
 	DWMENU_SET_REPRINT_PUSHLENGTH,
 	DWMENU_SET_REPRINT_BEDTEMP,
 	DWMENU_SET_REPRINT_ZHEIGTH,
 	DWMENU_SET_REPRINT_BASEHEIGTH,
-
 	//
-	 DWMENU_SET_TESTITEM,
+	
+	//
+	DWMENU_SET_TESTITEM,
 
 	// Pop Menu
-	DWMENU_POP_HOME = 110,
+	DWMENU_POP_HOME = 120,
 	DWMENU_POP_LEVEL_CATCH,	
 	DWMENU_POP_STOPPRINT,
 	DWMENU_POP_FROD_OPTION,
@@ -430,10 +437,11 @@ typedef enum{
 #endif
 
 typedef struct {
-  TERN_(HAS_HOTEND,     int16_t E_Temp    = EXTRUDE_MINTEMP);
-  TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 30);
-  TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
-	TERN_(PID_AUTOTUNE_MENU,int16_t PIDAutotune_Temp = 200);
+  TERN_(HAS_HOTEND,     		int16_t E_Temp    = EXTRUDE_MINTEMP);
+  TERN_(HAS_HEATED_BED, 		int16_t Bed_Temp  = 30);
+  TERN_(HAS_PREHEAT,    		int16_t Fan_speed = 0);
+	TERN_(PID_AUTOTUNE_MENU,	int16_t PIDAutotune_Temp = 200);
+	TERN_(PID_AUTOTUNE_MENU,	uint8_t PIDAutotune_cycles = 0);
   int16_t print_speed     	= 100;
 	int16_t flowrate     			= 100;
   int16_t Max_Feedspeed     = 0;
@@ -448,8 +456,11 @@ typedef struct {
   int16_t Random_Zstart_scale  = 0;
   int16_t Random_Zend_scale    = 0;
   int16_t Random_Height = 0;
-	#if ENABLED(OPTION_HOMEZ_OFFSET)
-  int16_t HomeZOffset_scale = 0;
+	
+	#if HAS_OFFSET_MENU
+	int16_t HomeOffsetX_scale = 0;
+	int16_t HomeOffsetY_scale = 0;
+	int16_t HomeOffsetZ_scale = 0;
 	#endif
 
 	#if ENABLED(FWRETRACT)
@@ -616,6 +627,10 @@ extern DwinMenu DwinMenu_infor;
 
 #if ENABLED(OPTION_REPEAT_PRINTING)
 extern DwinMenu DwinMenu_reprint;
+#endif
+
+#if HAS_OFFSET_MENU
+extern DwinMenu DwinMenu_Homeoffset;
 #endif
 
 

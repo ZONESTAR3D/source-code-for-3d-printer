@@ -75,9 +75,9 @@
 #endif
 
 //#define	OPTION_Z8PM3 							//M3 + LCD12864
-//#define	OPTION_Z8PM4 						//M4 + LCD12864
-//#define	OPTION_Z8PM3_PRO 				//M3 + DWIN LCD 
-#define	OPTION_Z8PM4_PRO 				//M4 + DWIN LCD 
+//#define	OPTION_Z8PM4 							//M4 + LCD12864
+//#define	OPTION_Z8PM3_PRO 					//M3 + DWIN LCD 
+#define	OPTION_Z8PM4_PRO 						//M4 + DWIN LCD 
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
@@ -90,8 +90,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V2.2.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-07-08"
+#define	FIRMWARE_VERSION		  		"V3.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-09-26"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -102,14 +102,13 @@
 #define OPTION_LCDDWIN							//
 #endif
 #define OPTION_TITAN									//TITAN Extruder
-#define	DWINLCD_MENU_VERSION		2		//Used DWIN LCD MENU V2
+#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
+#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
-#define	OPTION_HOMEZ_OFFSET						//Home Z offset
 #define	OPTION_TMC2225_XYZ 						//TMC2225 be used to XYZ
-#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
@@ -121,6 +120,7 @@
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
@@ -129,10 +129,11 @@
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //===========================================================================
-//Bed coating
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-#define	DEFAULT_HOMEZ_OFFSET	1.0			//default home Z offset
-#endif
+//HOME OFFSET
+#define	DEFAULT_HOMEX_OFFSET	-10.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	-5.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	-1.0			//default home Z offset
+
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
 #endif
@@ -1269,8 +1270,8 @@
 #define Y_BED_SIZE 310
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -15
-#define Y_MIN_POS -5
+#define X_MIN_POS 0
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE

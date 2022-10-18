@@ -60,6 +60,7 @@ void Mixer::normalize(const uint8_t tool_index) {
       csum += v;
     #endif
   }
+	NOLESS(cmax, 0.1);
   #ifdef MIXER_NORMALIZER_DEBUG
 	SERIAL_ECHOLNPGM("normalize");
 	SERIAL_EOL();
@@ -73,7 +74,7 @@ void Mixer::normalize(const uint8_t tool_index) {
 	SERIAL_EOL();
   #endif
 
-  // Scale all values so their maximum is COLOR_A_MASK
+  // Scale all values so their maximum is COLOR_A_MASK  
   const float scale = float(COLOR_A_MASK) / cmax;
   MIXER_STEPPER_LOOP(i) color[tool_index][i] = collector[i] * scale;
 
@@ -110,68 +111,52 @@ void Mixer::init_collector(const uint8_t index){
 	switch(index){
 		default:
 		case 0:
-			mixer.collector[0] = 10.0;
-			mixer.collector[1] = 0.0;
+			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;
 		break;
 		case 1:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 10.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;
 		break;
 		case 2:
-			mixer.collector[0] = 10.0;
-			mixer.collector[1] = 10.0;
+			mixer.collector[0] = 10.0;		mixer.collector[1] = 10.0;
 		break;
 		case 3:
-			mixer.collector[0] = 9.0;
-			mixer.collector[1] = 1.0;
+			mixer.collector[0] = 9.0;		mixer.collector[1] = 1.0;
 		break;
 		case 4:
-			mixer.collector[0] = 8.5;
-			mixer.collector[1] = 1.5;
+			mixer.collector[0] = 8.5;		mixer.collector[1] = 1.5;
 		break;
 		case 5:
-			mixer.collector[0] = 8.0;
-			mixer.collector[1] = 2.0;
+			mixer.collector[0] = 8.0;		mixer.collector[1] = 2.0;
 		break;
 		case 6:
-			mixer.collector[0] = 7.5;
-			mixer.collector[1] = 2.5;
+			mixer.collector[0] = 7.5;		mixer.collector[1] = 2.5;
 		break;
 		case 7:
-			mixer.collector[0] = 7.0;
-			mixer.collector[1] = 3.0;
+			mixer.collector[0] = 7.0;		mixer.collector[1] = 3.0;
 		break;
 		case 8:
-			mixer.collector[0] = 6.5;
-			mixer.collector[1] = 3.5;
+			mixer.collector[0] = 6.5;		mixer.collector[1] = 3.5;
 		break;
 		case 9:
-			mixer.collector[0] = 6.0;
-			mixer.collector[1] = 4.0;
+			mixer.collector[0] = 6.0;		mixer.collector[1] = 4.0;
 		break;
 		case 10:
-			mixer.collector[0] = 4.0;
-			mixer.collector[1] = 6.0;
+			mixer.collector[0] = 4.0;		mixer.collector[1] = 6.0;
 		break;
 		case 11:
-			mixer.collector[0] = 3.5;
-			mixer.collector[1] = 6.5;
+			mixer.collector[0] = 3.5;		mixer.collector[1] = 6.5;
 		break;
 		case 12:
-			mixer.collector[0] = 3.0;
-			mixer.collector[1] = 7.0;
+			mixer.collector[0] = 3.0;		mixer.collector[1] = 7.0;
 		break;
 		case 13:
-			mixer.collector[0] = 2.5;
-			mixer.collector[1] = 7.5;
+			mixer.collector[0] = 2.5;		mixer.collector[1] = 7.5;
 		break;
 		case 14:
-			mixer.collector[0] = 2.0;
-			mixer.collector[1] = 8.0;
+			mixer.collector[0] = 2.0;		mixer.collector[1] = 8.0;
 		break;
 		case 15:
-			mixer.collector[0] = 1.0;
-			mixer.collector[1] = 9.0;
+			mixer.collector[0] = 1.0;		mixer.collector[1] = 9.0;
 		break;
 	}	
 }
@@ -180,84 +165,52 @@ void Mixer::init_collector(const uint8_t index){
 	switch(index){
 		default:
 		case 0:
-			mixer.collector[0] = 10.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
+			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;
 			break;
 		case 1:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 10.0;
-			mixer.collector[2] = 0.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;	mixer.collector[2] = 0.0;
 		break;
 		case 2:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 10.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 10.0;
 		break;
 		case 3:
-			mixer.collector[0] = 10.0;
-			mixer.collector[1] = 10.0;
-			mixer.collector[2] = 10.0;
+			mixer.collector[0] = 10.0;	mixer.collector[1] = 10.0;	mixer.collector[2] = 10.0;
 		break;
 		case 4:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 0.0;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;
 		break;
 		case 5:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 5.0;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 5.0;
 		break;
 		case 6:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 5.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 5.0;
 		break;
 		case 7:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 2.5;
-			mixer.collector[2] = 2.5;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 2.5;		mixer.collector[2] = 2.5;
 		break;
 		case 8:
-			mixer.collector[0] = 2.5;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 2.5;
+			mixer.collector[0] = 2.5;		mixer.collector[1] = 5.0;		mixer.collector[2] = 2.5;
 		break;
 		case 9:
-			mixer.collector[0] = 2.5;
-			mixer.collector[1] = 2.5;
-			mixer.collector[2] = 5.0;
+			mixer.collector[0] = 2.5;		mixer.collector[1] = 2.5;		mixer.collector[2] = 5.0;
 		break;
 		case 10:
-			mixer.collector[0] = 7.0;
-			mixer.collector[1] = 1.5;
-			mixer.collector[2] = 1.5;
+			mixer.collector[0] = 7.0;		mixer.collector[1] = 1.5;		mixer.collector[2] = 1.5;
 		break;
 		case 11:
-			mixer.collector[0] = 1.5;
-			mixer.collector[1] = 7.0;
-			mixer.collector[2] = 1.5;
+			mixer.collector[0] = 1.5;		mixer.collector[1] = 7.0;		mixer.collector[2] = 1.5;
 		break;
 		case 12:
-			mixer.collector[0] = 1.5;
-			mixer.collector[1] = 1.5;
-			mixer.collector[2] = 7.0;
+			mixer.collector[0] = 1.5;		mixer.collector[1] = 1.5;		mixer.collector[2] = 7.0;
 		break;
 		case 13:
-			mixer.collector[0] = 5.5;
-			mixer.collector[1] = 1.5;
-			mixer.collector[2] = 3.0;
+			mixer.collector[0] = 5.5;		mixer.collector[1] = 1.5;		mixer.collector[2] = 3.0;
 		break;
 		case 14:
-			mixer.collector[0] = 5.5;
-			mixer.collector[1] = 3.0;
-			mixer.collector[2] = 1.5;
+			mixer.collector[0] = 5.5;		mixer.collector[1] = 3.0;		mixer.collector[2] = 1.5;
 		break;
 		case 15:
-			mixer.collector[0] = 1.5;
-			mixer.collector[1] = 3.0;
-			mixer.collector[2] = 5.5;
+			mixer.collector[0] = 1.5;		mixer.collector[1] = 3.0;		mixer.collector[2] = 5.5;
 		break;
 	}
 }
@@ -267,100 +220,52 @@ void Mixer::init_collector(const uint8_t index)
 	switch(index){
 		default:
 		case 0:
-			mixer.collector[0] = 10.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
 		break;
 		case 1:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 10.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;	mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
 		break;
 		case 2:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 10.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 10.0;	mixer.collector[3] = 0.0;
 		break;
 		case 3:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 10.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 10.0;
 		break;
 		case 4:
-			mixer.collector[0] = 2.5;
-			mixer.collector[1] = 2.5;
-			mixer.collector[2] = 2.5;
-			mixer.collector[3] = 2.5;
+			mixer.collector[0] = 2.5;		mixer.collector[1] = 2.5;		mixer.collector[2] = 2.5;		mixer.collector[3] = 2.5;
 		break;
 		case 5:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
 		break;
 		case 6:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 5.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 5.0;		mixer.collector[3] = 0.0;
 		break;
 		case 7:
-			mixer.collector[0] = 5.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 5.0;
+			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 5.0;
 		break;
 		case 8:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 5.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 5.0;		mixer.collector[3] = 0.0;
 		break;
 		case 9:
-			mixer.collector[0] = 0.0;
-			mixer.collector[1] = 5.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 5.0;
+			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 5.0;
 		break;
 		case 10:
-			mixer.collector[0] = 2.0;
-			mixer.collector[1] = 8.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 2.0;		mixer.collector[1] = 8.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
 		break;
 		case 11:
-			mixer.collector[0] = 2.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 8.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 2.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 8.0;		mixer.collector[3] = 0.0;
 		break;
 		case 12:
-			mixer.collector[0] = 2.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 8.0;
+			mixer.collector[0] = 2.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 8.0;
 		break;
 		case 13:
-			mixer.collector[0] = 8.0;
-			mixer.collector[1] = 2.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 8.0;		mixer.collector[1] = 2.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
 		break;
 		case 14:
-			mixer.collector[0] = 8.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 2.0;
-			mixer.collector[3] = 0.0;
+			mixer.collector[0] = 8.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 2.0;		mixer.collector[3] = 0.0;
 		break;
 		case 15:
-			mixer.collector[0] = 8.0;
-			mixer.collector[1] = 0.0;
-			mixer.collector[2] = 0.0;
-			mixer.collector[3] = 2.0;
+			mixer.collector[0] = 8.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 2.0;
 		break;
 	}
 }
@@ -403,24 +308,24 @@ void Mixer::reset_vtools(bool force_reset/* = false */) {
 	mixer.random_mix.extruders = MIXING_STEPPERS;
 #endif
 
-  #ifdef MIXER_NORMALIZER_DEBUG
+#ifdef MIXER_NORMALIZER_DEBUG
   SERIAL_EOL();
   SERIAL_ECHOLNPGM("reset_vtools!");
   SERIAL_EOL();
   for(uint8_t t=0; t<MIXING_VIRTUAL_TOOLS; t++){
     for(uint8_t i=0; i<MIXING_STEPPERS; i++){ 
     	SERIAL_ECHOPGM("color[ ");
-        SERIAL_ECHO(uint16_t(t));
-		SERIAL_ECHOPGM("]");
-		SERIAL_ECHOPGM("[");
-		SERIAL_ECHO(uint16_t(i));
-		SERIAL_ECHOPGM("]=");
-		SERIAL_ECHO(uint16_t(color[t][i]));
-		SERIAL_ECHOPGM(", ");
-		SERIAL_EOL();
+      SERIAL_ECHO(uint16_t(t));
+			SERIAL_ECHOPGM("]");
+			SERIAL_ECHOPGM("[");
+			SERIAL_ECHO(uint16_t(i));
+			SERIAL_ECHOPGM("]=");
+			SERIAL_ECHO(uint16_t(color[t][i]));
+			SERIAL_ECHOPGM(", ");
+			SERIAL_EOL();
   	}
   }  
-  #endif
+#endif
 }
 
 // called at boot
@@ -457,7 +362,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   MIXER_STEPPER_LOOP(i) {
     c[i] = color[t][i] * inv_prop;
 	#ifdef MIXER_NORMALIZER_DEBUG
-	SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", c[i], ")	");
+		SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", c[i], ")	");
 	#endif
   }
   #ifdef MIXER_NORMALIZER_DEBUG
@@ -545,22 +450,22 @@ void Mixer::copy_collector_to_percentmix() {
   	MIXER_STEPPER_LOOP(i)	percentmix[i] = (mixer_perc_t)(collector[i]);
   normalize_mixer_percent(&percentmix[0]);
   
-  #ifdef MIXER_NORMALIZER_DEBUG
-    SERIAL_ECHOLNPGM("copy_collector_to_percentmix");
-    SERIAL_EOL();
-    SERIAL_ECHOPGM("collector [ ");
-    MIXER_STEPPER_LOOP(i){ 
+#ifdef MIXER_NORMALIZER_DEBUG
+  SERIAL_ECHOLNPGM("copy_collector_to_percentmix");
+  SERIAL_EOL();
+  SERIAL_ECHOPGM("collector [ ");
+  MIXER_STEPPER_LOOP(i){ 
 		SERIAL_ECHO(int(collector[i]));
 		SERIAL_ECHOPGM(", ");
-    }
+  }
 	SERIAL_ECHOPGM(" ] to Mix [ ");
 	MIXER_STEPPER_LOOP(i){ 
 		SERIAL_ECHO(int(percentmix[i]));
 		SERIAL_ECHOPGM(", ");
-    }    
-    SERIAL_ECHOLNPGM(" ]");
+  }    
+  SERIAL_ECHOLNPGM(" ]");
 	SERIAL_EOL();
-  #endif
+#endif
 }  
 #endif
 

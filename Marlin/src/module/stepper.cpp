@@ -468,61 +468,31 @@ void Stepper::set_directions() {
       count_direction[_AXIS(A)] = 1;            \
     }
 
-  #if HAS_X_DIR
-    SET_STEP_DIR(X); // A
-  #endif
-  #if HAS_Y_DIR
-    SET_STEP_DIR(Y); // B
-  #endif
-  #if HAS_Z_DIR
-    SET_STEP_DIR(Z); // C
-  #endif
+    TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
+    TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
+    TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
 
-  #if DISABLED(LIN_ADVANCE)
-    #if ENABLED(MIXING_EXTRUDER)
-       // Because this is valid for the whole block we don't know
-       // what e-steppers will step. Likely all. Set all.
-      if (motor_direction(E_AXIS)) {
-        MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-        count_direction.e = -1;
-      }
-      else {
-        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-        count_direction.e = 1;
-      }
-    #else
-      if (motor_direction(E_AXIS)) {
-        REV_E_DIR(stepper_extruder);
-        count_direction.e = -1;
-      }
-      else {
-        NORM_E_DIR(stepper_extruder);
-        count_direction.e = 1;
-      }
-    #endif
-  #endif // !LIN_ADVANCE
-
-  #if HAS_L64XX
-    if (L64XX_OK_to_power_up) { // OK to send the direction commands (which powers up the L64XX steppers)
-      if (L64xxManager.spi_active) {
-        L64xxManager.spi_abort = true;                    // Interrupted SPI transfer needs to shut down gracefully
-        for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-          L6470_buf[j] = dSPIN_NOP;                         // Fill buffer with NOOPs
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // Send enough NOOPs to complete any command
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-        L64xxManager.transfer(L6470_buf, L64XX::chain[0]);
-      }
-
-      // L64xxManager.dir_commands[] is an array that holds direction command for each stepper
-
-      // Scan command array, copy matches into L64xxManager.transfer
-      for (uint8_t j = 1; j <= L64XX::chain[0]; j++)
-        L6470_buf[j] = L64xxManager.dir_commands[L64XX::chain[j]];
-
-      L64xxManager.transfer(L6470_buf, L64XX::chain[0]);  // send the command stream to the drivers
+  #if ENABLED(MIXING_EXTRUDER)
+     // Because this is valid for the whole block we don't know
+     // what e-steppers will step. Likely all. Set all.
+    if (motor_direction(E_AXIS)) {
+      MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
+      count_direction.e = -1;
+    }
+    else {
+      MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
+      count_direction.e = 1;
+    }
+	#else
+    if (motor_direction(E_AXIS)) {
+      REV_E_DIR(stepper_extruder);
+      count_direction.e = -1;
+    }
+    else {
+      NORM_E_DIR(stepper_extruder);
+      count_direction.e = 1;
     }
   #endif
-
   DIR_WAIT_AFTER();
 }
 
@@ -2000,7 +1970,8 @@ uint32_t Stepper::block_phase_isr() {
         cutter.apply_power(current_block->cutter_power);
       #endif
 
-      TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);
+      TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);			
+			//TERN_(POWER_LOSS_RECOVERY, recovery.info.current_position = current_block->start_position);
 
       #if ENABLED(DIRECT_STEPPING)
         if (IS_PAGE(current_block)) {
@@ -2127,9 +2098,7 @@ uint32_t Stepper::block_phase_isr() {
       accelerate_until = current_block->accelerate_until << oversampling;
       decelerate_after = current_block->decelerate_after << oversampling;
 
-      #if ENABLED(MIXING_EXTRUDER)
-        MIXER_STEPPER_SETUP();
-      #endif
+			TERN_(MIXING_EXTRUDER,mixer.stepper_setup(current_block->b_color));
 
       #if HAS_MULTI_EXTRUDER
         stepper_extruder = current_block->extruder;

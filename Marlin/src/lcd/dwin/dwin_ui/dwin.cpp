@@ -103,6 +103,10 @@ DwinMenu DwinMenu_manualmix;
 DwinMenu DwinMenu_GradientMix;
 DwinMenu DwinMenu_RandomMix;
 #endif
+#if HAS_OFFSET_MENU
+DwinMenu DwinMenu_Homeoffset;
+#endif
+
 #if ENABLED(BLTOUCH)
 DwinMenu DwinMenu_bltouch;
 #endif
@@ -372,7 +376,7 @@ inline void DWIN_Show_Extruder_status() {
 		}
 		DWIN_Refresh_ExtruerFAN_State();
 	}
-	else	
+	else
 #endif
 	{		
 		//vool changed?
@@ -451,11 +455,19 @@ inline void DWIN_Update_Variable() {
 
  /* Bottom temperature update */
 #if HAS_HOTEND
+	//HOTEND temperature
 	if (last_temp_hotend_current != thermalManager.degHotend(0)) {
 		DWIN_Draw_IntValue_FONT10((thermalManager.degHotend(0) > HOTEND_WARNNING_TEMP)? COLOR_RED : COLOR_WHITE, State_text_extruder_num, State_text_extruder_X, State_text_extruder_Y, thermalManager.degHotend(0));
 		last_temp_hotend_current = thermalManager.degHotend(0);
 	}
-	if (last_temp_hotend_target != thermalManager.degTargetHotend(0)) {
+	//HOTEND targe temperature
+	if(DWIN_status == ID_SM_PIDAUTOTUNING){
+		if (last_temp_hotend_target != HMI_Value.PIDAutotune_Temp) {
+			DWIN_Draw_IntValue_FONT10(COLOR_RED, State_text_extruder_num, State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, HMI_Value.PIDAutotune_Temp);	
+			last_temp_hotend_target = HMI_Value.PIDAutotune_Temp;
+		}
+	}
+	else if (last_temp_hotend_target != thermalManager.degTargetHotend(0)) {
 		if(DwinMenuID == DWMENU_POP_FROD_HEAT && ((++flash_mask&0x01) == 0x01))
 			DWIN_Draw_UnMaskString_FONT10(State_text_extruder_X + (State_text_extruder_num + 1) * STAT_CHR_W, State_text_extruder_Y, PSTR("    "));		
 		else 
@@ -742,8 +754,11 @@ void DWIN_HandleScreen() {
 		case DWMENU_SET_CASELIGHTBRIGHTNESS: HMI_Adjust_Brightness();break;
 	#endif
 
-	#if ENABLED(OPTION_HOMEZ_OFFSET)
-	  case DWMENU_SET_HOMEZOFFSET:					HMI_Adjust_HomeZOffset(); break;
+	#if HAS_OFFSET_MENU
+		case DWMENU_SET_HOMEOFFSET:						HMI_Adjust_HomeOffset(); break;
+		case DWMENU_SET_HOMEOFFSET_X:					HMI_Adjust_HomeOffset_X(); break;
+		case DWMENU_SET_HOMEOFFSET_Y:					HMI_Adjust_HomeOffset_Y(); break;
+		case DWMENU_SET_HOMEOFFSET_Z:					HMI_Adjust_HomeOffset_Z(); break;
 	#endif
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
@@ -926,7 +941,7 @@ uint8_t get_title_picID(){
 }
 
 void EachMomentUpdate() {	
-	
+	char string_Buf[50]={0};
 	static millis_t next_rts_update_ms = 0;
 	const millis_t ms = millis();	
 	if (PENDING(ms, next_rts_update_ms)) 	return;
@@ -1008,13 +1023,20 @@ void EachMomentUpdate() {
 	else if(DWIN_status == ID_SM_STOPED){
 		Stop_and_return_mainmenu();
 	}
+#if ENABLED(PID_AUTOTUNE_MENU)	
 	else if(DWIN_status == ID_SM_PIDAUTOTUNE){
-		char string_Buf[50]={0};
-		//ZERO(string_Buf);
-		sprintf_P(string_Buf,PSTR("M303 S%3d E0 C8 U1\nM500"),HMI_Value.PIDAutotune_Temp);
-		queue.inject(string_Buf);
-		DWIN_status = ID_SM_IDLE;
+		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - 20){			
+			//ZERO(string_Buf);
+			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C8 U1\nM500"), HMI_Value.PIDAutotune_Temp);
+			queue.inject(string_Buf);
+			DWIN_status = ID_SM_PIDAUTOTUNING;
+		}
 	}
+	else if(DWIN_status == ID_SM_PIDAUTOTUNING && HMI_Value.PIDAutotune_cycles > 0 && HMI_Value.PIDAutotune_cycles <= 8){
+		sprintf_P(string_Buf,PSTR("PID Tuning, Cycles = %d / 8."), HMI_Value.PIDAutotune_cycles);
+		DWIN_Show_Status_Message(COLOR_RED, string_Buf, 0);	
+	}
+#endif
 	dwinLCD.UpdateLCD();
 }
 

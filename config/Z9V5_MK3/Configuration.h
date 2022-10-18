@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-07-06"
+#define	FIRMWARE_VERSION					"V3.1.1"
+#define	STRING_DISTRIBUTION_DATE  "2022-10-12"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -92,9 +92,7 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor driver)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
-#define	OPTION_HOMEZ_OFFSET						//Home Z offset
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
@@ -110,18 +108,16 @@
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //==========================================================================
-//Bed coating
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-#define	DEFAULT_HOMEZ_OFFSET	1.0			//default home Z offset
-#endif
+//HOME OFFSET
+#define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	-15.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	 -1.0			//default home Z offset
+
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK3"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
-#endif
-#if BOTH(OPTION_PL08N, OPTION_HOMEZ_OFFSET)
-//#define	OPTION_GLASS_BED
 #endif
 //===========================================================================
 //UART port
@@ -1202,8 +1198,7 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-#define Y_MIN_POS -15
-
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE

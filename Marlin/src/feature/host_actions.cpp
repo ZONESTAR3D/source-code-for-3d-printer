@@ -24,9 +24,9 @@
 
 #if ENABLED(HOST_ACTION_COMMANDS)
 
-#include "host_actions.h"
-
 //#define DEBUG_HOST_ACTIONS
+
+#include "host_actions.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "pause.h"

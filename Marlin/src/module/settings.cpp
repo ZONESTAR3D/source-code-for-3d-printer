@@ -294,13 +294,6 @@ typedef struct SettingsDataStruct {
 	bool wifi_enabled;	
 	#endif
 
-	//
-	//bed coating heigth
-	//
-	#if ENABLED(OPTION_HOMEZ_OFFSET)
-	float data_homez_offset;
-	#endif
-
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	int16_t max_hotendtemp;
 	#endif
@@ -882,18 +875,7 @@ void MarlinSettings::postprocess() {
 			const bool wifi_enabled = WiFi_Enabled;			
       EEPROM_WRITE(wifi_enabled);			
     }
-		#endif
-		
-		//
-		//bed coating heigth
-		//
-		#if ENABLED(OPTION_HOMEZ_OFFSET)
-		{
-			_FIELD_TEST(data_homez_offset);
-			const float data_homez_offset = home_z_offset;
-			EEPROM_WRITE(data_homez_offset);
-		}	
-		#endif
+		#endif	
 
 		//
 		//maxiums hotend temp
@@ -1844,17 +1826,6 @@ void MarlinSettings::postprocess() {
 			#endif
 
 			//
-		  // Bed coating Heigth
-		  //
-		  #if ENABLED(OPTION_HOMEZ_OFFSET)
-			{
-				_FIELD_TEST(data_homez_offset);
-				const float &data_homez_offset = home_z_offset;
-		    EEPROM_READ(data_homez_offset);
-		   }
-			#endif
-
-			//
 			//maxiums hotend temp
 			//
 			#if ENABLED(OPTION_HOTENDMAXTEMP)
@@ -2686,6 +2657,15 @@ void MarlinSettings::reset() {
     scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
     home_offset.reset();
+		#ifdef DEFAULT_HOMEX_OFFSET
+		home_offset.x = DEFAULT_HOMEX_OFFSET;
+		#endif
+		#ifdef DEFAULT_HOMEY_OFFSET
+		home_offset.y = DEFAULT_HOMEY_OFFSET;
+		#endif
+		#ifdef DEFAULT_HOMEZ_OFFSET
+		home_offset.z = DEFAULT_HOMEZ_OFFSET;
+		#endif
   #endif
 
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
@@ -2804,10 +2784,6 @@ void MarlinSettings::reset() {
 	//
 	TERN_(OPTION_WIFI_BAUDRATE,  WiFi_BaudRate = 0);
 	TERN_(OPTION_WIFI_MODULE,  WiFi_Enabled = false);
-	//
-	// Bed Coating Thickness
-	//
-	TERN_(OPTION_HOMEZ_OFFSET,  home_z_offset = DEFAULT_HOMEZ_OFFSET);
 
 	//
 	// maxiums hotend temp

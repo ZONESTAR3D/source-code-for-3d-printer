@@ -1610,7 +1610,7 @@ static void Popup_Window_CatchOffset() {
 }
 #endif
 
-#if BOTH(OPTION_HOMEZ_OFFSET, OPTION_GLASS_BED)
+#if (HAS_OFFSET_MENU  && ENABLED(OPTION_GLASS_BED))
 static void Popup_Remove_Glass() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
@@ -1828,9 +1828,11 @@ void HMI_BedLeveling() {
 	#if ABL_GRID
 		#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 		case LEVELING_CASE_CATCHOFFSET:
-			#if BOTH(OPTION_HOMEZ_OFFSET, OPTION_GLASS_BED)
-				if((DwinMenuID == DWMENU_POP_LEVEL_CATCH) || (home_z_offset < 2))
+		#if (HAS_OFFSET_MENU && ENABLED(OPTION_GLASS_BED))
+			#if HAS_OFFSET_MENU
+				if((DwinMenuID == DWMENU_POP_LEVEL_CATCH) || (home_offset.z > -2))			
 			#endif
+		#endif
 				{
 					DwinMenuID = DWMENU_LEVEL_CATCHOFFSET;					
 					set_bed_leveling_enabled(false);
@@ -1839,7 +1841,7 @@ void HMI_BedLeveling() {
 					DWIN_G29_Show_Messge(G29_CATCH_START);
 					queue.inject_P(PSTR("G28\nG29 N\n"));
 				}
-			#if BOTH(OPTION_HOMEZ_OFFSET, OPTION_GLASS_BED)
+			#if (HAS_OFFSET_MENU  && ENABLED(OPTION_GLASS_BED))
 	  	 	else{
 					DwinMenuID = DWMENU_POP_LEVEL_CATCH;
 					Popup_Remove_Glass();

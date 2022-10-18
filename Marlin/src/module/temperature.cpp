@@ -547,6 +547,7 @@ volatile bool Temperature::raw_temps_ready = false;
             }
             SHV((bias + d) >> 1, (bias + d) >> 1);
             cycles++;
+						TERN_(HAS_DWIN_LCD, HMI_Value.PIDAutotune_cycles = cycles);
             minT = target;
           }
         }
@@ -641,10 +642,14 @@ volatile bool Temperature::raw_temps_ready = false;
         }
 
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
-
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
 
+			 #if BOTH(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
 				TERN_(HAS_DWIN_LCD, DWIN_Show_Status_Message(COLOR_WHITE, PSTR("PID Auto tune done!")));
+				TERN_(HAS_DWIN_LCD, DWIN_FEEDBACK_CONFIRM());				
+				TERN_(HAS_DWIN_LCD, Draw_PIDTune_Menu());
+				TERN_(HAS_DWIN_LCD, DWIN_status = ID_SM_IDLE);
+			 #endif
 
         goto EXIT_M303;
       }

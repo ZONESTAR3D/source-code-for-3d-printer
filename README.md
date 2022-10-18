@@ -1,3 +1,17 @@
+## Language / Translate
+[![](./lanpic/ES.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=es)
+[![](./lanpic/PT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pt)
+[![](./lanpic/FR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=fr)
+[![](./lanpic/RU.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ru)
+[![](./lanpic/IT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=it)
+[![](./lanpic/DE.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=de)
+[![](./lanpic/PL.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pl)
+[![](./lanpic/KR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ko)
+[![](./lanpic/JP.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ja)
+[![](./lanpic/SA.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ar)
+[![](./lanpic/CN.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=zh-CN)
+
+------------
 ## ZONESTAR 3D Printer Firmware Source Code
 ###  [Configured machines list](./config/)
 |     Config     |         Model       |    Control board    |  
@@ -38,10 +52,10 @@
 1. Download firmware source code to your PC and unzip it.  
 ![](./config/download.jpg)    
 2. Choose and replace config files  
-   - Find the configuration files of your machine from the "config" directory  
-   - Copy and replace configuration.h and configuration_adv.h to "marlin" directory  
-   - Copy and replace platformio.ini to root directory of the source code  
-   - Modify "configuration.h" and "configuration_adv.h" according to the setting of your machine if need.  
+   - Find the configuration files of your machine from the **"config"** directory.   
+   - Copy and replace ***configuration.h*** and ***configuration_adv.h*** to "marlin" directory.   
+   - Copy and replace ***platformio.ini*** to root directory of the source code.  
+   - Modify "configuration.h" and "configuration_adv.h" according to the setting of your machine if need.   
 3. Open the project in Visual Stuido Code  
 Use the "Open Folder…" command in the Visual Studio Code "File" menu to open the source code directory which you stored, e.g. "main".  
 
@@ -52,6 +66,11 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
 2. Wait for the build finished.
 3. Find the *firmware.bin (32-bits control board)* or *firmware.HEX (8-bits control board)* file in the ".pio/build/{board}" of the source code directory.    
 :point_right:[ZONESTAR 3D Printer firmware Bin/Hex file](https://github.com/ZONESTAR3D/Firmware)
+
+### 4. Patchs
+- If you find the buzzer of control panel (LCD screen) don't work, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#1-tonecpp)
+- if you used a 128x64 dots LCD screen, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#2-u8glib)
+- if you used a 1604 or 2004 LCD screen, please refer to [here]https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh)
 
 ------
 ## Upload firmware to your 3d printer

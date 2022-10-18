@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
-#define	FIRMWARE_VERSION						"V1.2.0"
-#define	STRING_DISTRIBUTION_DATE  	"2022-09-05"
+#define	FIRMWARE_VERSION						"V1.1.1"
+#define	STRING_DISTRIBUTION_DATE  	"2022-10-12"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -86,15 +86,13 @@
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
-#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
-#define	DWINLCD_MENU_VERSION		3			//Used DWIN LCD MENU V3
+//#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
+#define	DWINLCD_MENU_VERSION		2			//Used DWIN LCD MENU V3
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-//#define	OPTION_PL08N									//Probe use PL-08N
-#define	OPTION_HOMEZ_OFFSET						//Home Z offset
+#define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_HOTENDMAXTEMP					//set the max hotend temperature
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
@@ -107,13 +105,14 @@
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 //#define	OPTION_BGM									//BGM extruder
-#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
+//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //==========================================================================
-//Bed coating
-#if ENABLED(OPTION_HOMEZ_OFFSET)
-#define	DEFAULT_HOMEZ_OFFSET	1.0			//default home Z offset
-#endif
+//HOME OFFSET
+#define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	-15.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	 -1.0			//default home Z offset
+
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK4"
 #endif
@@ -1199,8 +1198,7 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-#define Y_MIN_POS -15
-
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE

@@ -78,46 +78,40 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
-#define	FIRMWARE_VERSION			    "V2.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-05-19"
+#define	FIRMWARE_VERSION			    "V3.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-10-18"
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 				      "www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
 #define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
 //default
-//default feature, usually keep it enable
 #define OPTION_TITAN									//Titan Extruder
+#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
+#define	DWINLCD_MENU_VERSION		3     
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
 #define	OPTION_PL08N 			    				//leveling Probe use PL_08N
-#define	OPTION_BED_COATING						//bed coating Glass/Sticker etc.
+#define	OPTION_MIXING_SWITCH				  //Enable/disable mixing feature on LCD MENU
+#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
+#define	SWITCH_EXTRUDER_MENU				  //Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	true	  //Auto leveling feature is on
+#define	DEFAULT_MIXING_SWITCH	true	  //Default mixing feature is on
 //===========================================================================
 //optional feature
 #define	OPTION_LCDDWIN				  			//
-//#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE				  //Change WiFi baudrate on LCD screen
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
 //#define	OPTION_BGM									//BGM extruder
-#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
+//#define	OPTION_TMC220X_XYZ						//TMC220X be used to XYZ motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
-//#define	OPTION_TMC220X_EXTRUDER			//TMC220x be used to  extruder motors
+//#define	OPTION_TMC220X_EXTRUDER			  //TMC220x be used to  extruder motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 //#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
 //#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
-#ifdef OPTION_LCDDWIN
-#ifdef OPTION_WIFI_MODULE
-//#define	OPTION_WIFI_BAUDRATE				//Change WiFi baudrate on LCD screen
-#endif
-#define	DWINLCD_MENU_VERSION		20
-#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
-#define	OPTION_MIXING_SWITCH				//Enable/disable mixing feature on LCD MENU
-#define	OPTION_GUIDE_QRCODE         //Add a User Guide link QRcode on first power on
-#define	SWITCH_EXTRUDER_MENU				//Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
-#define	DEFAULT_MIXING_SWITCH	true	//Default mixing feature is on
-#endif
 //===========================================================================
 //Speical
 //#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
@@ -125,9 +119,10 @@
 //#define	EXCHANGE_XDRIVER_Z2DRIVER			//
 //===========================================================================
 //Bed coating
-#if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	0.2			//stikcer thickness
-#endif
+//HOME OFFSET
+#define	DEFAULT_HOMEX_OFFSET	 -5.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	-10.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	 -1.0			//default home Z offset
 //User guide QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9M4"
@@ -1260,8 +1255,8 @@
 #define Y_BED_SIZE 310
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -5
-#define Y_MIN_POS -10
+#define X_MIN_POS 0
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
