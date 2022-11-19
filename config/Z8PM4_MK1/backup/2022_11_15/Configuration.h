@@ -74,43 +74,52 @@
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
 
+//#define	OPTION_Z8PM3 							//M3 + LCD12864
 //#define	OPTION_Z8PM4 							//M4 + LCD12864
+//#define	OPTION_Z8PM3_PRO 					//M3 + DWIN LCD 
 #define	OPTION_Z8PM4_PRO 						//M4 + DWIN LCD 
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#if ENABLED(OPTION_Z8PM4)
+#if ENABLED(OPTION_Z8PM3)
+#define CUSTOM_MACHINE_NAME 			"Z8PM3"
+#elif  ENABLED(OPTION_Z8PM3)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4"
+#elif  ENABLED(OPTION_Z8PM3_PRO)
+#define CUSTOM_MACHINE_NAME 			"Z8PM3Pro"
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V3.2.2"
-#define	STRING_DISTRIBUTION_DATE  "2022-11-19"
+#define	FIRMWARE_VERSION		  		"V3.2.1"
+#define	STRING_DISTRIBUTION_DATE  "2022-11-15"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
 #define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
+#if EITHER(OPTION_Z8PM3_PRO, OPTION_Z8PM4_PRO)
+#define OPTION_LCDDWIN							//
+#endif
 #define OPTION_TITAN									//TITAN Extruder
+#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
 #define	OPTION_TMC2225_XYZ 						//TMC2225 be used to XYZ
-#if ENABLED(OPTION_Z8PM4_PRO)
-#define OPTION_LCDDWIN							//
-#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
 #define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
-#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
-#endif
+#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament while abort printing (only for nox mixing color hotend)
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
@@ -118,14 +127,8 @@
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
-
-#if ENABLED(OPTION_Z8PM4_PRO)
-#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
-#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament while abort printing (only for nox mixing color hotend)
 #if (DWINLCD_MENU_VERSION == 3)
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
-#endif
 #endif
 //===========================================================================
 //HOME OFFSET
@@ -134,10 +137,10 @@
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
+#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z8P/tree/main/UpdateNews"
 #endif
 //===========================================================================
 //UART port
@@ -404,19 +407,23 @@
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
-#if ENABLED(MIXING_EXTRUDER)  
-  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
+#if ENABLED(MIXING_EXTRUDER)
+	#if EITHER(OPTION_Z8PM4, OPTION_Z8PM4_PRO)
+  #define MIXING_STEPPERS 			4  		// Number of steppers in your mixing extruder
+  #else
+	#define MIXING_STEPPERS 			3  		// Number of steppers in your mixing extruder
+	#endif
+  #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
-  //#define DIRECT_MIXING_IN_G1    		// Allow ABCDHI mix factors in G1 movement commands
-  #define GRADIENT_MIX           		// Support for gradient mixing with M166 and LCD
-  #define RANDOM_MIX					// Support for random mixing with M167 and LCD
+  //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
+  #define GRADIENT_MIX           			// Support for gradient mixing with M166 and LCD
+  #define RANDOM_MIX						// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
-    //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+    //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
 #endif
 
@@ -548,12 +555,12 @@
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (degC) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -587,9 +594,9 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 	255     	// Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX 	BANG_MAX 	// Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 		0.95      // Smoothing factor within any PID loop
+#define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
@@ -604,10 +611,10 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    //=================common===M4V4=====M4V6=======E4=======
-    #define DEFAULT_Kp  22.20	// 17.50		// 14.50		// 12.80
-    #define DEFAULT_Ki   1.08	//  0.50		//  0.70		//	  0.60
-    #define DEFAULT_Kd 114.00	//150.00		// 75.00		// 70.00
+    //===========================M4V4=====M4V6=======E4=======
+    #define DEFAULT_Kp  17.50	// 17.50		// 14.50		// 12.80
+    #define DEFAULT_Ki   0.50	//  0.50		//  0.70		//	  0.60
+    #define DEFAULT_Kd 150.00	//150.00		// 75.00		// 70.00
   #endif
 #endif // PIDTEMP
 
@@ -654,7 +661,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  #define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -1119,7 +1126,13 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
+
+#if EITHER(OPTION_Z8PM4, OPTION_Z8PM4_PRO)
 #define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
+#else
+#define NOZZLE_TO_PROBE_OFFSET { 35, 0, 0 }
+#endif
+
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 		35
