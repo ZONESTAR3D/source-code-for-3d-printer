@@ -324,6 +324,13 @@ void HMI_ETemp() {
 					else
 						DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
 					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
+					
+				#if ENABLED(AUTOTEMP)
+					char gcode_string[20] = {0};
+					sprintf_P(gcode_string, PSTR("M104 S%d\n"), HMI_Value.E_Temp);
+					queue.inject(gcode_string);
+				#endif
+					
 				break;
 			}			
 			if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP){								

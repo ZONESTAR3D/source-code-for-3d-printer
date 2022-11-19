@@ -860,21 +860,21 @@ void HMI_Move_Z() {
 
 
 #if HAS_HOTEND
-char E_Buf[50] = {0};
+char gcode_string[50] = {0};
 void HMI_Move_Extr(uint8_t extr) {	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Current_E_Scale[extr])) {			
 			if(!planner.is_full()) {		 
 				planner.synchronize();
-				ZERO(E_Buf);
+				ZERO(gcode_string);
 				float temp_E_Coordinate = (float)HMI_Value.Current_E_Scale[extr]/MINUNITMULT;
 				if(temp_E_Coordinate < HMI_Value.Last_E_Coordinate[extr])
-					sprintf_P(E_Buf, PSTR("T%d\nG92 E0\nG1 E-%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));
+					sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E-%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));
 				else
-					sprintf_P(E_Buf, PSTR("T%1d\nG92 E0\nG1 E%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));				
+					sprintf_P(gcode_string, PSTR("T%1d\nG92 E0\nG1 E%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));				
 				HMI_Value.Last_E_Coordinate[extr] = temp_E_Coordinate;
-				queue.inject(E_Buf);
+				queue.inject(gcode_string);
 				
 				DwinMenuID = DWMENU_MOVEAXIS;
 				EncoderRate.enabled = false;
@@ -901,14 +901,14 @@ void HMI_Move_AllExtr() {
 	 	if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Current_EAll_Scale)) {	  	
 	  	if(!planner.is_full()) {
 		    planner.synchronize(); // Wait for planner moves to finish!
-				ZERO(E_Buf);
+				ZERO(gcode_string);
 				float temp_E_Coordinate = (float)HMI_Value.Current_EAll_Scale/MINUNITMULT;
 				if(temp_E_Coordinate < HMI_Value.Last_EAll_Coordinate)
-			   	sprintf_P(E_Buf, PSTR("T%d\nG92 E0\nG1 E-%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
+			   	sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E-%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
 				else
-				 	sprintf_P(E_Buf, PSTR("T%d\nG92 E0\nG1 E%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));				
+				 	sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));				
 				HMI_Value.Last_EAll_Coordinate = temp_E_Coordinate;
-				queue.inject(E_Buf);
+				queue.inject(gcode_string);
 
 				DwinMenuID = DWMENU_MOVEAXIS;
 	  		EncoderRate.enabled = false;
@@ -1685,9 +1685,9 @@ void HMI_SetProbZoffset() {
 	}
 }
 
-char Level_Buf[200]={0};
 constexpr uint16_t lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
 void HMI_BedLeveling() {
+	char gcode_string[100]={0};
 	static bool last_leveling_status = false;	
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if (encoder_diffState == ENCODER_DIFF_NO) return;
@@ -1761,12 +1761,12 @@ void HMI_BedLeveling() {
 				Clear_Dwin_Area(AREA_BOTTOM);			
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
-				ZERO(Level_Buf);
+				ZERO(gcode_string);
 				if(axes_should_home())	
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
+					sprintf_P(gcode_string,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
-				queue.inject(Level_Buf);
+					sprintf_P(gcode_string,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],lfrb[1]);
+				queue.inject(gcode_string);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
 			break;
@@ -1776,12 +1776,12 @@ void HMI_BedLeveling() {
 				Clear_Dwin_Area(AREA_BOTTOM);
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
-				ZERO(Level_Buf);
+				ZERO(gcode_string);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
+					sprintf_P(gcode_string,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
-				queue.inject(Level_Buf);
+					sprintf_P(gcode_string,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],lfrb[1]);	
+				queue.inject(gcode_string);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
 	    break;
@@ -1791,12 +1791,12 @@ void HMI_BedLeveling() {
 				Clear_Dwin_Area(AREA_BOTTOM);				
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
-				ZERO(Level_Buf);
+				ZERO(gcode_string);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
+					sprintf_P(gcode_string,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
-				queue.inject(Level_Buf);
+					sprintf_P(gcode_string,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),X_BED_SIZE-lfrb[2],Y_BED_SIZE-lfrb[3]);
+				queue.inject(gcode_string);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
 	    break;
@@ -1806,12 +1806,12 @@ void HMI_BedLeveling() {
 				Clear_Dwin_Area(AREA_BOTTOM);
 				last_leveling_status = planner.leveling_active;
 				set_bed_leveling_enabled(false);
-				ZERO(Level_Buf);
+				ZERO(gcode_string);
 				if(axes_should_home())
-					sprintf_P(Level_Buf,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
+					sprintf_P(gcode_string,PSTR("G28\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
 				else
-					sprintf_P(Level_Buf,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
-				queue.inject(Level_Buf);
+					sprintf_P(gcode_string,PSTR("G28O\nG91\nG1 Z10 F1500\nG90\nG1 X%d Y%d F3000\nG1 Z0 F500"),lfrb[0],Y_BED_SIZE-lfrb[3]);
+				queue.inject(gcode_string);
 				planner.synchronize();
 				set_bed_leveling_enabled(last_leveling_status);
 			break;

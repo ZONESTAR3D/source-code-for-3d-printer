@@ -1391,7 +1391,7 @@ static void DRAW_Pause_Message(PauseMessage message, PauseMode mode){
 		SERIAL_ECHOPAIR("Pause message = ", message);
 		SERIAL_ECHOLNPAIR("  Pause mode = ", mode);		
 	#endif
-	//DwinMenuID = DWMENU_POP_WAITING;
+	DwinMenuID = DWMENU_POP_WAITING;
 	if(IS_SD_PRINTING() || IS_SD_PAUSED()){
 	#if ENABLED(FILAMENT_RUNOUT_SENSOR)		
 		if(runout.enabled && runout.filament_ran_out)

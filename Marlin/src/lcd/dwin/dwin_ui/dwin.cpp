@@ -969,7 +969,7 @@ uint8_t get_title_picID(){
 }
 
 void EachMomentUpdate() {	
-	char string_Buf[50]={0};
+	char gcode_string[50]={0};
 	static millis_t next_rts_update_ms = 0;
 	const millis_t ms = millis();	
 	if (PENDING(ms, next_rts_update_ms)) 	return;
@@ -1053,10 +1053,9 @@ void EachMomentUpdate() {
 	}
 #if ENABLED(PID_AUTOTUNE_MENU)	
 	else if(DWIN_status == ID_SM_PIDAUTOTUNE){
-		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - PID_FUNCTIONAL_RANGE){			
-			//ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C%1d U1\nM500"), HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
-			queue.inject(string_Buf);
+		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - PID_FUNCTIONAL_RANGE){
+			sprintf_P(gcode_string,PSTR("M303 S%3d E0 C%1d U1\nM500"), HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
+			queue.inject(gcode_string);
 			DWIN_status = ID_SM_PIDAUTOTUNING;
 		}
 	}

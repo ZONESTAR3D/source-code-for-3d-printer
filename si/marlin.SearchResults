@@ -1,18 +1,41 @@
----- SWITCH_EXTRUDER_MENU Matches (17 in 6 files) ----
-Configuration.h (g:\working\code210\marlin):#define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	#if ENABLED(SWITCH_EXTRUDER_MENU)
-Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
-Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	 #if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			 #if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				#if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		#if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
-DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#define	CONFIG_CASE_TOTAL (CONFIG_TUNE_CASE_TOTAL + BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE) + ENABLED(SWITCH_EXTRUDER_MENU) + BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH) + HAS_OFFSET_MENU + ENABLED(OPTION_HOTENDMAXTEMP) + EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU) + ABL_GRID*2)
-DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
-SanityCheck.h (g:\working\code210\marlin\src\inc):#if ENABLED(SWITCH_EXTRUDER_MENU) && !ALL(MIXING_EXTRUDER, OPTION_MIXING_SWITCH, ZONESTAR_DWIN_LCD)
-SanityCheck.h (g:\working\code210\marlin\src\inc):	#error "SWITCH_EXTRUDER_MENU require MIXING_EXTRUDER & OPTION_MIXING_SWITCH & ZONESTAR_DWIN_LCD"
-SanityCheck.h (g:\working\code210\marlin\src\inc):#if ENABLED(SWITCH_EXTRUDER_MENU) && (ENABLED(MIXING_EXTRUDER) && (MIXING_STEPPERS != 3) && (MIXING_STEPPERS != 4))
-SanityCheck.h (g:\working\code210\marlin\src\inc):	#error "SWITCH_EXTRUDER_MENU only work on 3 & 4 extruders machine"
+---- E_Temp Matches (40 in 5 files) ----
+Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):  TERN_(HAS_HOTEND,     		int16_t E_Temp    = EXTRUDE_MINTEMP);
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):      HMI_Value.E_Temp = ui.material_preset[0].hotend_temp;			
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP + MROWS - DwinMenu_PreheatPLA.index), HMI_Value.E_Temp);
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP + MROWS - DwinMenu_PreheatPLA.index), HMI_Value.E_Temp);
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				HMI_Value.E_Temp = ui.material_preset[1].hotend_temp;			
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP + MROWS - DwinMenu_PreheatABS.index), HMI_Value.E_Temp);
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(PREHEAT_CASE_TEMP + MROWS - DwinMenu_PreheatABS.index), HMI_Value.E_Temp);
+DwinMenu_Prepare.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	     HMI_Value.E_Temp = _MAX(thermalManager.degTargetHotend(0), EXTRUDE_MINTEMP);
+DwinMenu_Prepare.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			 if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+DwinMenu_Prepare.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				 DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
+DwinMenu_Prepare.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	     	 DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TEMP_CASE_ETEMP + MROWS - DwinMenu_temp.index), HMI_Value.E_Temp);
+DwinMenu_Prepare.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+DwinMenu_Print.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				HMI_Value.E_Temp = thermalManager.degTargetHotend(0);
+DwinMenu_Print.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+DwinMenu_Print.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
+DwinMenu_Print.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(TUNE_CASE_ETEMP + MROWS - DwinMenu_tune.index), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.E_Temp)) {
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):						DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					ui.material_preset[0].hotend_temp = HMI_Value.E_Temp;
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					ui.material_preset[1].hotend_temp = HMI_Value.E_Temp;
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):						DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):						DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					thermalManager.setTargetHotend(HMI_Value.E_Temp, 0);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):					sprintf_P(gcode_string, PSTR("M104 S%3d\n"), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP){								
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		// E_Temp limit
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		NOMORE(HMI_Value.E_Temp, TERN(OPTION_HOTENDMAXTEMP, thermalManager.hotend_maxtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		NOLESS(HMI_Value.E_Temp, 0);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		// E_Temp value
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		if(HMI_Value.E_Temp > HOTEND_WARNNING_TEMP)
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);
+Dwin_comm.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(temp_line), HMI_Value.E_Temp);

@@ -92,11 +92,11 @@ const temp_entry_t temptable_56[] PROGMEM = {
   { OV(1022),  -15}
 #endif
 
-#if 0 // correct in 2022-11-15
+#if 1 // correct in 2022-11-15
 	{  OV(  17), 320},
-  {  OV(  18), 315},  
+  {  OV(  18), 315},
  	{  OV(  19), 310},
-  {  OV(  20), 305},	
+  {  OV(  20), 305},
   {  OV(  21), 300},
   {  OV(  22), 295},
 	{  OV(  23), 290},
@@ -164,11 +164,11 @@ const temp_entry_t temptable_56[] PROGMEM = {
 	{  OV(1020), -20}
 #endif
 
-#if 1 // correct in 2022-11-16
+#if 0 // correct in 2022-11-16
 	{  OV(  17), 320},
-  {  OV(  18), 315},  
+  {  OV(  18), 315},
  	{  OV(  19), 310},
-  {  OV(  20), 305},	
+  {  OV(  20), 305},
 	{  OV(  22), 300},
 	{  OV(  24), 295},
 	{  OV(  26), 290},

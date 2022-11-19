@@ -404,19 +404,19 @@
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
-#if ENABLED(MIXING_EXTRUDER)
-  #define MIXING_STEPPERS 			4  		// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)
+#if ENABLED(MIXING_EXTRUDER)  
+  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
-  //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
-  #define GRADIENT_MIX           			// Support for gradient mixing with M166 and LCD
-  #define RANDOM_MIX						// Support for random mixing with M167 and LCD
+  //#define DIRECT_MIXING_IN_G1    		// Allow ABCDHI mix factors in G1 movement commands
+  #define GRADIENT_MIX           		// Support for gradient mixing with M166 and LCD
+  #define RANDOM_MIX					// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
-    //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
+    //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
   #endif
 #endif
 
@@ -548,12 +548,12 @@
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      5  // (degC) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -587,9 +587,9 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 0.95      // Smoothing factor within any PID loop
+#define BANG_MAX 	255     	// Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX 	// Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 		0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
@@ -604,10 +604,10 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    //===========================M4V4=====M4V6=======E4=======
-    #define DEFAULT_Kp  17.50	// 17.50		// 14.50		// 12.80
-    #define DEFAULT_Ki   0.50	//  0.50		//  0.70		//	  0.60
-    #define DEFAULT_Kd 150.00	//150.00		// 75.00		// 70.00
+    //=================common===M4V4=====M4V6=======E4=======
+    #define DEFAULT_Kp  22.20	// 17.50		// 14.50		// 12.80
+    #define DEFAULT_Ki   1.08	//  0.50		//  0.70		//	  0.60
+    #define DEFAULT_Kd 114.00	//150.00		// 75.00		// 70.00
   #endif
 #endif // PIDTEMP
 
@@ -654,7 +654,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  #define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -1119,7 +1119,6 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-
 #define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -2501,7 +2500,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.

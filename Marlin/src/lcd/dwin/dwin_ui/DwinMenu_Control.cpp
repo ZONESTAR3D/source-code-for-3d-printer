@@ -2742,7 +2742,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 
 #if (ENABLED(PID_AUTOTUNE_MENU) && DISABLED(PID_EDIT_MENU))
 void HMI_PID_AutoTune() {
-	char string_Buf[50]={0};	
+	char gcode_string[50]={0};	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
@@ -2750,9 +2750,8 @@ void HMI_PID_AutoTune() {
 			EncoderRate.enabled = false;
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDTUNE), HMI_Value.PIDAutotune_Temp);			
 			DWIN_FEEDBACK_CONFIRM();
-			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C%1d U1\nM500"),HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
-			queue.inject(string_Buf);			
+			sprintf_P(gcode_string,PSTR("M303 S%3d E0 C%1d U1\nM500"),HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
+			queue.inject(gcode_string);			
 		}
 		else {
 			NOLESS(HMI_Value.PIDAutotune_Temp, EXTRUDE_MINTEMP);

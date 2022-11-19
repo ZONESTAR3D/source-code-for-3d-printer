@@ -85,7 +85,7 @@
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
 #define	FIRMWARE_VERSION		  		"V3.2.2"
-#define	STRING_DISTRIBUTION_DATE  "2022-11-17"
+#define	STRING_DISTRIBUTION_DATE  "2022-11-19"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -404,19 +404,19 @@
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
-#if ENABLED(MIXING_EXTRUDER)
-  #define MIXING_STEPPERS 			4  		// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)
+#if ENABLED(MIXING_EXTRUDER)  
+  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
-  //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
-  #define GRADIENT_MIX           			// Support for gradient mixing with M166 and LCD
-  #define RANDOM_MIX						// Support for random mixing with M167 and LCD
+  //#define DIRECT_MIXING_IN_G1    		// Allow ABCDHI mix factors in G1 movement commands
+  #define GRADIENT_MIX           		// Support for gradient mixing with M166 and LCD
+  #define RANDOM_MIX					// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
-    //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
+    //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
   #endif
 #endif
 
@@ -548,12 +548,12 @@
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      5  // (degC) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -654,7 +654,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  #define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  #define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -2498,7 +2498,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.

@@ -78,7 +78,7 @@
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
 #define	FIRMWARE_VERSION						"V1.2.2"
-#define	STRING_DISTRIBUTION_DATE  	"2022-11-18"
+#define	STRING_DISTRIBUTION_DATE  	"2022-11-19"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
