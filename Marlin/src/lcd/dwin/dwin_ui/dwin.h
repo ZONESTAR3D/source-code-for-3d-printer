@@ -91,10 +91,10 @@
 #endif
 
 #if USE_BEEPER
-#define	DWIN_FEEDBACK_TICK()				do{buzzer.tone(10, 500);} while(0)
-#define	DWIN_FEEDBACK_TIPS()				do{buzzer.tone(10, 3000);} while(0)
-#define	DWIN_FEEDBACK_CONFIRM()			do{buzzer.tone(50, 3000);buzzer.tone(50, 0);buzzer.tone(50, 1000);} while(0)
-#define	DWIN_FEEDBACK_WARNNING()		do{buzzer.tone(100, 4000);buzzer.tone(100, 0);buzzer.tone(100, 4000);} while(0)
+#define	DWIN_FEEDBACK_TICK()				do{buzzer.tone( 10,  500);} while(0)
+#define	DWIN_FEEDBACK_TIPS()				do{buzzer.tone( 10, 3000);} while(0)
+#define	DWIN_FEEDBACK_CONFIRM()			do{buzzer.tone( 50, 3000);buzzer.tone( 50, 0);buzzer.tone( 50, 1000);} while(0)
+#define	DWIN_FEEDBACK_WARNNING()		do{buzzer.tone(200, 4000);buzzer.tone(150, 0);buzzer.tone(200, 4000);} while(0)
 #else
 #define	DWIN_FEEDBACK_TICK()
 #define	DWIN_FEEDBACK_TIPS()
@@ -267,6 +267,7 @@ typedef enum {
 	DWMENU_POP_USERGUIDELINK,
 	DWMENU_POP_NEWSLINK,
 	DWMENU_POP_WIFILINK,
+	DWMENU_POP_HEATRUNAWAY,
 	
 	DWMENU_END
 }_emDWIN_MENUID_;
@@ -384,15 +385,17 @@ extern MIXER_DIS MixerDis;
 #if ENABLED(SWITCH_EXTRUDER_MENU)
 typedef enum{
 	SE_DEFAULT = 0,
-#if (MIXING_STEPPERS == 3)
+#if (MIXING_STEPPERS == 2)
+	SE_E1E2 = SE_DEFAULT,
+	SE_E2E1,
+#elif (MIXING_STEPPERS == 3)
 	SE_E1E2E3 = SE_DEFAULT,	
 	SE_E1E3E2,
 	SE_E2E1E3,
 	SE_E2E3E1,
 	SE_E3E1E2,
 	SE_E3E2E1,
-#endif
-#if (MIXING_STEPPERS == 4)
+#elif (MIXING_STEPPERS == 4)
 	SE_E1E2E3E4 = SE_DEFAULT,
 	SE_E1E2E4E3,	//E3<-->E4
 	SE_E1E3E2E4,	//E2<-->E3
@@ -420,8 +423,8 @@ typedef enum{
 	SE_E4E2E3E1,	//
 	SE_E4E3E1E2,	//
 	SE_E4E3E2E1,	//
-#endif
-	SE_END,
+#endif	
+	SE_END
 }_emSwitchExtruder;
 #endif
 
@@ -433,7 +436,10 @@ typedef enum{
 	TEST_MOTORS,
 	TEST_ENDSTOPS,
 }_emTestTtem;
+#endif
 
+#ifndef PID_AUTOTUNE_CYCLES
+#define PID_AUTOTUNE_CYCLES		4
 #endif
 
 typedef struct {
@@ -441,7 +447,7 @@ typedef struct {
   TERN_(HAS_HEATED_BED, 		int16_t Bed_Temp  = 30);
   TERN_(HAS_PREHEAT,    		int16_t Fan_speed = 0);
 	TERN_(PID_AUTOTUNE_MENU,	int16_t PIDAutotune_Temp = 200);
-	TERN_(PID_AUTOTUNE_MENU,	uint8_t PIDAutotune_cycles = 0);
+	TERN_(PID_AUTOTUNE_MENU,	uint8_t PIDAutotune_cycles = PID_AUTOTUNE_CYCLES);
   int16_t print_speed     	= 100;
 	int16_t flowrate     			= 100;
   int16_t Max_Feedspeed     = 0;
@@ -506,6 +512,7 @@ typedef struct {
 	uint8_t Percentrecord = 0;
 	millis_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
+	uint32_t elapsed_value = 0;
 	
 	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
 	TERN_(OPTION_TEST_MENU, int8_t test_item  = TEST_ALL);
@@ -539,6 +546,10 @@ typedef struct {
 		#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 				,IS_cancel_runout:1
 		#endif
+		#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)   
+				,AutoUnload_enabled:1
+   			,AutoUnloadFilament_on:1
+   	#endif
 		;
 
 	uint16_t	clean_status_delay = 0;
@@ -639,12 +650,12 @@ void _reset_shutdown_timer();
 #endif
 void set_status_msg_showtime(const uint16_t t);
 uint8_t get_title_picID();
-void Popup_Window_Temperature(const char *msg, int8_t heaterid);
+void Popup_Temperature_Runaway(const char *msg, int8_t heaterid);
 void Stop_and_return_mainmenu();
+void Abort_SD_Printing();
 void HMI_DWIN_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_Show_M117(const char * const message);
-
 #endif

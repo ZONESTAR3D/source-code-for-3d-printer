@@ -279,19 +279,21 @@ typedef struct SettingsDataStruct {
   uint8_t dwin_last_language;
 	bool dwin_autoLeveling_Menu;
 	bool dwin_autoshutdown;	
+	bool dwin_autounload;
 	bool first_power_on;
+	#if ENABLED(PID_AUTOTUNE_MENU)
+	int16_t	PIDAutotune_Temp;
 	#endif
-
-	
+	#endif
 
 	//
 	//WiFi feature
 	//
 	#if ENABLED(OPTION_WIFI_MODULE)
+	bool wifi_enabled;	
 	#if ENABLED(OPTION_WIFI_BAUDRATE)
 	uint8_t wifi_baudrate;
 	#endif
-	bool wifi_enabled;	
 	#endif
 
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
@@ -855,9 +857,19 @@ void MarlinSettings::postprocess() {
 			const bool dwin_autoshutdown = TERN(OPTION_AUTOPOWEROFF, HMI_flag.Autoshutdown_enabled, false);
 			EEPROM_WRITE(dwin_autoshutdown);
 
+			_FIELD_TEST(dwin_autounload);
+			const bool dwin_autounload = TERN(OPTION_ABORT_UNLOADFILAMENT, HMI_flag.AutoUnload_enabled, false);
+			EEPROM_WRITE(dwin_autounload);
+
 			_FIELD_TEST(first_power_on);
 			const bool first_power_on = TERN(OPTION_GUIDE_QRCODE, HMI_flag.first_power_on, false);		
 			EEPROM_WRITE(first_power_on);
+			
+			#if ENABLED(PID_AUTOTUNE_MENU)
+			_FIELD_TEST(PIDAutotune_Temp);
+			const int16_t PIDAutotune_Temp = HMI_Value.PIDAutotune_Temp;
+			EEPROM_WRITE(PIDAutotune_Temp);
+			#endif
 		}
 		#endif
 
@@ -866,14 +878,15 @@ void MarlinSettings::postprocess() {
 		//
 		#if ENABLED(OPTION_WIFI_MODULE)
 		{
-			#if ENABLED(OPTION_WIFI_BAUDRATE)
-			_FIELD_TEST(wifi_baudrate);
-			const uint8_t wifi_baudrate = WiFi_BaudRate;
-			EEPROM_WRITE(wifi_baudrate);
-			#endif
       _FIELD_TEST(wifi_enabled);
 			const bool wifi_enabled = WiFi_Enabled;			
       EEPROM_WRITE(wifi_enabled);			
+		#if ENABLED(OPTION_WIFI_BAUDRATE)
+			_FIELD_TEST(wifi_baudrate);
+			const uint8_t wifi_baudrate = WiFi_BaudRate;
+			EEPROM_WRITE(wifi_baudrate);
+		#endif
+			
     }
 		#endif	
 
@@ -1802,10 +1815,21 @@ void MarlinSettings::postprocess() {
 				EEPROM_READ(dwin_autoshutdown);
 				TERN_(OPTION_AUTOPOWEROFF,HMI_flag.Autoshutdown_enabled = dwin_autoshutdown);
 
+				_FIELD_TEST(dwin_autounload);												
+				bool dwin_autounload = false;				
+				EEPROM_READ(dwin_autounload);
+				TERN_(OPTION_ABORT_UNLOADFILAMENT,HMI_flag.AutoUnload_enabled = dwin_autounload);
+
 				_FIELD_TEST(first_power_on);												
 				bool first_power_on = false;				
 				EEPROM_READ(first_power_on);
 				TERN_(OPTION_GUIDE_QRCODE,HMI_flag.first_power_on = first_power_on);
+				
+				#if ENABLED(PID_AUTOTUNE_MENU)
+				_FIELD_TEST(PIDAutotune_Temp);
+				const int16_t &PIDAutotune_Temp = HMI_Value.PIDAutotune_Temp;
+				EEPROM_READ(PIDAutotune_Temp);
+				#endif
 			}
 			#endif
 
@@ -2777,13 +2801,16 @@ void MarlinSettings::reset() {
 	TERN_(LCD_BED_LEVELING,  HMI_flag.Leveling_Menu_Fg = DEFAULT_AUTO_LEVELING);
 	TERN_(OPTION_AUTOPOWEROFF,  HMI_flag.Autoshutdown_enabled = false);
 	TERN_(OPTION_GUIDE_QRCODE,  HMI_flag.first_power_on = true);
+	TERN_(PID_AUTOTUNE_MENU,  HMI_Value.PIDAutotune_Temp = 200);	
 #endif//HAS_DWIN_LCD
 
 	//
 	// WiFi
 	//
+	#if ENABLED(OPTION_WIFI_MODULE)
+	WiFi_Enabled = false;
 	TERN_(OPTION_WIFI_BAUDRATE,  WiFi_BaudRate = 0);
-	TERN_(OPTION_WIFI_MODULE,  WiFi_Enabled = false);
+	#endif
 
 	//
 	// maxiums hotend temp

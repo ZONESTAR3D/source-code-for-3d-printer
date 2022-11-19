@@ -152,46 +152,50 @@ inline void _check_kill_times_ElapsedTime(){
 	}
 }
 
-
 inline void _Update_printing_Timer(){
 	// print process
 	if(card.isPrinting()){
 		// Print time so far
 		duration_t elapsed = print_job_timer.duration(); // print timer
-		static uint16_t last_Printtime = 0;
-		const uint16_t seconds = elapsed.value % 3600;
-		if (last_Printtime != seconds) { // 1 second update
-			last_Printtime = seconds;
+		HMI_Value.elapsed_value = elapsed.value;
+		static uint8_t last_Printtime = 0;
+		if (last_Printtime != (uint8_t)(elapsed.value%60)) { // 1 second update
+			last_Printtime = (uint8_t)(elapsed.value%60);
+
+			//Updata Print time per second
 			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
 
-		#if HAS_PRINT_PROGRESS_PERMYRIAD
-			// Update remaining time
-			const uint16_t card_permyriad = card.permyriadDone();
-			static uint16_t last_cardpermyriad = 20000;
-			if(last_cardpermyriad != card_permyriad){
-				last_cardpermyriad = card_permyriad;
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value-HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/HMI_Value.card_permyriad - elapsed.value;
-			}
-		#endif
-		}
-		
-		//Print Process Percent
-		const uint8_t card_pct = card.percentDone();
-		static uint8_t last_cardpercentValue = 255;
-	
-		if(last_cardpercentValue != card_pct) { // print percent
-			last_cardpercentValue = card_pct;
-			if(card_pct) {
-				HMI_Value.Percentrecord = card_pct;
-				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
-				
-			// Update remaining time	
-			#if (!HAS_PRINT_PROGRESS_PERMYRIAD)
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time:elapsed.value) * 100)/HMI_Value.Percentrecord - elapsed.value;
-				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
+			//Updata Remaining time per minute
+			if(last_Printtime == 0) {				
+			#if HAS_PRINT_PROGRESS_PERMYRIAD
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value; 			
+			#else
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value; 				
 			#endif
+				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
 			}
-		}		
+		}
+
+		// Update Process
+		const uint8_t card_pct = card.percentDone();		
+		static uint8_t last_cardpercentValue = 255;		
+		if(last_cardpercentValue != card_pct){			
+			last_cardpercentValue = card_pct;			
+			if(card_pct){
+				HMI_Value.Percentrecord = card_pct;
+
+				//Updata Process Percent				
+				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
+
+				//Updata Remaining time per percent
+			#if HAS_PRINT_PROGRESS_PERMYRIAD
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value;				
+			#else
+				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value;					
+			#endif
+				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
+			}
+		}			
 	}
 }
 
@@ -501,19 +505,32 @@ inline void DWIN_Update_Variable() {
 	TERN_(MIXING_EXTRUDER, DWIN_Show_Extruder_status());
 }
 
-void Popup_Window_Temperature(const char *msg, int8_t heaterid) {
+void Popup_Temperature_Runaway(const char *msg, int8_t heaterid) {
 	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
 	Draw_Popup_Bkgd_105();
-	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 165);
+	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 140);
+	DwinMenuID = DWMENU_POP_HEATRUNAWAY;
 	
 	if(heaterid == -1)
-		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10 )/2, 280, PSTR("HEATBED "));
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10 )/2, 220, PSTR("HEATBED "));
 	else
-		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+7)*10)/2, 280, PSTR("HOTEND "));
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 280, (char*)msg);
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 310, PSTR("Please check it!"));
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 22*10)/2, 340, PSTR("Power off after 5 S !!"));
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+7)*10)/2, 220, PSTR("HOTEND "));
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 220, (char*)msg);
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 245, PSTR("Please check it!"));
+	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 19*10)/2, 270, PSTR("Click knob to exit."));
+	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 300);
+	
+	DWIN_FEEDBACK_WARNNING();
 	dwinLCD.UpdateLCD();
+}
+
+void HMI_Temperature_Runaway(){
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();	
+	if(encoder_diffState == ENCODER_DIFF_NO) return;
+	else if(encoder_diffState == ENCODER_DIFF_ENTER){
+		DWIN_status = ID_SM_IDLE;
+		Draw_Main_Menu(true);
+	}
 }
 
 
@@ -551,7 +568,7 @@ inline void _check_autoshutdown(){
 		if(IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN()){
 			HMI_flag.Is_shutdown = false;
 		} 
-		else if(thermalManager.degHotend(0) < 80){
+		else if(thermalManager.degHotend(0) < EXTRUDE_MINTEMP){
 			HMI_flag.Is_shutdown = false;
 			queue.inject_P(PSTR("M81"));
 		}
@@ -776,7 +793,7 @@ void DWIN_HandleScreen() {
 		case DWMENU_PID_AUTOTUNE:						HMI_PID_AutoTune(); break;
 	#endif
 
-	#if ENABLED(OPTION_WIFI_BAUDRATE)
+	#if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE)
 		case DWMENU_SET_WIFIBAUDRATE: 			HMI_Adjust_WiFi_BaudRate(); break;
 	#endif
 
@@ -815,9 +832,11 @@ void DWIN_HandleScreen() {
 	  case DWMENU_SET_MAXJERK_VALUE: 			HMI_MaxJerkXYZE(); break;
 	  case DWMENU_SET_STEPPREMM_VALUE: 		HMI_StepXYZE(); break;
 
+	#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 		case DWMENU_POP_FROD_OPTION:				HMI_Filament_Runout_Option(); break;
 		case DWMENU_POP_FROD_INSERT:				HMI_Filament_Runout_Confirm(); break;
 		case DWMENU_POP_FROD_HEAT:					HMI_Filament_Runout_Confirm(); break;
+	#endif
 
  	#if ENABLED(BABYSTEPPING)
 		case DWMENU_TUNE_BABYSTEPS:					HMI_Pop_BabyZstep(); break;
@@ -836,6 +855,8 @@ void DWIN_HandleScreen() {
 	#if ENABLED(OPTION_GUIDE_QRCODE)
 		case DWMENU_POP_USERGUIDELINK:			HMI_Pop_UserGuideLink(); break;
 	#endif
+
+		case DWMENU_POP_HEATRUNAWAY:				HMI_Temperature_Runaway(); break;
 	
   default: break;
 	}
@@ -871,6 +892,15 @@ void DWIN_Show_Status(){
 }
 #endif
 
+
+void Abort_SD_Printing(){
+	TERN_(ACTION_ON_CANCEL, host_action_cancel());
+	TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
+	wait_for_heatup = wait_for_user = false;
+	thermalManager.disable_all_heaters();
+	card.flag.abort_sd_printing = true;		
+}
+
 //
 // Watch for media mount / unmount
 //
@@ -887,9 +917,7 @@ inline void HMI_SDCardUpdate() {
 		 else if(DwinMenuID == DWMENU_PRINTING || DwinMenuID == DWMENU_TUNE || printingIsActive()) {
 		  	/// TODO: Move card removed abort handling
 		  	// to CardReader::manage_media.		  	
-		  	wait_for_heatup = wait_for_user = false;
-				thermalManager.disable_all_heaters();
-				card.flag.abort_sd_printing = true;      		// Let the main loop handle SD abort
+		  	Abort_SD_Printing();
 			}
 		}		
 	}
@@ -1019,22 +1047,18 @@ void EachMomentUpdate() {
 				DWIN_status = ID_SM_PRINTING;
 				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 		}
-	}	
+	}
 	else if(DWIN_status == ID_SM_STOPED){
 		Stop_and_return_mainmenu();
 	}
 #if ENABLED(PID_AUTOTUNE_MENU)	
 	else if(DWIN_status == ID_SM_PIDAUTOTUNE){
-		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - 20){			
+		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - PID_FUNCTIONAL_RANGE){			
 			//ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C8 U1\nM500"), HMI_Value.PIDAutotune_Temp);
+			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C%1d U1\nM500"), HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
 			queue.inject(string_Buf);
 			DWIN_status = ID_SM_PIDAUTOTUNING;
 		}
-	}
-	else if(DWIN_status == ID_SM_PIDAUTOTUNING && HMI_Value.PIDAutotune_cycles > 0 && HMI_Value.PIDAutotune_cycles <= 8){
-		sprintf_P(string_Buf,PSTR("PID Tuning, Cycles = %d / 8."), HMI_Value.PIDAutotune_cycles);
-		DWIN_Show_Status_Message(COLOR_RED, string_Buf, 0);	
 	}
 #endif
 	dwinLCD.UpdateLCD();

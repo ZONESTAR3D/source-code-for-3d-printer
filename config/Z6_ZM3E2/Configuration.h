@@ -98,7 +98,7 @@
 //#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen (EXP1 connector)
 //#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob (EXP1 connector)
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR (Z- connector)
-//#define	OPTION_3DTOUCH								//Probe use 3DTouch or BLTouch (AUX2 connector)
+#define	OPTION_3DTOUCH								//Probe use 3DTouch or BLTouch (AUX2 connector)
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
@@ -165,7 +165,7 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-//#define SERIAL_PORT_2 2		///1-RIB  
+#define SERIAL_PORT_2 2		///  
 
 /**
  * This setting determines the communication speed of the printer.
@@ -795,37 +795,22 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-
-#if ENABLED(OPTION_TMC2225_XYZ)
-#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/8)
+#if EITHER(OPTION_TITAN, OPTION_BGM)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
 #else
-#define	DOUBLE_STEPS_XYZ	(OPTION_MICROSTEP/16)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 85 }
 #endif
-
-#if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/8)
-#else
-#define	DOUBLE_STEPS_E		(OPTION_MICROSTEP/16)
-#endif
-
-#if EITHER(OPTION_TITAN,OPTION_BGM)
-#define	STEPS_GEAR_RATIO	5
-#else
-#define	STEPS_GEAR_RATIO	1
-#endif
-
-#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 100 } // ...or, set your own edit limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 200, 200, 12, 25 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -834,10 +819,10 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 3000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 2000, 2000, 200, 10000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 3000, 3000, 200, 10000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -849,7 +834,7 @@
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
@@ -862,15 +847,15 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 8.0
-  #define DEFAULT_YJERK 8.0
+  #define DEFAULT_XJERK 10.0
+  #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK 0.4
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 1, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -1171,10 +1156,11 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
-#define INVERT_Y_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
-#define INVERT_Z_DIR (false^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
-#define	EXTRUDER_DIR (true ^ ENABLED (OPTION_TITAN) ^ ENABLED(OPTION_TMC220X_EXTRUDER) ^ ENABLED(OPTION_TMC2225_EXTRUDER))
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR false
+
+#define	EXTRUDER_DIR (true^ENABLED(OPTION_TITAN))
 
 // @section extruder
 
@@ -1485,7 +1471,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#define Z_SAFE_HOMING
+//#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing

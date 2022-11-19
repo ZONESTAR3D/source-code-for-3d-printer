@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.1.1"
-#define	STRING_DISTRIBUTION_DATE  "2022-10-12"
+#define	FIRMWARE_VERSION					"V3.2.2"
+#define	STRING_DISTRIBUTION_DATE  	"2022-11-18"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -96,6 +96,7 @@
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
 #define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
@@ -110,8 +111,8 @@
 //==========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
-#define	DEFAULT_HOMEY_OFFSET	-15.0			//default home Y offset
-#define	DEFAULT_HOMEZ_OFFSET	 -1.0			//default home Z offset
+#define	DEFAULT_HOMEY_OFFSET	  0.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	  0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK3"
@@ -354,10 +355,10 @@
  */
 #define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)  
-  #define MIXING_STEPPERS 	  			4  			// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 			16  		// Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE							// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE						// show mix rate ICON and data in LCD (only applied in LCD12864)
+  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
@@ -497,12 +498,12 @@
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      5  // (degC) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
@@ -536,8 +537,8 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 	255     // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX 	BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define BANG_MAX 	255     	// Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX 	// Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 		0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
@@ -553,9 +554,10 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  50.10// 30.30
-    #define DEFAULT_Ki   2.81//  1.41
-    #define DEFAULT_Kd 161.40//162.77
+    //=================common===M4V4=====M4V6=======E4=======
+    #define DEFAULT_Kp  22.20	// 17.50		// 14.50		// 12.80
+    #define DEFAULT_Ki   1.08	//  0.50		//  0.70		//	  0.60
+    #define DEFAULT_Kd 114.00	//150.00		// 75.00		// 70.00
   #endif
 #endif // PIDTEMP
 
@@ -602,7 +604,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  #define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -619,7 +621,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 //#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP   170
+#define EXTRUDE_MINTEMP   				170
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -1198,8 +1200,8 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
+#define Y_MIN_POS -15
+#define Z_MIN_POS -1
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400

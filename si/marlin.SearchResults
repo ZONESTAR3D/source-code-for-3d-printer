@@ -1,0 +1,18 @@
+---- SWITCH_EXTRUDER_MENU Matches (17 in 6 files) ----
+Configuration.h (g:\working\code210\marlin):#define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
+Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	#if ENABLED(SWITCH_EXTRUDER_MENU)
+Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
+Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	 #if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			 #if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):				#if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		#if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
+DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#define	CONFIG_CASE_TOTAL (CONFIG_TUNE_CASE_TOTAL + BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE) + ENABLED(SWITCH_EXTRUDER_MENU) + BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH) + HAS_OFFSET_MENU + ENABLED(OPTION_HOTENDMAXTEMP) + EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU) + ABL_GRID*2)
+DwinMenu_Control.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):#if ENABLED(SWITCH_EXTRUDER_MENU)
+SanityCheck.h (g:\working\code210\marlin\src\inc):#if ENABLED(SWITCH_EXTRUDER_MENU) && !ALL(MIXING_EXTRUDER, OPTION_MIXING_SWITCH, ZONESTAR_DWIN_LCD)
+SanityCheck.h (g:\working\code210\marlin\src\inc):	#error "SWITCH_EXTRUDER_MENU require MIXING_EXTRUDER & OPTION_MIXING_SWITCH & ZONESTAR_DWIN_LCD"
+SanityCheck.h (g:\working\code210\marlin\src\inc):#if ENABLED(SWITCH_EXTRUDER_MENU) && (ENABLED(MIXING_EXTRUDER) && (MIXING_STEPPERS != 3) && (MIXING_STEPPERS != 4))
+SanityCheck.h (g:\working\code210\marlin\src\inc):	#error "SWITCH_EXTRUDER_MENU only work on 3 & 4 extruders machine"

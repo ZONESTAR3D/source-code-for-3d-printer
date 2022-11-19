@@ -223,7 +223,12 @@ void HMI_SDCardInit() {
 
 #if ENABLED(BABYSTEPPING)
 inline void _init_baby_zoffset(){
-	babyzoffset.last = babyzoffset.current = babyzoffset.first = 0.0;
+#if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+	babyzoffset.first = - home_offset.z;
+#else
+	babyzoffset.first = 0.0;
+#endif
+	babyzoffset.last = babyzoffset.current = babyzoffset.first;
 	babystep.axis_total[BS_TOTAL_IND(Z_AXIS)] = babyzoffset.last * planner.settings.axis_steps_per_mm[Z_AXIS];
 	HMI_Value.babyZoffset_Scale = babyzoffset.last * MAXUNITMULT;
 }
@@ -335,21 +340,23 @@ void HMI_SelectFile() {
 			mixer.update_mix_from_vtool();
 			MIXER_STEPPER_LOOP(i) {HMI_Value.mix_percent[i] = mixer.percentmix[i];}
 		#endif
-
 		
 		#if ENABLED(OPTION_REPEAT_PRINTING) 
 			ReprintManager.is_repeatPrinting = false;
 			strcpy(rePrint_filename, card.filename);
 		#endif
-		
+
 			// Start choice and print SD file
 			HMI_flag.show_mode = SHOWED_TUNE;
 			card.openAndPrintFile(card.filename);
 
+			//
 			TERN_(BABYSTEPPING, _init_baby_zoffset());
+			
+			//
+			TERN_(OPTION_ABORT_UNLOADFILAMENT, sum_extrude = 0);
 
 			DWIN_status = ID_SM_PRINTING;
-			HMI_flag.killtimes = 0;
 			Draw_Printing_Menu();
 			return;
 		}
@@ -425,36 +432,36 @@ static void Draw_ICON_Printingstatus(){
 // Printing progressbar
 //
 void Draw_Print_ProgressBar() {
- DWIN_Show_ICON(ICON_BAR, 15, 63);
- dwinLCD.Draw_Rectangle(1, BARFILL_COLOR, 15 + HMI_Value.Percentrecord * 240 / 100, 63, 256, 83);
- dwinLCD.Draw_IntValue(false, true, 0, font8x16, COLOR_BG_RED, BARFILL_COLOR, 2, 117, 65, HMI_Value.Percentrecord);
- dwinLCD.Draw_String(false, false, font8x16, COLOR_BG_RED, BARFILL_COLOR, 133, 65, PSTR("%"));
+	DWIN_Show_ICON(ICON_BAR, 15, 63);
+	dwinLCD.Draw_Rectangle(1, BARFILL_COLOR, 15 + HMI_Value.Percentrecord * 240 / 100, 63, 256, 83);
+	dwinLCD.Draw_IntValue(false, true, 0, font8x16, COLOR_BG_RED, BARFILL_COLOR, 2, 117, 65, HMI_Value.Percentrecord);
+	dwinLCD.Draw_String(false, false, font8x16, COLOR_BG_RED, BARFILL_COLOR, 133, 65, PSTR("%"));
 }
 
 void Draw_Print_ElapsedTime() {
 	#define	ELAPSEDTIME_STAR_X	40
-	duration_t elapsed = print_job_timer.duration(); // print timer	
-	char elapsed_string[20];
-	//if(elapsed.hour() < 100)
-		sprintf_P(elapsed_string, PSTR("%02d:%02d:%02d"), (int)(elapsed.hour()%100), (uint8_t)(elapsed.minute()%60), (uint8_t)(elapsed.second()%60));
-	//else
-	//	sprintf_P(elapsed_string, PSTR("%03d:%02d:%02d"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60), (uint8_t)(elapsed.second()%60));	
-	DWIN_Draw_MaskString_Default(ELAPSEDTIME_STAR_X, 212, elapsed_string);
+	duration_t ElapsedTime = HMI_Value.elapsed_value; // print timer	
+	char timer_string[20];
+	if(ElapsedTime.hour() < 24)
+		sprintf_P(timer_string, PSTR("%02d:%02d:%02d"), (uint8_t)(ElapsedTime.hour()%100), (uint8_t)(ElapsedTime.minute()%60), (uint8_t)(ElapsedTime.second()%60));
+	else
+		sprintf_P(timer_string, PSTR("%02dD%03d:%02d"), (uint8_t)(ElapsedTime.day()%100), (uint8_t)(ElapsedTime.hour()%100), (uint8_t)(ElapsedTime.minute()%60));	
+	DWIN_Draw_MaskString_Default(ELAPSEDTIME_STAR_X, 212, timer_string);
 }
 
 void Draw_Print_RemainTime() {
 	#define	REMAINTIME_STAR_X	192
-	duration_t elapsed = HMI_Value.remain_time; // remain timer
+	duration_t RemainTime = HMI_Value.remain_time; // remain timer
+	char timer_string[20];
 	
 	if(HMI_Value.remain_time <= 0)
-		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, PSTR("--:--"));
-	else {
-		char elapsed_string[20];
-		//if(elapsed.hour() < 100)
-			sprintf_P(elapsed_string, PSTR("%02d:%02d"), (int)(elapsed.hour()%100), (uint8_t)(elapsed.minute()%60));
-		//else
-		//	sprintf_P(elapsed_string, PSTR("%03d:%02d"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60));	
-		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, elapsed_string);
+		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, PSTR("--H--M"));
+	else {		
+		if(RemainTime.hour() < 24)
+			sprintf_P(timer_string, PSTR("%02dH%02dM"), (uint8_t)(RemainTime.hour()%100), (uint8_t)(RemainTime.minute()%60));
+		else
+			sprintf_P(timer_string, PSTR("%02dD%02dH"), (uint8_t)(RemainTime.day()%100), (uint8_t)(RemainTime.hour()%24));	
+		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, timer_string);
 	}	
 }
 
@@ -791,8 +798,8 @@ inline bool IS_printer_busy() {
 static void _Apply_ZOffset(){	
 	if((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || IS_printer_busy())){				
 		babyzoffset.current  = (float)HMI_Value.babyZoffset_Scale/MAXUNITMULT;
-		if(babyzoffset.last != babyzoffset.current ){
-		   babystep.add_mm(Z_AXIS, babyzoffset.current - babyzoffset.last);			
+		if(babyzoffset.last != babyzoffset.current ){			 
+			 babystep.add_mm(Z_AXIS, babyzoffset.current - babyzoffset.last);
 			 babyzoffset.last = babyzoffset.current;
 		}
 	}		
@@ -807,7 +814,7 @@ inline void save_Zoffset(){
 	if(ABS(babyzoffset.last - babyzoffset.first) > 0.1) {
 		home_offset.z += (babyzoffset.first - babyzoffset.last);		
 		settings.save();
-		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Home Z offset changed!"), 6);
+		DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Home Z offset Updated!"), 6);
 	}	
 }
 #endif
@@ -936,15 +943,13 @@ static void Popup_window_PauseOrStop() {
 #endif
 }
 
-inline void Popup_Window_waiting(uint8_t msg){
+inline void Popup_Window_StopWaiting(){
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DwinMenuID = DWMENU_POP_WAITING;
+	HMI_flag.killtimes = 0;
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
-	if(msg == 0)
-		DWIN_Draw_String_FIL((272 - 10 * 12)/2, 240, PSTR("Pausing..."));
-	else
-		DWIN_Draw_String_FIL((272 - 11 * 12)/2, 240, PSTR("Stopping..."));
+	DWIN_Draw_String_FIL((272 - 11 * 12)/2, 240, PSTR("Stopping..."));
 	DWIN_Draw_String_FIL((272 - 15 * 12)/2, 269, PSTR("Please wait!"));
 }
 
@@ -1003,7 +1008,7 @@ inline void DWIN_resume_print() {
 	print_job_timer.start(); // Also called by M24
 }
 
-static void DWIN_Show_Waiting(){
+static void DWIN_Kill_Waiting(){
 	DWIN_FEEDBACK_WARNNING();
 	HMI_flag.killtimes++;
 	if(HMI_flag.killtimes <= 2){
@@ -1015,11 +1020,10 @@ static void DWIN_Show_Waiting(){
 		HMI_flag.killElapsedTime = 2;
 	}
 	else if(HMI_flag.killtimes >= 4){
-		DWIN_Show_Status_Message(COLOR_RED, PSTR("killed!!"));
+		DWIN_Show_Status_Message(COLOR_RED, PSTR("killed!!"));		
 		HMI_flag.killtimes = 0;
 		HMI_flag.killElapsedTime = 0;
-		wait_for_heatup = wait_for_user = false;
-		card.flag.abort_sd_printing = true;		
+		Abort_SD_Printing();
 	}
 }	
 
@@ -1027,10 +1031,8 @@ static void _Dwin_pause_print() {
 	#if ENABLED(POWER_LOSS_RECOVERY)
 	ui.IS_lcd_pause = true;
 	ui.Lcd_pause_zpos = current_position.z;
-	#endif
-	
-	TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume")));
-	
+	#endif	
+	TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume")));	
 	#if ENABLED(PARK_HEAD_ON_PAUSE)
 		// Show message immediately to let user know about pause in progress
 		DWIN_Pause_Show_Message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT); 
@@ -1074,15 +1076,19 @@ void HMI_PauseOrStop() {
 			}
 		}
 		else if(DwinMenu_print.now == PRINT_CASE_STOP){
-			if(HMI_flag.select_flag){
-				Popup_Window_waiting(1);				
-				TERN_(ACTION_ON_CANCEL, host_action_cancel());
-				TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
-				wait_for_heatup = wait_for_user = false;
-				card.flag.abort_sd_printing = true;
-				#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU)
+			if(HMI_flag.select_flag){				
+			#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU)
 				save_Zoffset();
-				#endif
+			#endif			
+			#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+				HMI_flag.AutoUnloadFilament_on = false;
+				if(HMI_flag.AutoUnload_enabled && !mixer.mixing_enabled && sum_extrude > 5 && thermalManager.temp_hotend[0].celsius > 150){ 
+					HMI_flag.AutoUnloadFilament_on = true;
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Unload filament..."));					
+				}
+			#endif
+				Popup_Window_StopWaiting();
+				Abort_SD_Printing();
 			}
 			else{
 				//redraw printing menu
@@ -1243,11 +1249,16 @@ void DWIN_Draw_PrintDone_Confirm(){
 	// show print done confirm
 	DwinMenuID = DWMENU_POP_STOPPRINT;
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	Draw_Popup_Bkgd_105();
+	Draw_Popup_Bkgd_105();	
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 11 * 12) / 2, 150, PSTR("Print Done,"));
-	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 14 * 12) / 2, 200, PSTR("Click to exit!"));
-	//dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y_START);
-	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 250);
+	//show print elapsed time
+	duration_t elapsed = HMI_Value.elapsed_value;
+	char timer_string[30];
+	sprintf_P(timer_string, PSTR("Elapsed time: %3dHr%2dMin"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60));
+	DWIN_Draw_MaskString_Default_PopMenu((272 - 24 * 10) / 2, 200, PSTR(timer_string));	
+	//
+	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 14 * 12) / 2, 240, PSTR("Click to exit!"));
+	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 280);
 #if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU )
 	save_Zoffset();
 #endif
@@ -1256,12 +1267,14 @@ void DWIN_Draw_PrintDone_Confirm(){
 static void DRAW_Pause_Mode(const PauseMode mode){
 	static PauseMode old_pausmode = PAUSE_MODE_PAUSE_PRINT;
 	if(mode != PAUSE_MODE_SAME)	old_pausmode = mode;
-	
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)	
 	if(runout.enabled && runout.filament_ran_out){
 		Draw_Title(PSTR("Run out..."));
 		return;
 	}
-	
+#endif
+
 	switch(old_pausmode){
 		case PAUSE_MODE_PAUSE_PRINT:
 				Draw_Title(PSTR("Pause..."));				
@@ -1361,19 +1374,10 @@ static void Popup_window_Pause_Option(const PauseMode mode) {
 	DRAW_Pause_Mode(mode);	
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 12) / 2, 160, PSTR("Purge more?"));
 	DwinMenuID = DWMENU_POP_FROD_OPTION;
-	HMI_flag.IS_cancel_runout = false;
+	TERN_(FILAMENT_RUNOUT_SENSOR, HMI_flag.IS_cancel_runout = false);
 	ICON_YESorNO(DwinMenu_PauseOption.now);
 	
 }
-
-static void Popup_window_ask_Disable_Runout() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-	Draw_Popup_Bkgd_60();
-	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 18) / 2, 140, PSTR("Sensor is still on"));
-	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 16) / 2, 180, PSTR("Disable Runout?"));
-	ICON_YESorNO(DwinMenu_PauseOption.now);
-}
-
 static void Popup_window_Pause_Resume(const PauseMode mode) {	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
@@ -1387,11 +1391,13 @@ static void DRAW_Pause_Message(PauseMessage message, PauseMode mode){
 		SERIAL_ECHOPAIR("Pause message = ", message);
 		SERIAL_ECHOLNPAIR("  Pause mode = ", mode);		
 	#endif
-	DwinMenuID = DWMENU_POP_WAITING;
+	//DwinMenuID = DWMENU_POP_WAITING;
 	if(IS_SD_PRINTING() || IS_SD_PAUSED()){
+	#if ENABLED(FILAMENT_RUNOUT_SENSOR)		
 		if(runout.enabled && runout.filament_ran_out)
 				DWIN_status = ID_SM_RUNOUTING;
 		else 
+	#endif
 			DWIN_status = ID_SM_PAUSING;		
 	}
 	switch (message){
@@ -1468,6 +1474,14 @@ void DWIN_Pause_Show_Message(const PauseMessage message,const PauseMode mode /*=
 	DRAW_Pause_Message(message,mode);
 }
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+inline void Popup_window_ask_Disable_Runout() {
+	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Draw_Popup_Bkgd_60();
+	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 18) / 2, 140, PSTR("Sensor is still on"));
+	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 16) / 2, 180, PSTR("Disable Runout?"));
+	ICON_YESorNO(DwinMenu_PauseOption.now);
+}
 
 /* Filament Runout Option window */
 void HMI_Filament_Runout_Option() {
@@ -1535,6 +1549,7 @@ void HMI_Filament_Runout_Confirm() {
 		Draw_Printing_Menu(true);
 	}	
 }
+#endif
 
 void HMI_Waiting() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -1542,7 +1557,7 @@ void HMI_Waiting() {
 	if (encoder_diffState == ENCODER_DIFF_CW) return;
 	if (encoder_diffState == ENCODER_DIFF_CCW) return;
 	if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		DWIN_Show_Waiting();
+		DWIN_Kill_Waiting();
 	}	
 }
 
@@ -1557,7 +1572,7 @@ void HMI_Printing() {
 	}	
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
-			DWIN_Show_Waiting();			
+			DWIN_Kill_Waiting();			
 		}
 		else{
 			switch (DwinMenu_print.now) {

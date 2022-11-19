@@ -164,7 +164,7 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 	DwinMenu_mixer.set(MenuItem);
 	DwinMenu_mixer.index = _MAX(DwinMenu_mixer.now, MROWS);
 	HMI_Value.old_mix_mode = -1;
-	
+
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
@@ -419,6 +419,8 @@ void HMI_Mixer_Manual() {
 //
 #if ENABLED(GRADIENT_MIX)
 inline void Draw_Mixer_Gradient_Menu() {
+	mixer.gradient.enabled = false;
+	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);	
 	DwinMenu_GradientMix.reset();
 	//DwinMenu_GradientMix.index = _MAX(DwinMenu_GradientMix.now, MROWS);
@@ -575,6 +577,7 @@ void HMI_Mixer_Gradient() {
  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
   switch (DwinMenu_GradientMix.now) {
 	 case 0: 						// Back	 
+	 	TERN_(RANDOM_MIX, mixer.randommix_reset());
 	 	mixer.refresh_gradient();
     Draw_Mixer_Menu(MIXER_CASE_GRADIENT);
     break;
@@ -618,6 +621,8 @@ void HMI_Mixer_Gradient() {
 //
 #if ENABLED(RANDOM_MIX)
 inline void Draw_Mixer_Random_Menu() {
+	mixer.random_mix.enabled = false;
+
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	DwinMenu_RandomMix.reset();
 	DwinMenu_RandomMix.index = _MAX(DwinMenu_RandomMix.now, MROWS);
@@ -785,6 +790,7 @@ void HMI_Mixer_Random() {
  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
   switch (DwinMenu_RandomMix.now) {
 	 case 0: 						// Back
+	  TERN_(GRADIENT_MIX, mixer.gradientmix_reset());
 	 	mixer.refresh_random_mix();
     Draw_Mixer_Menu(MIXER_CASE_RANDOM);
    break;
@@ -921,10 +927,18 @@ static void Item_Config_Reprint(const uint8_t row){
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-static void Item_Config_Filament(const uint8_t row) {
+static void Item_Config_FilamentRunOut(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Runout Sensor:"));
 	Draw_Menu_Line(row,ICON_CURSOR);	
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(runout.enabled));	
+}
+#endif
+
+#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+static void Item_Config_FilamentAutoUnload(const uint8_t row) {
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Unload:"));
+	Draw_Menu_Line(row,ICON_CURSOR);	
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.AutoUnload_enabled));	
 }
 #endif
 
@@ -988,7 +1002,12 @@ inline PGM_P _getString_SwitchExtruder(){
 	switch(HMI_Value.switchExtruder){
 		default:
 			HMI_Value.switchExtruder = SE_DEFAULT;
-	#if (MIXING_STEPPERS== 3)
+	#if (MIXING_STEPPERS== 2)
+		case SE_E1E2:
+			return PSTR("E1-E2");
+		case SE_E2E1:
+			return PSTR("E2-E1");
+	#elif (MIXING_STEPPERS== 3)
 		case SE_E1E2E3:
 			return PSTR("E1-E2-E3");
 		case SE_E1E3E2:
@@ -1000,10 +1019,8 @@ inline PGM_P _getString_SwitchExtruder(){
 		case SE_E3E1E2:
 			return PSTR("E3-E1-E2");
 		case SE_E3E2E1:
-			return PSTR("E3-E2-E1");		
-	#endif
-	
-	#if (MIXING_STEPPERS == 4)
+			return PSTR("E3-E2-E1");			
+	#elif (MIXING_STEPPERS == 4)
 		case SE_E1E2E3E4:
 			return PSTR("E1-E2-E3-E4");
 		case SE_E1E2E4E3:
@@ -1066,7 +1083,16 @@ inline void switch_extruder_sequence(){
 		default:
 			HMI_Value.switchExtruder = SE_DEFAULT;
 			
-	#if (MIXING_STEPPERS == 3)	
+	#if (MIXING_STEPPERS == 2)	
+		case SE_E1E2:
+			MIX_SWITCH(0, 0);
+			MIX_SWITCH(1, 1);
+			break;
+		case SE_E2E1:
+			MIX_SWITCH(0, 1);
+			MIX_SWITCH(1, 0);
+			break;
+	#elif (MIXING_STEPPERS == 3)
 		case SE_E1E2E3:
 			MIX_SWITCH(0, 0);
 			MIX_SWITCH(1, 1);
@@ -1097,9 +1123,7 @@ inline void switch_extruder_sequence(){
 			MIX_SWITCH(1, 1);
 			MIX_SWITCH(0, 2);	
 			break;			
-	#endif
-	
-	#if (MIXING_STEPPERS == 4)		
+	#elif (MIXING_STEPPERS == 4)		
 		case SE_E1E2E3E4:
 			MIX_SWITCH(0, 0);
 			MIX_SWITCH(1, 1);
@@ -1311,6 +1335,22 @@ static void Item_Config_PIDTune(const uint8_t row) {
 }
 #endif
 
+#if ENABLED(PID_AUTOTUNE_MENU)
+void DWIN_Show_PIDAutoTune(uint8_t cycles, uint8_t ncycles){
+	char string_Buf[50]={0};
+	if(DWIN_status != ID_SM_PIDAUTOTUNING) return;
+	sprintf_P(string_Buf,PSTR("PID tuning, cycles = %1d/%1d ."), cycles, ncycles);
+	DWIN_Show_Status_Message(COLOR_RED, string_Buf, 0);	
+}
+
+void DWIN_Show_PIDAutoTuneDone(){
+	DWIN_Show_Status_Message(COLOR_WHITE, PSTR("PID Auto tune done!"));
+	DWIN_FEEDBACK_CONFIRM();
+	Draw_PIDTune_Menu();
+	DWIN_status = ID_SM_IDLE;
+}
+#endif
+
 void Draw_Config_Menu(const uint8_t MenuItem) {	
 	DwinMenuID = DWMENU_CONFIG;
 	DwinMenu_configure.set(MenuItem);
@@ -1343,9 +1383,13 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 
 	#if ENABLED(FILAMENT_RUNOUT_SENSOR) 
-	if (COVISI(CONFIG_CASE_FILAMENT)) Item_Config_Filament(COSCROL(CONFIG_CASE_FILAMENT));  		// filament runout
+	if (COVISI(CONFIG_CASE_FILAMENTRUNOUT)) Item_Config_FilamentRunOut(COSCROL(CONFIG_CASE_FILAMENTRUNOUT));  		// filament runout
 	#endif 
 
+	#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+	if (COVISI(CONFIG_CASE_FILAMENTAUTOUNLOAD)) Item_Config_FilamentAutoUnload(COSCROL(CONFIG_CASE_FILAMENTAUTOUNLOAD));  		// Auto Unload filament when printing abort
+	#endif 
+	
 	#if ENABLED(POWER_LOSS_RECOVERY) 
 	if (COVISI(CONFIG_CASE_POWERLOSS)) Item_Config_Powerloss(COSCROL(CONFIG_CASE_POWERLOSS));  // powerloss
 	#endif
@@ -1709,7 +1753,7 @@ static void Item_PIDTune_KD(const uint8_t row) {
 
 #if ENABLED(PID_AUTOTUNE_MENU)
 static void Item_PIDTune_Auto(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune:"));	
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.PIDAutotune_Temp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
@@ -1804,8 +1848,7 @@ void HMI_PIDTune_KD() {
 }
 
 #if ENABLED(PID_AUTOTUNE_MENU)
-void HMI_PID_AutoTune() {
-	
+void HMI_PID_AutoTune() {	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
@@ -1815,12 +1858,12 @@ void HMI_PID_AutoTune() {
 			DWIN_FEEDBACK_CONFIRM();
 			thermalManager.setTargetHotend(0, 0);
 			thermalManager.set_fan_speed(0, 255);			
-			if(thermalManager.degHotend(0) >= HMI_Value.PIDAutotune_Temp - 20) DWIN_Show_Status_Message(COLOR_RED, PSTR("Wait for hot end cooling..."), 0);
+			if(thermalManager.degHotend(0) >= HMI_Value.PIDAutotune_Temp - 20) DWIN_Show_Status_Message(COLOR_RED, PSTR("Wait for hot end cooling..."), 0);			
 			DWIN_status = ID_SM_PIDAUTOTUNE;
 		}
 		else {
-			NOLESS(HMI_Value.PIDAutotune_Temp, 180);
-			NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
+			NOLESS(HMI_Value.PIDAutotune_Temp, EXTRUDE_MINTEMP);
+			NOMORE(HMI_Value.PIDAutotune_Temp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));		
 			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_PIDTune.index + PIDTUNE_CASE_AUTO), HMI_Value.PIDAutotune_Temp);
 		}
 		dwinLCD.UpdateLCD();
@@ -2699,7 +2742,7 @@ void HMI_Adjust_hotend_MaxTemp() {
 
 #if (ENABLED(PID_AUTOTUNE_MENU) && DISABLED(PID_EDIT_MENU))
 void HMI_PID_AutoTune() {
-	char string_Buf[50]={0};
+	char string_Buf[50]={0};	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.PIDAutotune_Temp)) {
@@ -2708,12 +2751,12 @@ void HMI_PID_AutoTune() {
 			DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDTUNE), HMI_Value.PIDAutotune_Temp);			
 			DWIN_FEEDBACK_CONFIRM();
 			ZERO(string_Buf);
-			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C8 U1\nM500"),HMI_Value.PIDAutotune_Temp);
+			sprintf_P(string_Buf,PSTR("M303 S%3d E0 C%1d U1\nM500"),HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
 			queue.inject(string_Buf);			
 		}
 		else {
-			NOLESS(HMI_Value.PIDAutotune_Temp, 180);
-			NOMORE(HMI_Value.PIDAutotune_Temp, 250);		
+			NOLESS(HMI_Value.PIDAutotune_Temp, EXTRUDE_MINTEMP);
+			NOMORE(HMI_Value.PIDAutotune_Temp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));		
 			DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X+8, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_PIDTUNE), HMI_Value.PIDAutotune_Temp);
 		}
 		dwinLCD.UpdateLCD();
@@ -2812,7 +2855,11 @@ void HMI_Config() {
 				#endif
 				
 				#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-					else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+					else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENTRUNOUT) Item_Config_FilamentRunOut(MROWS);
+				#endif
+
+				#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+					else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENTAUTOUNLOAD) Item_Config_FilamentAutoUnload(MROWS);
 				#endif
 				
 				#if ENABLED(POWER_LOSS_RECOVERY)
@@ -2852,7 +2899,11 @@ void HMI_Config() {
 			#endif
 			
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENT) Item_Config_Filament(MROWS);
+				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENTRUNOUT) Item_Config_FilamentRunOut(MROWS);
+			#endif
+
+			#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+				else if(DwinMenu_configure.index == CONFIG_CASE_FILAMENTAUTOUNLOAD) Item_Config_FilamentAutoUnload(MROWS);
 			#endif
 			
 			#if ENABLED(POWER_LOSS_RECOVERY)
@@ -2918,7 +2969,11 @@ void HMI_Config() {
 			#endif
 			
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_FILAMENT) Item_Config_Filament(0);
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_FILAMENTRUNOUT) Item_Config_FilamentRunOut(0);
+			#endif
+			
+			#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_FILAMENTAUTOUNLOAD) Item_Config_FilamentAutoUnload(0);
 			#endif
 			
 			#if ENABLED(POWER_LOSS_RECOVERY)
@@ -2993,14 +3048,31 @@ void HMI_Config() {
   #endif
 	 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-			case CONFIG_CASE_FILAMENT:  				// FILAMENT
+			case CONFIG_CASE_FILAMENTRUNOUT:  				// FILAMENT Run out
 				DwinMenuID = DWMENU_CONFIG;
 				runout.enabled = !runout.enabled;
-				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(runout.enabled));		
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENTRUNOUT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(runout.enabled));		
 				if(runout.enabled)
 					queue.inject_P(PSTR("M412 S1"));		
 				else
 					queue.inject_P(PSTR("M412 S0"));
+				
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());		
+		   break;
+  #endif
+
+	#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+			case CONFIG_CASE_FILAMENTAUTOUNLOAD:  				// auto unload filament when printing about
+				if(mixer.mixing_enabled){
+					HMI_flag.AutoUnload_enabled = false;
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Only work on Non-mix Hotend!"));
+					DWIN_FEEDBACK_WARNNING();
+					break;
+				}
+				DwinMenuID = DWMENU_CONFIG;
+				HMI_flag.AutoUnload_enabled = !HMI_flag.AutoUnload_enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENTAUTOUNLOAD + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.AutoUnload_enabled));		
 				
 				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());		
@@ -3080,11 +3152,14 @@ void HMI_Config() {
 				_BREAK_WHILE_PRINTING
 					
 				mixer.mixing_enabled = !mixer.mixing_enabled;
-				if(mixer.mixing_enabled) {					
+				if(mixer.mixing_enabled) {
 				#if ENABLED(OPTION_HOTENDMAXTEMP)
 					thermalManager.hotend_maxtemp = HOTEND_WARNNING_TEMP;
 					if(thermalManager.degTargetHotend(0) > HOTEND_WARNNING_TEMP)
 						thermalManager.setTargetHotend(HOTEND_WARNNING_TEMP, 0);
+				#endif
+				#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+					HMI_flag.AutoUnload_enabled = false;
 				#endif
 					DWIN_Draw_MaskString_Default(LBRX-strlen("    Mixing")*8, MBASE(CONFIG_CASE_MIXERENABLE + MROWS - DwinMenu_configure.index), PSTR("    Mixing")); 
 					DWIN_FEEDBACK_WARNNING();
