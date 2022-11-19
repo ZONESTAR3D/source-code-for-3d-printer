@@ -73,60 +73,60 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
+
+//#define	OPTION_Z8PM2 							//M2 + LCD12864
+#define	OPTION_Z8PM2_PRO 						//M2 + DWIN LCD 
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 				"Z8PM4-MK2"
-#define	FIRMWARE_VERSION		  			"V1.0"
-#define	STRING_DISTRIBUTION_DATE  	"2022-12-01"
-#define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
-#define WEBSITE_URL 								"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR			"(ZONESTAR, Hally)"
-#define EEPROM_VERSION 			  			"V83"
+#if ENABLED(OPTION_Z8PM2)
+#define CUSTOM_MACHINE_NAME 			"Z8PM2"
+#elif  ENABLED(OPTION_Z8PM2_PRO)
+#define CUSTOM_MACHINE_NAME 			"Z8PM2Pro"
+#endif
+#define	FIRMWARE_VERSION		  		"V1.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-11-19"
+#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
+#define WEBSITE_URL 							"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
+#define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
-#define OPTION_LCDDWIN								//
-#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
-#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #define OPTION_TITAN									//TITAN Extruder
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
-#define	OPTION_TMC220X_XYZ 						//TMC220X be used to XYZ
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
+#define	OPTION_TMC2225_XYZ 						//TMC2225 be used to XYZ
+#if ENABLED(OPTION_Z8PM2_PRO)
+#define OPTION_LCDDWIN							//
+#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
+#define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
-//===========================================================================
-//Optional feature
-//-------------------------
-// Filament run out sensor
-//#define OPTION_FROD									//
-
-//Non mix color hotend
-//#define	OPTION_MIXING_SWITCH				//Enable/disable mixing feature on LCD MENU
-#ifdef OPTION_MIXING_SWITCH
-#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 #define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
-#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament while abort printing (only for nox mixing color hotend)
-#endif
-
-//WiFi feature
-//#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#ifdef OPTION_WIFI_MODULE
-#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
+#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
 #endif
 //===========================================================================
-//Upgradable features
+//optional feature
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //#define OPTION_BGM									//BGM Extruder
-//#define	OPTION_TMC2225_XYZ 					//TMC2225 be used to XYZ axis motor drivers
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+
+#if ENABLED(OPTION_Z8PM2_PRO)
+#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament while abort printing (only for nox mixing color hotend)
+#if (DWINLCD_MENU_VERSION == 3)
+#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
+#endif
+#endif
 //===========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
@@ -134,10 +134,10 @@
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
+#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z8P/tree/main/UpdateNews"
+#define	STRING_NEWS_LINK					"http://bit.ly/3UPON5v"
 #endif
 //===========================================================================
 //UART port
@@ -404,19 +404,19 @@
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
-#if ENABLED(MIXING_EXTRUDER)  
-  #define MIXING_STEPPERS 	  4  		// Number of steppers in your mixing extruder
-  #define MIXING_VIRTUAL_TOOLS 16  		// Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE			// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE		// show mix rate ICON and data in LCD (only applied in LCD12864)
+#if ENABLED(MIXING_EXTRUDER)
+  #define MIXING_STEPPERS 			2  		// Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
+  #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
+  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
   #endif  
-  //#define DIRECT_MIXING_IN_G1    		// Allow ABCDHI mix factors in G1 movement commands
-  #define GRADIENT_MIX           		// Support for gradient mixing with M166 and LCD
-  #define RANDOM_MIX					// Support for random mixing with M167 and LCD
+  //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
+  #define GRADIENT_MIX           			// Support for gradient mixing with M166 and LCD
+  #define RANDOM_MIX						// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
-    //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+    //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
 #endif
 
@@ -1303,9 +1303,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-#ifdef OPTION_FROD
-#define	FILAMENT_RUNOUT_SENSOR
-#endif
+#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   		 1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.

@@ -134,10 +134,10 @@
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
+#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z8P/tree/main/UpdateNews"
+#define	STRING_NEWS_LINK					"http://bit.ly/3UPON5v"
 #endif
 //===========================================================================
 //UART port
