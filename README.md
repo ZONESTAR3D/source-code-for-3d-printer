@@ -14,8 +14,8 @@
 ------------
 ## ZONESTAR 3D Printer Firmware Source Code
 ###  [Configured machines list](./config/)
-|     Config     |         Model       |    Control board    |  
-|----------------|---------------------|---------------------|  
+|     Config     |    Printer Model    |    Control board    |  
+|:---------------|:-------------------:|:-------------------:|  
 |  D805S_ZM3E4   |    D805S(M2/R2)     |       ZM3E4         |  
 |  D805S_ZRIB    |    D805S(M2/R2)     |       ZRIB          |
 |  P802N_ZM3E4   |    P802N_ZM3E4      |       ZM3E4         |
@@ -25,8 +25,12 @@
 |  Z5X_ZM3E2     |    Z5X(M2/R2)       |       ZM3E2         |
 |  Z5X_ZMIB      |    Z5X(M2/R2)       |       ZMIB          | 
 |  Z5XM3_ZM3E4   |    Z5X(M3/R3)       |       ZM3E4         |
+|  Z6_ZM3E2      |    Z6               |       ZM3E2         |  
 |  Z6_ZMIB       |    Z6               |       ZMIB          |  
-|  Z8P_ZM3E4     |    Z8P(M3/R3)       |       ZM3E4         |  
+|  Z8PM2_MK1     |    Z8P(M2/R2)       |       ZM3E4         |  
+|  Z8PM3_MK1     |    Z8P(M3/R3)       |       ZM3E4         |  
+|  Z8PM4_MK1     |    Z8P(M4/E4)       |       ZM3E4         |  
+|  Z8PM4_MK2     |    Z8PMK2(M4/E4)    |       ZM3E4         |  
 |  Z8R3_ZRIB     |    Z8X(R3)          |       ZRIB          |
 |  Z8T_ZM3E4     |    Z8T(M3)          |       ZM3E4         |
 |  Z8T_ZRIB      |    Z8T(M3)          |       ZRIB          |  
@@ -34,7 +38,7 @@
 |  Z9M3_ZM3E4    |    Z9M3(R3)         |       ZM3E4         |  
 |  Z9M3_ZRIB     |    Z9M3(R3)         |       ZRIB          |
 |  Z9M4_ZM3E4    |    Z9M4             |       ZM3E4         |  
-|  	Z9V5   	  |    Z9V5(Pro)-MK1(2) |       ZM3E4         |  
+|  Z9V5   	     |    Z9V5Pro-MK1(2)   |       ZM3E4         |  
 |  Z9V5_MK3      |    Z9V5Pro-MK3      |       ZM3E4         |
 |  Z9V5_MK4      |    Z9V5Pro-MK4      |       ZM3E4         |
 |  Z10M2_ZRIB    |    Z10M2            |       ZRIB          |  
