@@ -458,7 +458,7 @@ void Draw_Print_RemainTime() {
 		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, PSTR("--H--M"));
 	else {		
 		if(RemainTime.hour() < 24)
-			sprintf_P(timer_string, PSTR("%02dH%02dM"), (uint8_t)(RemainTime.hour()%100), (uint8_t)(RemainTime.minute()%60));
+			sprintf_P(timer_string, PSTR("%02d:%02d "), (uint8_t)(RemainTime.hour()%100), (uint8_t)(RemainTime.minute()%60));
 		else
 			sprintf_P(timer_string, PSTR("%02dD%02dH"), (uint8_t)(RemainTime.day()%100), (uint8_t)(RemainTime.hour()%24));	
 		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, timer_string);
@@ -1254,7 +1254,7 @@ void DWIN_Draw_PrintDone_Confirm(){
 	//show print elapsed time
 	duration_t elapsed = HMI_Value.elapsed_value;
 	char timer_string[30];
-	sprintf_P(timer_string, PSTR("Elapsed time: %3dHr%2dMin"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60));
+	sprintf_P(timer_string, PSTR("Elapsed time:%dHr%dMin"), (int)(elapsed.hour()%1000), (uint8_t)(elapsed.minute()%60));
 	DWIN_Draw_MaskString_Default_PopMenu((272 - 24 * 10) / 2, 200, PSTR(timer_string));	
 	//
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 14 * 12) / 2, 240, PSTR("Click to exit!"));

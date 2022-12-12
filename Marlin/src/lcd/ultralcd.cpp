@@ -34,7 +34,7 @@
 #include "ultralcd.h"
 MarlinUI ui;
 
-#if HAS_DISPLAY
+#if EITHER(HAS_DISPLAY, HAS_DWIN_LCD)
   #include "../module/printcounter.h"
   #include "../MarlinCore.h"
   #include "../gcode/queue.h"
@@ -1545,19 +1545,6 @@ void MarlinUI::update() {
     print_job_timer.start(); // Also called by M24
   }
 
-  #if HAS_PRINT_PROGRESS
-
-    MarlinUI::progress_t MarlinUI::_get_progress() {
-      return (
-        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
-        #if ENABLED(SDSUPPORT)
-          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
-        #endif
-      );
-    }
-
-  #endif
-
   #if HAS_TOUCH_XPT2046
 
     //
@@ -1608,8 +1595,20 @@ void MarlinUI::update() {
 	}
 #endif // !HAS_DISPLAY
 
-#if ENABLED(SDSUPPORT)
+#if HAS_PRINT_PROGRESS
+    MarlinUI::progress_t MarlinUI::_get_progress() {
+      return (
+        TERN0(LCD_SET_PROGRESS_MANUALLY, (progress_override & PROGRESS_MASK))
+			#if ENABLED(SDSUPPORT)
+          ?: TERN(HAS_PRINT_PROGRESS_PERMYRIAD, card.permyriadDone(), card.percentDone())
+			#endif
+      );
+    }
 
+#endif
+
+
+#if ENABLED(SDSUPPORT)
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount

@@ -438,25 +438,18 @@ bool Autotest::DWIN_AutoTesting() {
 						testflag.state = CHECK_FINISHED;
 			}
 			break;			
-
+			
+	#if ENABLED(COREXY)
 		case CHECK_XY_MOTOR:
 			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
 			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("XY Motor On..."));
 			if(test_timer++ >= 100){
 				test_timer = 0;
-				test_dir = !test_dir;
-			  if(test_dir) {
+				test_dir = !test_dir;				
+			  if(test_dir)
 					current_position.x += 10;
-					#if DISABLED(COREXY)
-					current_position.y += 10;
-					#endif
-			  }
-				else {
+				else
 					current_position.x -= 10;
-					#if DISABLED(COREXY)
-					current_position.y -= 10;
-					#endif					
-				}
 				planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), 0);
 				planner.synchronize();
 				if(test_counter++ >=5){
@@ -470,7 +463,55 @@ bool Autotest::DWIN_AutoTesting() {
 				}			
 			}
 			break;
-
+	#else
+		case CHECK_XY_MOTOR:
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("X Motor On..."));
+			if(test_timer++ >= 100){
+				test_timer = 0;
+				test_dir = !test_dir;				
+			  if(test_dir)
+					current_position.x += 10;
+				else
+					current_position.x -= 10;
+				planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), 0);
+				planner.synchronize();
+				if(test_counter++ >=5){
+					test_counter = 0;
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("X Motor Off"));					
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch Y motors"));
+					DWIN_FEEDBACK_WARNNING();
+					testflag.state = CHECK_Y_MOTOR;
+				}			
+			}
+			break;
+			
+		case CHECK_Y_MOTOR:
+			dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
+			DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("Y Motor On..."));
+			if(test_timer++ >= 100){
+				test_timer = 0;
+				test_dir = !test_dir;				
+			  if(test_dir)
+					current_position.y += 10;
+				else
+					current_position.y -= 10;
+				planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), 0);
+				planner.synchronize();
+				if(test_counter++ >=5){
+					test_counter = 0;
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, 0, YPOS(ID_LINE_XYMOTOR), DWIN_WIDTH, YPOS(ID_LINE_XYMOTOR)+ROW_GAP);
+					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_DEEPBLUE, LSTART, YPOS_MSG(ID_LINE_XYMOTOR), PSTR("Y Motor Off"));					
+					dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);
+					DRAW_STRING_FONT12(COLOR_RED, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("Watch Z motors"));
+					DWIN_FEEDBACK_WARNNING();
+					testflag.state = CHECK_Z_MOTOR;
+				}			
+			}
+			break;
+	#endif
 		
 		case CHECK_Z_MOTOR:
 			test_timer++;

@@ -1,5 +1,9 @@
----- OPTION_Z8PM2_PRO Matches (4 in 1 files) ----
-Configuration.h (g:\working\code210\marlin):#define	OPTION_Z8PM2_PRO 						//M2 + DWIN LCD 
-Configuration.h (g:\working\code210\marlin):#elif  ENABLED(OPTION_Z8PM2_PRO)
-Configuration.h (g:\working\code210\marlin):#if ENABLED(OPTION_Z8PM2_PRO)
-Configuration.h (g:\working\code210\marlin):#if ENABLED(OPTION_Z8PM2_PRO)
+---- BED_LIMIT_SWITCHING Matches (8 in 4 files) ----
+Configuration.h (g:\working\code210\marlin): * If this option is disabled, bang-bang will be used and BED_LIMIT_SWITCHING will enable hysteresis.
+Configuration.h (g:\working\code210\marlin)://#define BED_LIMIT_SWITCHING
+Configuration_adv.h (g:\working\code210\marlin):  #if ENABLED(BED_LIMIT_SWITCHING)
+SanityCheck.h (g:\working\code210\marlin\src\inc):#if BOTH(PIDTEMPBED, BED_LIMIT_SWITCHING)
+SanityCheck.h (g:\working\code210\marlin\src\inc):  #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
+Temperature.cpp (g:\working\code210\marlin\src\module):    #if BOTH(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
+Temperature.cpp (g:\working\code210\marlin\src\module):            #if ENABLED(BED_LIMIT_SWITCHING)
+Temperature.cpp (g:\working\code210\marlin\src\module):            #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING

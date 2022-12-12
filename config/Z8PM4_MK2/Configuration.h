@@ -80,24 +80,25 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #if ENABLED(OPTION_Z8PM4)
-#define CUSTOM_MACHINE_NAME 			"Z8PM4"
+#define CUSTOM_MACHINE_NAME 			"Z8PM4-MK2"
 #elif  ENABLED(OPTION_Z8PM4_PRO)
-#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
+#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2"
 #endif
-#define	FIRMWARE_VERSION		  		"V1.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-11-19"
+#define	FIRMWARE_VERSION		  		"V1.0.0"
+#define	STRING_DISTRIBUTION_DATE  "2022-12-3"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
 #define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
-//default, factory default configuration
+//default for Z8PM4-MK2
 #define OPTION_TITAN									//TITAN Extruder
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
-#define	OPTION_TMC2225_XYZ 						//TMC2225 be used to XYZ
-#if ENABLED(OPTION_Z8PM4_PRO)
+#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
+//===========================================================================
+#ifdef OPTION_Z8PM4_PRO
 #define OPTION_LCDDWIN							//
 #define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
@@ -112,13 +113,12 @@
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //#define OPTION_BGM									//BGM Extruder
-//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
-//#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
+//#define	OPTION_TMC2225_XYZ 					//TMC2225 be used to XYZ
+//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
-//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
-
+//===========================================================================
 #if ENABLED(OPTION_Z8PM4_PRO)
 #define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
@@ -134,7 +134,7 @@
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://bit.ly/3TYurpu"
+#define	STRING_GUIDE_LINK					"https://bit.ly/3Vvn7D2"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"http://bit.ly/3UPON5v"
@@ -2291,7 +2291,6 @@
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
-
 //
 // DGUS Touch Display with DWIN OS. (Choose one.)
 // ORIGIN : https://www.aliexpress.com/item/32993409517.html
@@ -2481,6 +2480,7 @@
 //
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
+
 
 //=============================================================================
 //=============================== Extra Features ==============================

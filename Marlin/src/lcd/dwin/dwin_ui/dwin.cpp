@@ -152,11 +152,16 @@ inline void _check_kill_times_ElapsedTime(){
 	}
 }
 
-inline void _Update_printing_Timer(){
-	// print process
+inline void _Update_printing_Timer(){	
 	if(card.isPrinting()){
+		// print process
+		uint8_t card_pct = card.percentDone();
+		static uint8_t last_cardpercentValue = 255;
+		#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+		if(ui.get_progress_percent() != 0) card_pct = ui.get_progress_percent();
+		#endif
 		// Print time so far
-		duration_t elapsed = print_job_timer.duration(); // print timer
+		duration_t elapsed = print_job_timer.duration();
 		HMI_Value.elapsed_value = elapsed.value;
 		static uint8_t last_Printtime = 0;
 		if (last_Printtime != (uint8_t)(elapsed.value%60)) { // 1 second update
@@ -166,25 +171,25 @@ inline void _Update_printing_Timer(){
 			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
 
 			//Updata Remaining time per minute
-			if(last_Printtime == 0) {				
+			if(last_Printtime == 0 && card_pct > 0) {
 			#if HAS_PRINT_PROGRESS_PERMYRIAD
 				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value; 			
 			#else
 				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value; 				
-			#endif
+			#endif			
+			#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
+				if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
+			#endif		
 				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
 			}
 		}
 
-		// Update Process
-		const uint8_t card_pct = card.percentDone();		
-		static uint8_t last_cardpercentValue = 255;		
+		// Update Process		
 		if(last_cardpercentValue != card_pct){			
 			last_cardpercentValue = card_pct;			
 			if(card_pct){
-				HMI_Value.Percentrecord = card_pct;
-
-				//Updata Process Percent				
+				//Updata Process Percent	
+				HMI_Value.Percentrecord = card_pct;							
 				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
 
 				//Updata Remaining time per percent
@@ -193,6 +198,10 @@ inline void _Update_printing_Timer(){
 			#else
 				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value;					
 			#endif
+			
+			#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
+				if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
+			#endif		
 				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
 			}
 		}			

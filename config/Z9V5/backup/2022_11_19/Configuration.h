@@ -137,10 +137,10 @@
 
 //User guide QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/Z9V5-MK2"
+#define	STRING_GUIDE_LINK					"http://bit.ly/3UQRxPY"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9V5/UpdateNews"
+#define	STRING_NEWS_LINK					"http://bit.ly/3AqNKAQ"
 #endif
 //===========================================================================
 //UART port
