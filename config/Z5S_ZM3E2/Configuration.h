@@ -98,23 +98,15 @@
 //===========================================================================
 //Optional feature
 //#define	OPTION_WIFI_MODULE
-//#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
 //#define OPTION_TITAN								//TITAN Extruder
 //#define OPTION_BGM									//BGM Extruder
-//#define	OPTION_AUTOPOWEROFF					//Power off after printer
 //#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen (EXP1 connector)
-//#define	OPTION_LCDDWIN  						//TFT_LCD 4.3INCH with knob (EXP1 connector)
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR (Z- connector)
-//#define	OPTION_3DTOUCH								//Probe use 3DTouch or BLTouch (AUX2 connector)
-//===========================================================================
-//Bed coating
-#if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	1.0			//stikcer thickness
-#endif
+//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch (AUX2 connector)
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
-#define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
+#define WIFI_LINK_CHECK_TIME					30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 
@@ -177,7 +169,9 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-//#define SERIAL_PORT_2 2		///1-RIB  
+#ifdef OPTION_TFTLCD
+#define SERIAL_PORT_2 1		///EXP1
+#endif 
 
 /**
  * This setting determines the communication speed of the printer.
@@ -205,11 +199,7 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
-#ifdef D805SR2
-#define EXTRUDERS 2
-#else
 #define EXTRUDERS 1
-#endif
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -1235,16 +1225,16 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 220
-#define Y_BED_SIZE 220
+#define X_BED_SIZE 	220
+#define Y_BED_SIZE 	220
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS -20
-#define Y_MIN_POS -10
-#define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 220
+#define X_MIN_POS 	-20
+#define Y_MIN_POS 	-10
+#define Z_MIN_POS 	-1
+#define X_MAX_POS 	X_BED_SIZE
+#define Y_MAX_POS 	Y_BED_SIZE
+#define Z_MAX_POS 	220
 
 /**
  * Software Endstops

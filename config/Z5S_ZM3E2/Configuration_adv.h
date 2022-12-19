@@ -1637,7 +1637,7 @@
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
 
-  #define PROCESS_M290_ASAP				  	//Process M290 command as soon as possible
+  //#define PROCESS_M290_ASAP				  	//Process M290 command as soon as possible
 #endif
 
 // @section extruder

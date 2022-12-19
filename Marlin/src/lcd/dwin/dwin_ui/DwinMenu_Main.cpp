@@ -123,7 +123,9 @@ void Draw_Main_Menu(const bool with_update, const uint8_t MenuItem) {
 void HMI_MainMenu() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if (encoder_diffState == ENCODER_DIFF_NO) return;
+#if ENABLED(OPTION_AUTOPOWEROFF)	
 	HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;	
+#endif
 	if((encoder_diffState == ENCODER_DIFF_CW && DwinMenu_main.inc(MAIN_CASE_END))\
 		|| (encoder_diffState == ENCODER_DIFF_CCW && DwinMenu_main.dec())) {
 		Draw_BigICON_MainMenu();		
