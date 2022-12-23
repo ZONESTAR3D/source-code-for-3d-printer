@@ -1,17 +1,23 @@
-## Language / Translate
+### Choose Language (Translated by google)
 [![](./lanpic/ES.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=es)
-[![](./lanpic/PT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pt)
 [![](./lanpic/FR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=fr)
-[![](./lanpic/RU.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ru)
-[![](./lanpic/IT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=it)
+[![](./lanpic/PT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pt)
 [![](./lanpic/DE.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=de)
+[![](./lanpic/IT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=it)
 [![](./lanpic/PL.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pl)
-[![](./lanpic/KR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ko)
+[![](./lanpic/RU.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ru)
+[![](./lanpic/GR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=el)
 [![](./lanpic/JP.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ja)
+[![](./lanpic/KR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ko)
+[![](./lanpic/ID.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=id)
+[![](./lanpic/TH.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=th)
+[![](./lanpic/VN.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=vi)
+[![](./lanpic/IL.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=iw)
 [![](./lanpic/SA.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ar)
+[![](./lanpic/TR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=tr)
 [![](./lanpic/CN.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=zh-CN)
 
-------------
+-----
 ## ZONESTAR 3D Printer Firmware Source Code
 ###  [Configured machines list](./config/)
 |     Config     |    Printer Model    |    Control board    |  
@@ -47,7 +53,7 @@
 |  Z10M2_ZM3E4   |    Z10M2            |       ZM3E4         |  
 |  Z10R2_ZM3E4   |    Z10R2            |       ZM3E4         |  
 
-------
+-----
 ## How to build firmware
 ### 1. Prepare the compilation environment
 1. Install "Visual Studio Code: Visit the [***Setting up Visual Studio Code***](https://code.visualstudio.com/docs/setup/setup-overview) page to download and install the latest Visual Studio Code for your particular platform.  
@@ -78,12 +84,12 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
 - if you used a 128x64 dots LCD screen, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#2-u8glib)
 - if you used a 1604 or 2004 LCD screen, please refer to [here]https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh)
 
-------
+-----
 ## Upload firmware to your 3d printer
 1. For 32 bits control board, you can copy the *firmware.bin* file to SD card and upload the firmware from the SD card.
 2. For 8bits control board, you need to upload firmwre to the control board by PC (from USB cable), about detail, please refer to [**upload firmware**](https://github.com/ZONESTAR3D/firmware/readme.md)
 
-------
+-----
 ## License
 
 Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
