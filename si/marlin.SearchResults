@@ -1,17 +1,2 @@
----- free_close_timer_rg Matches (16 in 3 files) ----
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	if(HMI_flag.free_close_timer_rg >= POWERDOWN_MACHINE_TIMER)
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	else if(HMI_flag.free_close_timer_rg >= 100)
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		DWIN_Draw_UnMaskIntValue_Default(3, 230, 7, HMI_flag.free_close_timer_rg);
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	else if((HMI_flag.free_close_timer_rg < 100)&&(HMI_flag.free_close_timer_rg >= 10))
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		DWIN_Draw_IntValue_Default_Color(COLOR_YELLOW, 3, 230, 7, HMI_flag.free_close_timer_rg);		
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		DWIN_Draw_IntValue_Default_Color(COLOR_RED, 3, 230, 7, HMI_flag.free_close_timer_rg);
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		else if(HMI_flag.free_close_timer_rg == 0){
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			HMI_flag.free_close_timer_rg--;
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):			if(HMI_flag.free_close_timer_rg < POWERDOWN_MACHINE_TIPS_TIMER) DWIN_FEEDBACK_TICK();			
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;	
-Dwin.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	if(HMI_flag.Autoshutdown_enabled) HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-Dwin.h (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):		uint16_t free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
-DwinMenu_Main.cpp (g:\working\code210\marlin\src\lcd\dwin\dwin_ui):	HMI_flag.free_close_timer_rg = POWERDOWN_MACHINE_TIMER;	
+---- BED_COATING_THICKNESS Matches (1 in 1 files) ----
+Configuration.h (g:\working\code210\marlin):#define	BED_COATING_THICKNESS	1.0			//stikcer thickness

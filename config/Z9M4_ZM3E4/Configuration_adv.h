@@ -1219,7 +1219,7 @@
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
 	
-  #define EVENT_GCODE_SD_ABORT "G28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
   
 #if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
 	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")

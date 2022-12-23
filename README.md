@@ -35,6 +35,7 @@
 |  Z8T_ZM3E4     |    Z8T(M3)          |       ZM3E4         |
 |  Z8T_ZRIB      |    Z8T(M3)          |       ZRIB          |  
 |  Z8XM2_ZM3E4   |    Z8X(M2/R2)       |       ZM3E4         |    
+|  Z9M2_ZM3E4    |    Z9M2(R2S)        |       ZM3E4         |  
 |  Z9M3_ZM3E4    |    Z9M3(R3)         |       ZM3E4         |  
 |  Z9M3_ZRIB     |    Z9M3(R3)         |       ZRIB          |
 |  Z9M4_ZM3E4    |    Z9M4             |       ZM3E4         |  
