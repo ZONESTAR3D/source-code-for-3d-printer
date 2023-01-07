@@ -95,8 +95,8 @@
 //
 // Steppers
 //
-#define	MS1_PIN	   		   PA13
-#define	MS2_PIN	   		   PA14
+#define	MS1_PIN	   		   	 PA13
+#define	MS2_PIN	   		   	 PA14
 
 #define X_STEP_PIN         PC9
 #define X_DIR_PIN          PA8
@@ -147,8 +147,8 @@
 #define	Z_MIN_PROBE_PIN	   	PC10
 //WiFi
 #elif defined(OPTION_WIFI_MODULE)
-#define WIFI_RST          PA15
-#define WIFI_EN          	PC10
+#define WIFI_RST          	PA15
+#define WIFI_EN          		PC10
 #endif
 
 
@@ -236,6 +236,74 @@
 #define BTN_EN1 					PB10
 #define BTN_EN2 					PB11
 #define BTN_ENC 					PB2
+#endif
+//================================================================================
+//Exchang motor drivers and ENDSTOP connector for fault motor driver issue
+//
+#if ENABLED(EXCHANGE_X_E1)
+#undef X_STEP_PIN
+#undef X_DIR_PIN
+#undef X_ENABLE_PIN
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef X_STOP_PIN
+
+#define X_STEP_PIN         PD2
+#define X_DIR_PIN          PC12
+#define X_ENABLE_PIN       PB3
+#define E1_STEP_PIN        PC9
+#define E1_DIR_PIN         PA8
+#define E1_ENABLE_PIN      PC8
+#define X_STOP_PIN      	 PC11
+#elif ENABLED(EXCHANGE_Y_E1)
+#undef Y_STEP_PIN
+#undef Y_DIR_PIN
+#undef Y_ENABLE_PIN
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef Y_STOP_PIN
+
+#define Y_STEP_PIN         PD2
+#define Y_DIR_PIN          PC12
+#define Y_ENABLE_PIN       PB3
+#define E1_STEP_PIN        PB8
+#define E1_DIR_PIN         PB9
+#define E1_ENABLE_PIN      PC14
+#define Y_STOP_PIN      	 PC11
+#elif ENABLED(EXCHANGE_Z_E1)
+#undef Z_STEP_PIN
+#undef Z_DIR_PIN
+#undef Z_ENABLE_PIN
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef Z_STOP_PIN
+
+#define Z_STEP_PIN         PD2
+#define Z_DIR_PIN          PC12
+#define Z_ENABLE_PIN       PB3
+#define E1_STEP_PIN        PB6
+#define E1_DIR_PIN         PB5
+#define E1_ENABLE_PIN      PB7
+#define Z_STOP_PIN      	 PC11
+#elif ENABLED(EXCHANGE_E0_E1)
+#undef E0_STEP_PIN
+#undef E0_DIR_PIN
+#undef E0_ENABLE_PIN
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef FIL_RUNOUT_PIN
+
+#define E0_STEP_PIN        PD2
+#define E0_DIR_PIN         PC12
+#define E0_ENABLE_PIN      PB3
+#define E1_STEP_PIN        PB14
+#define E1_DIR_PIN         PB15
+#define E1_ENABLE_PIN      PB13
+#define FIL_RUNOUT_PIN		 PC11
 #endif
 
 

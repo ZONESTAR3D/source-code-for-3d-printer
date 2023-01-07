@@ -109,7 +109,13 @@
 #define WIFI_LINK_CHECK_TIME					30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
-
+//===========================================================================
+//Exchang motor drivers and ENDSTOP connector for fault motor driver issue
+//#define	EXCHANGE_X_E1
+//#define	EXCHANGE_Y_E1
+//#define	EXCHANGE_Z_E1
+//#define	EXCHANGE_E0_E1
+//===========================================================================
 /**
  * LCD LANGUAGE
  *
@@ -152,6 +158,7 @@
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
 #define CUSTOM_STATUS_SCREEN_IMAGE
+#define STATUS_SCREEN_MODEL_ID 			2
 #endif
 // @section machine
 
