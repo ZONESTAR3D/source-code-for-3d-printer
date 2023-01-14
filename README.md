@@ -6,7 +6,9 @@
 [![](./lanpic/IT.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=it)
 [![](./lanpic/PL.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pl)
 [![](./lanpic/RU.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ru)
+[![](./lanpic/BR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=pt)
 [![](./lanpic/GR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=el)
+
 [![](./lanpic/JP.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ja)
 [![](./lanpic/KR.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=ko)
 [![](./lanpic/ID.png)](https://github-com.translate.goog/ZONESTAR3D/source-code-for-3d-printer?_x_tr_sl=en&_x_tr_tl=id)
@@ -82,12 +84,12 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
 ### 4. Patchs
 - If you find the buzzer of control panel (LCD screen) don't work, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#1-tonecpp)
 - if you used a 128x64 dots LCD screen, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#2-u8glib)
-- if you used a 1604 or 2004 LCD screen, please refer to [here]https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh)
+- if you used a 1604 or 2004 LCD screen, please refer to [here](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh)
 
 -----
 ## Upload firmware to your 3d printer
 1. For 32 bits control board, you can copy the *firmware.bin* file to SD card and upload the firmware from the SD card.
-2. For 8bits control board, you need to upload firmwre to the control board by PC (from USB cable), about detail, please refer to [**upload firmware**](https://github.com/ZONESTAR3D/firmware/readme.md)
+2. For 8bits control board, you need to upload firmwre to the control board by PC (from USB cable), about detail, please refer to [**upload firmware**](https://github.com/ZONESTAR3D/Firmware/tree/master/Firmware_Upload_tool_for_ZRIB_ZMIB)
 
 -----
 ## License
