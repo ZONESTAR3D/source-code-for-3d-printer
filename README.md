@@ -81,9 +81,9 @@ Use the "Open Folder…" command in the Visual Studio Code "File" menu to open t
 3. Find the *firmware.bin (32-bits control board)* or *firmware.HEX (8-bits control board)* file in the ".pio/build/{board}" of the source code directory.    
 
 ### 4. [Patchs](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch)
-- If you find the buzzer of control panel (LCD screen) don't work, please refer to [**tone.cpp**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#1-tonecpp)
-- if you used a 128x64 dots LCD screen, please refer to [**U8glib**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#2-u8glib)
-- if you used a 1604 or 2004 LCD screen, please refer to [**LiquidCrystal.h**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh)
+- If you find the buzzer of control panel (LCD screen) don't work, please refer to [**tone.cpp**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#1-tonecpp).
+- if you used a 128x64 dots LCD screen, please refer to [**U8glib**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#2-u8glib).
+- if you used a 1604 or 2004 LCD screen, please refer to [**LiquidCrystal.h**](https://github.com/ZONESTAR3D/source-code-for-3d-printer/tree/main/patch#3-liquidcrystalh).
 
 -----
 ## Upload firmware to your 3d printer
