@@ -444,6 +444,10 @@ void menu_configuration() {
 		EDIT_ITEM(bool, MSG_WIFI_MODULE, &WiFi_Enabled, _lcd_onoffWiFi);
 	#endif
 
+	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+		EDIT_ITEM(bool, MSG_LASER_ENGINE, &Laser_Enabled, settings.save());
+	#endif
+
   // Preheat configurations
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     LOOP_L_N(m, PREHEAT_COUNT)

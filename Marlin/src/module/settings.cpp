@@ -296,6 +296,13 @@ typedef struct SettingsDataStruct {
 	#endif
 	#endif
 
+	//
+	//laser feature
+	//
+	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	bool laser_enabled;
+	#endif
+	
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	int16_t max_hotendtemp;
 	#endif
@@ -885,10 +892,20 @@ void MarlinSettings::postprocess() {
 			_FIELD_TEST(wifi_baudrate);
 			const uint8_t wifi_baudrate = WiFi_BaudRate;
 			EEPROM_WRITE(wifi_baudrate);
-		#endif
-			
+		#endif			
     }
-		#endif	
+		#endif
+
+		//
+		//laser feature
+		//
+		#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+		{
+      _FIELD_TEST(laser_enabled);
+			const bool laser_enabled = Laser_Enabled;			
+      EEPROM_WRITE(laser_enabled);			
+    }
+		#endif
 
 		//
 		//maxiums hotend temp
@@ -1838,15 +1855,27 @@ void MarlinSettings::postprocess() {
 		  //
 		  #if ENABLED(OPTION_WIFI_MODULE)
 			{					
+				 _FIELD_TEST(wifi_enabled);				
+        const bool &wifi_enabled = WiFi_Enabled;
+        EEPROM_READ(wifi_enabled);
+
 				#if ENABLED(OPTION_WIFI_BAUDRATE)
 				_FIELD_TEST(wifi_baudrate);
 				const uint8_t &wifi_baudrate = WiFi_BaudRate;
 				EEPROM_READ(wifi_baudrate);
-				#endif
-        _FIELD_TEST(wifi_enabled);				
-        const bool &wifi_enabled = WiFi_Enabled;
-        EEPROM_READ(wifi_enabled);
+				#endif       
       }
+			#endif
+
+			//
+			//laser feature
+			//
+			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+			{
+				_FIELD_TEST(laser_enabled);				
+        const bool &laser_enabled = Laser_Enabled;
+        EEPROM_READ(laser_enabled);		
+	    }
 			#endif
 
 			//
@@ -2810,6 +2839,13 @@ void MarlinSettings::reset() {
 	#if ENABLED(OPTION_WIFI_MODULE)
 	WiFi_Enabled = false;
 	TERN_(OPTION_WIFI_BAUDRATE,  WiFi_BaudRate = 0);
+	#endif
+	
+	//
+	//laser feature
+	//
+	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	Laser_Enabled = false;	
 	#endif
 
 	//

@@ -54,6 +54,7 @@ static void Item_Info_Website(const uint8_t row) {
 }
 
 
+
 #if ENABLED(OPTION_GUIDE_QRCODE)
 static void Item_Info_Guide(const uint8_t row) {
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("View User Guide"));	
@@ -65,6 +66,14 @@ static void Item_Info_Guide(const uint8_t row) {
 #if ENABLED(OPTION_NEWS_QRCODE)
 static void Item_Info_News(const uint8_t row) {
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("View Update News"));	
+	Draw_Menu_Line(row);
+	Draw_More_Icon(row);
+}
+#endif
+
+#if ENABLED(OPTION_FAQ_QRCODE)
+static void Item_Info_FAQ(const uint8_t row) {
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("View Troubleshooting"));	
 	Draw_Menu_Line(row);
 	Draw_More_Icon(row);
 }
@@ -115,10 +124,12 @@ static void Item_Info_Baudrate(const uint8_t row) {
 	Draw_Menu_Line(row);
 }
 
+#if 0
 static void Item_Info_Protocol(const uint8_t row) {
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Protocol: " PROTOCOL_VERSION));
 	Draw_Menu_Line(row);
 }
+#endif
 
 static void Item_Info_LevelSensor(const uint8_t row) {	
 #if ENABLED(OPTION_3DTOUCH)	
@@ -138,13 +149,13 @@ static void Item_Info_Thermistor(const uint8_t row) {
 
 static void Item_Info_Bed(const uint8_t row) {
 	#define _BED_MAXYEMP (BED_MAXTEMP - BED_OVERSHOOT)
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MINTEMP:" STRINGIFY(BED_MINTEMP) " MAXTEMP:115"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MINTEMP:" STRINGIFY(BED_MINTEMP) " MAXTEMP:" STRINGIFY(BED_MAXTEMP - BED_OVERSHOOT)));
 	Draw_Menu_Line(row);
 }
 
 static void Item_Info_Hotend(const uint8_t row) {
 	#define _HOTEND_MAXYEMP (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MINTEMP:" STRINGIFY(HEATER_0_MINTEMP) " MAXTEMP:235"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MINTEMP:" STRINGIFY(HEATER_0_MINTEMP) " MAXTEMP:" STRINGIFY(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
 	Draw_Menu_Line(row);
 }
 
@@ -255,6 +266,23 @@ void Popup_Window_NewsLink() {
 }	
 #endif
 
+#if ENABLED(OPTION_FAQ_QRCODE)
+void Popup_Window_FAQLink() {
+	Clear_Dwin_Area(AREA_MENU|AREA_BOTTOM);
+	Draw_Popup_Bkgd_60();
+	DwinMenuID = DWMENU_POP_FAQLINK;
+	DWIN_Draw_MaskString_Default_PopMenu((272-(strlen("Scan this QR code to")+1)*10)/2,75 , PSTR("Scan this QR code to"));
+	DWIN_Draw_MaskString_Default_PopMenu((272-(strlen("view troubleshooting")+1)*10)/2,95 , PSTR("view troubleshooting"));
+	dwinLCD.Draw_QRCode((272-46*3)/2, 130, 3, PSTR(STRING_FAQ_LINK));		
+	DWIN_Draw_MaskString_Default_PopMenu((272-(strlen("support@zonestar3d.com")+1)*10)/2, 130+46*3+15, PSTR("support@zonestar3d.com"));
+	DWIN_Draw_MaskString_Default_PopMenu((272-(strlen("Press the knob to exit")+1)*10)/2, 130+46*3+35, PSTR("Press the knob to exit"));
+}	
+#endif
+
+
+
+
+
 void Draw_Info_Menu() {
 	DwinMenuID = DWMENU_INFO;
 	DwinMenu_infor.reset();
@@ -274,15 +302,19 @@ void Draw_Info_Menu() {
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_INFO, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	if (ICVISI(INFO_CASE_BACK)) Draw_Back_First(DwinMenu_infor.now == INFO_CASE_BACK);	
+	
 	if(ICVISI(INFO_CASE_MODEL)) Item_Info_Model(ICSCROL(INFO_CASE_MODEL));
-	if(ICVISI(INFO_CASE_VERSION)) Item_Info_Version(ICSCROL(INFO_CASE_VERSION));
-	if(ICVISI(INFO_CASE_DATE)) Item_Info_Date(ICSCROL(INFO_CASE_DATE));	
 #if ENABLED(OPTION_GUIDE_QRCODE)
 	if(ICVISI(INFO_CASE_VIEWGUIDE)) Item_Info_Guide(ICSCROL(INFO_CASE_VIEWGUIDE));
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 	if(ICVISI(INFO_CASE_NEWS)) Item_Info_News(ICSCROL(INFO_CASE_NEWS));
 #endif
+#if ENABLED(OPTION_FAQ_QRCODE)	
+	if(ICVISI(INFO_CASE_FAQ)) Item_Info_FAQ(ICSCROL(INFO_CASE_FAQ));	
+#endif
+	if(ICVISI(INFO_CASE_VERSION)) Item_Info_Version(ICSCROL(INFO_CASE_VERSION));
+	if(ICVISI(INFO_CASE_DATE)) Item_Info_Date(ICSCROL(INFO_CASE_DATE));	
 	if(ICVISI(INFO_CASE_WEBSITE)) Item_Info_Website(ICSCROL(INFO_CASE_WEBSITE));	
 	if(ICVISI(INFO_CASE_FIRMWARE)) Item_Info_Firmware(ICSCROL(INFO_CASE_FIRMWARE));
 	if(ICVISI(INFO_CASE_BOARD)) Item_Info_Board(ICSCROL(INFO_CASE_BOARD));
@@ -297,7 +329,7 @@ void Draw_Info_Menu() {
 	if(ICVISI(INFO_CASE_DUALZ_ENDSTOP)) Item_Info_DualZ_Endstop(ICSCROL(INFO_CASE_DUALZ_ENDSTOP));	
 #endif	
 	if(ICVISI(INFO_CASE_BAUDRATE)) Item_Info_Baudrate(ICSCROL(INFO_CASE_BAUDRATE));	
-	if(ICVISI(INFO_CASE_PROTOCOL)) Item_Info_Protocol(ICSCROL(INFO_CASE_PROTOCOL));	
+	//if(ICVISI(INFO_CASE_PROTOCOL)) Item_Info_Protocol(ICSCROL(INFO_CASE_PROTOCOL));	
 	if(ICVISI(INFO_CASE_LEVELSENSOR)) Item_Info_LevelSensor(ICSCROL(INFO_CASE_LEVELSENSOR));	
 	if(ICVISI(INFO_CASE_THERMISTOR)) Item_Info_Thermistor(ICSCROL(INFO_CASE_THERMISTOR));		
 	if(ICVISI(INFO_CASE_BED)) Item_Info_Bed(ICSCROL(INFO_CASE_BED)); 	
@@ -335,6 +367,17 @@ void HMI_Pop_NewsLink() {
 }
 #endif
 
+#if ENABLED(OPTION_FAQ_QRCODE)
+void HMI_Pop_FAQLink() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
+	if(encoder_diffState == ENCODER_DIFF_NO) return;
+	else if(encoder_diffState == ENCODER_DIFF_ENTER){
+		Draw_Main_Menu(true);
+	}
+}
+#endif
+
+
 
 /* Info */
 void HMI_Info() {
@@ -354,9 +397,10 @@ void HMI_Info() {
 
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
-				if(DwinMenu_infor.index == INFO_CASE_MODEL) Item_Info_Model(MROWS);
-				else if(DwinMenu_infor.index == INFO_CASE_VERSION) Item_Info_Version(MROWS);
-				else if(DwinMenu_infor.index == INFO_CASE_DATE) Item_Info_Date(MROWS);				
+				if(DwinMenu_infor.index == INFO_CASE_MODEL) Item_Info_Model(MROWS);				
+			#if ENABLED(OPTION_TEST_MENU)
+				else if(DwinMenu_infor.index == INFO_CASE_TEST) Item_Info_Test(MROWS);
+			#endif	
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index == INFO_CASE_VIEWGUIDE) Item_Info_Guide(MROWS);
 			#endif
@@ -364,6 +408,11 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index == INFO_CASE_NEWS) Item_Info_News(MROWS);
 			#endif
 				else if(DwinMenu_infor.index == INFO_CASE_WEBSITE) Item_Info_Website(MROWS);
+			#if ENABLED(OPTION_FAQ_QRCODE)
+				else if(DwinMenu_infor.index == INFO_CASE_FAQ) Item_Info_FAQ(MROWS);
+			#endif
+				else if(DwinMenu_infor.index == INFO_CASE_VERSION) Item_Info_Version(MROWS);
+				else if(DwinMenu_infor.index == INFO_CASE_DATE) Item_Info_Date(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_FIRMWARE) Item_Info_Firmware(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_BOARD) Item_Info_Board(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_EXTRUDER_NUM) Item_Info_Extruder_Num(MROWS);
@@ -375,17 +424,14 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index == INFO_CASE_DUALZ_ENDSTOP) Item_Info_DualZ_Endstop(MROWS);
 			#endif
 				else if(DwinMenu_infor.index == INFO_CASE_BAUDRATE) Item_Info_Baudrate(MROWS);
-				else if(DwinMenu_infor.index == INFO_CASE_PROTOCOL) Item_Info_Protocol(MROWS);
+				//else if(DwinMenu_infor.index == INFO_CASE_PROTOCOL) Item_Info_Protocol(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_LEVELSENSOR) Item_Info_LevelSensor(MROWS);				
 				else if(DwinMenu_infor.index == INFO_CASE_THERMISTOR) Item_Info_Thermistor(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_BED) Item_Info_Bed(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_HOTEND) Item_Info_Hotend(MROWS);
 			#if ENABLED(OPTION_REPEAT_PRINTING)
 				else if(DwinMenu_infor.index == INFO_CASE_REPRINT) Item_Info_RepeatPrint(MROWS);
-			#endif				
-			#if ENABLED(OPTION_TEST_MENU)
-				else if(DwinMenu_infor.index == INFO_CASE_TEST) Item_Info_Test(MROWS);
-			#endif				
+			#endif										
 			}
 			else 
 				Move_Highlight(1, DwinMenu_infor.now + MROWS - DwinMenu_infor.index);
@@ -405,26 +451,29 @@ void HMI_Info() {
 			#if ENABLED(OPTION_DUALZ_DRIVE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_DUALZ_DRIVE) Item_Info_DualZ_Drive(0);
 			#endif
+			#if ENABLED(OPTION_REPEAT_PRINTING)
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_REPRINT) Item_Info_RepeatPrint(0);
+			#endif		
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_EXTRUDER_MODEL) Item_Info_Extruder_Model(0);
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_EXTRUDER_NUM) Item_Info_Extruder_Num(0);
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_BOARD) Item_Info_Board(0);		
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_FIRMWARE) Item_Info_Firmware(0);
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_WEBSITE) Item_Info_Website(0);	
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_WEBSITE) Item_Info_Website(0);
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_DATE) Item_Info_Date(0);
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VERSION) Item_Info_Version(0);
+			#if ENABLED(OPTION_FAQ_QRCODE)
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_FAQ) Item_Info_FAQ(0);	
+			#endif
 			#if ENABLED(OPTION_NEWS_QRCODE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_NEWS) Item_Info_News(0);
 			#endif	
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VIEWGUIDE) Item_Info_Guide(0);
-			#endif	
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_DATE) Item_Info_Date(0);
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VERSION) Item_Info_Version(0);
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_MODEL) Item_Info_Model(0);				
-			#if ENABLED(OPTION_REPEAT_PRINTING)
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_REPRINT) Item_Info_RepeatPrint(0);
 			#endif
 			#if ENABLED(OPTION_TEST_MENU)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_TEST) Item_Info_Test(0);
 			#endif
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_MODEL) Item_Info_Model(0);							
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_infor.now + MROWS - DwinMenu_infor.index);
@@ -455,6 +504,12 @@ void HMI_Info() {
 		#if ENABLED(OPTION_NEWS_QRCODE)
 			case INFO_CASE_NEWS:
 				Popup_Window_NewsLink();
+			break;
+		#endif
+
+		#if ENABLED(OPTION_FAQ_QRCODE)
+			case INFO_CASE_FAQ:
+				Popup_Window_FAQLink();
 			break;
 		#endif
 

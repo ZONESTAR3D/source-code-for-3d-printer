@@ -281,12 +281,14 @@ static void Item_Prepare_Lang(const uint8_t row) {
 	Draw_More_Icon(row);
 }
 
+#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))	
 static void Item_Prepare_Powerdown(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_POWER_OUTAGE, LBLX, MBASE(row));
 	if(HMI_flag.language == 0)
 		DWIN_Show_MultiLanguage_String(MTSTRING_POWER_OFF, LBLX+56, MBASE(row));
 	Draw_Menu_Line(row, ICON_POWERDOWN);
 }
+#endif
 
 void Draw_Prepare_Menu(const uint8_t MenuItem) {
 	DwinMenuID = DWMENU_PREPARE;
@@ -316,7 +318,9 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 	if (PVISI(PREPARE_CASE_LEVELING)) Item_Prepare_Leveling(PSCROL(PREPARE_CASE_LEVELING));   // Leveling 
 	if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA)); // Disable Stepper 
 	if (PVISI(PREPARE_CASE_LANG)) Item_Prepare_Lang(PSCROL(PREPARE_CASE_LANG));   // Language CN/EN
+#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))	
 	if (PVISI(PREPARE_CASE_POWERDOWN)) Item_Prepare_Powerdown(PSCROL(PREPARE_CASE_POWERDOWN));   // Powerdown
+#endif	
 	if (DwinMenu_prepare.now) Draw_Menu_Cursor(PSCROL(DwinMenu_prepare.now));
 	Draw_Status_Area();
 }
@@ -2014,6 +2018,7 @@ void HMI_Language() {
 //
 // Prepare>>PowerDown
 //
+#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 static void Popup_Window_Powerdown() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();	
@@ -2047,7 +2052,11 @@ void HMI_Powerdown() {
 				}
 				else{
 					//queue.inject_P(PSTR("M81"));
-					suicide();
+				#if HAS_SUICIDE
+					suicide();					
+				#elif ENABLED(PSU_CONTROL)
+					PSU_OFF();
+				#endif
 				}
 			break;
 			
@@ -2059,6 +2068,7 @@ void HMI_Powerdown() {
 	}
 	dwinLCD.UpdateLCD();
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -2077,7 +2087,9 @@ void HMI_Prepare() {
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);				
 				if(DwinMenu_prepare.index == PREPARE_CASE_LANG) Item_Prepare_Lang(MROWS);		
+			#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))				
 				else if(DwinMenu_prepare.index == PREPARE_CASE_POWERDOWN) Item_Prepare_Powerdown(MROWS);
+			#endif
 				else if(DwinMenu_prepare.index == PREPARE_CASE_DISA) Item_Prepare_Disable(MROWS);
 				//else if(DwinMenu_prepare.index == PREPARE_CASE_LEVELING) Item_Prepare_Leveling(MROWS);
 				//else if(DwinMenu_prepare.index == PREPARE_CASE_MOVE) Item_Prepare_Move(MROWS);
@@ -2101,7 +2113,9 @@ void HMI_Prepare() {
 				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_MOVE) Item_Prepare_Move(0);
 				//else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_LEVELING) Item_Prepare_Leveling(0);
 				//else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_DISA) Item_Prepare_Disable(0);				
+			#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 				//else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_POWERDOWN) Item_Prepare_Powerdown(0);		
+			#endif
 			}
 			else {
 				Move_Highlight(-1, DwinMenu_prepare.now + MROWS - DwinMenu_prepare.index);
@@ -2151,11 +2165,13 @@ void HMI_Prepare() {
 				Draw_Language_Menu();
 			break;
 
+		#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 			case PREPARE_CASE_POWERDOWN: 		// Powerdown
 				DwinMenuID = DWMENU_POWERDOWN;				
 				DwinMenu_powerdown.set(1);
 				Popup_Window_Powerdown();
 			break;
+		#endif
 
 			default: break;
 		}

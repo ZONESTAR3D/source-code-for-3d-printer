@@ -683,6 +683,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
 
 	PROGMEM Language_Str MSG_WIFI_MODULE                     = _UxGT("WiFi");
+	PROGMEM Language_Str MSG_LASER_ENGINE                    = _UxGT("Laser");
 
 #if ENABLED(OPTION_REPEAT_PRINTING)
 	PROGMEM Language_Str MSG_REPEATPRINT             				 = _UxGT("Repeat Print");

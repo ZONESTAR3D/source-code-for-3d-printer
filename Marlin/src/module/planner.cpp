@@ -1378,7 +1378,12 @@ void Planner::check_axes_activity() {
     #else
       #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
+
+		#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+		#define FAN_SET(F) do{ if(!Laser_Enabled){KICKSTART_FAN(F);} _FAN_SET(F); }while(0)
+		#else
     #define FAN_SET(F) do{ KICKSTART_FAN(F); _FAN_SET(F); }while(0)
+		#endif
 
     TERN_(HAS_FAN0, FAN_SET(0));
     TERN_(HAS_FAN1, FAN_SET(1));

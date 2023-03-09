@@ -124,7 +124,13 @@
 //	3	WIFI_TXD  	PD5		UART2_RX
 //	4	WIFI_RXD  	PD6		UART2_TX
 //	5	WIFI_RST  	PC14		
-//	6	WIFI_CS  	PC15		
+//	6	WIFI_CS  	  PC15		
+
+//SERVOs
+// SERVO0 		PB9
+// SERVO1 		PB8	(FAN1_PIN)
+// SERVO2 		PB7
+// SERVO3 		PB6
 //=============================================================================
 
 
@@ -256,8 +262,12 @@
 //
 //#define POWER_LOSS_PIN     PB15   //
 #define LED_PIN            PA0
+
+//Power control pin
 #define SUICIDE_PIN        PA3
+//#define	PS_ON_PIN						PB6//PB7//PB9
 #define FIL_RUNOUT_PIN	   PC8
+
 
 //SD card
 #define ENABLE_SPI1

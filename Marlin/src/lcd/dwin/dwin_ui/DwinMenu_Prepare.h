@@ -110,7 +110,9 @@ enum {
 	PREPARE_CASE_LEVELING,	
 	PREPARE_CASE_LANG,
 	PREPARE_CASE_DISA,
+#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))	
 	PREPARE_CASE_POWERDOWN,
+#endif
 	PREPARE_CASE_END
 };
 #define	PREPARE_CASE_TOTAL	8
@@ -174,7 +176,9 @@ void HMI_SetProbZoffset();
 void HMI_BedLeveling(); 
 void HMI_SetLanguage_PicCache(); 
 void HMI_Language(); 
+#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 void HMI_Powerdown(); 
+#endif
 void HMI_Prepare(); 
 
 

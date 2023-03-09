@@ -406,6 +406,11 @@ void WIFI_onoff(void) {
 }
 #endif
 
+#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+bool Laser_Enabled = false;
+#endif
+
+
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void event_probe_failure() {
@@ -1140,7 +1145,8 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-	setup_powerhold();
+	SETUP_RUN(setup_powerhold());
+	
   // Init buzzer pin(s)
   #if USE_BEEPER
     SETUP_RUN(buzzer.init());

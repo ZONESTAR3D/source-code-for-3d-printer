@@ -987,6 +987,14 @@ static void Item_Config_WifiBaudrate(const uint8_t row) {
 #endif
 #endif
 
+#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+static void Item_Config_Laser(const uint8_t row) {
+ DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Laser:"));
+ Draw_Menu_Line(row,ICON_CURSOR);
+ DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(Laser_Enabled)); 
+}
+#endif
+
 #if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 static void Item_Config_MixerEnable(const uint8_t row) {
   Draw_Menu_Line(row,ICON_CURSOR);
@@ -1410,6 +1418,10 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#if BOTH(OPTION_WIFI_MODULE, OPTION_WIFI_BAUDRATE)
 	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));			// WIFI Baudrate
 	#endif
+
+	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	if (COVISI(CONFIG_CASE_LASER)) 	Item_Config_Laser(COSCROL(CONFIG_CASE_LASER));  	 					// Laser	 
+	#endif	
 	
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 	 if (COVISI(CONFIG_CASE_MIXERENABLE)) Item_Config_MixerEnable(COSCROL(CONFIG_CASE_MIXERENABLE));					// mixing feature:
@@ -2922,7 +2934,11 @@ void HMI_Config() {
 				#if ENABLED(OPTION_WIFI_BAUDRATE) 
 				else if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
 				#endif
-			#endif			
+			#endif	
+			
+			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+				else if(DwinMenu_configure.index == CONFIG_CASE_LASER) Item_Config_Laser(MROWS);
+			#endif
 
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 			 else if(DwinMenu_configure.index == CONFIG_CASE_MIXERENABLE) 	Item_Config_MixerEnable(MROWS);
@@ -2992,6 +3008,10 @@ void HMI_Config() {
 			 #if ENABLED(OPTION_WIFI_BAUDRATE)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(0);
 			 #endif			
+			#endif
+			
+			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LASER) Item_Config_Laser(MROWS);
 			#endif
 			
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -3145,6 +3165,17 @@ void HMI_Config() {
 			break;
 	 #endif		
   #endif
+
+	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+		case CONFIG_CASE_LASER:	 	 	
+				Laser_Enabled = !Laser_Enabled;
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_LASER + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(Laser_Enabled));				
+				
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());				
+			break;
+	
+	#endif
  
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 		case CONFIG_CASE_MIXERENABLE:	

@@ -735,8 +735,10 @@ void DWIN_HandleScreen() {
 		case DWMENU_LEVEL_DONECONFIRM:			HMI_BedLeveling(); break;
 		case DWMENU_LEVEL_SETOFFSET:    		HMI_SetProbZoffset(); break;		
 		case DWMENU_LANGUAGE:								HMI_Language(); break;
+	#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 		case DWMENU_POWERDOWN:							HMI_Powerdown(); break;		
-		
+	#endif
+
 		//Control>>Mixer		
 	#if ENABLED(MIXING_EXTRUDER)
 		case DWMENU_MIXER:     							HMI_Mixer(); break;
@@ -863,6 +865,10 @@ void DWIN_HandleScreen() {
 	
 	#if ENABLED(OPTION_GUIDE_QRCODE)
 		case DWMENU_POP_USERGUIDELINK:			HMI_Pop_UserGuideLink(); break;
+	#endif
+	
+	#if ENABLED(OPTION_FAQ_QRCODE)
+		case DWMENU_POP_FAQLINK:						HMI_Pop_FAQLink(); break;
 	#endif
 
 		case DWMENU_POP_HEATRUNAWAY:				HMI_Temperature_Runaway(); break;

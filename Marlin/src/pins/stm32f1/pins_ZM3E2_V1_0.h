@@ -133,9 +133,8 @@
 //
 // Fans
 //
-#define FAN1_PIN            PC6
 #define FAN_PIN             PA1
-
+#define FAN1_PIN            PC6
 
 //Filament run out sensor
 #define	FIL_RUNOUT_PIN	   	PC7 			//E0_SW

@@ -128,6 +128,10 @@ extern bool WiFi_Enabled;
 extern void WIFI_onoff(void);
 #endif
 
+#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+extern bool Laser_Enabled;
+#endif
+
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
   void event_probe_recover();
