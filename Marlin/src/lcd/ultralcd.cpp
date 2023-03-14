@@ -22,6 +22,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+//#define ADCKEY_DEBUG
+
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
 #endif
@@ -438,7 +440,12 @@ bool MarlinUI::get_blink() {
           refresh(LCDVIEW_REDRAW_NOW);
           #if HAS_LCD_MENU
             if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
-                   if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              #if ENABLED(ADCKEY_DEBUG)
+	  						SERIAL_ECHO_START();
+	  						SERIAL_ECHOPAIR("keypad_buttons 1: ", keypad_buttons);
+	  						SERIAL_EOL();
+			  			#endif
+              		 if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
@@ -447,13 +454,18 @@ bool MarlinUI::get_blink() {
           #endif
           {
             #if HAS_LCD_MENU
-                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
-              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
+			  			#if ENABLED(ADCKEY_DEBUG)
+	  						SERIAL_ECHO_START();
+	  						SERIAL_ECHOPAIR("keypad_buttons 2: ", keypad_buttons);
+	  						SERIAL_EOL();
+			  			#endif
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;//epps;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;//epps;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
             #else
-                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
-              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
+                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;//epps;
+              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;//epps;
             #endif
           }
         #endif
@@ -900,7 +912,8 @@ void MarlinUI::update() {
 
       TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
 
-      if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
+      if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
+			//if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
       uint8_t abs_diff = ABS(encoderDiff);
@@ -1142,16 +1155,32 @@ void MarlinUI::update() {
   };
 
   uint8_t get_ADC_keyValue() {
+  	uint8_t ADCkeyID = 0;
     if (thermalManager.ADCKey_count >= 16) {
       const uint16_t currentkpADCValue = thermalManager.current_ADCKey_raw;
       thermalManager.current_ADCKey_raw = HAL_ADC_RANGE;
       thermalManager.ADCKey_count = 0;
-      if (currentkpADCValue < adc_other_button)
+	#if ENABLED(ADCKEY_DEBUG)
+	  SERIAL_ECHO_START();
+	  SERIAL_ECHOPAIR("currentkpADCValue: ", currentkpADCValue);
+	  SERIAL_ECHOPAIR("adc_other_button: ", adc_other_button);
+	  SERIAL_EOL();
+    #endif
+      if (currentkpADCValue < adc_other_button){	  
         LOOP_L_N(i, ADC_KEY_NUM) {
           const uint16_t lo = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMin),
                          hi = pgm_read_word(&stADCKeyTable[i].ADCKeyValueMax);
-          if (WITHIN(currentkpADCValue, lo, hi)) return pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
+          if (WITHIN(currentkpADCValue, lo, hi)){
+		  	ADCkeyID = pgm_read_byte(&stADCKeyTable[i].ADCKeyNo);
+			#if ENABLED(ADCKEY_DEBUG)
+	  			SERIAL_ECHO_START();
+	  			SERIAL_ECHOPAIR("ADCkeyID: ", ADCkeyID);
+	  			SERIAL_EOL();
+    		#endif
+		  	return ADCkeyID;
+          }
         }
+      }
     }
     return 0;
   }

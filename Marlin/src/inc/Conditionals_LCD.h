@@ -75,7 +75,8 @@
   #define HAS_ADC_BUTTONS 1
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
   #define ADC_KEY_NUM 8
-  #define IS_ULTIPANEL 1
+  //#define IS_ULTIPANEL 1
+  #define ULTIPANEL
 
   // This helps to implement HAS_ADC_BUTTONS menus
   #define REVERSE_MENU_DIRECTION

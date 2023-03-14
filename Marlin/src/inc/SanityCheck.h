@@ -2324,8 +2324,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TOUCH_UI_FTDI_EVE) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(ULTI_CONTROLLER) \
-  + ENABLED(ULTIMAKERCONTROLLER) \
-  + ENABLED(ZONESTAR_LCD2004_ADCKEY)
+  + ENABLED(ULTIMAKERCONTROLLER) 
   #error "Please select only one LCD controller option."
 #endif
 
