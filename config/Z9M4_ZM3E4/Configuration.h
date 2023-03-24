@@ -93,7 +93,7 @@
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //===========================================================================
 //optional feature
-//#define	OPTION_LCDDWIN				  		//4.3" LCD DWIN
+#define	OPTION_LCDDWIN				  		//4.3" LCD DWIN
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors

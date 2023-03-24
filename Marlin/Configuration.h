@@ -73,71 +73,112 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
+
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
-#define	FIRMWARE_VERSION					  "V1.2.5"
-#define	STRING_DISTRIBUTION_DATE    "2023-02-22"
-#define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
-#define WEBSITE_URL 								"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
-#define EEPROM_VERSION 			    		"V83"
+#define CUSTOM_MACHINE_NAME 		  "Z9M4"
+#define	FIRMWARE_VERSION			    "V3.2.3"
+#define	STRING_DISTRIBUTION_DATE  "2022-11-28"
+#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
+#define WEBSITE_URL 				      "www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
+#define EEPROM_VERSION 			  	  "V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
-//default feature, usually keep it enable
-#define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
-//#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
-#define	DWINLCD_MENU_VERSION		2			//Used DWIN LCD MENU V3
+//default
+#define OPTION_TITAN									//Titan Extruder
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
-#define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_PL08N									//Probe use PL-08N
-#define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
-#define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
-#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
-#define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
-#define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
-#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
-#define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
-#define	DEFAULT_MIXING_SWITCH		false	//Default mixing feature is off
+#define	OPTION_PL08N 			    				//leveling Probe use PL_08N
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //===========================================================================
 //optional feature
-#define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
-
+#define	OPTION_LCDDWIN				  		//4.3" LCD DWIN
+//#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
 //#define	OPTION_BGM									//BGM extruder
-//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
-//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
-//==========================================================================
+//#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
+//#define	OPTION_TMC220X_EXTRUDER			 //TMC220x be used to  extruder motors
+//#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
+//#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
+//#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
+//#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
+//#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
+//===========================================================================
+//optional feature for LCD_DWIN only
+#if ENABLED(OPTION_LCDDWIN)
+#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
+#define	DWINLCD_MENU_VERSION		3     
+#define	OPTION_MIXING_SWITCH				  //Enable/disable mixing feature on LCD MENU
+#define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
+#define	SWITCH_EXTRUDER_MENU				  //Switch Extruder Menu
+#define	DEFAULT_AUTO_LEVELING	true	  //Auto leveling feature is on
+#define	DEFAULT_MIXING_SWITCH	true	  //Default mixing feature is on
+#define	OPTION_WIFI_BAUDRATE				  //Change WiFi baudrate on LCD screen
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 //HOME OFFSET
-#define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
-#define	DEFAULT_HOMEY_OFFSET	  0.0			//default home Y offset
-#define	DEFAULT_HOMEZ_OFFSET	  0.0			//default home Z offset
-//==========================================================================
-//Strings of QRcode
+#define	DEFAULT_HOMEX_OFFSET	 0.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	 0.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	 0.0			//default home Z offset
+//User guide QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://bit.ly/3LdDEaF"
+#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z9/tree/main/Z9M4"
 #endif
-#if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
 #endif
-#if ENABLED(OPTION_FAQ_QRCODE)
-#define	STRING_FAQ_LINK						"http://bit.ly/3IUwBnP"
-#endif
+//===========================================================================
+//Speical
+//#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
+//#define	EXCHANGE_YMIN_YMAX						//Exchange Y_MIN_PIN and Y_MAX_PIN
+//#define	EXCHANGE_XDRIVER_Z2DRIVER			//
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
 #define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
-#define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
-#if ENABLED(OPTION_3DTOUCH)
-#define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
+
+#if ENABLED(OPTION_LCDDWIN)
+  #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
+  #if ENABLED(OPTION_3DTOUCH)
+  #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
+  #endif
+#else															//LCD12864 connect to EXP1																	
+	#if ENABLED(OPTION_3DTOUCH)
+	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
+	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
+	#else
+  #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
+  #endif
 #endif
 //===========================================================================
+//bed leveling sensor
+#if BOTH(OPTION_PL08N, OPTION_3DTOUCH) || BOTH(OPTION_PL08N, OPTION_ZLSENSOR)
+#undef OPTION_PL08N
+#endif
+#if BOTH(OPTION_ZLSENSOR, OPTION_3DTOUCH)
+#undef OPTION_ZLSENSOR
+#endif
+//===========================================================================
+/**
+ * LCD LANGUAGE
+ *
+ * Select the language to display on the LCD. These languages are available:
+ *
+ *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, it, jp_kana,
+ *   ko_KR, nl, pl, pt, pt_br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
+ *
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 
+   'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 
+   'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp_kana':'Japanese', 
+   'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 
+   'pt_br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 
+   'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ */
+#define LCD_LANGUAGE en
+
+#if ENABLED(OPTION_LCDDWIN)
+#undef LCD_LANGUAGE
+#endif
+
 /**
  * *** VENDORS PLEASE READ ***
  *
@@ -280,6 +321,7 @@
  *             https://youtu.be/Bqbcs0CU2FE
  */
 //#define MAGNETIC_PARKING_EXTRUDER
+
 #if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
 
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
@@ -515,13 +557,13 @@
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   0
-#define HEATER_2_MINTEMP   0
-#define HEATER_3_MINTEMP   0
-#define HEATER_4_MINTEMP   0
-#define HEATER_5_MINTEMP   0
-#define HEATER_6_MINTEMP   0
-#define HEATER_7_MINTEMP   0
+#define HEATER_1_MINTEMP   5
+#define HEATER_2_MINTEMP   5
+#define HEATER_3_MINTEMP   5
+#define HEATER_4_MINTEMP   5
+#define HEATER_5_MINTEMP   5
+#define HEATER_6_MINTEMP   5
+#define HEATER_7_MINTEMP   5
 #define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
@@ -805,20 +847,32 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 
-#if ENABLED(OPTION_TMC2225_EXTRUDER)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 800 }
-#elif ENABLED(OPTION_TMC2209_ALL_MOTOR)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#if ENABLED(OPTION_TMC2225_XYZ)
+#define	DOUBLE_STEPS_XYZ	2
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 400 }
+#define	DOUBLE_STEPS_XYZ	1
 #endif
+
+#if ENABLED(OPTION_TMC2225_EXTRUDER)
+#define	DOUBLE_STEPS_E		2
+#else
+#define	DOUBLE_STEPS_E		1
+#endif
+
+#if EITHER(OPTION_TITAN,OPTION_BGM)
+#define	STEPS_GEAR_RATIO	5
+#else
+#define	STEPS_GEAR_RATIO	1
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 50 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -932,7 +986,12 @@
  *
  */
 #if EITHER(OPTION_PL08N,OPTION_ZLSENSOR)
+#if BOTH(OPTION_LCDDWIN, OPTION_ZLSENSOR)
+#define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
+#define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
+#else
 #define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
+#endif
 #elif ENABLED(OPTION_3DTOUCH)
 #define Z_MIN_PROBE_PIN 	BLTOUCH_PROBE_PIN 		//
 #endif
@@ -1064,7 +1123,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, 35, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1164,10 +1223,10 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
-#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_BGM) ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define INVERT_X_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Y_DIR (true^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Z_DIR (false^ENABLED(OPTION_TMC220X_XYZ)^ENABLED(OPTION_TMC2225_XYZ))
+#define	EXTRUDER_DIR (true ^ ENABLED (OPTION_TITAN) ^ ENABLED(OPTION_TMC220X_EXTRUDER) ^ ENABLED(OPTION_TMC2225_EXTRUDER))
 
 // @section extruder
 
@@ -1206,8 +1265,8 @@
 #define Y_BED_SIZE 310
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS -15
+#define X_MIN_POS -5
+#define Y_MIN_POS -10
 #define Z_MIN_POS -1
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1443,7 +1502,7 @@
 // Add a menu item to move between bed corners for manual bed adjustment
 #define LEVEL_BED_CORNERS
 #if ENABLED(LEVEL_BED_CORNERS)
-  #define LEVEL_CORNERS_INSET_LFRB { 20, 20, 20, 20 } // (mm) Left, Front, Right, Back insets
+  #define LEVEL_CORNERS_INSET_LFRB { 35, 35, 35, 35 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.1   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       8.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
@@ -2210,9 +2269,11 @@
 //
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
-//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
+#if DISABLED(OPTION_LCDDWIN)
+#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
+#endif
 
 //
 // Einstart S OLED SSD1306
@@ -2388,15 +2449,19 @@
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
+
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 //#define DWIN_CREALITY_LCD
 
+
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
+#if ENABLED(OPTION_LCDDWIN)
 #define ZONESTAR_DWIN_LCD
+#endif
 
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
@@ -2421,7 +2486,6 @@
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
-
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
@@ -2438,14 +2502,14 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 // :[0,1,2,3,4,5,6,7]
-//#define SOFT_PWM_SCALE 5
+#define SOFT_PWM_SCALE 5
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
 // be used to mitigate the associated resolution loss. If enabled,

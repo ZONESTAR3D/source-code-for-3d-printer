@@ -437,7 +437,7 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-#define FAN_KICKSTART_TIME 500
+#define FAN_KICKSTART_TIME 100
 
 // Some coolers may require a non-zero "off" state.
 //#define FAN_OFF_PWM  1
@@ -454,7 +454,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 0
+#define FAN_MIN_PWM 1
 #define FAN_MAX_PWM 255
 
 /**
@@ -527,17 +527,16 @@
 /**
  * M355 Case Light on-off / brightness
  */
-#define CASE_LIGHT_ENABLE
+//#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 								PB0       // Override the default pin if needed
-  #define INVERT_CASE_LIGHT 						false     // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON 				true      // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 100   			// Set default power-up brightness (0-255, requires PWM pin)
-  //#define CASE_LIGHT_MAX_PWM 128            		// Limit pwm
-  #define CASE_LIGHT_MENU                   			// Add Case Light options to the LCD menu
-  #define	CASE_LIGHT_SMART												// Case Light smart control, can't work with "CASE_LIGHT_NO_BRIGHTNESS" and "CASE_LIGHT_USE_NEOPIXEL"
-  //#define CASE_LIGHT_NO_BRIGHTNESS          		// Disable brightness control. Enable for non-PWM lighting.
-  //#define CASE_LIGHT_USE_NEOPIXEL           		// Use NeoPixel LED as case light, requires NEOPIXEL_LED.
+  #define CASE_LIGHT_PIN 				PB0                  // Override the default pin if needed
+  #define INVERT_CASE_LIGHT 			false             // Set true if Case Light is ON when pin is LOW
+  #define CASE_LIGHT_DEFAULT_ON 		true          // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
+  //#define CASE_LIGHT_MAX_PWM 128            // Limit pwm
+  //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
+  //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
+  //#define CASE_LIGHT_USE_NEOPIXEL           // Use NeoPixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
@@ -686,14 +685,12 @@
  */
 
 //#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
-
-#define HOMING_BUMP_MM      		{ 5, 5, 2 }       // (mm) Backoff from endstops after first bump
-#define HOMING_BUMP_DIVISOR 		{ 2, 2, 8 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#define HOMING_BUMP_MM      	 { 4, 4, 2 }    // (mm) Backoff from endstops after first bump
+#define HOMING_BUMP_DIVISOR 	 { 2, 2, 4 }    // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define HOMING_BACKOFF_POST_MM 	{ 0, 0, 0 }  // (mm) Backoff from endstops after homing
-
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
-#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
-#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
+//#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
+//#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
 
 // @section bltouch
 
@@ -1222,7 +1219,7 @@
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
 	
-  #define EVENT_GCODE_SD_ABORT "G28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
   
 #if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
 	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
