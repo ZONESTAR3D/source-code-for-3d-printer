@@ -445,7 +445,7 @@ void menu_configuration() {
 	#endif
 
 	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
-		EDIT_ITEM(bool, MSG_LASER_ENGINE, &Laser_Enabled, settings.save());
+		EDIT_ITEM(bool, MSG_LASER_ENGINE, &Laser_Enabled);
 	#endif
 
   // Preheat configurations

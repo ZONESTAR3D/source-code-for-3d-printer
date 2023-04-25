@@ -79,7 +79,7 @@
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 		  "Z9M3"
 #define	FIRMWARE_VERSION			    "V6.2.3"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-23"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-22"
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 				      "www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
@@ -127,7 +127,8 @@
 //Speical
 //#define	EXCHANGE_XMIN_XMAX						//Exchange X_MIN_PIN and X_MAX_PIN
 //#define	EXCHANGE_YMIN_YMAX						//Exchange Y_MIN_PIN and Y_MAX_PIN
-//#define	EXCHANGE_XDRIVER_Z2DRIVER			//
+//#define	EXCHANGE_XDRIVER_Z2DRIVER			//Exchange X MOTOR DRIVER and Z2 MOTOR DRIVER
+//#define	EXCHANGE_E0T_E1T			          //Exchange E0T and E1T pin
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)

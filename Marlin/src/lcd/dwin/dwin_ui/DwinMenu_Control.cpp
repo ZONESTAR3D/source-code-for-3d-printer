@@ -180,12 +180,22 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 	Draw_Menu_Line(MIXER_CASE_GRADIENT,ICON_MIXER_GRADIENT);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_GRADIENT, LBLX, MBASE(MIXER_CASE_GRADIENT));
 	Draw_More_Icon(MIXER_CASE_GRADIENT);
+#if HAS_ONOFF_ICON
+	Draw_ONOFF_Icon(MIXER_CASE_GRADIENT, mixer.gradient.enabled, 160);
+#else
 	DWIN_Draw_MaskString_Default(190, MBASE(MIXER_CASE_GRADIENT), F_STRING_ONOFF(mixer.gradient.enabled)); 
+#endif
+	
 	//Random	
 	Draw_Menu_Line(MIXER_CASE_RANDOM,ICON_MIXER_RANDOM);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_RANDOM, LBLX, MBASE(MIXER_CASE_RANDOM));	
 	Draw_More_Icon(MIXER_CASE_RANDOM);
+#if HAS_ONOFF_ICON	
+	Draw_ONOFF_Icon(MIXER_CASE_RANDOM, mixer.random_mix.enabled, 160);
+#else
 	DWIN_Draw_MaskString_Default(190, MBASE(MIXER_CASE_RANDOM), F_STRING_ONOFF(mixer.random_mix.enabled));
+#endif
+
 	//Current VTOOL	
 	Draw_Menu_Line(MIXER_CASE_VTOOL,ICON_S_VTOOL);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MIX_CURRENT, LBLX, MBASE(MIXER_CASE_VTOOL));
@@ -928,60 +938,84 @@ static void Item_Config_Reprint(const uint8_t row){
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 static void Item_Config_FilamentRunOut(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Runout Sensor:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Runout Sensor"));
 	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON		
+	Draw_ONOFF_Icon(row, runout.enabled);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(runout.enabled));	
+#endif
 }
 #endif
 
 #if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
 static void Item_Config_FilamentAutoUnload(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Unload:"));
-	Draw_Menu_Line(row,ICON_CURSOR);	
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Unload"));
+	Draw_Menu_Line(row,ICON_CURSOR);		
+#if HAS_ONOFF_ICON		
+	Draw_ONOFF_Icon(row, HMI_flag.AutoUnload_enabled);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.AutoUnload_enabled));	
+#endif
 }
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 static void Item_Config_Powerloss(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Power Loss Recovery:"));	
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Power Loss Recovery"));		
+#if HAS_ONOFF_ICON	
+	Draw_ONOFF_Icon(row, recovery.enabled);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(recovery.enabled));	
+#endif
 }
 #endif
 
 #if ENABLED(OPTION_AUTOPOWEROFF)
 static void Item_Config_Shutdown(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Shutdown:"));	
-	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Shutdown"));		
+#if HAS_ONOFF_ICON	
+	Draw_ONOFF_Icon(row, HMI_flag.Autoshutdown_enabled);
+#else
+  DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
+#endif
 }
 #endif
 
 #if ENABLED(CASE_LIGHT_MENU)
 static void Item_Config_Backlight(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Backlight:"));
-	#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
-	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(caselight.on));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Backlight"));
+#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
+	#if HAS_ONOFF_ICON
+		Draw_ONOFF_Icon(row, caselight.on);
 	#else
-	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), caselight.brightness);
+		DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(caselight.on));
 	#endif
+#else
+	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), caselight.brightness);
+#endif
 }
 #endif
 
 
 #if ENABLED(OPTION_WIFI_MODULE)
 static void Item_Config_Wifi(const uint8_t row) {
- DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi:"));
- Draw_Menu_Line(row,ICON_CURSOR);
- DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(WiFi_Enabled)); 
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("WiFi"));
+	Draw_Menu_Line(row,ICON_CURSOR); 
+#if HAS_ONOFF_ICON 
+	Draw_ONOFF_Icon(row, WiFi_Enabled);
+#else
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(WiFi_Enabled)); 
+#endif
 }
 
 #if ENABLED(OPTION_WIFI_BAUDRATE)
 static void Item_Config_WifiBaudrate(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Wifi BaudRate:"));	
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("WiFi BaudRate"));	
 	DWIN_Draw_IntValue_Default(6, MENUVALUE_X-16, MBASE(row), Table_Baudrate[WiFi_BaudRate]);
 }
 #endif
@@ -989,20 +1023,24 @@ static void Item_Config_WifiBaudrate(const uint8_t row) {
 
 #if ENABLED(OPTION_LASERPWMUSEDFANPIN)
 static void Item_Config_Laser(const uint8_t row) {
- DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Laser:"));
- Draw_Menu_Line(row,ICON_CURSOR);
- DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(Laser_Enabled)); 
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Laser"));
+	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON  
+	Draw_ONOFF_Icon(row, Laser_Enabled);
+#else
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(Laser_Enabled)); 
+#endif
 }
 #endif
 
 #if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 static void Item_Config_MixerEnable(const uint8_t row) {
   Draw_Menu_Line(row,ICON_CURSOR);
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Hotend Type:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Hotend Type"));
  	if(mixer.mixing_enabled)
-		DWIN_Draw_MaskString_Default(LBRX-strlen("    Mixing")*8, MBASE(row), PSTR("    Mixing")); 
+		DWIN_Draw_MaskString_Default(LBRX-strlen("    Mix")*8, MBASE(row), PSTR("    Mix")); 
 	else
-		DWIN_Draw_MaskString_Default(LBRX-strlen("Non-mixing")*8, MBASE(row), PSTR("Non-mixing"));  	
+		DWIN_Draw_MaskString_Default(LBRX-strlen("Non-mix")*8, MBASE(row), PSTR("Non-mix"));  	
 }
 
 #if ENABLED(SWITCH_EXTRUDER_MENU)
@@ -1295,15 +1333,23 @@ static void Item_Config_SwitchExtruder(const uint8_t row) {
 
 #if ABL_GRID
 static void Item_Config_Leveling(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Leveling:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto Leveling:"));	
+	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON  	
+	Draw_ONOFF_Icon(row, HMI_flag.Leveling_Menu_Fg);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row),F_STRING_ONOFF(HMI_flag.Leveling_Menu_Fg));	
-	Draw_Menu_Line(row,ICON_CURSOR);
+#endif
 }
 
 static void Item_Config_ActiveLevel(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Active Autolevel:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Active Autolevel:"));	
+	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON  		
+	Draw_ONOFF_Icon(row, planner.leveling_active);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(planner.leveling_active));		
-	Draw_Menu_Line(row,ICON_CURSOR);
+#endif
 }
 #endif
 
@@ -1457,9 +1503,13 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 //
 #if ENABLED(FWRETRACT) 
 static void Item_Retract_Retract_Enabled(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto-Retract:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Auto-Retract"));	
+	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON	
+	Draw_ONOFF_Icon(row, fwretract.autoretract_enabled);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(fwretract.autoretract_enabled));
-	Draw_Menu_Line(row,ICON_CURSOR);
+#endif
 }
 
 static void Item_Retract_Retract_mm(const uint8_t row) {
@@ -1664,8 +1714,12 @@ void HMI_Retract() {
 
 			case RETRACT_CASE_AUTO: 					// auto
 				DwinMenuID = DWMENU_SET_RETRACT;
-				fwretract.autoretract_enabled = !fwretract.autoretract_enabled;
+				fwretract.autoretract_enabled = !fwretract.autoretract_enabled;				
+			#if HAS_ONOFF_ICON	
+				Draw_ONOFF_Icon(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_AUTO, fwretract.autoretract_enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(MROWS -DwinMenu_fwretract.index + RETRACT_CASE_AUTO), F_STRING_ONOFF(fwretract.autoretract_enabled));
+			#endif
 				fwretract.refresh_autoretract();
 			break;
 	 
@@ -3011,7 +3065,7 @@ void HMI_Config() {
 			#endif
 			
 			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
-				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LASER) Item_Config_Laser(MROWS);
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LASER) Item_Config_Laser(0);
 			#endif
 			
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -3070,7 +3124,11 @@ void HMI_Config() {
 			case CONFIG_CASE_FILAMENTRUNOUT:  				// FILAMENT Run out
 				DwinMenuID = DWMENU_CONFIG;
 				runout.enabled = !runout.enabled;
+			#if HAS_ONOFF_ICON					
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_FILAMENTRUNOUT, runout.enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENTRUNOUT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(runout.enabled));		
+			#endif
 				if(runout.enabled)
 					queue.inject_P(PSTR("M412 S1"));		
 				else
@@ -3091,7 +3149,11 @@ void HMI_Config() {
 				}
 				DwinMenuID = DWMENU_CONFIG;
 				HMI_flag.AutoUnload_enabled = !HMI_flag.AutoUnload_enabled;
-				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENTAUTOUNLOAD + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.AutoUnload_enabled));		
+			#if HAS_ONOFF_ICON
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_FILAMENTAUTOUNLOAD, HMI_flag.AutoUnload_enabled);
+			#else
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_FILAMENTAUTOUNLOAD + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.AutoUnload_enabled));
+			#endif
 				
 				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());		
@@ -3102,7 +3164,11 @@ void HMI_Config() {
 			case CONFIG_CASE_POWERLOSS:  			// POWERLOSS	 		
 				DwinMenuID = DWMENU_CONFIG;
 				recovery.enabled = !recovery.enabled;
+			#if HAS_ONOFF_ICON
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_POWERLOSS, recovery.enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_POWERLOSS + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(recovery.enabled));
+			#endif
 				if(recovery.enabled)
 					queue.inject_P(PSTR("M413 S1"));			
 				else
@@ -3117,7 +3183,11 @@ void HMI_Config() {
 			case CONFIG_CASE_SHUTDOWN:
 				DwinMenuID = DWMENU_CONFIG;
 				HMI_flag.Autoshutdown_enabled = !HMI_flag.Autoshutdown_enabled;
+			#if HAS_ONOFF_ICON
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_SHUTDOWN, HMI_flag.Autoshutdown_enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_SHUTDOWN + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.Autoshutdown_enabled));
+			#endif
 				
 				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());		
@@ -3128,8 +3198,12 @@ void HMI_Config() {
  			case CONFIG_CASE_BACKLIGHT:
 			#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
 				DwinMenuID = DWMENU_CONFIG;
-				caselight.on = !caselight.on;
+				caselight.on = !caselight.on;				
+			#if HAS_ONOFF_ICON
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_BACKLIGHT, caselight.on);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_BACKLIGHT + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(caselight.on));
+			#endif
 				caselight.update(false);
 			#else
 				DwinMenuID = DWMENU_SET_CASELIGHTBRIGHTNESS;
@@ -3140,8 +3214,12 @@ void HMI_Config() {
 	
   #if ENABLED(OPTION_WIFI_MODULE)
 			case CONFIG_CASE_WIFI:	 	 	
-				WiFi_Enabled = !WiFi_Enabled;
+				WiFi_Enabled = !WiFi_Enabled;				
+			#if HAS_ONOFF_ICON
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_WIFI, WiFi_Enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_WIFI + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(WiFi_Enabled));				
+			#endif
 			  if(WiFi_Enabled){
 					queue.wifi_Handshake_ok = false;
 					HMI_flag.wifi_link_timer = WIFI_LINK_CHECK_TIME;
@@ -3168,9 +3246,13 @@ void HMI_Config() {
 
 	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
 		case CONFIG_CASE_LASER:	 	 	
-				Laser_Enabled = !Laser_Enabled;
-				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_LASER + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(Laser_Enabled));				
-				
+				Laser_Enabled = !Laser_Enabled;				
+			#if HAS_ONOFF_ICON				
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_LASER, Laser_Enabled);
+			#else
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_LASER + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(Laser_Enabled));
+			#endif
+			
 				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());				
 			break;
@@ -3223,8 +3305,13 @@ void HMI_Config() {
 			_BREAK_WHILE_PRINTING
 
 			DwinMenuID = DWMENU_CONFIG;
-			HMI_flag.Leveling_Menu_Fg = !HMI_flag.Leveling_Menu_Fg;
+			HMI_flag.Leveling_Menu_Fg = !HMI_flag.Leveling_Menu_Fg;			
+		#if HAS_ONOFF_ICON
+			Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_LEVELING, HMI_flag.Leveling_Menu_Fg);
+		#else
 			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_LEVELING + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.Leveling_Menu_Fg));
+		#endif
+			
 			if(HMI_flag.Leveling_Menu_Fg)	set_bed_leveling_enabled(false);
 			HMI_AudioFeedback(settings.save());
 		break;
@@ -3233,8 +3320,12 @@ void HMI_Config() {
 			_BREAK_WHILE_PRINTING	
 			
 			DwinMenuID = DWMENU_CONFIG;			
-			planner.leveling_active = !planner.leveling_active;
+			planner.leveling_active = !planner.leveling_active;			
+		#if HAS_ONOFF_ICON
+			Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_ACTIVELEVEL, planner.leveling_active);
+		#else
 			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_ACTIVELEVEL + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(planner.leveling_active));
+		#endif
 			set_bed_leveling_enabled(planner.leveling_active);
 		break;
 	#endif//ABL_GRID

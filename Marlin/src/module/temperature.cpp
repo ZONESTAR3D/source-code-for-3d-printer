@@ -1060,7 +1060,6 @@ void Temperature::manage_heater() {
         // Make sure temperature is increasing
         if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
           if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
-            //TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(GET_TEXT(MSG_HEATING_FAILED_LCD), e));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
           else                                                                  // Start again if the target is still far off
@@ -1071,7 +1070,6 @@ void Temperature::manage_heater() {
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         // Make sure measured temperatures are close together
         if (ABS(temp_hotend[0].celsius - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF){
-					//TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(GET_TEXT(MSG_ERR_REDUNDANT_TEMP), 0));
           _temp_error(H_E0, PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
         }
       #endif
@@ -1105,7 +1103,6 @@ void Temperature::manage_heater() {
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
         if (degBed() < watch_bed.target) {                              // Failed to increase enough?
-          //TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(GET_TEXT(MSG_HEATING_FAILED_LCD), H_BED));
           _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
         }
         else                                                            // Start again if the target is still far off

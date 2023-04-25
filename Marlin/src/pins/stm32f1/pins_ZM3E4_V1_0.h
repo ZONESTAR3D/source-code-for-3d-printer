@@ -477,4 +477,11 @@
 #define Z2_DIR_PIN          PE4
 #endif
 #endif//EXCHANGE_XAXIS_Z2AXIS
+
+#if ENABLED(EXCHANGE_E0T_E1T)
+#undef TEMP_0_PIN
+#undef TEMP_1_PIN
+#define TEMP_0_PIN					PC1
+#define TEMP_1_PIN					PC2
+#endif
 //===========================================

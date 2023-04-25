@@ -903,7 +903,7 @@ void MarlinSettings::postprocess() {
 		{
       _FIELD_TEST(laser_enabled);
 			const bool laser_enabled = Laser_Enabled;			
-      EEPROM_WRITE(laser_enabled);			
+     EEPROM_WRITE(laser_enabled);			
     }
 		#endif
 

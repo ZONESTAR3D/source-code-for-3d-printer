@@ -71,6 +71,8 @@ enum MixTool {
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
 
 #define MIXER_STEPPER_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
+#define MIXER_VTOOL_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_VIRTUAL_TOOLS; VAR++)
+
 
 #if ENABLED(GRADIENT_MIX)
 typedef struct {

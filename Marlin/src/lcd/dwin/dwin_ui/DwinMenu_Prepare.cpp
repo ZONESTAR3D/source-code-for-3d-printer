@@ -40,11 +40,11 @@
 #define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
 #define	BAR_WIDTH 		72
 #define	BAR_GAP_X 		8
-#define	X_START				(BAR_WIDTH-5*10)/2
+#define	STR_START_X		(BAR_WIDTH-5*10)/2
 #define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
 #define	BAR_HEIGTH		32
 #define	BAR_GAP_Y			12	
-#define	Y_START				(BAR_HEIGTH-20)/2
+#define	STR_START_Y		(BAR_HEIGTH-20)/2
 #define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
 #elif (GRID_MAX_POINTS_X == 4)
 #define	FONT_G29TABLE	font10x20
@@ -52,11 +52,11 @@
 #define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
 #define	BAR_WIDTH 		56
 #define	BAR_GAP_X 		6
-#define	X_START				(BAR_WIDTH-5*10)/2
+#define	STR_START_X		(BAR_WIDTH-5*10)/2
 #define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
 #define	BAR_HEIGTH		30
 #define	BAR_GAP_Y			8
-#define	Y_START				(BAR_HEIGTH-20)/2
+#define	STR_START_Y		(BAR_HEIGTH-20)/2
 #define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
 #elif (GRID_MAX_POINTS_X == 5)
 #define	FONT_G29TABLE	font8x16
@@ -64,11 +64,11 @@
 #define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
 #define	BAR_WIDTH 		46
 #define	BAR_GAP_X 		3
-#define	X_START				(BAR_WIDTH-5*8)/2
+#define	STR_START_X		(BAR_WIDTH-5*8)/2
 #define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
 #define	BAR_HEIGTH		28
 #define	BAR_GAP_Y			8
-#define	Y_START				(BAR_HEIGTH-16)/2
+#define	STR_START_Y		(BAR_HEIGTH-16)/2
 #define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
 #elif (GRID_MAX_POINTS_X == 6)
 #define	FONT_G29TABLE	font6x12
@@ -76,11 +76,11 @@
 #define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
 #define	BAR_WIDTH 		36
 #define	BAR_GAP_X 		5
-#define	X_START				(BAR_WIDTH-5*6)/2
+#define	STR_START_X		(BAR_WIDTH-5*6)/2
 #define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
 #define	BAR_HEIGTH		24
 #define	BAR_GAP_Y			6
-#define	Y_START				(BAR_HEIGTH-12)/2
+#define	STR_START_Y		(BAR_HEIGTH-12)/2
 #define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
 #elif (GRID_MAX_POINTS_X == 7)
 #define	FONT_G29TABLE	font6x12
@@ -88,24 +88,31 @@
 #define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
 #define	BAR_WIDTH 		32
 #define	BAR_GAP_X 		3
-#define	X_START				(BAR_WIDTH-5*6)/2
+#define	STR_START_X		(BAR_WIDTH-5*6)/2
 #define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
 #define	BAR_HEIGTH		20
 #define	BAR_GAP_Y			6
-#define	Y_START				(BAR_HEIGTH-12)/2
+#define	STR_START_Y		(BAR_HEIGTH-12)/2
 #define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
 #endif
 
 static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16_t value){	
+	//#define	FORCE_START_FROM_TOP
+	//#define	FORCE_START_FROM_RIGHT	
+
 	uint16_t	x_start, y_start;	
-	#if(GRID_MAX_POINTS_X == 3 || GRID_MAX_POINTS_X == 5 || GRID_MAX_POINTS_X == 7)
-	//3,5,7
-	x_start = TABLE_LEFT + ADJUST_X;	
-	#else
-	//4,6
+#if (defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
+	//2,4,6
 	x_start = TABLE_RIGHT - BAR_WIDTH - ADJUST_X;
-	#endif
+#else
+	//3,5,7
+	x_start = TABLE_LEFT + ADJUST_X;		
+#endif
+#ifdef FORCE_START_FROM_TOP	
+	y_start = TABLE_TOP + ADJUST_Y;	
+#else
 	y_start = TABLE_BOTTOM - BAR_HEIGTH - ADJUST_Y;	
+#endif
 	LOOP_L_N(i, GRID_MAX_POINTS_Y){		
 		LOOP_L_N(j, GRID_MAX_POINTS_X){			
 			if(bFrame)
@@ -113,28 +120,32 @@ static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16
 			else if(idx == i*GRID_MAX_POINTS_Y+j+1){
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, x_start+1, y_start+1, x_start+BAR_WIDTH-1, y_start+BAR_HEIGTH-1);			
 				if(ABS(value) > 199)
-					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+X_START,  y_start+Y_START, PSTR("Error"));
+					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+STR_START_X,  y_start+STR_START_Y, PSTR("Error"));
 				else if(ABS(value) > 100)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
 				else if(ABS(value) > 60)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);	
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);	
 				else if(ABS(value) > 30)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
 				else
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+X_START,  y_start+Y_START, value);
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
 			}
 			if(j<(GRID_MAX_POINTS_X-1)){
-				#if((GRID_MAX_POINTS_X == 3 || GRID_MAX_POINTS_X == 5 || GRID_MAX_POINTS_X == 7))
-				if(i%2 == 1) 
-				#else
-				if(i%2 == 0)
-				#endif
+			#if(defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
+				if(i%2 == 0) 
+			#else
+				if(i%2 == 1)
+			#endif
 					x_start -= (BAR_WIDTH+BAR_GAP_X);
 				else 
 					x_start += (BAR_WIDTH+BAR_GAP_X);			
 			}
 		}
+	#ifdef FORCE_START_FROM_TOP
+		y_start += (BAR_HEIGTH+BAR_GAP_Y);
+	#else
 		y_start -= (BAR_HEIGTH+BAR_GAP_Y);
+	#endif
 	}	
 }
 

@@ -139,6 +139,12 @@ void Draw_More_Icon(const uint8_t line){
 	DWIN_Show_ICON(ICON_MORE, MENUMORE_X, MBASE(line) - 3);
 }
 
+#if HAS_ONOFF_ICON
+void Draw_ONOFF_Icon(const uint8_t line, const bool onoff, const uint16_t x) {
+	DWIN_Show_ICON(onoff? ICON_EON : ICON_EOFF, x, MBASE(line) - 3);
+}
+#endif
+
 void Draw_Menu_Cursor(const uint8_t line){
 	dwinLCD.Draw_Rectangle(1, RECTANGLE_COLOR, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 }

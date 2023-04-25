@@ -84,8 +84,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2"
 #endif
-#define	FIRMWARE_VERSION		  		"V1.0.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-3"
+#define	FIRMWARE_VERSION		  		"V1.2.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-06"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -96,10 +96,10 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
-#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
+#define	OPTION_TMC220X_XYZ 						//TMC220X be used to XYZ axis motor drivers
 //===========================================================================
 #ifdef OPTION_Z8PM4_PRO
-#define OPTION_LCDDWIN							//
+#define OPTION_LCDDWIN								//
 #define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
@@ -112,6 +112,7 @@
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
 //#define	OPTION_TMC2225_XYZ 					//TMC2225 be used to XYZ
@@ -132,7 +133,6 @@
 #define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	0.0			//default home Y offset
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
-
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"https://bit.ly/3Vvn7D2"
 #endif
@@ -418,6 +418,9 @@
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
+	#endif
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -558,13 +561,13 @@
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
+#define HEATER_1_MINTEMP   0
+#define HEATER_2_MINTEMP   0
+#define HEATER_3_MINTEMP   0
+#define HEATER_4_MINTEMP   0
+#define HEATER_5_MINTEMP   0
+#define HEATER_6_MINTEMP   0
+#define HEATER_7_MINTEMP   0
 #define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
@@ -873,7 +876,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)

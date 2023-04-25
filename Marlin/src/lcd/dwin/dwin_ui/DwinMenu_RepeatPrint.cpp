@@ -37,8 +37,12 @@
 // Control >> Config >> Repeat print
 //
 static void Item_RepeatPrint_Enabled(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Repeat Printing:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Repeat Printing"));	
+#if HAS_ONOFF_ICON	
+	Draw_ONOFF_Icon(row, ReprintManager.enabled);
+#else
 	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(ReprintManager.enabled));
+#endif
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
@@ -284,7 +288,11 @@ void HMI_RepeatPrint() {
 			case REPRINT_CASE_ONOFF:  			// times
 				DwinMenuID = DWMENU_SET_REPRINT;
 				ReprintManager.enabled = !ReprintManager.enabled;
+			#if HAS_ONOFF_ICON					
+				Draw_ONOFF_Icon(MROWS -DwinMenu_reprint.index + REPRINT_CASE_ONOFF, ReprintManager.enabled);
+			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(MROWS -DwinMenu_reprint.index + REPRINT_CASE_ONOFF), F_STRING_ONOFF(ReprintManager.enabled));
+			#endif
 			break;
 	 
 			case REPRINT_CASE_TIMES:  			// times

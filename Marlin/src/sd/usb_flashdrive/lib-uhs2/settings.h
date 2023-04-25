@@ -223,9 +223,9 @@
 #ifdef ESP8266
   #undef PROGMEM
   #define PROGMEM
-#undef PSTR
+	#undef PSTR
   #define PSTR(s) (s)
-#undef pgm_read_byte
+	#undef pgm_read_byte
   #define pgm_read_byte(addr) (*reinterpret_cast<const uint8_t*>(addr))
   #undef pgm_read_word
   #define pgm_read_word(addr) (*reinterpret_cast<const uint16_t*>(addr))

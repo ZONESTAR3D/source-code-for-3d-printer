@@ -76,30 +76,32 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 			"Z9V5-MK3-Max"
-#define	FIRMWARE_VERSION					"V3.2.3"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-10"
-#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
-#define WEBSITE_URL 							"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
-#define EEPROM_VERSION 			    	"V83"
+#define CUSTOM_MACHINE_NAME 				"Z9V5-MK5"
+#define	FIRMWARE_VERSION					  "V1.0.0"
+#define	STRING_DISTRIBUTION_DATE    "2023-04-10"
+#define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
+#define WEBSITE_URL 								"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
+#define EEPROM_VERSION 			    		"V83"
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
-#define	DWINLCD_MENU_VERSION			3		//Used DWIN LCD MENU V3
+#define	DWINLCD_MENU_VERSION		3			//Used DWIN LCD MENU V3
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
-#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor driver)
+#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
-#define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
+#define	OPTION_PL08N									//Probe use PL-08N
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
 #define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
+#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
-#define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
+#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
+#define	DEFAULT_MIXING_SWITCH		true	//Default mixing feature is on
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
@@ -113,12 +115,16 @@
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	  0.0			//default home Y offset
 #define	DEFAULT_HOMEZ_OFFSET	  0.0			//default home Z offset
-
+//==========================================================================
+//Strings of QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"http://bit.ly/3AoIZHV"
+#define	STRING_GUIDE_LINK					"https://bit.ly/3KLDI2J"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
+#endif
+#if ENABLED(OPTION_FAQ_QRCODE)
+#define	STRING_FAQ_LINK						"https://bit.ly/3IUwBnP"
 #endif
 //===========================================================================
 //UART port
@@ -368,6 +374,9 @@
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
   #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
+  #endif
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -508,13 +517,13 @@
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
+#define HEATER_1_MINTEMP   0
+#define HEATER_2_MINTEMP   0
+#define HEATER_3_MINTEMP   0
+#define HEATER_4_MINTEMP   0
+#define HEATER_5_MINTEMP   0
+#define HEATER_6_MINTEMP   0
+#define HEATER_7_MINTEMP   0
 #define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
@@ -580,7 +589,7 @@
  */
 //#define PIDTEMPBED
 
-#define BED_LIMIT_SWITCHING
+//#define BED_LIMIT_SWITCHING
 
 /**
  * Max Bed Power
@@ -628,7 +637,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 1000
+#define EXTRUDE_MAXLENGTH 				1000
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -1195,8 +1204,8 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 500
-#define Y_BED_SIZE 500
+#define X_BED_SIZE 310
+#define Y_BED_SIZE 310
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1357,7 +1366,7 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
-	#define GRID_MAX_POINTS_X 		7
+	#define GRID_MAX_POINTS_X 		5
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN

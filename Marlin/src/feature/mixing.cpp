@@ -56,9 +56,11 @@ void Mixer::normalize(const uint8_t tool_index) {
     NOLESS(cmax, v);
     csum += v;
   }
-	if(csum <= 0.1){
-		collector[0] = cmax*100;
-		cmax = collector[0];
+	if(csum < 1.0){
+		MIXER_STEPPER_LOOP(i){
+			collector[i] = 0.0;
+		}
+		cmax = collector[0] = 1.0;
 	}
   #ifdef MIXER_NORMALIZER_DEBUG
 	SERIAL_ECHOLNPGM("normalize");
@@ -102,208 +104,144 @@ void Mixer::normalize(const uint8_t tool_index) {
   SERIAL_ECHOLNPGM("]");
 	SERIAL_EOL();
 #endif
-
 }
 
+#if (MIXING_STEPPERS <= 4 )
+constexpr uint8_t INIT_MIX_RATE[16][MIXING_STEPPERS] PROGMEM = {
 #if (MIXING_STEPPERS == 2)
-void Mixer::init_collector(const uint8_t index){
-	switch(index){
-		default:
-		case 0:
-			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;
-		break;
-		case 1:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;
-		break;
-		case 2:
-			mixer.collector[0] = 10.0;		mixer.collector[1] = 10.0;
-		break;
-		case 3:
-			mixer.collector[0] = 9.0;		mixer.collector[1] = 1.0;
-		break;
-		case 4:
-			mixer.collector[0] = 8.5;		mixer.collector[1] = 1.5;
-		break;
-		case 5:
-			mixer.collector[0] = 8.0;		mixer.collector[1] = 2.0;
-		break;
-		case 6:
-			mixer.collector[0] = 7.5;		mixer.collector[1] = 2.5;
-		break;
-		case 7:
-			mixer.collector[0] = 7.0;		mixer.collector[1] = 3.0;
-		break;
-		case 8:
-			mixer.collector[0] = 6.5;		mixer.collector[1] = 3.5;
-		break;
-		case 9:
-			mixer.collector[0] = 6.0;		mixer.collector[1] = 4.0;
-		break;
-		case 10:
-			mixer.collector[0] = 4.0;		mixer.collector[1] = 6.0;
-		break;
-		case 11:
-			mixer.collector[0] = 3.5;		mixer.collector[1] = 6.5;
-		break;
-		case 12:
-			mixer.collector[0] = 3.0;		mixer.collector[1] = 7.0;
-		break;
-		case 13:
-			mixer.collector[0] = 2.5;		mixer.collector[1] = 7.5;
-		break;
-		case 14:
-			mixer.collector[0] = 2.0;		mixer.collector[1] = 8.0;
-		break;
-		case 15:
-			mixer.collector[0] = 1.0;		mixer.collector[1] = 9.0;
-		break;
-	}	
-}
+	{5, 0},
+	{0, 5},
+	{5, 5},
+	{9, 1},
+	{17,3},
+	{4, 1},
+	{3, 1},
+	{7, 3},
+	{13, 7},
+	{6, 4},
+	{4, 6},
+	{7, 13},
+	{3, 7},
+	{1, 3},
+	{1, 4},
+	{1, 9}
 #elif (MIXING_STEPPERS == 3)
-void Mixer::init_collector(const uint8_t index){
-	switch(index){
-		default:
-		case 0:
-			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;
-			break;
-		case 1:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;	mixer.collector[2] = 0.0;
-		break;
-		case 2:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 10.0;
-		break;
-		case 3:
-			mixer.collector[0] = 10.0;	mixer.collector[1] = 10.0;	mixer.collector[2] = 10.0;
-		break;
-		case 4:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;
-		break;
-		case 5:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 5.0;
-		break;
-		case 6:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 5.0;
-		break;
-		case 7:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 2.5;		mixer.collector[2] = 2.5;
-		break;
-		case 8:
-			mixer.collector[0] = 2.5;		mixer.collector[1] = 5.0;		mixer.collector[2] = 2.5;
-		break;
-		case 9:
-			mixer.collector[0] = 2.5;		mixer.collector[1] = 2.5;		mixer.collector[2] = 5.0;
-		break;
-		case 10:
-			mixer.collector[0] = 7.0;		mixer.collector[1] = 1.5;		mixer.collector[2] = 1.5;
-		break;
-		case 11:
-			mixer.collector[0] = 1.5;		mixer.collector[1] = 7.0;		mixer.collector[2] = 1.5;
-		break;
-		case 12:
-			mixer.collector[0] = 1.5;		mixer.collector[1] = 1.5;		mixer.collector[2] = 7.0;
-		break;
-		case 13:
-			mixer.collector[0] = 5.5;		mixer.collector[1] = 1.5;		mixer.collector[2] = 3.0;
-		break;
-		case 14:
-			mixer.collector[0] = 5.5;		mixer.collector[1] = 3.0;		mixer.collector[2] = 1.5;
-		break;
-		case 15:
-			mixer.collector[0] = 1.5;		mixer.collector[1] = 3.0;		mixer.collector[2] = 5.5;
-		break;
-	}
-}
+	#if ENABLED(DEFAULT_MIX_CMY)
+	{5,	0, 0},	//Cyan
+	{0, 5, 0},	//Magenta
+	{0, 0, 5},	//Yellow
+	{0,	1, 5},	//
+	{5,	1, 0},	//Ocean-blue
+	{1,	1, 0},	//Blue
+	{1,	5, 0},	//Violet
+	{0,	5, 1},	//Red
+	{0,	1, 1},	//Orange
+	{1,	0, 5},	//Spring-Green
+	{1,	0, 1},	//Green
+	{5,	0, 1},	//Turquoise
+	{2,	1, 1},	//Cyan-Brown
+	{1,	2, 1},	//Magenta-Brown
+	{1,	1, 2},	//Yellow-Brown
+	{1,	1, 1}		//Brown	
+	#else			
+	{ 5, 0, 0},
+	{ 0, 5, 0},
+	{ 0, 0, 5},
+	{ 1, 1, 1},
+	{ 1, 1, 0},
+	{ 1, 0, 1},
+	{ 0, 1, 1},
+	{ 2, 1, 1},
+	{ 1, 2, 1},
+	{ 1, 1, 2},
+	{14, 3, 3},
+	{ 3,14, 3},
+	{ 3, 3,14},
+	{11, 3, 6},
+	{11, 6, 3},
+	{ 3, 6,11}	
+	#endif
 #elif (MIXING_STEPPERS == 4)
-void Mixer::init_collector(const uint8_t index)
-{
-	switch(index){
-		default:
-		case 0:
-			mixer.collector[0] = 10.0;	mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
-		break;
-		case 1:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 10.0;	mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
-		break;
-		case 2:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 10.0;	mixer.collector[3] = 0.0;
-		break;
-		case 3:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 10.0;
-		break;
-		case 4:
-			mixer.collector[0] = 2.5;		mixer.collector[1] = 2.5;		mixer.collector[2] = 2.5;		mixer.collector[3] = 2.5;
-		break;
-		case 5:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
-		break;
-		case 6:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 5.0;		mixer.collector[3] = 0.0;
-		break;
-		case 7:
-			mixer.collector[0] = 5.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 5.0;
-		break;
-		case 8:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 5.0;		mixer.collector[3] = 0.0;
-		break;
-		case 9:
-			mixer.collector[0] = 0.0;		mixer.collector[1] = 5.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 5.0;
-		break;
-		case 10:
-			mixer.collector[0] = 2.0;		mixer.collector[1] = 8.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
-		break;
-		case 11:
-			mixer.collector[0] = 2.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 8.0;		mixer.collector[3] = 0.0;
-		break;
-		case 12:
-			mixer.collector[0] = 2.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 8.0;
-		break;
-		case 13:
-			mixer.collector[0] = 8.0;		mixer.collector[1] = 2.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 0.0;
-		break;
-		case 14:
-			mixer.collector[0] = 8.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 2.0;		mixer.collector[3] = 0.0;
-		break;
-		case 15:
-			mixer.collector[0] = 8.0;		mixer.collector[1] = 0.0;		mixer.collector[2] = 0.0;		mixer.collector[3] = 2.0;
-		break;
-	}
-}
+	#if ENABLED(DEFAULT_MIX_CMY)
+	{5,	0, 0, 0},	//White
+	{0,	5, 0, 0},	//Cyan
+	{0,	0, 5, 0},	//Magenta
+	{0,	0, 0, 5},	//Yellow	
+	{0,	5, 1, 0},	//Ocean-blue
+	{0,	1, 1, 0},	//Blue
+	{0,	1, 5, 0},	//Violet
+	{0,	0, 5, 1},	//Red
+	{0,	0, 1, 1},	//Orange
+	{0,	1, 0, 5},	//Spring-Green
+	{0,	1, 0, 1},	//Green
+	{0,	5, 0, 1},	//Turquoise
+	{0,	2, 1, 1},	//Cyan-Brown
+	{0,	1, 2, 1},	//Magenta-Brown
+	{0,	1, 1, 2},	//Yellow-Brown
+	{0,	1, 1, 1}	//Brown	
+	#else
+	{5,	0, 0, 0},	//White
+	{0,	5, 0, 0},	//Red
+	{0,	0, 5, 0},	//Green
+	{0,	0, 0, 5},	//Blue
+	{1,	1, 1, 1},	//
+	{5,	5, 0, 0},	//
+	{5,	0, 5, 0},	//
+	{5,	0, 0, 5},	//
+	{0,	5, 5, 0},	//
+	{0,	5, 0, 5},	//
+	{1,	4, 0, 0},	//
+	{1,	0, 4, 0},	//
+	{1,	0, 0, 4},	//
+	{4,	1, 0, 0},	//
+	{4,	0, 1, 0},	//
+	{4,	0, 0, 1}
+	#endif
 #endif
+};
+#endif
+
+void Mixer::init_collector(const uint8_t index) {
+	MIXER_STEPPER_LOOP(i) 
+		collector[i] = pgm_read_byte(&INIT_MIX_RATE[index][i]);
+}
 
 void Mixer::reset_vtools(bool force_reset/* = false */) {
-
-	if(!mixer.mixing_enabled && !force_reset) return;
-
-#if 0
-  // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
+	if(!mixer.mixing_enabled && !force_reset) return;	
+	
+	//reset mix rate to default value
+#if (MIXING_STEPPERS <= 4)
+  MIXER_VTOOL_LOOP(t){
+  	MIXER_STEPPER_LOOP(i){
+			collector[i] = pgm_read_byte(&INIT_MIX_RATE[t][i]); 
+  	}
+		normalize(t);
+		//TERN_(USE_PRECENT_MIXVALUE,copy_collector_to_percentmix());
+  }	
+#else
+	// Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
   // Every virtual tool gets a pure filament
-  LOOP_L_N(t, _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS))
-    MIXER_STEPPER_LOOP(i)
-      color[t][i] = (t == i) ? COLOR_A_MASK : 0;
-
+  LOOP_L_N(t, _MIN(MIXING_VIRTUAL_TOOLS, MIXING_STEPPERS)){
+    MIXER_STEPPER_LOOP(i) color[t][i] = (t == i) ? COLOR_A_MASK : 0;
+	}
   // Remaining virtual tools are 100% filament 1
   #if MIXING_VIRTUAL_TOOLS > MIXING_STEPPERS
-    LOOP_S_L_N(t, MIXING_STEPPERS, MIXING_VIRTUAL_TOOLS)
-      MIXER_STEPPER_LOOP(i)
-        color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
-  #endif
-#else
-  mixer.selected_vtool = 0;
-  LOOP_L_N(t, MIXING_VIRTUAL_TOOLS){
-		init_collector(t);
-		normalize(t);
-		TERN_(USE_PRECENT_MIXVALUE,copy_collector_to_percentmix());
+  LOOP_S_L_N(t, MIXING_STEPPERS, MIXING_VIRTUAL_TOOLS){
+    MIXER_STEPPER_LOOP(i) color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   }
+  #endif 
+#endif
+
+	mixer.selected_vtool = 0;
 	TERN_(GRADIENT_MIX, gradientmix_reset());
 	TERN_(RANDOM_MIX, randommix_reset());
-#endif
 
 #ifdef MIXER_NORMALIZER_DEBUG
   SERIAL_EOL();
   SERIAL_ECHOLNPGM("reset_vtools!");
   SERIAL_EOL();
-  for(uint8_t t=0; t<MIXING_VIRTUAL_TOOLS; t++){
-    for(uint8_t i=0; i<MIXING_STEPPERS; i++){ 
+  MIXER_VTOOL_LOOP(t){
+    MIXER_STEPPER_LOOP(i){ 
     	SERIAL_ECHOPGM("color[ ");
       SERIAL_ECHO(uint16_t(t));
 			SERIAL_ECHOPGM("]");

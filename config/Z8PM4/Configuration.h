@@ -84,8 +84,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V3.2.4"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-14"
+#define	FIRMWARE_VERSION		  		"V3.3.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-06"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -111,6 +111,7 @@
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
@@ -418,6 +419,9 @@
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
+	#endif
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

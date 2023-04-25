@@ -196,7 +196,7 @@ void _lcd_mixer_cycle_mix() {
 	  if(cycle_index > MIXING_VIRTUAL_TOOLS)
 		  cycle_index = 0;
 	  mixer.normalize();
-		TERN_(USE_PRECENT_MIXVALUE,mixer.copy_collector_to_percentmix());
+		mixer.copy_collector_to_percentmix();
 	  ui.refresh();
 }
 #else

@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.2.4"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-14"
+#define	FIRMWARE_VERSION					"V3.3.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-25"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -96,6 +96,7 @@
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
 #define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
 #define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
@@ -105,20 +106,26 @@
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+//#define OPTION_MAXSIZE              //Upgrade 500x500
 //==========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	  0.0			//default home Y offset
 #define	DEFAULT_HOMEZ_OFFSET	  0.0			//default home Z offset
-
+//==========================================================================
+//Strings of QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
 #define	STRING_GUIDE_LINK					"http://bit.ly/3AoIZHV"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
 #define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
+#endif
+#if ENABLED(OPTION_FAQ_QRCODE)
+#define	STRING_FAQ_LINK						"http://bit.ly/3IUwBnP"
 #endif
 //===========================================================================
 //UART port
@@ -350,7 +357,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -367,6 +373,9 @@
   #define RANDOM_MIX					// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+  #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
   #endif
 #endif
 
@@ -580,7 +589,9 @@
  */
 //#define PIDTEMPBED
 
-//#define BED_LIMIT_SWITCHING
+#ifdef OPTION_MAXSIZE
+#define BED_LIMIT_SWITCHING
+#endif
 
 /**
  * Max Bed Power
@@ -1195,8 +1206,13 @@
 // @section machine
 
 // The size of the print bed
+#ifdef OPTION_MAXSIZE
+#define X_BED_SIZE 500
+#define Y_BED_SIZE 500
+#else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
+#endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1357,7 +1373,11 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
+  #ifdef OPTION_MAXSIZE
+	#define GRID_MAX_POINTS_X 		7
+	#else
 	#define GRID_MAX_POINTS_X 		5
+	#endif
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN

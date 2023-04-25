@@ -32,6 +32,7 @@
   #endif
 #endif
 
+#define	HAS_ONOFF_ICON		(DWINLCD_MENU_VERSION >=3)
 #define F_STRING_ONOFF(V) ((V)?PSTR(" ON"):PSTR("OFF"))
 
 //Color
@@ -223,6 +224,11 @@ void HMI_BedTemp();
 #if HAS_FAN
 void HMI_FanSpeed(); 
 #endif
+
+#if HAS_ONOFF_ICON	
+void Draw_ONOFF_Icon(const uint8_t line, const bool onoff, const uint16_t x = MENUVALUE_X);
+#endif
+
 void ICON_YESorNO(uint8_t Option);
 
 

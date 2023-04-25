@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
-#define	FIRMWARE_VERSION					  "V1.2.5"
-#define	STRING_DISTRIBUTION_DATE    "2023-02-22"
+#define	FIRMWARE_VERSION					  "V1.3.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-25"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -107,10 +107,10 @@
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 #define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
-
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+//#define OPTION_MAXSIZE              //Upgrade 500x500
 //==========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
@@ -125,7 +125,7 @@
 #define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
 #endif
 #if ENABLED(OPTION_FAQ_QRCODE)
-#define	STRING_FAQ_LINK						"http://bit.ly/3IUwBnP"
+#define	STRING_FAQ_LINK						"https://bit.ly/3IUwBnP"
 #endif
 //===========================================================================
 //UART port
@@ -357,7 +357,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -374,6 +373,9 @@
   #define RANDOM_MIX					// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+  #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
   #endif
 #endif
 
@@ -587,7 +589,9 @@
  */
 //#define PIDTEMPBED
 
-//#define BED_LIMIT_SWITCHING
+#ifdef OPTION_MAXSIZE
+#define BED_LIMIT_SWITCHING
+#endif
 
 /**
  * Max Bed Power
@@ -1202,8 +1206,13 @@
 // @section machine
 
 // The size of the print bed
+#ifdef OPTION_MAXSIZE
+#define X_BED_SIZE 500
+#define Y_BED_SIZE 500
+#else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
+#endif
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1364,7 +1373,11 @@
 
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   // Set the number of grid points per dimension.
+  #ifdef OPTION_MAXSIZE
+	#define GRID_MAX_POINTS_X 		7
+	#else
 	#define GRID_MAX_POINTS_X 		5
+	#endif
   #define GRID_MAX_POINTS_Y 		GRID_MAX_POINTS_X
   #define PROBING_MARGIN_LEFT		PROBING_MARGIN
   #define PROBING_MARGIN_RIGHT	PROBING_MARGIN
@@ -2438,14 +2451,14 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 // :[0,1,2,3,4,5,6,7]
-//#define SOFT_PWM_SCALE 5
+#define SOFT_PWM_SCALE 5
 
 // If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
 // be used to mitigate the associated resolution loss. If enabled,
