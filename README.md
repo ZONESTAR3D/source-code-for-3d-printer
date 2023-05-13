@@ -65,7 +65,7 @@
 ## How to build firmware
 ### 1. Prepare the compilation environment
 1. Install "Visual Studio Code: Visit the [***Setting up Visual Studio Code***](https://code.visualstudio.com/docs/setup/setup-overview) page to download and install the latest Visual Studio Code for your particular platform.  
-2. Install the PlatformIO IDE: Head over to the [***Get PlatformIO IDE***](https://platformio.org/install/ide?install=vscode) page to learn how to install PlatformIO IDE in Visual Studio Code.  
+2. Install the PlatformIO IDE extension: Head over to the [***Get PlatformIO IDE***](https://platformio.org/install/ide?install=vscode) page to learn how to install PlatformIO IDE extension in Visual Studio Code.  
 **More detail, please refer to** [***Install marlin compilation environment***](https://marlinfw.org/docs/basics/install_platformio_vscode.html)  
 
 ### 2. Prepare firmware source code
