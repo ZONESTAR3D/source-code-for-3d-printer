@@ -85,7 +85,7 @@
 #define CUSTOM_MACHINE_NAME 			"Z8PM3Pro"
 #endif
 #define	FIRMWARE_VERSION		  		"V1.4.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-11-17"
+#define	STRING_DISTRIBUTION_DATE  "2023-04-26"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -111,6 +111,7 @@
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
@@ -134,10 +135,10 @@
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
+#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z8P/tree/main/UpdateNews"
+#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
 #endif
 //===========================================================================
 //UART port

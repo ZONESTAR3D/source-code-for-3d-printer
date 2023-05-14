@@ -1021,7 +1021,7 @@ static void Item_Config_WifiBaudrate(const uint8_t row) {
 #endif
 #endif
 
-#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+#if ENABLED(OPTION_LASER)
 static void Item_Config_Laser(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Laser"));
 	Draw_Menu_Line(row,ICON_CURSOR);	
@@ -1032,6 +1032,19 @@ static void Item_Config_Laser(const uint8_t row) {
 #endif
 }
 #endif
+
+#if ENABLED(SPINDLE_FEATURE)
+static void Item_Config_Spindle(const uint8_t row) {
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row),PSTR("Spindle"));
+	Draw_Menu_Line(row,ICON_CURSOR);	
+#if HAS_ONOFF_ICON  
+	Draw_ONOFF_Icon(row, cutter.Spindle_Enabled);
+#else
+	DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(row), F_STRING_ONOFF(cutter.Spindle_Enabled)); 
+#endif
+}
+#endif
+
 
 #if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
 static void Item_Config_MixerEnable(const uint8_t row) {
@@ -1465,8 +1478,12 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	 if (COVISI(CONFIG_CASE_WIFISPEED)) Item_Config_WifiBaudrate(COSCROL(CONFIG_CASE_WIFISPEED));			// WIFI Baudrate
 	#endif
 
-	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	#if ENABLED(OPTION_LASER)
 	if (COVISI(CONFIG_CASE_LASER)) 	Item_Config_Laser(COSCROL(CONFIG_CASE_LASER));  	 					// Laser	 
+	#endif	
+	
+	#if ENABLED(SPINDLE_FEATURE)
+	if (COVISI(CONFIG_CASE_SPINDLE)) 	Item_Config_Spindle(COSCROL(CONFIG_CASE_SPINDLE));  	 	 // Spindle	 
 	#endif	
 	
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -2061,7 +2078,7 @@ static void Draw_Motion_Menu(const uint8_t MenuItem = 0) {
 //
 // Control >> Motion >> Feedrate
 //
-static void Item_Feedrate_MaxX(uint8_t row){
+inline void Item_Feedrate_MaxX(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDX);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2069,7 +2086,7 @@ static void Item_Feedrate_MaxX(uint8_t row){
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[X_AXIS]);
 }
 
-static void Item_Feedrate_MaxY(uint8_t row){
+inline void Item_Feedrate_MaxY(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDY);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2077,7 +2094,7 @@ static void Item_Feedrate_MaxY(uint8_t row){
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[Y_AXIS]);
 }
 
-static void Item_Feedrate_MaxZ(uint8_t row){
+inline void Item_Feedrate_MaxZ(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDZ);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2085,12 +2102,19 @@ static void Item_Feedrate_MaxZ(uint8_t row){
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[Z_AXIS]);
 }
 
-static void Item_Feedrate_MaxE(uint8_t row){
+inline void Item_Feedrate_MaxE(uint8_t row, uint8_t e = 0){	
+	uint16_t x = LBLX;
 	Draw_Menu_Line(row, ICON_MAXSPEEDE);
-	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_FEEDRATE)+12, MBASE(row));
-	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[E_AXIS]);
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_MAX) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_FEEDRATE, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_FEEDRATE) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, x, MBASE(row));
+#if ENABLED(DISTINCT_E_FACTORS)			
+	x += get_MultiLanguageString_Width(MTSTRING_E) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_1 + e, x, MBASE(row));
+#endif
+	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[E_AXIS + e]);	
 }
 
 inline void Draw_Max_Speed_Menu() {
@@ -2103,35 +2127,68 @@ inline void Draw_Max_Speed_Menu() {
 	Draw_Back_First(DwinMenu_feedrate.now == MAXFEEDRATE_CASE_BACK);	
 	Item_Feedrate_MaxX(MAXFEEDRATE_CASE_X);
 	Item_Feedrate_MaxY(MAXFEEDRATE_CASE_Y);
-	Item_Feedrate_MaxZ(MAXFEEDRATE_CASE_Z);
+	Item_Feedrate_MaxZ(MAXFEEDRATE_CASE_Z);	
+#if ENABLED(DISTINCT_E_FACTORS)
+	LOOP_L_N(i, E_STEPPERS){
+		if(WITHIN(MAXFEEDRATE_CASE_E + i, 0, MROWS))	Item_Feedrate_MaxE(MAXFEEDRATE_CASE_E + i, i);
+	}
+#else
 	Item_Feedrate_MaxE(MAXFEEDRATE_CASE_E);
-	if (DwinMenu_feedrate.now) Draw_Menu_Cursor(DwinMenu_feedrate.now);
+#endif			
+		if (DwinMenu_feedrate.now) Draw_Menu_Cursor(DwinMenu_feedrate.now);
 }
+
 /* Max Speed */
 void HMI_MaxSpeed() {
- ENCODER_DiffState encoder_diffState = get_encoder_state();
- if (encoder_diffState == ENCODER_DIFF_NO) return;
+	ENCODER_DiffState encoder_diffState = get_encoder_state();
+	if (encoder_diffState == ENCODER_DIFF_NO) return;
 
- // Avoid flicker by updating only the previous menu
- if (encoder_diffState == ENCODER_DIFF_CW) {
-  if (DwinMenu_feedrate.inc(MAXFEEDRATE_CASE_END)) Move_Highlight(1, DwinMenu_feedrate.now);
- }
- else if (encoder_diffState == ENCODER_DIFF_CCW) {
-  if (DwinMenu_feedrate.dec()) Move_Highlight(-1, DwinMenu_feedrate.now);
- }
- else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-  if (WITHIN(DwinMenu_feedrate.now, MAXFEEDRATE_CASE_X, MAXFEEDRATE_CASE_E)) {
-   DwinMenuID = DWMENU_SET_MAXSPEED_VALUE;
-   HMI_flag.axis = AxisEnum(DwinMenu_feedrate.now - 1);
-   HMI_Value.Max_Feedspeed = planner.settings.max_feedrate_mm_s[HMI_flag.axis];
-   DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
-   EncoderRate.enabled = true;
-  }
-  else { // Back   
-   Draw_Motion_Menu(MOTION_CASE_FEEDRATE);
-  }
- }
- dwinLCD.UpdateLCD();
+	// Avoid flicker by updating only the previous menu
+	if (encoder_diffState == ENCODER_DIFF_CW) {
+		if (DwinMenu_feedrate.inc(MAXFEEDRATE_CASE_END)) {
+			if (DwinMenu_feedrate.now > MROWS && DwinMenu_feedrate.now > DwinMenu_feedrate.index) {
+				DwinMenu_feedrate.index = DwinMenu_feedrate.now;
+				// Scroll up and draw a blank bottom line
+				Scroll_Menu(DWIN_SCROLL_UP);
+			#if ENABLED(DISTINCT_E_FACTORS)
+    		LOOP_L_N(i, E_STEPPERS){
+					if (DwinMenu_feedrate.index == MAXFEEDRATE_CASE_E + i) Item_Feedrate_MaxE(MROWS, i);
+				}
+			#endif			
+			}
+			else {
+				Move_Highlight(1, DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index);
+			}
+		}
+	}
+	else if (encoder_diffState == ENCODER_DIFF_CCW) {
+		if (DwinMenu_feedrate.dec()) {			
+			if (DwinMenu_feedrate.now < DwinMenu_feedrate.index - MROWS) {
+				DwinMenu_feedrate.index--;
+				Scroll_Menu(DWIN_SCROLL_DOWN);
+				if (DwinMenu_feedrate.index - MROWS == MAXFEEDRATE_CASE_BACK) Draw_Back_First();    		
+				else if (DwinMenu_feedrate.index - MROWS == MAXFEEDRATE_CASE_X) Item_Feedrate_MaxX(0);
+				else if (DwinMenu_feedrate.index - MROWS == MAXFEEDRATE_CASE_Y) Item_Feedrate_MaxY(0);				
+				else if (DwinMenu_feedrate.index - MROWS == MAXFEEDRATE_CASE_Z) Item_Feedrate_MaxZ(0);				
+			}
+			else {
+				Move_Highlight(-1, DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index);
+			}
+		}
+	}	
+	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+		if (WITHIN(DwinMenu_feedrate.now, MAXFEEDRATE_CASE_X, MAXFEEDRATE_CASE_TOTAL)) {
+			DwinMenuID = DWMENU_SET_MAXSPEED_VALUE;
+			HMI_flag.axis = AxisEnum(DwinMenu_feedrate.now - 1);
+			HMI_Value.Max_Feedspeed = planner.settings.max_feedrate_mm_s[HMI_flag.axis];
+			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
+			EncoderRate.enabled = true;
+		}
+		else { // Back   
+			Draw_Motion_Menu(MOTION_CASE_FEEDRATE);
+		}
+	}
+	dwinLCD.UpdateLCD();
 }
 
 
@@ -2151,13 +2208,13 @@ void HMI_MaxFeedspeedXYZE() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Feedspeed)) {
 			DwinMenuID = DWMENU_SET_MAXSPEED;
 			EncoderRate.enabled = false;
-			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
 				planner.set_max_feedrate(HMI_flag.axis, HMI_Value.Max_Feedspeed);
 			DWIN_Draw_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now), HMI_Value.Max_Feedspeed);
 		}
 		else {
 			// MaxFeedspeed limit
-			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
 				NOMORE(HMI_Value.Max_Feedspeed, default_max_feedrate[HMI_flag.axis]*2);
 			if (HMI_Value.Max_Feedspeed < MIN_MAXFEEDSPEED) 
 				HMI_Value.Max_Feedspeed = MIN_MAXFEEDSPEED;
@@ -2196,13 +2253,21 @@ inline void Item_Accel_MaxZ(uint8_t row){
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
 }
 
-inline void Item_Accel_MaxE(uint8_t row){
+inline void Item_Accel_MaxE(uint8_t row, uint8_t e = 0){
+	uint16_t x = LBLX;
 	Draw_Menu_Line(row, ICON_MAXACCE);
-	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_ACCEL)+12, MBASE(row));
-	DWIN_Draw_IntValue_Default(5,CONFIGVALUE_X-8, MBASE(row), planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_MAX) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_ACCEL, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_ACCEL) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, x, MBASE(row));
+#if ENABLED(DISTINCT_E_FACTORS)			
+	x += get_MultiLanguageString_Width(MTSTRING_E) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_1 + e, x, MBASE(row));
+#endif
+	DWIN_Draw_IntValue_Default(5,CONFIGVALUE_X-8, MBASE(row), planner.settings.max_acceleration_mm_per_s2[E_AXIS + e]);
 }
+
 
 inline void Draw_Max_Accel_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
@@ -2216,7 +2281,13 @@ inline void Draw_Max_Accel_Menu() {
 	Item_Accel_MaxX(MAXACCL_CASE_X);
 	Item_Accel_MaxY(MAXACCL_CASE_Y);
 	Item_Accel_MaxZ(MAXACCL_CASE_Z);
+#if ENABLED(DISTINCT_E_FACTORS)
+	LOOP_L_N(i, E_STEPPERS){
+		if(WITHIN(MAXACCL_CASE_E + i, 0, MROWS))	Item_Accel_MaxE(MAXACCL_CASE_E + i, i);
+	}	
+#else
 	Item_Accel_MaxE(MAXACCL_CASE_E);
+#endif
 	if (DwinMenu_accel.now) Draw_Menu_Cursor(DwinMenu_accel.now);
 }
 
@@ -2226,17 +2297,13 @@ void HMI_MaxAccelerationXYZE() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Acceleration)) {
 			DwinMenuID = DWMENU_SET_MAXACC;
 			EncoderRate.enabled = false;
-			if (HMI_flag.axis == X_AXIS) planner.set_max_acceleration(X_AXIS, HMI_Value.Max_Acceleration);
-			else if (HMI_flag.axis == Y_AXIS) planner.set_max_acceleration(Y_AXIS, HMI_Value.Max_Acceleration);
-			else if (HMI_flag.axis == Z_AXIS) planner.set_max_acceleration(Z_AXIS, HMI_Value.Max_Acceleration);
-		#if HAS_HOTEND
-			else if (HMI_flag.axis == E_AXIS) planner.set_max_acceleration(E_AXIS, HMI_Value.Max_Acceleration);
-		#endif
+			if(WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)) 
+				planner.set_max_acceleration(HMI_flag.axis, HMI_Value.Max_Acceleration);		
 			DWIN_Draw_IntValue_Default(5, CONFIGVALUE_X-8, MBASE(DwinMenu_accel.now), HMI_Value.Max_Acceleration);
 		}
 		else {
 			// Max Acceleration limit
-			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
 				NOMORE(HMI_Value.Max_Acceleration, default_max_acceleration[HMI_flag.axis]*2);
 			if (HMI_Value.Max_Acceleration < MIN_MAXACCELERATION) 
 				HMI_Value.Max_Acceleration = MIN_MAXACCELERATION;
@@ -2254,13 +2321,39 @@ void HMI_MaxAcceleration() {
 
 	// Avoid flicker by updating only the previous menu
 	if (encoder_diffState == ENCODER_DIFF_CW) {
-		if (DwinMenu_accel.inc(MAXACCL_CASE_END)) Move_Highlight(1, DwinMenu_accel.now);
+		if (DwinMenu_accel.inc(MAXACCL_CASE_END)) {
+			if (DwinMenu_accel.now > MROWS && DwinMenu_accel.now > DwinMenu_accel.index) {
+				DwinMenu_accel.index = DwinMenu_accel.now;
+				// Scroll up and draw a blank bottom line
+				Scroll_Menu(DWIN_SCROLL_UP);
+			#if ENABLED(DISTINCT_E_FACTORS)
+    		LOOP_L_N(i, E_STEPPERS){
+					if (DwinMenu_accel.index == MAXACCL_CASE_E + i) Item_Accel_MaxE(MROWS, i);
+				}
+			#endif			
+			}
+			else {
+				Move_Highlight(1, DwinMenu_accel.now + MROWS - DwinMenu_accel.index);
+			}
+		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_CCW) {
-		if (DwinMenu_accel.dec()) Move_Highlight(-1, DwinMenu_accel.now);
-	}
+		if (DwinMenu_accel.dec()) {			
+			if (DwinMenu_accel.now < DwinMenu_accel.index - MROWS) {
+				DwinMenu_feedrate.index--;
+				Scroll_Menu(DWIN_SCROLL_DOWN);
+				if (DwinMenu_accel.index - MROWS == MAXACCL_CASE_BACK) Draw_Back_First();    		
+				else if (DwinMenu_accel.index - MROWS == MAXACCL_CASE_X) Item_Accel_MaxX(0);
+				else if (DwinMenu_accel.index - MROWS == MAXACCL_CASE_Y) Item_Accel_MaxY(0);				
+				else if (DwinMenu_accel.index - MROWS == MAXACCL_CASE_Z) Item_Accel_MaxZ(0);				
+			}
+			else {
+				Move_Highlight(-1, DwinMenu_accel.now + MROWS - DwinMenu_accel.index);
+			}
+		}
+	}	
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		if (WITHIN(DwinMenu_accel.now, MAXACCL_CASE_X, MAXACCL_CASE_E)) {
+		if (WITHIN(DwinMenu_accel.now, MAXACCL_CASE_X, MAXACCL_CASE_TOTAL)) {
 			DwinMenuID = DWMENU_SET_MAXACC_VALUE;
 			HMI_flag.axis = AxisEnum(DwinMenu_accel.now - 1);
 			HMI_Value.Max_Acceleration = planner.settings.max_acceleration_mm_per_s2[HMI_flag.axis];
@@ -2274,15 +2367,12 @@ void HMI_MaxAcceleration() {
 	dwinLCD.UpdateLCD();
 }
 
-
-
-
 ///////////////////////////////////////////////
 //
 // Control >> Motion >> Jerk
 //
 #if HAS_CLASSIC_JERK
-static void Item_Jerk_MaxX(uint8_t row){
+inline void Item_Jerk_MaxX(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKX);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2290,7 +2380,7 @@ static void Item_Jerk_MaxX(uint8_t row){
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[X_AXIS] * MINUNITMULT);
 }
 
-static void Item_Jerk_MaxY(uint8_t row){
+inline void Item_Jerk_MaxY(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKY);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2298,7 +2388,7 @@ static void Item_Jerk_MaxY(uint8_t row){
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[Y_AXIS] * MINUNITMULT);
 }
 
-static void Item_Jerk_MaxZ(uint8_t row){
+inline void Item_Jerk_MaxZ(uint8_t row){
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKZ);
 	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
@@ -2306,18 +2396,20 @@ static void Item_Jerk_MaxZ(uint8_t row){
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[Z_AXIS] * MINUNITMULT);
 }
 
-static void Item_Jerk_MaxE(uint8_t row){
+inline void Item_Jerk_MaxE(uint8_t row){
+	uint16_t x = LBLX;
 	Draw_Menu_Line(row, ICON_MAXSPEEDJERKE);
-	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+6, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_MAX)+get_MultiLanguageString_Width(MTSTRING_JERK)+12, MBASE(row));
+	DWIN_Show_MultiLanguage_String(MTSTRING_MAX, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_MAX) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_JERK, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_JERK) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, x, MBASE(row));
 	DWIN_Draw_Small_Float21(CONFIGVALUE_X+8, MBASE(row), planner.max_jerk[E_AXIS] * MINUNITMULT);
 }
 
 inline void Draw_Max_Jerk_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	DwinMenu_jerk.reset();
-	//DwinMenu_jerk.index = _MAX(DwinMenu_jerk.now, MROWS);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_JERK, TITLE_X, TITLE_Y);
@@ -2367,7 +2459,7 @@ void HMI_MaxJerk() {
 		if (DwinMenu_jerk.dec()) Move_Highlight(-1, DwinMenu_jerk.now);
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-		if (WITHIN(DwinMenu_jerk.now, 1, 4)) {
+		if (WITHIN(DwinMenu_jerk.now, MAXJERK_CASE_X, MAXJERK_CASE_TOTAL)) {
 			DwinMenuID = DWMENU_SET_MAXJERK_VALUE;
 			HMI_flag.axis = AxisEnum(DwinMenu_jerk.now - 1);
 			HMI_Value.Max_Jerk = planner.max_jerk[HMI_flag.axis] * MINUNITMULT;
@@ -2386,33 +2478,40 @@ void HMI_MaxJerk() {
 //
 // Control >> Motion >> Step/mm
 //
-static void Item_Steps_X(uint8_t row){
+inline void Item_Steps_X(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPX);
 	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_X, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
 }
 
-static void Item_Steps_Y(uint8_t row){
+inline void Item_Steps_Y(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPY);
 	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_Y, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
 }
 
-static void Item_Steps_Z(uint8_t row){
+inline void Item_Steps_Z(uint8_t row){
 	Draw_Menu_Line(row, ICON_STEPZ);
 	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_Z, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
 	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
 }
 
-static void Item_Steps_E(uint8_t row){
+inline void Item_Steps_E(uint8_t row, uint8_t e = 0){
+	uint16_t x = LBLX;
 	Draw_Menu_Line(row, ICON_STEPE);
-	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, LBLX, MBASE(row));
-	DWIN_Show_MultiLanguage_String(MTSTRING_E, LBLX+get_MultiLanguageString_Width(MTSTRING_STEPPERMM)+6, MBASE(row));
-	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
+	DWIN_Show_MultiLanguage_String(MTSTRING_STEPPERMM, x, MBASE(row));
+	x += get_MultiLanguageString_Width(MTSTRING_STEPPERMM) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_E, x, MBASE(row));
+#if ENABLED(DISTINCT_E_FACTORS)	
+	x += get_MultiLanguageString_Width(MTSTRING_E) + 6;
+	DWIN_Show_MultiLanguage_String(MTSTRING_1 + e, x, MBASE(row));
+#endif
+	DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(row), planner.settings.axis_steps_per_mm[E_AXIS + e] * MINUNITMULT);
 }
+
 
 inline void Draw_Steps_Menu() {
 	DwinMenu_step.reset();
@@ -2426,7 +2525,13 @@ inline void Draw_Steps_Menu() {
 	Item_Steps_X(STEPSMM_CASE_X);
 	Item_Steps_Y(STEPSMM_CASE_Y);
 	Item_Steps_Z(STEPSMM_CASE_Z);
+#if ENABLED(DISTINCT_E_FACTORS)
+	LOOP_L_N(i, E_STEPPERS){
+		if(WITHIN(STEPSMM_CASE_E + i, 0, MROWS))	Item_Steps_E(STEPSMM_CASE_E + i, i);
+	}	
+#else
 	Item_Steps_E(STEPSMM_CASE_E);
+#endif
 	if (DwinMenu_step.now) Draw_Menu_Cursor(DwinMenu_step.now);
 }
 
@@ -2436,13 +2541,13 @@ void HMI_StepXYZE() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Step)) {
 			DwinMenuID = DWMENU_SET_STEPPREMM;
 			EncoderRate.enabled = false;
-			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS))
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
 				planner.settings.axis_steps_per_mm[HMI_flag.axis] = (float)HMI_Value.Max_Step / MINUNITMULT;
 			DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
 		}
 		else {
 			// Step/mm limit
-			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)){
 				NOMORE(HMI_Value.Max_Step, default_axis_steps_per_unit[HMI_flag.axis]*4*MINUNITMULT);
 				NOLESS(HMI_Value.Max_Step, MIN_STEP*MINUNITMULT);
 			}
@@ -2455,29 +2560,55 @@ void HMI_StepXYZE() {
 
 /* Step */
 void HMI_StepPermm() {
- ENCODER_DiffState encoder_diffState = get_encoder_state();
- if (encoder_diffState == ENCODER_DIFF_NO) return;
-
- // Avoid flicker by updating only the previous menu
- if (encoder_diffState == ENCODER_DIFF_CW) {
-  if (DwinMenu_step.inc(STEPSMM_CASE_END)) Move_Highlight(1, DwinMenu_step.now);
- }
- else if (encoder_diffState == ENCODER_DIFF_CCW) {
-  if (DwinMenu_step.dec()) Move_Highlight(-1, DwinMenu_step.now);
- }
- else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-  if (WITHIN(DwinMenu_step.now, STEPSMM_CASE_X, STEPSMM_CASE_E)) {
-   DwinMenuID = DWMENU_SET_STEPPREMM_VALUE;
-   HMI_flag.axis = AxisEnum(DwinMenu_step.now - 1);
-   HMI_Value.Max_Step = planner.settings.axis_steps_per_mm[HMI_flag.axis] * MINUNITMULT;
-   DWIN_Draw_Selected_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
-   EncoderRate.enabled = true;
-  }
-  else { // Back   
-   Draw_Motion_Menu(MOTION_CASE_STEPS);
-  }
- }
- dwinLCD.UpdateLCD();
+	ENCODER_DiffState encoder_diffState = get_encoder_state();
+	if (encoder_diffState == ENCODER_DIFF_NO) return;
+	
+	// Avoid flicker by updating only the previous menu
+	if (encoder_diffState == ENCODER_DIFF_CW) {
+		if (DwinMenu_step.inc(STEPSMM_CASE_END)) {
+			if (DwinMenu_step.now > MROWS && DwinMenu_step.now > DwinMenu_step.index) {
+				DwinMenu_step.index = DwinMenu_step.now;
+				// Scroll up and draw a blank bottom line
+				Scroll_Menu(DWIN_SCROLL_UP);
+			#if ENABLED(DISTINCT_E_FACTORS)
+    		LOOP_L_N(i, E_STEPPERS){
+					if (DwinMenu_step.index == STEPSMM_CASE_E + i) Item_Steps_E(MROWS, i);
+				}
+			#endif			
+			}
+			else {
+				Move_Highlight(1, DwinMenu_step.now + MROWS - DwinMenu_step.index);
+			}
+		}
+	}
+	else if (encoder_diffState == ENCODER_DIFF_CCW) {
+		if (DwinMenu_step.dec()) {			
+			if (DwinMenu_step.now < DwinMenu_step.index - MROWS) {
+				DwinMenu_step.index--;
+				Scroll_Menu(DWIN_SCROLL_DOWN);
+				if (DwinMenu_step.index - MROWS == STEPSMM_CASE_BACK) Draw_Back_First();    		
+				else if (DwinMenu_step.index - MROWS == STEPSMM_CASE_X) Item_Steps_X(0);
+				else if (DwinMenu_step.index - MROWS == STEPSMM_CASE_Y) Item_Steps_Y(0);				
+				else if (DwinMenu_step.index - MROWS == STEPSMM_CASE_Z) Item_Steps_Z(0);				
+			}
+			else {
+				Move_Highlight(-1, DwinMenu_step.now + MROWS - DwinMenu_step.index);
+			}
+		}
+	} 
+	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+		if (WITHIN(DwinMenu_step.now, STEPSMM_CASE_X, STEPSMM_CASE_TOTAL)) {
+			DwinMenuID = DWMENU_SET_STEPPREMM_VALUE;
+			HMI_flag.axis = AxisEnum(DwinMenu_step.now - 1);
+			HMI_Value.Max_Step = planner.settings.axis_steps_per_mm[HMI_flag.axis] * MINUNITMULT;
+			DWIN_Draw_Selected_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now), HMI_Value.Max_Step);
+			EncoderRate.enabled = true;
+		}
+		else { // Back   
+			Draw_Motion_Menu(MOTION_CASE_STEPS);
+		}
+	}
+	dwinLCD.UpdateLCD();
 }
 
 
@@ -2989,9 +3120,12 @@ void HMI_Config() {
 				else if(DwinMenu_configure.index == CONFIG_CASE_WIFISPEED) Item_Config_WifiBaudrate(MROWS);
 				#endif
 			#endif	
-			
-			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+
+			#if ENABLED(OPTION_LASER)
 				else if(DwinMenu_configure.index == CONFIG_CASE_LASER) Item_Config_Laser(MROWS);
+			#endif
+			#if ENABLED(SPINDLE_FEATURE)
+				else if(DwinMenu_configure.index == CONFIG_CASE_SPINDLE) Item_Config_Spindle(MROWS);
 			#endif
 
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -3064,8 +3198,11 @@ void HMI_Config() {
 			 #endif			
 			#endif
 			
-			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+			#if ENABLED(OPTION_LASER)
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LASER) Item_Config_Laser(0);
+			#endif			
+			#if ENABLED(SPINDLE_FEATURE)
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_SPINDLE) Item_Config_Spindle(0);
 			#endif
 			
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -3244,7 +3381,7 @@ void HMI_Config() {
 	 #endif		
   #endif
 
-	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	#if ENABLED(OPTION_LASER)
 		case CONFIG_CASE_LASER:	 	 	
 				Laser_Enabled = !Laser_Enabled;				
 			#if HAS_ONOFF_ICON				
@@ -3252,6 +3389,24 @@ void HMI_Config() {
 			#else
 				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_LASER + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(Laser_Enabled));
 			#endif
+			
+				_BREAK_WHILE_PRINTING
+				HMI_AudioFeedback(settings.save());				
+			break;
+	
+	#endif
+	
+	#if ENABLED(SPINDLE_FEATURE)
+		case CONFIG_CASE_SPINDLE:	 	 					
+				if(cutter.Spindle_Enabled) 
+					cutter.disable_spindle_feature(); 
+				else 
+					cutter.Spindle_Enabled = true;
+		#if HAS_ONOFF_ICON				
+				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_SPINDLE, cutter.Spindle_Enabled);
+		#else
+				DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_SPINDLE + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(cutter.Spindle_Enabled));
+		#endif
 			
 				_BREAK_WHILE_PRINTING
 				HMI_AudioFeedback(settings.save());				

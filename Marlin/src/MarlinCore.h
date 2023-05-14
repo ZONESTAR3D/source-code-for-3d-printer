@@ -128,7 +128,7 @@ extern bool WiFi_Enabled;
 extern void WIFI_onoff(void);
 #endif
 
-#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+#if ENABLED(OPTION_LASER)
 extern bool Laser_Enabled;
 #endif
 

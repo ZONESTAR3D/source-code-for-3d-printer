@@ -406,10 +406,9 @@ void WIFI_onoff(void) {
 }
 #endif
 
-#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+#if ENABLED(OPTION_LASER)
 bool Laser_Enabled = false;
 #endif
-
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
 

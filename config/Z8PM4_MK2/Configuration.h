@@ -84,8 +84,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2"
 #endif
-#define	FIRMWARE_VERSION		  		"V1.2.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-04-06"
+#define	FIRMWARE_VERSION		  		"V1.3.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-05-10"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -105,6 +105,7 @@
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
+#define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
 #define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 #define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
@@ -112,7 +113,8 @@
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
+#define	OPTION_LASER									//Laser faeture
+#define	OPTION_SPINDLE								//Spindle faeture
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
 //#define	OPTION_TMC2225_XYZ 					//TMC2225 be used to XYZ
@@ -133,12 +135,6 @@
 #define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	0.0			//default home Y offset
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
-#if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://bit.ly/3Vvn7D2"
-#endif
-#if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"http://bit.ly/3UPON5v"
-#endif
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
@@ -158,6 +154,25 @@
 	#else
   #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
   #endif
+#endif
+//===========================================================================
+//Laser and Spindle
+#ifdef OPTION_LASER
+#define	 LASERPWM_USED_FANPIN			//Used the FAN pin as laser PWM pin, and use M106/M107 to control laser power
+#endif
+#ifdef OPTION_SPINDLE
+#define	SPINDLE_USED_BEDPIN		true
+#endif
+//===========================================================================
+//Links of QR code
+#if ENABLED(OPTION_GUIDE_QRCODE)
+#define	STRING_GUIDE_LINK					"https://bit.ly/3Vvn7D2"
+#endif
+#if ENABLED(OPTION_NEWS_QRCODE)
+#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
+#endif
+#if ENABLED(OPTION_FAQ_QRCODE)
+#define	STRING_FAQ_LINK						"https://bit.ly/44Fi9Zs"
 #endif
 //===========================================================================
 /**
@@ -548,7 +563,7 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+//#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer

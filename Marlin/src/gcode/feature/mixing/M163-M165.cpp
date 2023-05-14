@@ -37,6 +37,9 @@
  *   R   				Reset all VTool settings
  */
 void GcodeSuite::M163() {  
+#if DISABLE_MIXING_FEATURE
+	return;
+#endif
 	 int mix_index = MIXING_STEPPERS;
 	 float weight = 0.0;
 	 
@@ -62,6 +65,10 @@ void GcodeSuite::M163() {
  *              If 'S' is omitted update the active virtual tool.
  */
 void GcodeSuite::M164() {
+#if DISABLE_MIXING_FEATURE
+		return;
+#endif
+
 #if MIXING_VIRTUAL_TOOLS > 1
   const int tool_index = parser.intval('S', -1);
 #else
@@ -74,8 +81,8 @@ void GcodeSuite::M164() {
 	
 	if(tool_index >= 0 && tool_index < MIXING_VIRTUAL_TOOLS)
 		mixer.normalize(tool_index);
-	else
-		mixer.normalize();
+	//else
+	//	mixer.normalize();
 	TERN_(USE_PRECENT_MIXVALUE,mixer.copy_collector_to_percentmix());	
 }
 

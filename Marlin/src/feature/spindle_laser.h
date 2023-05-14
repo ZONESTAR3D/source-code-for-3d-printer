@@ -95,6 +95,11 @@ public:
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   static void init();
+	
+	#if ENABLED(SPINDLE_FEATURE)
+	static bool Spindle_Enabled;
+	static void disable_spindle_feature();
+	#endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }

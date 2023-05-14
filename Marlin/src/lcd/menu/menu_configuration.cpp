@@ -444,8 +444,11 @@ void menu_configuration() {
 		EDIT_ITEM(bool, MSG_WIFI_MODULE, &WiFi_Enabled, _lcd_onoffWiFi);
 	#endif
 
-	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	#if ENABLED(OPTION_LASER)
 		EDIT_ITEM(bool, MSG_LASER_ENGINE, &Laser_Enabled);
+	#endif
+	#if ENABLED(SPINDLE_FEATURE)
+		EDIT_ITEM(bool, MSG_SPINDLE, &cutter.Spindle_Enabled);
 	#endif
 
   // Preheat configurations

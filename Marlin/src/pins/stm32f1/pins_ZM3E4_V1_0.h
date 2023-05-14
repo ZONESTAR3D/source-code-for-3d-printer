@@ -371,6 +371,10 @@
 //#define	SERVO2_PIN		  PB7
 //#define	SERVO3_PIN		  PB6
 
+#if ENABLED(SPINDLE_FEATURE)
+#define SPINDLE_LASER_ENA_PIN		PA2
+#endif
+
 #if HAS_MARLINUI_U8GLIB
 #define BOARD_ST7920_DELAY_1 DELAY_NS(200)    //Tclk_fall <200ns
 #define BOARD_ST7920_DELAY_2 DELAY_NS(250)    //Tdata_width >200ns

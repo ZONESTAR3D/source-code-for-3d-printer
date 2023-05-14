@@ -297,12 +297,15 @@ typedef struct SettingsDataStruct {
 	#endif
 
 	//
-	//laser feature
+	//laser & Spindle feature
 	//
-	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+	#if ENABLED(OPTION_LASER)
 	bool laser_enabled;
+	#endif	
+	#if ENABLED(SPINDLE_FEATURE)
+	bool spindle_enabled;
 	#endif
-	
+
 	#if ENABLED(OPTION_HOTENDMAXTEMP)
 	int16_t max_hotendtemp;
 	#endif
@@ -897,13 +900,20 @@ void MarlinSettings::postprocess() {
 		#endif
 
 		//
-		//laser feature
+		//laser & Spindle feature
 		//
-		#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+		#if ENABLED(OPTION_LASER)
 		{
       _FIELD_TEST(laser_enabled);
 			const bool laser_enabled = Laser_Enabled;			
      EEPROM_WRITE(laser_enabled);			
+    }
+		#endif
+		#if ENABLED(SPINDLE_FEATURE)
+		{
+      _FIELD_TEST(spindle_enabled);
+			const bool spindle_enabled = cutter.Spindle_Enabled;			
+     	EEPROM_WRITE(spindle_enabled);			
     }
 		#endif
 
@@ -1870,11 +1880,18 @@ void MarlinSettings::postprocess() {
 			//
 			//laser feature
 			//
-			#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
+			#if ENABLED(OPTION_LASER)
 			{
 				_FIELD_TEST(laser_enabled);				
         const bool &laser_enabled = Laser_Enabled;
         EEPROM_READ(laser_enabled);		
+	    }
+			#endif			
+			#if ENABLED(SPINDLE_FEATURE)
+			{
+				_FIELD_TEST(spindle_enabled);				
+        const bool &spindle_enabled = cutter.Spindle_Enabled;
+        EEPROM_READ(spindle_enabled);		
 	    }
 			#endif
 
@@ -2842,11 +2859,10 @@ void MarlinSettings::reset() {
 	#endif
 	
 	//
-	//laser feature
+	//laser & spindle feature
 	//
-	#if ENABLED(OPTION_LASERPWMUSEDFANPIN)
-	Laser_Enabled = false;	
-	#endif
+	TERN_(OPTION_LASER,  Laser_Enabled = false);
+	TERN_(SPINDLE_FEATURE,  cutter.disable());
 
 	//
 	// maxiums hotend temp

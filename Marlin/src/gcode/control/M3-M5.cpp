@@ -66,6 +66,7 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
+  #if ENABLED(SPINDLE_LASER_PWM)  
   auto get_s_power = [] {
     if (parser.seenval('S')) {
       const float spwr = parser.value_float();
@@ -77,7 +78,8 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
     return cutter.unitPower;
   };
-
+  #endif
+  
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode

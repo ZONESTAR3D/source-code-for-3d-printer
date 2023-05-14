@@ -1734,7 +1734,9 @@ void Temperature::init() {
   #if HAS_HEATED_BED
     #ifdef ALFAWISE_UX0
       OUT_WRITE_OD(HEATER_BED_PIN, HEATER_BED_INVERTING);
-    #else
+    #elif SPINDLE_USED_BEDPIN
+			if(!cutter.Spindle_Enabled) OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
+		#else
       OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
     #endif
   #endif
@@ -2533,7 +2535,13 @@ void Temperature::tick() {
       #endif
 
       #if HAS_HEATED_BED
+				#if SPINDLE_USED_BEDPIN
+				if(!cutter.Spindle_Enabled){
+					_PWM_MOD(BED,soft_pwm_bed,temp_bed);
+				}
+				#else
         _PWM_MOD(BED,soft_pwm_bed,temp_bed);
+				#endif
       #endif
 
       #if HAS_HEATED_CHAMBER
@@ -2580,7 +2588,13 @@ void Temperature::tick() {
       #endif
 
       #if HAS_HEATED_BED
+				#if SPINDLE_USED_BEDPIN
+				if(!cutter.Spindle_Enabled){
+					_PWM_LOW(BED, soft_pwm_bed);
+				}
+				#else
         _PWM_LOW(BED, soft_pwm_bed);
+				#endif
       #endif
 
       #if HAS_HEATED_CHAMBER
@@ -2646,7 +2660,13 @@ void Temperature::tick() {
       #endif
 
       #if HAS_HEATED_BED
+				#if SPINDLE_USED_BEDPIN
+				if(!cutter.Spindle_Enabled){
+					_SLOW_PWM(BED, soft_pwm_bed, temp_bed);
+				}
+				#else
         _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
+				#endif
       #endif
 
       #if HAS_HEATED_CHAMBER
@@ -2661,7 +2681,13 @@ void Temperature::tick() {
     #endif
 
     #if HAS_HEATED_BED
-      _PWM_OFF(BED, soft_pwm_bed);
+			#if SPINDLE_USED_BEDPIN
+			if(!cutter.Spindle_Enabled){
+      	_PWM_OFF(BED, soft_pwm_bed);
+			}
+			#else
+			_PWM_OFF(BED, soft_pwm_bed);
+			#endif
     #endif
 
     #if HAS_HEATED_CHAMBER

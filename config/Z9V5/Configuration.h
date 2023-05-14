@@ -82,8 +82,8 @@
 #else
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					"V3.3.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-04-25"
+#define	FIRMWARE_VERSION					"V3.4.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-05-10"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
@@ -110,7 +110,8 @@
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE					//Show a QRcode while WiFi is connected to help vist Web3D
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
+#define	OPTION_LASERPWMUSEDFANPIN		//Used the FAN pin as laser PWM pin
+#define	OPTION_SPINDLEUSEDBEDPIN		//Used the heat bed pin as Spindle PWM pin
 //#define	OPTION_BGM								//BGM extruder
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
@@ -556,7 +557,7 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+//#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer

@@ -74,13 +74,25 @@
   #define MOTHERBOARD BOARD_ZRIB_V6
 #endif
 
+#define P802N
+//#define P802NR2
+//#define P802NR2S
+//#define P802NM2
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  	"marlin-2.0.8"
-#define CUSTOM_MACHINE_NAME 		  	"P802QR2"
+#ifdef P802NR2S
+#define CUSTOM_MACHINE_NAME 		  	"P802NR2S"
+#elif defined(P802NM2)
+#define CUSTOM_MACHINE_NAME 		  	"P802NM2"
+#elif defined(P802NR2)
+#define CUSTOM_MACHINE_NAME 		  	"P802NR2"
+#else //P802N
+#define CUSTOM_MACHINE_NAME 		  	"P802N"
+#endif
 #define	FIRMWARE_VERSION			    	"V4.2.0"
-#define	STRING_DISTRIBUTION_DATE  	"2022-04-07"
+#define	STRING_DISTRIBUTION_DATE  	"2023-03-13"
 #define EEPROM_VERSION 			  			"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				    		"www.zonestar3d.com"
@@ -98,7 +110,8 @@
 //#define	OPTION_BGM								//BGM Extruder
 
 //LCD screen
-#define	OPTION_LCD2004  						//default LCD screen
+#define	OPTION_LCD2004_5KEY  				//default LCD screen
+//#define OPTION_LCD2004_KNOB				//LCD2004_KNOB
 //#define	OPTION_LCD12864  					//128x64 dot LCD
 //#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
 
@@ -196,8 +209,11 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
+#ifdef P802NR2
 #define EXTRUDERS 2
-
+#else
+#define EXTRUDERS 1
+#endif
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
@@ -354,12 +370,15 @@
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
-//#define MIXING_EXTRUDER
+#if (defined(P802NR2S)||defined(P802NM2))
+#define MIXING_EXTRUDER
+#endif
 #if ENABLED(MIXING_EXTRUDER)
-  #define MIXING_STEPPERS 			2  		// Number of steppers in your mixing extruder
+  #define MIXING_STEPPERS 				2  		// Number of steppers in your mixing extruder  
+#ifdef P802NM2  
   #define MIXING_VIRTUAL_TOOLS 		16  	// Use the Virtual Tool method with M163 and M164
-  #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)  
+  #define USE_PRECENT_MIXVALUE					// Use percent mix data on LCD setting and gcode command
+  //#define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)  
   
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
@@ -370,6 +389,9 @@
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
+#else
+	#define	DISABLE_MIXING_FEATURE
+#endif
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -1955,11 +1977,13 @@
 //
 // ANET and Tronxy 20x4 Controller
 //
-#ifdef OPTION_LCD2004
-//#define ZONESTAR_LCD2004_ADCKEY // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
+#ifdef OPTION_LCD2004_5KEY
+#define ZONESTAR_LCD2004_ADCKEY // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
+#endif
                                   // This LCD is known to be susceptible to electrical interference
                                   // which scrambles the display.  Pressing any button clears it up.
                                   // This is a LCD2004 display with 5 analog buttons.
+#ifdef OPTION_LCD2004_KNOB                                  
 #define ZONESTAR_LCD2004_KNOB
 #endif
 

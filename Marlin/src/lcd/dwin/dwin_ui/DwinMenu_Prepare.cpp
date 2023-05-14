@@ -321,14 +321,14 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
  
 	if (PVISI(PREPARE_CASE_BACK)) Draw_Back_First(DwinMenu_prepare.now == PREPARE_CASE_BACK); // < Back 
-
-	if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));   // Auto Home
-	if (PVISI(PREPARE_CASE_TEMP)) Item_Prepare_Temp(PSCROL(PREPARE_CASE_TEMP));   // Temperature
-	if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));   // Move
-	if (PVISI(PREPARE_CASE_FILAMENT)) Item_Prepare_Filament(PSCROL(PREPARE_CASE_FILAMENT));   // Move
-	if (PVISI(PREPARE_CASE_LEVELING)) Item_Prepare_Leveling(PSCROL(PREPARE_CASE_LEVELING));   // Leveling 
-	if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA)); // Disable Stepper 
-	if (PVISI(PREPARE_CASE_LANG)) Item_Prepare_Lang(PSCROL(PREPARE_CASE_LANG));   // Language CN/EN
+	
+	if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));   					// Auto Home	
+	if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));   					// Move
+	if (PVISI(PREPARE_CASE_TEMP)) Item_Prepare_Temp(PSCROL(PREPARE_CASE_TEMP));   					// Temperature
+	if (PVISI(PREPARE_CASE_FILAMENT)) Item_Prepare_Filament(PSCROL(PREPARE_CASE_FILAMENT)); // filament
+	if (PVISI(PREPARE_CASE_LEVELING)) Item_Prepare_Leveling(PSCROL(PREPARE_CASE_LEVELING)); // Leveling 
+	if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA)); 					 // Disable Stepper 
+	if (PVISI(PREPARE_CASE_LANG)) Item_Prepare_Lang(PSCROL(PREPARE_CASE_LANG));   					 // Language CN/EN
 #if (HAS_SUICIDE || ENABLED(PSU_CONTROL))	
 	if (PVISI(PREPARE_CASE_POWERDOWN)) Item_Prepare_Powerdown(PSCROL(PREPARE_CASE_POWERDOWN));   // Powerdown
 #endif	
@@ -918,10 +918,13 @@ void HMI_Move_AllExtr() {
 		    planner.synchronize(); // Wait for planner moves to finish!
 				ZERO(gcode_string);
 				float temp_E_Coordinate = (float)HMI_Value.Current_EAll_Scale/MINUNITMULT;
+				MIXER_STEPPER_LOOP(i) mixer.set_collector(i, 1.0);
+				mixer.normalize(MIXER_DIRECT_SET_TOOL);
+				mixer.T(MIXER_DIRECT_SET_TOOL);
 				if(temp_E_Coordinate < HMI_Value.Last_EAll_Coordinate)
-			   	sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E-%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
+			   	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E-%.2f F120\nG92 E0"),ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
 				else
-				 	sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E%.2f F100\nG92 E0"),MIXING_STEPPERS, ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));				
+				 	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E%.2f F120\nG92 E0"),ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
 				HMI_Value.Last_EAll_Coordinate = temp_E_Coordinate;
 				queue.inject(gcode_string);
 
@@ -2102,9 +2105,9 @@ void HMI_Prepare() {
 				else if(DwinMenu_prepare.index == PREPARE_CASE_POWERDOWN) Item_Prepare_Powerdown(MROWS);
 			#endif
 				else if(DwinMenu_prepare.index == PREPARE_CASE_DISA) Item_Prepare_Disable(MROWS);
-				//else if(DwinMenu_prepare.index == PREPARE_CASE_LEVELING) Item_Prepare_Leveling(MROWS);
-				//else if(DwinMenu_prepare.index == PREPARE_CASE_MOVE) Item_Prepare_Move(MROWS);
+				//else if(DwinMenu_prepare.index == PREPARE_CASE_LEVELING) Item_Prepare_Leveling(MROWS);				
 				//else if(DwinMenu_prepare.index == PREPARE_CASE_TEMP) Item_Prepare_Temp(MROWS);
+				//else if(DwinMenu_prepare.index == PREPARE_CASE_MOVE) Item_Prepare_Move(MROWS);
 				//else if(DwinMenu_prepare.index == PREPARE_CASE_HOME) Item_Prepare_Home(MROWS);
 			}
 			else {
@@ -2119,9 +2122,9 @@ void HMI_Prepare() {
 				Scroll_Menu(DWIN_SCROLL_DOWN);
 
 				if(DwinMenu_prepare.index - MROWS ==  PREPARE_CASE_BACK)	Draw_Back_First();				
-				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_HOME) Item_Prepare_Home(0);
-				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_TEMP ) Item_Prepare_Temp(0);
+				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_HOME) Item_Prepare_Home(0);				
 				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_MOVE) Item_Prepare_Move(0);
+				else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_TEMP ) Item_Prepare_Temp(0);
 				//else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_LEVELING) Item_Prepare_Leveling(0);
 				//else if(DwinMenu_prepare.index - MROWS == PREPARE_CASE_DISA) Item_Prepare_Disable(0);				
 			#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
@@ -2143,11 +2146,6 @@ void HMI_Prepare() {
 				Draw_Home_Menu();	   
 			break;
 
-			case PREPARE_CASE_TEMP: // Temperature				
-				HMI_flag.show_mode = SHOWED_TEMPERATURE;
-				Draw_Temperature_Menu();
-			break;
-
 			case PREPARE_CASE_MOVE: // Axis move				
 				Draw_Move_Menu();			
 				DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(AXISMOVE_CASE_MOVEX), current_position.x * MINUNITMULT);
@@ -2159,11 +2157,30 @@ void HMI_Prepare() {
 		#endif
 			break;
 
-			case PREPARE_CASE_FILAMENT: // filament				
+			case PREPARE_CASE_TEMP: // Temperature				
+		#if SPINDLE_USED_BEDPIN
+				if(!cutter.Spindle_Enabled){
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on spindle mode!"));
+					DWIN_FEEDBACK_WARNNING();
+					break;
+				}
+		#endif
+				HMI_flag.show_mode = SHOWED_TEMPERATURE;
+				Draw_Temperature_Menu();
+			break;
+			
+			case PREPARE_CASE_FILAMENT: // filament						
+		#if SPINDLE_USED_BEDPIN
+				if(!cutter.Spindle_Enabled){
+					DWIN_Show_Status_Message(COLOR_RED, PSTR("Can't work on spindle mode!"));
+					DWIN_FEEDBACK_WARNNING();
+					break;
+				}
+		#endif
 				Draw_Filament_Menu();
 			break;
 
-			case PREPARE_CASE_LEVELING: 		// Leveling	
+			case PREPARE_CASE_LEVELING: 		// Leveling				
 				set_axis_never_homed(Z_AXIS);
 				Draw_Leveling_Menu(true);
 			break;
