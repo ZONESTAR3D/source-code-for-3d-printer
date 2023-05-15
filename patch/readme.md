@@ -2,7 +2,7 @@
 For the ZONESTAR ZM3E4 and ZM3E2 mainboards, the tone library needs to be used because the passive buzzer needs to use a timer to generate sound. However, the default timer serial number used in the framework arduinoststm32 maple is inconsistent with the actual situation, so the tone needs to be modified The sequence number of the timer used in CPP.
 >
 Copy tone.cpp to replace of the same file in the below directory:
-.platformio\packages\framework-arduinoststm32-maple\STM32F1\cores\maple
+c:\user\{yourPCname}\.platformio\packages\framework-arduinoststm32-maple\STM32F1\cores\maple
 
 ## 2. U8glib
 When using 128x64 dots LCD screen, u8g library is required. Although it will be downloaded automatically when compiling, but the downloaded library may cause display problems, and the compilation time is very long. You can use this library directly.

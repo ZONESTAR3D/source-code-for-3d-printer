@@ -77,13 +77,13 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 	  	"Z8R3"
 #define	FIRMWARE_VERSION		  	  "V1.0.0"
 #define	STRING_DISTRIBUTION_DATE  "2021-10-11"
-#define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 			        "www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define EEPROM_VERSION 			      "V83"						//modify it if need auto inilize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
 #define OPTION_TITAN								//TITAN Extruder
@@ -92,12 +92,6 @@
 #define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to E0 motor wire )
 #define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
 #define	OPTION_PL08N 								//Probe use PL_08N
-//#define	OPTION_BED_COATING					//bed coating Glass/Sticker etc.
-//===========================================================================
-//Bed coating
-#if ENABLED(OPTION_BED_COATING)
-#define	BED_COATING_THICKNESS	1.0		//stikcer thickness
-#endif
 //===========================================================================
 //Optional feature
 //#define	OPTION_TFTLCD  						//TFT_LCD 3.5INCH with touch screen
@@ -107,8 +101,15 @@
 //#define	OPTION_TMC220X_EXTRUDER 	//TMC220x be used to all extruder motor
 //#define	OPTION_TMC2225_XYZ  			//TMC2225 be used to XYZ motor
 //#define	OPTION_TMC2225_EXTRUDER 	//TMC2225 be used to all extruder motor
-//#define	OPTION_ZLSENSOR						//Probe use ZLSENSOR
-//#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+//#define	OPTION_ZLSENSOR						//leveling Probe use ZLSENSOR
+//#define	OPTION_3DTOUCH						//leveling Probe use 3DTouch or BLTouch
+//==========================================================================
+//HOME OFFSET
+#ifdef OPTION_LCDDWIN
+#define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	0.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
+#endif
 //===========================================================================
 
 /**
@@ -1215,7 +1216,7 @@
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -15
 #define Y_MIN_POS -5
-#define Z_MIN_POS 0
+#define Z_MIN_POS -1
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400
@@ -1348,7 +1349,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the

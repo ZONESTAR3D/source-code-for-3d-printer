@@ -78,13 +78,12 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define SHORT_BUILD_VERSION 		  	"marlin-2.0.8"
-#define CUSTOM_MACHINE_NAME 		  	"P802QR2"
+#define CUSTOM_MACHINE_NAME 		  	"P802NM2"
 #define	FIRMWARE_VERSION			    	"V4.2.0"
-#define	STRING_DISTRIBUTION_DATE  	"2022-04-07"
+#define	STRING_DISTRIBUTION_DATE  	"2023-05-12"
 #define EEPROM_VERSION 			  			"V83"						//modify it if need auto inilize EEPROM after upload firmware
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)" 	// Who made the changes.
 #define WEBSITE_URL 				    		"www.zonestar3d.com"
-
 //===========================================================================
 #define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
 //#define OPTION_Z2_ENDSTOP					//Dual Z driver motor(connect to E0 motor wire)
@@ -92,13 +91,15 @@
 //Motor drivers
 //#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
 //#define	OPTION_TMC220X_EXTRUDER 	//TMC220x be used to all extruder motor
+//#define	OPTION_TMC2225_XYZ  				//TMC2225 be used to XYZ motor
+//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to all extruder motor
 
 //Extruders
 //#define	OPTION_TITAN							//Titan Extruder
 //#define	OPTION_BGM								//BGM Extruder
 
 //LCD screen
-#define	OPTION_LCD2004  						//default LCD screen
+#define	ZONESTAR_LCD2004_KNOB  			//default LCD screen
 //#define	OPTION_LCD12864  					//128x64 dot LCD
 //#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
 
@@ -196,7 +197,7 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
-#define EXTRUDERS 2
+#define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -354,12 +355,12 @@
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
-//#define MIXING_EXTRUDER
+#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
   #define MIXING_STEPPERS 			2  		// Number of steppers in your mixing extruder
   #define MIXING_VIRTUAL_TOOLS 		16  	// Use the Virtual Tool method with M163 and M164
   #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
-  #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)  
+  //#define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)  
   
   #if ENABLED(MIX_STATUS_SCREEN_IMAGE) && DISABLED(CUSTOM_STATUS_SCREEN_IMAGE)
   #define CUSTOM_STATUS_SCREEN_IMAGE
@@ -513,7 +514,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   0
+#define HEATER_0_MINTEMP   5
 #define HEATER_1_MINTEMP   5
 #define HEATER_2_MINTEMP   5
 #define HEATER_3_MINTEMP   5
@@ -521,7 +522,7 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        0
+#define BED_MINTEMP        5
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -802,12 +803,26 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-
-#if ENABLED(OPTION_TITAN)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#if ENABLED(OPTION_TMC2225_XYZ)
+#define	DOUBLE_STEPS_XYZ	2
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 85 }
+#define	DOUBLE_STEPS_XYZ	1
 #endif
+	
+#if ENABLED(OPTION_TMC2225_EXTRUDER)
+#define	DOUBLE_STEPS_E		2
+#else
+#define	DOUBLE_STEPS_E		1
+#endif
+	
+#if EITHER(OPTION_TITAN,OPTION_BGM)
+#define	STEPS_GEAR_RATIO	5
+#else
+#define	STEPS_GEAR_RATIO	1
+#endif
+	
+#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
+
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1159,10 +1174,10 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
-#define INVERT_X_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ))
-#define INVERT_Y_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ))
-#define INVERT_Z_DIR (false ^ ENABLED(OPTION_TMC220X_XYZ))
-#define	EXTRUDER_DIR (true ^ ENABLED(OPTION_TMC220X_EXTRUDER) ^ ENABLED(OPTION_TITAN))
+#define INVERT_X_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Y_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Z_DIR (false ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define	EXTRUDER_DIR (true ^ ENABLED(OPTION_TITAN) ^ ENABLED(OPTION_TMC220X_EXTRUDER)^ ENABLED(OPTION_TMC2225_XYZ))
 
 // @section extruder
 
@@ -1955,13 +1970,11 @@
 //
 // ANET and Tronxy 20x4 Controller
 //
-#ifdef OPTION_LCD2004
 //#define ZONESTAR_LCD2004_ADCKEY // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
                                   // This LCD is known to be susceptible to electrical interference
                                   // which scrambles the display.  Pressing any button clears it up.
                                   // This is a LCD2004 display with 5 analog buttons.
-#define ZONESTAR_LCD2004_KNOB
-#endif
+//#define ZONESTAR_LCD2004_KNOB
 
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
 //
