@@ -33,6 +33,8 @@
 |  D805S_ZM3E4   |    D805S(M2/R2)     |       ZM3E4         |  
 |  D805S_ZRIB    |    D805S(M2/R2)     |       ZRIB          |
 |  P802N_ZM3E4   |    P802N_ZM3E4      |       ZM3E4         |
+|  P802N_ZRIB    |    P802N(R2/M2)     |       ZRIB          |
+| P802N_ZRIB_5KEY|    P802N(R2/M2)     |       ZRIB          |
 |  P802QR2_ZM3E4 |    P802QR2          |       ZM3E4         |
 |  P802QR2_ZRIB  |    P802QR2          |       ZRIB          |  
 |  Z5S_ZM3E2     |    Z5S(M2/R2)       |       ZM3E2         | 
@@ -40,23 +42,24 @@
 |  Z5X_ZMIB      |    Z5X(M2/R2)       |       ZMIB          | 
 |  Z5XM3_ZM3E4   |    Z5X(M3/R3)       |       ZM3E4         |
 |  Z6_ZM3E2      |    Z6               |       ZM3E2         |  
-|  Z6_ZMIB       |    Z6               |       ZMIB          |  
+|  Z6_ZMIB       |    Z6               |       ZMIB          |
 |  Z8PM2         |    Z8P(M2/R2)       |       ZM3E4         |  
 |  Z8PM3         |    Z8P(M3/R3)       |       ZM3E4         |  
 |  Z8PM4         |    Z8P(M4/E4)       |       ZM3E4         |  
 |  Z8PM4_MK2     |    Z8PMK2(M4/E4)    |       ZM3E4         |  
 |  Z8R3_ZRIB     |    Z8X(R3)          |       ZRIB          |
 |  Z8T_ZM3E4     |    Z8T(M3)          |       ZM3E4         |
-|  Z8T_ZRIB      |    Z8T(M3)          |       ZRIB          |  
-|  Z8XM2_ZM3E4   |    Z8X(M2/R2)       |       ZM3E4         |    
+|  Z8T_ZRIB      |    Z8T(M3)          |       ZRIB          |
+|  Z8X_ZM3E4     |    Z8X(M2/R2)       |       ZM3E4         |    
+|  Z8X_ZRIB      |    Z8X(M2/R2)       |       ZRIB          |    
 |  Z9M2_ZM3E4    |    Z9M2(R2S)        |       ZM3E4         |  
 |  Z9M3_ZM3E4    |    Z9M3(R3)         |       ZM3E4         |  
 |  Z9M3_ZRIB     |    Z9M3(R3)         |       ZRIB          |
 |  Z9M4_ZM3E4    |    Z9M4             |       ZM3E4         |  
 |  Z9V5   	     |    Z9V5Pro-MK1(2)   |       ZM3E4         |  
 |  Z9V5_MK3      |    Z9V5Pro-MK3      |       ZM3E4         |
-|  Z9V5_MK3_Max  | Z9V5Pro-MK3 500x500 |       ZM3E4         |
 |  Z9V5_MK4      |    Z9V5Pro-MK4      |       ZM3E4         |
+|  Z9V5_MK5      |    Z9V5Pro-MK5      |       ZM3E4         |
 |  Z10M2_ZRIB    |    Z10M2            |       ZRIB          |  
 |  Z10M2_ZM3E4   |    Z10M2            |       ZM3E4         |  
 |  Z10R2_ZM3E4   |    Z10R2            |       ZM3E4         |  

@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
-#define	FIRMWARE_VERSION					  "V1.3.1"
-#define	STRING_DISTRIBUTION_DATE  "2023-04-26"
+#define	FIRMWARE_VERSION					  "V1.3.2"
+#define	STRING_DISTRIBUTION_DATE  	"2023-05-18"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -106,7 +106,7 @@
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
