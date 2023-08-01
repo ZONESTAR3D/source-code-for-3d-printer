@@ -31,6 +31,50 @@
 #include "../dwin_lcd.h"
 #include "../rotary_encoder.h"
 
+#define	USED_FONT							font12x24
+#define WIDTH  								12
+#define HEIGH  								24
+#define F_GAP	 								8
+#define LSTART	 							5
+#define SWWIDTH	 							45
+#define AUTO_FAN_TEMPERATURE	40
+
+
+#define ROW_GAP				(HEIGH+F_GAP)
+
+#define	ID_LINE_TITLE						1
+#define	ID_LINE_SD1							2
+#define	ID_LINE_SD2							3
+#define	ID_LINE_ETEMP						4
+#define	ID_LINE_ETEMP_INFO			5
+#define	ID_LINE_BTEMP						6
+#define	ID_LINE_BTEMP_INFO			7
+#define	ID_LINE_FAN							8
+#define	ID_LINE_XYMOTOR					9
+#define	ID_LINE_ZMOTOR					10
+#define	ID_LINE_EXTRUDER				11
+#define	ID_LINE_SW							12
+#define	ID_LINE_SW_STATE				13
+#define	ID_LINE_SW_RESULT				14
+#define	ID_LINE_KNOB						15
+
+#define	XSTART					0
+#define	YPOS(L)					(ROW_GAP*(L-1))
+#define	YPOS_MSG(L)			(ROW_GAP*(L-1)+F_GAP/2)
+#define	XCENTER(L)			(DWIN_WIDTH/2+L*WIDTH)
+#define	Y_BOTTOMBAR			(DWIN_HEIGHT-HEIGH)
+
+#define	DRAW_INT_WHITE_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_WHITE, a, b, x, y, v)
+#define	DRAW_INT_RED_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_RED, a, b, x, y, v)
+#define	DRAW_INT_RED_FONT10(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font10x20, COLOR_RED, a, b, x, y, v)
+#define	DRAW_INT_RED_FONT8(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font8x16, COLOR_RED, a, b, x, y, v)
+#define	DRAW_INT_GREEN_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_GREEN, a, b, x, y, v)
+#define	DRAW_INT_GREEN_FONT10(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font10x20, COLOR_GREEN, a, b, x, y, v)
+#define	DRAW_INT_GREEN_FONT8(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font8x16, COLOR_GREEN, a, b, x, y, v)
+#define	DRAW_STRING_FONT12(color,color_bg,x,y,s) dwinLCD.Draw_String(false, true, font12x24, color, color_bg, x, y, s)
+#define	DRAW_STRING_FONT10(color,color_bg,x,y,s) dwinLCD.Draw_String(false, true, font10x20, color, color_bg, x, y, s)
+#define	DRAW_STRING_FONT8(color,color_bg,x,y,s) dwinLCD.Draw_String(false, true, font8x16, color, color_bg, x, y, s)
+
 enum {
   CHECK_START = 0,
 	CHECK_SD,
@@ -72,12 +116,17 @@ typedef struct {
 
 class Autotest {
 public:		
-		void Check_Rotary();
-		bool DWIN_AutoTesting();		
-		void HMI_StartTest(uint8_t check_state = CHECK_START, bool auto_loop = true);
 		static _stAutotest_t testflag;
 
+		static uint8_t swstatus[6];
+		static uint8_t old_swstatus[6];
+		
+		void Check_Rotary();
+		void AutoTest_Loop();		
+		void Autotest_Start(uint8_t check_state = CHECK_START, bool auto_loop = true);
+
 private:		
+		inline void Draw_Autotest_Menu(void);
 		inline void AutoTest_ShowSWStatus(bool bfirst);
 		inline void AutoTest_ShowTemperature();
 		inline void Autotest_ShowKnob();

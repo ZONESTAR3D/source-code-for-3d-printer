@@ -29,212 +29,6 @@
 #if HAS_DWIN_LCD
 #include "dwin.h"
 
-#if (ABL_GRID && GRID_MAX_POINTS_X <= 7)
-#define	TABLE_BOTTOM	330
-#define	TABLE_LEFT		14
-#define	TABLE_RIGHT		258
-#define	TABLE_WIDTH		244
-#if (GRID_MAX_POINTS_X == 3)
-#define	FONT_G29TABLE	font10x20
-#define	TABLE_TOP			176
-#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
-#define	BAR_WIDTH 		72
-#define	BAR_GAP_X 		8
-#define	STR_START_X		(BAR_WIDTH-5*10)/2
-#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
-#define	BAR_HEIGTH		32
-#define	BAR_GAP_Y			12	
-#define	STR_START_Y		(BAR_HEIGTH-20)/2
-#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
-#elif (GRID_MAX_POINTS_X == 4)
-#define	FONT_G29TABLE	font10x20
-#define	TABLE_TOP			176
-#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
-#define	BAR_WIDTH 		56
-#define	BAR_GAP_X 		6
-#define	STR_START_X		(BAR_WIDTH-5*10)/2
-#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
-#define	BAR_HEIGTH		30
-#define	BAR_GAP_Y			8
-#define	STR_START_Y		(BAR_HEIGTH-20)/2
-#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
-#elif (GRID_MAX_POINTS_X == 5)
-#define	FONT_G29TABLE	font8x16
-#define	TABLE_TOP			150
-#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
-#define	BAR_WIDTH 		46
-#define	BAR_GAP_X 		3
-#define	STR_START_X		(BAR_WIDTH-5*8)/2
-#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
-#define	BAR_HEIGTH		28
-#define	BAR_GAP_Y			8
-#define	STR_START_Y		(BAR_HEIGTH-16)/2
-#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
-#elif (GRID_MAX_POINTS_X == 6)
-#define	FONT_G29TABLE	font6x12
-#define	TABLE_TOP			150
-#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
-#define	BAR_WIDTH 		36
-#define	BAR_GAP_X 		5
-#define	STR_START_X		(BAR_WIDTH-5*6)/2
-#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
-#define	BAR_HEIGTH		24
-#define	BAR_GAP_Y			6
-#define	STR_START_Y		(BAR_HEIGTH-12)/2
-#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
-#elif (GRID_MAX_POINTS_X == 7)
-#define	FONT_G29TABLE	font6x12
-#define	TABLE_TOP			150
-#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
-#define	BAR_WIDTH 		32
-#define	BAR_GAP_X 		3
-#define	STR_START_X		(BAR_WIDTH-5*6)/2
-#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
-#define	BAR_HEIGTH		20
-#define	BAR_GAP_Y			6
-#define	STR_START_Y		(BAR_HEIGTH-12)/2
-#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
-#endif
-
-static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16_t value){	
-	//#define	FORCE_START_FROM_TOP
-	//#define	FORCE_START_FROM_RIGHT	
-
-	uint16_t	x_start, y_start;	
-#if (defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
-	//2,4,6
-	x_start = TABLE_RIGHT - BAR_WIDTH - ADJUST_X;
-#else
-	//3,5,7
-	x_start = TABLE_LEFT + ADJUST_X;		
-#endif
-#ifdef FORCE_START_FROM_TOP	
-	y_start = TABLE_TOP + ADJUST_Y;	
-#else
-	y_start = TABLE_BOTTOM - BAR_HEIGTH - ADJUST_Y;	
-#endif
-	LOOP_L_N(i, GRID_MAX_POINTS_Y){		
-		LOOP_L_N(j, GRID_MAX_POINTS_X){			
-			if(bFrame)
-				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, x_start, y_start, x_start+BAR_WIDTH, y_start+BAR_HEIGTH);			
-			else if(idx == i*GRID_MAX_POINTS_Y+j+1){
-				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, x_start+1, y_start+1, x_start+BAR_WIDTH-1, y_start+BAR_HEIGTH-1);			
-				if(ABS(value) > 199)
-					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+STR_START_X,  y_start+STR_START_Y, PSTR("Error"));
-				else if(ABS(value) > 100)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
-				else if(ABS(value) > 60)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);	
-				else if(ABS(value) > 30)
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
-				else
-					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
-			}
-			if(j<(GRID_MAX_POINTS_X-1)){
-			#if(defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
-				if(i%2 == 0) 
-			#else
-				if(i%2 == 1)
-			#endif
-					x_start -= (BAR_WIDTH+BAR_GAP_X);
-				else 
-					x_start += (BAR_WIDTH+BAR_GAP_X);			
-			}
-		}
-	#ifdef FORCE_START_FROM_TOP
-		y_start += (BAR_HEIGTH+BAR_GAP_Y);
-	#else
-		y_start -= (BAR_HEIGTH+BAR_GAP_Y);
-	#endif
-	}	
-}
-
-void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,const int pt_index,const int all_points,const float fvalue){
-	if(DwinMenuID != DWMENU_LEVEL_BEDLEVELING && DwinMenuID != DWMENU_LEVEL_CATCHOFFSET)
-		DwinMenuID = DWMENU_LEVEL_BEDLEVELING;
-	switch(message){
-		case G29_CATCH_START:
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("To catch offset"));
-			break;
-		case G29_CATCH_NORMAL:
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Catch Point:  "));
-			DWIN_Draw_IntValue_Default(1, 12+13*8, 454, pt_index);
-			break;
-		case G29_CATCH_FAIL1:
-			DWIN_Show_Status_Message(COLOR_RED, PSTR("Fail! Move down Probe"));
-			break;
-		case G29_CATCH_FAIL2:
-			DWIN_Show_Status_Message(COLOR_RED, PSTR("Over range, manual level!"));
-			break;
-		case G29_CATCH_DONE:
-			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Catched! Probe Z offset="));
-			DWIN_Draw_Selected_Small_Float22(12+25*8, 454, (probe.offset.z * MAXUNITMULT));			
-			break;			
-		case G29_MESH_START:			
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Start Probing!"));
-			break;
-		case G29_MESH_READY:
-			Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-			Draw_Popup_Bkgd_60();
-		#if (GRID_MAX_POINTS_X <= 7)
-			#if (GRID_MAX_POINTS_X > 4)
-			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 80);
-			#else
-			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
-			#endif			
-			DWIN_G29_Show_ValueTable(true, 0, 0);
-		#else
-			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
-		#endif
-			break;
-		case G29_MESH_PROBING:
-			//Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Point:   /    "));			
-			DWIN_Draw_IntValue_Default(2, 12+7*8, 454, pt_index);
-			DWIN_Draw_IntValue_Default(2, 12+11*8, 454, all_points);
-			DWIN_Draw_MaskString_Default(12+15*8, 454,PSTR("Z offset= "));
-			DWIN_Draw_Small_Float22(12+25*8, 454, (probe.offset.z*MAXUNITMULT));
-			break;
-		case G29_MESH_VALUE:
-		#if (GRID_MAX_POINTS_X <= 7)
-			DWIN_G29_Show_ValueTable(false, pt_index, fvalue*MAXUNITMULT);
-		#else
-			DWIN_Draw_MaskString_Default_Color(COLOR_RED, 130, 454,PSTR("Z offset="));
-			dwinLCD.Draw_SignedFloatValue(font8x16, COLOR_RED, COLOR_BG_BLACK, 2, 2, 130+9*8, 454, (fvalue * MAXUNITMULT));			
-		#endif
-			break;
-		case G29_MESH_DONE:
-			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Bed Leveling finished!"));						
-			dwinLCD.UpdateLCD();
-			break;
-		default:
-			Clear_Dwin_Area(AREA_BOTTOM);
-			break;
-	}
-	dwinLCD.UpdateLCD();
-}
-
-void DWIN_PopMenu_LevelingDone() {
-	if(IS_SD_PRINTING() || IS_SD_PAUSED()){
-		Draw_Printing_Menu(PRINT_CASE_PAUSE, true);	
-	}
-	else{
-		if(DwinMenuID == DWMENU_LEVEL_BEDLEVELING) {
-			DWIN_G29_Show_Messge(G29_MESH_DONE);		
-			DwinMenuID = DWMENU_LEVEL_DONECONFIRM;
-			DWIN_Show_ICON(ICON_CONFIRM_E, 86, 332);		
-		}
-		#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
-		else if(DwinMenuID == DWMENU_LEVEL_CATCHOFFSET){			
-			Draw_Leveling_Menu();	
-		}
-		#endif
-	}
-}
-#endif//#if (ABL_GRID && GRID_MAX_POINTS_X <= 7)
 
 void DWIN_PopMenu_HomeDone() {
 	if(DwinMenuID == DWMENU_POP_HOME) Draw_Home_Menu(false);
@@ -1267,7 +1061,7 @@ void HMI_Filament_PretHeat() {
 		}
 		else {
 			NOLESS(HMI_Value.nozzle_Temp, EXTRUDE_MINTEMP);
-			NOMORE(HMI_Value.nozzle_Temp, TERN(OPTION_HOTENDMAXTEMP, thermalManager.hotend_maxtemp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+			NOMORE(HMI_Value.nozzle_Temp, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
 			if(HMI_Value.nozzle_Temp > HOTEND_WARNNING_TEMP)
 				DWIN_Draw_Warn_IntValue_Default(3, MENUVALUE_X+8, MBASE(FILAMENT_CASE_EXTRUDER + MROWS - DwinMenu_filament.index), HMI_Value.nozzle_Temp);				
 			else
@@ -1551,6 +1345,213 @@ void HMI_Filament() {
 //
 // Prepare >> Bed Leveling
 //
+#if (ABL_GRID && GRID_MAX_POINTS_X <= 7)
+#define	TABLE_BOTTOM	330
+#define	TABLE_LEFT		14
+#define	TABLE_RIGHT		258
+#define	TABLE_WIDTH		244
+#if (GRID_MAX_POINTS_X == 3)
+#define	FONT_G29TABLE	font10x20
+#define	TABLE_TOP			176
+#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
+#define	BAR_WIDTH 		72
+#define	BAR_GAP_X 		8
+#define	STR_START_X		(BAR_WIDTH-5*10)/2
+#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
+#define	BAR_HEIGTH		32
+#define	BAR_GAP_Y			12	
+#define	STR_START_Y		(BAR_HEIGTH-20)/2
+#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
+#elif (GRID_MAX_POINTS_X == 4)
+#define	FONT_G29TABLE	font10x20
+#define	TABLE_TOP			176
+#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
+#define	BAR_WIDTH 		56
+#define	BAR_GAP_X 		6
+#define	STR_START_X		(BAR_WIDTH-5*10)/2
+#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
+#define	BAR_HEIGTH		30
+#define	BAR_GAP_Y			8
+#define	STR_START_Y		(BAR_HEIGTH-20)/2
+#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
+#elif (GRID_MAX_POINTS_X == 5)
+#define	FONT_G29TABLE	font8x16
+#define	TABLE_TOP			150
+#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
+#define	BAR_WIDTH 		46
+#define	BAR_GAP_X 		3
+#define	STR_START_X		(BAR_WIDTH-5*8)/2
+#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
+#define	BAR_HEIGTH		28
+#define	BAR_GAP_Y			8
+#define	STR_START_Y		(BAR_HEIGTH-16)/2
+#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
+#elif (GRID_MAX_POINTS_X == 6)
+#define	FONT_G29TABLE	font6x12
+#define	TABLE_TOP			150
+#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
+#define	BAR_WIDTH 		36
+#define	BAR_GAP_X 		5
+#define	STR_START_X		(BAR_WIDTH-5*6)/2
+#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
+#define	BAR_HEIGTH		24
+#define	BAR_GAP_Y			6
+#define	STR_START_Y		(BAR_HEIGTH-12)/2
+#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
+#elif (GRID_MAX_POINTS_X == 7)
+#define	FONT_G29TABLE	font6x12
+#define	TABLE_TOP			150
+#define	TABLE_HEIGTH	(TABLE_BOTTOM-TABLE_TOP)
+#define	BAR_WIDTH 		32
+#define	BAR_GAP_X 		3
+#define	STR_START_X		(BAR_WIDTH-5*6)/2
+#define	ADJUST_X			((TABLE_WIDTH-BAR_WIDTH*GRID_MAX_POINTS_X-BAR_GAP_X*(GRID_MAX_POINTS_X-1))/2)
+#define	BAR_HEIGTH		20
+#define	BAR_GAP_Y			6
+#define	STR_START_Y		(BAR_HEIGTH-12)/2
+#define	ADJUST_Y			((TABLE_HEIGTH - BAR_HEIGTH*GRID_MAX_POINTS_Y - BAR_GAP_Y*(GRID_MAX_POINTS_Y-1))/2)
+#endif
+
+static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16_t value){	
+	//#define	FORCE_START_FROM_TOP
+	//#define	FORCE_START_FROM_RIGHT	
+
+	uint16_t	x_start, y_start;	
+#if (defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
+	//2,4,6
+	x_start = TABLE_RIGHT - BAR_WIDTH - ADJUST_X;
+#else
+	//3,5,7
+	x_start = TABLE_LEFT + ADJUST_X;		
+#endif
+#ifdef FORCE_START_FROM_TOP	
+	y_start = TABLE_TOP + ADJUST_Y;	
+#else
+	y_start = TABLE_BOTTOM - BAR_HEIGTH - ADJUST_Y;	
+#endif
+	LOOP_L_N(i, GRID_MAX_POINTS_Y){		
+		LOOP_L_N(j, GRID_MAX_POINTS_X){			
+			if(bFrame)
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_DEEPBLUE, x_start, y_start, x_start+BAR_WIDTH, y_start+BAR_HEIGTH);			
+			else if(idx == i*GRID_MAX_POINTS_Y+j+1){
+				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, x_start+1, y_start+1, x_start+BAR_WIDTH-1, y_start+BAR_HEIGTH-1);			
+				if(ABS(value) > 199)
+					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+STR_START_X,  y_start+STR_START_Y, PSTR("Error"));
+				else if(ABS(value) > 100)
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
+				else if(ABS(value) > 60)
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);	
+				else if(ABS(value) > 30)
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
+				else
+					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
+			}
+			if(j<(GRID_MAX_POINTS_X-1)){
+			#if(defined(FORCE_START_FROM_RIGHT) || GRID_MAX_POINTS_X == 2 || GRID_MAX_POINTS_X == 4 || GRID_MAX_POINTS_X == 6)
+				if(i%2 == 0) 
+			#else
+				if(i%2 == 1)
+			#endif
+					x_start -= (BAR_WIDTH+BAR_GAP_X);
+				else 
+					x_start += (BAR_WIDTH+BAR_GAP_X);			
+			}
+		}
+	#ifdef FORCE_START_FROM_TOP
+		y_start += (BAR_HEIGTH+BAR_GAP_Y);
+	#else
+		y_start -= (BAR_HEIGTH+BAR_GAP_Y);
+	#endif
+	}	
+}
+
+void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,const int pt_index,const int all_points,const float fvalue){
+	if(DwinMenuID != DWMENU_LEVEL_BEDLEVELING && DwinMenuID != DWMENU_LEVEL_CATCHOFFSET)
+		DwinMenuID = DWMENU_LEVEL_BEDLEVELING;
+	switch(message){
+		case G29_CATCH_START:
+			Clear_Dwin_Area(AREA_BOTTOM);
+			DWIN_Draw_MaskString_Default(12, 454,PSTR("To catch offset"));
+			break;
+		case G29_CATCH_NORMAL:
+			Clear_Dwin_Area(AREA_BOTTOM);
+			DWIN_Draw_MaskString_Default(12, 454,PSTR("Catch Point:  "));
+			DWIN_Draw_IntValue_Default(1, 12+13*8, 454, pt_index);
+			break;
+		case G29_CATCH_FAIL1:
+			DWIN_Show_Status_Message(COLOR_RED, PSTR("Fail! Move down Probe"));
+			break;
+		case G29_CATCH_FAIL2:
+			DWIN_Show_Status_Message(COLOR_RED, PSTR("Over range, manual level!"));
+			break;
+		case G29_CATCH_DONE:
+			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Catched! Probe Z offset="));
+			DWIN_Draw_Selected_Small_Float22(12+25*8, 454, (probe.offset.z * MAXUNITMULT));			
+			break;			
+		case G29_MESH_START:			
+			Clear_Dwin_Area(AREA_BOTTOM);
+			DWIN_Draw_MaskString_Default(12, 454,PSTR("Start Probing!"));
+			break;
+		case G29_MESH_READY:
+			Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+			Draw_Popup_Bkgd_60();
+		#if (GRID_MAX_POINTS_X <= 7)
+			#if (GRID_MAX_POINTS_X > 4)
+			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 80);
+			#else
+			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
+			#endif			
+			DWIN_G29_Show_ValueTable(true, 0, 0);
+		#else
+			DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
+		#endif
+			break;
+		case G29_MESH_PROBING:
+			//Clear_Dwin_Area(AREA_BOTTOM);
+			DWIN_Draw_MaskString_Default(12, 454,PSTR("Point:   /    "));			
+			DWIN_Draw_IntValue_Default(2, 12+7*8, 454, pt_index);
+			DWIN_Draw_IntValue_Default(2, 12+11*8, 454, all_points);
+			DWIN_Draw_MaskString_Default(12+15*8, 454,PSTR("Z offset= "));
+			DWIN_Draw_Small_Float22(12+25*8, 454, (probe.offset.z*MAXUNITMULT));
+			break;
+		case G29_MESH_VALUE:
+		#if (GRID_MAX_POINTS_X <= 7)
+			DWIN_G29_Show_ValueTable(false, pt_index, fvalue*MAXUNITMULT);
+		#else
+			DWIN_Draw_MaskString_Default_Color(COLOR_RED, 130, 454,PSTR("Z offset="));
+			dwinLCD.Draw_SignedFloatValue(font8x16, COLOR_RED, COLOR_BG_BLACK, 2, 2, 130+9*8, 454, (fvalue * MAXUNITMULT));			
+		#endif
+			break;
+		case G29_MESH_DONE:
+			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Bed Leveling finished!"));						
+			dwinLCD.UpdateLCD();
+			break;
+		default:
+			Clear_Dwin_Area(AREA_BOTTOM);
+			break;
+	}
+	dwinLCD.UpdateLCD();
+}
+
+void DWIN_PopMenu_LevelingDone() {
+	if(IS_SD_PRINTING() || IS_SD_PAUSED()){
+		Draw_Printing_Menu(PRINT_CASE_PAUSE, true);	
+	}
+	else{
+		if(DwinMenuID == DWMENU_LEVEL_BEDLEVELING) {
+			DWIN_G29_Show_Messge(G29_MESH_DONE);		
+			DwinMenuID = DWMENU_LEVEL_DONECONFIRM;
+			DWIN_Show_ICON(ICON_CONFIRM_E, 86, 332);		
+		}
+		#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
+		else if(DwinMenuID == DWMENU_LEVEL_CATCHOFFSET){			
+			Draw_Leveling_Menu();	
+		}
+		#endif
+	}
+}
+#endif//#if (ABL_GRID && GRID_MAX_POINTS_X <= 7)
+
 static void Item_Leveling_Home(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_ALL, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+10, MBASE(row));

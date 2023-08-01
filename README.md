@@ -72,7 +72,11 @@
 **More detail, please refer to** [***Install marlin compilation environment***](https://marlinfw.org/docs/basics/install_platformio_vscode.html)  
 
 #### :warning:ATTENTION PLEASE:warning:
-This source code can't be builed on "PlatformIO core V1.6.7" or last version, please download [PlatformIO core V1.6.6](./patch/platformio-core-6.1.6.zip) and unzip it, and then replace the "platformio" directory in "C:\Users\[YourPCname]\.platformio\penv\Lib\site-packages\platformio".
+This source code can't be builed on "PlatformIO core V1.6.7" or last version, when you build the firmware,visual studio will download a newest version PlatformIO IDE extenstion, please:
+1. Find the PlatformIO IDE in installed extension, return to version V2.5.0.
+![](1.jpg)    
+![](2.jpg)    
+2. Download [PlatformIO core V1.6.6](./patch/platformio-core-6.1.6.zip) and unzip it, and then replace the "platformio" directory in "C:\Users\[YourPCname]\.platformio\penv\Lib\site-packages\platformio".
 
 ### 2. Prepare firmware source code
 1. Download firmware source code to your PC and unzip it.  

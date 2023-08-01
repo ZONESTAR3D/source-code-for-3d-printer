@@ -24,56 +24,10 @@
 #include "../../../libs/buzzer.h"
 #include "../../../HAL/shared/Delay.h"
 
-
-
 _stAutotest_t Autotest::testflag;
 Autotest autotest;
-
-
-static uint8_t swstatus[6]={0,0,0,0,0,0};
-static uint8_t old_swstatus[6]={0,0,0,0,0,0};
-
-
-#define	USED_FONT		font12x24
-#define WIDTH  				12
-#define HEIGH  				24
-#define F_GAP	 				8
-#define LSTART	 			5
-#define SWWIDTH	 			45
-#define TEST_EXTRUDER_AUTO_FAN_TEMPERATURE	40
-
-
-#define ROW_GAP				(HEIGH+F_GAP)
-
-#define	ID_LINE_TITLE						1
-#define	ID_LINE_SD1							2
-#define	ID_LINE_SD2							3
-#define	ID_LINE_ETEMP						4
-#define	ID_LINE_ETEMP_INFO			5
-#define	ID_LINE_BTEMP						6
-#define	ID_LINE_BTEMP_INFO			7
-#define	ID_LINE_FAN							8
-#define	ID_LINE_XYMOTOR					9
-#define	ID_LINE_ZMOTOR					10
-#define	ID_LINE_EXTRUDER				11
-#define	ID_LINE_SW							12
-#define	ID_LINE_SW_STATE				13
-#define	ID_LINE_SW_RESULT				14
-#define	ID_LINE_KNOB						15
-
-#define	XSTART					0
-#define	YPOS(L)					(ROW_GAP*(L-1))
-#define	YPOS_MSG(L)			(ROW_GAP*(L-1)+F_GAP/2)
-#define	XCENTER(L)			(DWIN_WIDTH/2+L*WIDTH)
-#define	Y_BOTTOMBAR			(DWIN_HEIGHT-HEIGH)
-
-#define	DRAW_INT_WHITE_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_WHITE, a, b, x, y, v)
-#define	DRAW_INT_RED_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_RED, a, b, x, y, v)
-#define	DRAW_INT_GREEN_FONT12(a,b,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font12x24, COLOR_GREEN, a, b, x, y, v)
-#define	DRAW_STRING_FONT12(a,b,x,y,s) dwinLCD.Draw_String(false, true, font12x24, a, b, x, y, s)
-#define	DRAW_STRING_FONT10(a,b,x,y,s) dwinLCD.Draw_String(false, true, font10x20, a, b, x, y, s)
-#define	DRAW_STRING_FONT8(a,b,x,y,s) dwinLCD.Draw_String(false, true, font8x16, a, b, x, y, s)
-
+uint8_t Autotest::swstatus[6] = {0,0,0,0,0,0};
+uint8_t Autotest::old_swstatus[6] = {0,0,0,0,0,0};
 
 void Autotest::Check_Rotary(){
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -126,7 +80,7 @@ inline void Autotest::AutoTest_ShowTemperature(){
 		DRAW_INT_WHITE_FONT12(COLOR_BG_WINDOW, 3, XCENTER(4), YPOS_MSG(ID_LINE_BTEMP), (uint32_t)test_temp_hotbed_target);
 	}
 	//FAN
-	if((thermalManager.degHotend(0) <= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE) && (testflag.state > CHECK_FANS)){		
+	if((thermalManager.degHotend(0) <= AUTO_FAN_TEMPERATURE) && (testflag.state > CHECK_FANS)){		
 		if(!testflag.fan_fg){
 			thermalManager.set_fan_speed(0, 0);
 			testflag.fan_fg = true;
@@ -207,7 +161,7 @@ inline void Autotest::AutoTest_Watch_SW(){
 }
 
 
-bool Autotest::DWIN_AutoTesting() {
+void Autotest::AutoTest_Loop() {
 	static millis_t test_next_rts_update_ms = 0;
 	static uint16_t test_counter = 0;
 	static uint16_t test_timer;
@@ -225,7 +179,7 @@ bool Autotest::DWIN_AutoTesting() {
 	
 	Check_Rotary();
 	const millis_t test_ms = millis();
-	if (PENDING(test_ms, test_next_rts_update_ms)) return false;
+	if (PENDING(test_ms, test_next_rts_update_ms)) return;
 	test_next_rts_update_ms = test_ms + 10;
 	
 	if(testflag.state >= CHECK_SD) AutoTest_ShowTemperature();
@@ -244,7 +198,7 @@ bool Autotest::DWIN_AutoTesting() {
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD2)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD1), PSTR("SD Card OK!"));
 			  DRAW_STRING_FONT12(COLOR_GREEN, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_SD2), PSTR("SD Size(M):"));
-				DRAW_INT_RED_FONT12(COLOR_BG_BLACK, 5, (strlen("SD Size(M):")+1)*WIDTH, YPOS_MSG(ID_LINE_SD2), CardReader::sd2card.cardSize()/2000);				
+				DRAW_INT_RED_FONT12(COLOR_BG_BLACK, 5, (strlen("SD Size(M):")+1)*WIDTH, YPOS_MSG(ID_LINE_SD2), CardReader::sd2card.cardSize()/2048);				
 		 		test_timer = 0;
 				if(testflag.autorun)
 					testflag.state = CHECK_PREPARE_HEAT;
@@ -416,7 +370,7 @@ bool Autotest::DWIN_AutoTesting() {
 			//check cooling fan
 			thermalManager.checkExtruderAutoFans();
 			if(test_counter == 0){
-				if((thermalManager.degHotend(0) >= TEST_EXTRUDER_AUTO_FAN_TEMPERATURE + 5) || (test_timer > 2000)){
+				if((thermalManager.degHotend(0) >= AUTO_FAN_TEMPERATURE + 5) || (test_timer > 2000)){
 					test_timer = 0;
 					test_counter++;					
 					DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_BLACK, LSTART, YPOS_MSG(ID_LINE_FAN), PSTR("Cooling Fan On!"));
@@ -735,22 +689,11 @@ bool Autotest::DWIN_AutoTesting() {
 		case CHECK_END:			
 			testflag.autorun = false;
 			testflag.state = CHECK_START;
-			HMI_flag.auto_test_flag = 0x55;
-			return true;
+			DWIN_status = ID_SM_RETURN_MAIN;			
 	}		
-	return false;
 }
 
-void Autotest::HMI_StartTest(uint8_t check_state/* = CHECK_START*/, bool auto_loop /*= true*/) {	
-	testflag.state = check_state;
-	testflag.autorun = auto_loop;
-	
-	HMI_flag.auto_test_flag = 0xaa;
-	thermalManager.setTargetHotend(0, 0);
-	thermalManager.setTargetBed(0);
-	testflag.rotary_counter = 0;
-	testflag.click_counter = 0;
-	
+inline void Autotest::Draw_Autotest_Menu(void){
 	//clean screen	
 	dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, 0, DWIN_WIDTH, DWIN_HEIGHT);
 		
@@ -773,5 +716,16 @@ void Autotest::HMI_StartTest(uint8_t check_state/* = CHECK_START*/, bool auto_lo
 	}
 	else
 		DRAW_STRING_FONT8(COLOR_RED, COLOR_BG_BLUE, LSTART+10, YPOS_MSG(ID_LINE_KNOB), PSTR("Click knob 3 times to exit!"));
+}
+
+void Autotest:: Autotest_Start(uint8_t check_state/* = CHECK_START*/, bool auto_loop /*= true*/) {	
+	testflag.state = check_state;
+	testflag.autorun = auto_loop;
+	DWIN_status = ID_SM_AUTOTESTING;
+	thermalManager.setTargetHotend(0, 0);
+	thermalManager.setTargetBed(0);
+	testflag.rotary_counter = 0;
+	testflag.click_counter = 0;
+	Draw_Autotest_Menu();
 }
 #endif

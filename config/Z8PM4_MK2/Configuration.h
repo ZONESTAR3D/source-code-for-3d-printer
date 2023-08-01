@@ -84,8 +84,8 @@
 #elif  ENABLED(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2"
 #endif
-#define	FIRMWARE_VERSION		  		"V1.3.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-05-10"
+#define	FIRMWARE_VERSION		  		"V1.3.1"
+#define	STRING_DISTRIBUTION_DATE  "2023-07-24"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
@@ -114,7 +114,7 @@
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 #define	OPTION_LASER									//Laser faeture
-#define	OPTION_SPINDLE								//Spindle faeture
+//#define	OPTION_SPINDLE								//Spindle faeture
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
 //#define	OPTION_TMC2225_XYZ 					//TMC2225 be used to XYZ
@@ -858,7 +858,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)

@@ -47,7 +47,7 @@
 #define E2END                (EEPROM_PAGE_SIZE - 1)
 
 //=============================================================================
-// ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
+// ZONESTAR ZM3E4 V2.0 (STM32F130VET6) board pin assignments
 //=============================================================================
 //	PA0									//	PB0		HEAT_1			//	PC0	   		AXU_SDA			  
 //	PA1     		    		//	PB1     FAN1            //	PC1         TEMP_E1               
@@ -203,33 +203,33 @@
 #define E3_STEP_PIN        PA8
 #define E3_DIR_PIN         PC9
 
+#define E2_ENABLE_PIN      PC7
 #define E2_STEP_PIN        PC6
 #define E2_DIR_PIN         PD15
-#define E2_ENABLE_PIN      PC7
 
+#define E1_ENABLE_PIN      PD14
 #define E1_STEP_PIN        PD13
 #define E1_DIR_PIN         PD12
-#define E1_ENABLE_PIN      PD14
 
+#define E0_ENABLE_PIN      PD11
 #define E0_STEP_PIN        PD10
 #define E0_DIR_PIN         PD9
-#define E0_ENABLE_PIN      PD11
 #else
 #define E0_ENABLE_PIN      PC10
 #define E0_STEP_PIN        PA8
 #define E0_DIR_PIN         PC9
 
+#define E1_ENABLE_PIN      PC7
 #define E1_STEP_PIN        PC6
 #define E1_DIR_PIN         PD15
-#define E1_ENABLE_PIN      PC7
 
+#define E2_ENABLE_PIN      PD14
 #define E2_STEP_PIN        PD13
 #define E2_DIR_PIN         PD12
-#define E2_ENABLE_PIN      PD14
 
+#define E3_ENABLE_PIN      PD11
 #define E3_STEP_PIN        PD10
 #define E3_DIR_PIN         PD9
-#define E3_ENABLE_PIN      PD11
 #endif
 //
 // Temperature Sensors

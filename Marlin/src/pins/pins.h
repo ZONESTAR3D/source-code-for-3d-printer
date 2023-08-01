@@ -581,6 +581,9 @@
   #include "stm32f1/pins_ZM3E4_V1_0.h"      	// STM32F1                           	     env:
 #elif MB(ZONESTAR_ZM3E4V2)
   #include "stm32f1/pins_ZM3E4_V2_0.h"      	// STM32F1                           	     env:
+#elif MB(ZONESTAR_ZM3E4V3)
+  #include "stm32f1/pins_ZM3E4_V3_0.h"      	// STM32F1                           	     env:
+
 
 //
 // ARM Cortex-M4F

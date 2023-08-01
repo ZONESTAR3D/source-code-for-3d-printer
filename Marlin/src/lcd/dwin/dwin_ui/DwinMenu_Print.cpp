@@ -443,9 +443,9 @@ void Draw_Print_ElapsedTime() {
 	duration_t ElapsedTime = HMI_Value.elapsed_value; // print timer	
 	char timer_string[20];
 	if(ElapsedTime.hour() < 24)
-		sprintf_P(timer_string, PSTR("%02d:%02d:%02d"), (uint8_t)(ElapsedTime.hour()%100), (uint8_t)(ElapsedTime.minute()%60), (uint8_t)(ElapsedTime.second()%60));
+		sprintf_P(timer_string, PSTR("%02d:%02d:%02d"), (uint8_t)(ElapsedTime.hour()%24), (uint8_t)(ElapsedTime.minute()%60), (uint8_t)(ElapsedTime.second()%60));
 	else
-		sprintf_P(timer_string, PSTR("%02dD%03d:%02d"), (uint8_t)(ElapsedTime.day()%100), (uint8_t)(ElapsedTime.hour()%100), (uint8_t)(ElapsedTime.minute()%60));	
+		sprintf_P(timer_string, PSTR("%02dD%02d:%02d"), (uint8_t)(ElapsedTime.day()%100), (uint8_t)(ElapsedTime.hour()%24), (uint8_t)(ElapsedTime.minute()%60));	
 	DWIN_Draw_MaskString_Default(ELAPSEDTIME_STAR_X, 212, timer_string);
 }
 
@@ -458,7 +458,7 @@ void Draw_Print_RemainTime() {
 		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, PSTR("--H--M"));
 	else {		
 		if(RemainTime.hour() < 24)
-			sprintf_P(timer_string, PSTR("%02d:%02d "), (uint8_t)(RemainTime.hour()%100), (uint8_t)(RemainTime.minute()%60));
+			sprintf_P(timer_string, PSTR("%02d:%02d "), (uint8_t)(RemainTime.hour()%24), (uint8_t)(RemainTime.minute()%60));
 		else
 			sprintf_P(timer_string, PSTR("%02dD%02dH"), (uint8_t)(RemainTime.day()%100), (uint8_t)(RemainTime.hour()%24));	
 		DWIN_Draw_MaskString_Default(REMAINTIME_STAR_X, 212, timer_string);
@@ -1045,6 +1045,21 @@ static void _Dwin_pause_print() {
 }
 
 /* Pause and Stop window */
+void DWIN_StopPrintFromSDCard(){			
+#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU)
+	save_Zoffset();
+#endif			
+#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
+	HMI_flag.AutoUnloadFilament_on = false;
+	if(HMI_flag.AutoUnload_enabled && !mixer.mixing_enabled && sum_extrude > 5 && thermalManager.temp_hotend[0].celsius > 150){ 
+		HMI_flag.AutoUnloadFilament_on = true;
+		DWIN_Show_Status_Message(COLOR_RED, PSTR("Unload filament..."));					
+	}
+#endif
+	Popup_Window_StopWaiting();
+	Abort_SD_Printing();
+}
+
 void HMI_PauseOrStop() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
@@ -1077,18 +1092,7 @@ void HMI_PauseOrStop() {
 		}
 		else if(DwinMenu_print.now == PRINT_CASE_STOP){
 			if(HMI_flag.select_flag){				
-			#if (ENABLED(BABYSTEPPING) && HAS_OFFSET_MENU)
-				save_Zoffset();
-			#endif			
-			#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
-				HMI_flag.AutoUnloadFilament_on = false;
-				if(HMI_flag.AutoUnload_enabled && !mixer.mixing_enabled && sum_extrude > 5 && thermalManager.temp_hotend[0].celsius > 150){ 
-					HMI_flag.AutoUnloadFilament_on = true;
-					DWIN_Show_Status_Message(COLOR_RED, PSTR("Unload filament..."));					
-				}
-			#endif
-				Popup_Window_StopWaiting();
-				Abort_SD_Printing();
+				DWIN_StopPrintFromSDCard();
 			}
 			else{
 				//redraw printing menu

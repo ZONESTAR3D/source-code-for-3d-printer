@@ -47,7 +47,7 @@
 #define E2END                (EEPROM_PAGE_SIZE - 1)
 
 //=============================================================================
-// ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
+// ZONESTAR ZM3E4 V1.0 (STM32F130VCT6) board pin assignments
 //=============================================================================
 //	PA0									//	PB0		  HEAT_1					//	PC0	   		AXU_SDA			  
 //	PA1     		    		//	PB1     FAN1            //	PC1         TEMP_E1               

@@ -73,7 +73,7 @@
 
 //#define	DEBUG_DWIN_LCD
 #define	DWIN_AUTO_TEST
-//#define	OPTION_TEST_MENU
+//#define	SDCARD_TEST
 
 #include "../language/dwin_multi_language.h"
 #include "../dwin_lcd.h"
@@ -114,6 +114,7 @@ typedef enum{
 	ID_SM_PAUSED,
 	ID_SM_RESUMING,				//Resuming
 	ID_SM_STOPED,					//	
+	ID_SM_RUNOUTING,
 #if ENABLED(OPTION_REPEAT_PRINTING)	
 	ID_SM_REPEATPRITING,	
 #endif
@@ -121,7 +122,12 @@ typedef enum{
 	ID_SM_PIDAUTOTUNE,
 	ID_SM_PIDAUTOTUNING,
 #endif
-	ID_SM_RUNOUTING,
+#if ENABLED(DWIN_AUTO_TEST)
+	ID_SM_AUTOTESTING,
+#endif
+#if ENABLED(SDCARD_TEST)
+	ID_SM_SDCARDTESTING,
+#endif	
 	ID_SM_RETURN_MAIN
 }_emDWINState;
 
@@ -216,46 +222,55 @@ typedef enum {
  	//config
  	DWMENU_SET_BLTOUCH  = 80,
  	DWMENU_SET_RETRACT,
- 	//config>>Retract
+ 	///config>>Retract
  	DWMENU_SET_RETRACT_MM,
  	DWMENU_SET_RETRACT_V,
  	DWMENU_SET_RETRACT_ZHOP,
  	DWMENU_SET_UNRETRACT_MM,
- 	DWMENU_SET_UNRETRACT_V,	
- 	
- 	//Home Offset
- 	DWMENU_SET_HOMEOFFSET = 90,	 	 	
+ 	DWMENU_SET_UNRETRACT_V,	 	
+ 	///config>>Linear Advance
+ 	DWMENU_SET_LINADVANCE,
+ 	DWMENU_SET_LINADVANCE_E0,
+ 	DWMENU_SET_LINADVANCE_E1,
+ 	DWMENU_SET_LINADVANCE_E2,
+ 	DWMENU_SET_LINADVANCE_E3,
+ 	DWMENU_SET_LINADVANCE_E4,
+ 	DWMENU_SET_LINADVANCE_E5,
+ 	///config>>Home Offset
+ 	DWMENU_SET_HOMEOFFSET,
  	DWMENU_SET_HOMEOFFSET_X,
  	DWMENU_SET_HOMEOFFSET_Y,
 	DWMENU_SET_HOMEOFFSET_Z,
-	DWMENU_SET_HOMEZOFFSET = DWMENU_SET_HOMEOFFSET_Z,
- 	//Case light brightness
+	///config>>Probe Offset
+	DWMENU_SET_PROBEOFFSET,
+	DWMENU_SET_PROBEOFFSET_X,
+ 	DWMENU_SET_PROBEOFFSET_Y,
+	DWMENU_SET_PROBEOFFSET_Z,
+ 	///config>>Case light brightness
  	DWMENU_SET_CASELIGHTBRIGHTNESS,	
-	DWMENU_SET_HOTENDMAXTEMP,
-	//
-	DWMENU_PID_TUNE = 100,
+	///config>>PID Tune
+	DWMENU_PID_TUNE,
 	DWMENU_PID_KP,
 	DWMENU_PID_KI,
 	DWMENU_PID_KD,
 	DWMENU_PID_AUTOTUNE,
+	///
 	DWMENU_SET_WIFIBAUDRATE,
-	//
-	DWMENU_SET_SWITCHEXTRUDER,
-	
+	///
+	DWMENU_SET_SWITCHEXTRUDER,	
 	//Repeat printing
-	DWMENU_SET_REPRINT = 110,	
+	DWMENU_SET_REPRINT,	
 	DWMENU_SET_REPRINT_TIMES,
 	DWMENU_SET_REPRINT_PUSHLENGTH,
 	DWMENU_SET_REPRINT_BEDTEMP,
 	DWMENU_SET_REPRINT_ZHEIGTH,
-	DWMENU_SET_REPRINT_BASEHEIGTH,
-	//
-	
-	//
+	DWMENU_SET_REPRINT_BASEHEIGTH,	
+	//Auto test
 	DWMENU_SET_TESTITEM,
+	DWMENU_SDDCARDTEST,
 
 	// Pop Menu
-	DWMENU_POP_HOME = 120,
+	DWMENU_POP_HOME = 200,
 	DWMENU_POP_LEVEL_CATCH,	
 	DWMENU_POP_STOPPRINT,
 	DWMENU_POP_FROD_OPTION,
@@ -375,13 +390,15 @@ extern _emDWIN_MENUID_ DwinMenuID;
 #define Menu_control_end_info_X			Menu_control_end_reset_X + 30
 #define Menu_control_end_info_Y			Menu_control_end_reset_Y
 
+#if ENABLED(MIXING_EXTRUDER)
 typedef struct Mixer_Display_cfg{
-	uint16_t Extruder_X_Coordinate[MIXING_STEPPERS] = {0};
-	uint8_t Extruder_Int_Number[MIXING_STEPPERS] = {0};
+	uint16_t Extruder_X_Coordinate[E_STEPPERS] = {0};
+	uint8_t Extruder_Int_Number[E_STEPPERS] = {0};
 	uint16_t VTool_X_Coordinate = 0;
 	uint8_t VTool_Int_Number = 0;
 }MIXER_DIS;
 extern MIXER_DIS MixerDis;
+#endif
 
 #if ENABLED(SWITCH_EXTRUDER_MENU)
 typedef enum{
@@ -429,15 +446,6 @@ typedef enum{
 }_emSwitchExtruder;
 #endif
 
-#if ENABLED(OPTION_TEST_MENU)
-typedef enum{
-	TEST_ALL = 0,
-	TEST_SDCARD,
-	TEST_HEATERSANDFANS,
-	TEST_MOTORS,
-	TEST_ENDSTOPS,
-}_emTestTtem;
-#endif
 
 #ifndef PID_AUTOTUNE_CYCLES
 #define PID_AUTOTUNE_CYCLES		4
@@ -454,7 +462,7 @@ typedef struct {
   int16_t Max_Feedspeed     = 0;
   int16_t Max_Acceleration  = 0;
   int16_t Max_Jerk          = 0;
-  int16_t Max_Step          = 0;
+  int16_t Steps_per_mm      = 0;
   int16_t Move_X_scale      = 0;
   int16_t Move_Y_scale      = 0;
   int16_t Move_Z_scale      = 0;	
@@ -469,13 +477,23 @@ typedef struct {
 	int16_t HomeOffsetY_scale = 0;
 	int16_t HomeOffsetZ_scale = 0;
 	#endif
+	
+	#if HAS_PROBE_XY_OFFSET
+	int16_t ProbeOffsetX_scale = 0;
+	int16_t ProbeOffsetY_scale = 0;
+	int16_t ProbeOffsetZ_scale = 0;
+	#endif
 
 	#if ENABLED(FWRETRACT)
   int16_t Retract_MM_scale      = 0;
-  int16_t Retract_V_scale      = 0;
-	int16_t Retract_ZHOP_scale      = 0;
-  int16_t unRetract_MM_scale      = 0;
-  int16_t unRetract_V_scale      = 0;
+  int16_t Retract_V_scale      	= 0;
+	int16_t Retract_ZHOP_scale    = 0;
+  int16_t unRetract_MM_scale    = 0;
+  int16_t unRetract_V_scale     = 0;
+	#endif
+
+	#if ENABLED(LIN_ADVANCE)
+	int16_t extruder_advance_K[E_STEPPERS];
 	#endif
 	
 	#if ENABLED(PID_EDIT_MENU) 	
@@ -511,12 +529,11 @@ typedef struct {
 	#endif
 		
 	uint8_t Percentrecord = 0;
-	millis_t remain_time = 0;
+	uint32_t remain_time = 0;
 	millis_t dwin_heat_time = 0;
 	uint32_t elapsed_value = 0;
 	
 	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
-	TERN_(OPTION_TEST_MENU, int8_t test_item  = TEST_ALL);
 } HMI_value_t;
 extern HMI_value_t HMI_Value;
 
@@ -572,9 +589,6 @@ typedef struct {
   #endif 
 
 	_emShowMode show_mode  = SHOWED_TUNE;
-	#if ENABLED(DWIN_AUTO_TEST)
-	uint8_t auto_test_flag = 0x55; //0x55: disable, 0xAA: enabled
-  #endif
 	uint8_t autoreturntime = 0;
 	
   AxisEnum axis;
@@ -625,6 +639,9 @@ extern DwinMenu DwinMenu_bltouch;
 #if ENABLED(FWRETRACT)
 extern DwinMenu DwinMenu_fwretract;
 #endif
+#if ENABLED(LIN_ADVANCE)
+extern DwinMenu DwinMenu_LinAdvance;
+#endif
 #if ENABLED(PID_EDIT_MENU)
 extern DwinMenu DwinMenu_PIDTune;
 #endif
@@ -643,6 +660,13 @@ extern DwinMenu DwinMenu_reprint;
 
 #if HAS_OFFSET_MENU
 extern DwinMenu DwinMenu_Homeoffset;
+#endif
+#if HAS_PROBE_XY_OFFSET
+extern DwinMenu DwinMenu_Probeoffset;
+#endif
+
+#if ENABLED(SDCARD_TEST)
+extern DwinMenu DwinMenu_SDTest;
 #endif
 
 

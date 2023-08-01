@@ -96,10 +96,12 @@ static void Item_Info_Extruder_Num(const uint8_t row) {
 }
 
 static void Item_Info_Extruder_Model(const uint8_t row) {	
-#if ENABLED(OPTION_BGM)
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder Model: Dual Gear"));	
+#if ENABLED(OPTION_BMG)
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder: BMG R All"));	
+#elif ENABLED(OPTION_BMG_LR)
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder: BMG L + R"));	
 #else
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder Model: Titan"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Extruder: Titan"));
 #endif
 	Draw_Menu_Line(row);
 }
@@ -166,79 +168,6 @@ static void Item_Info_RepeatPrint(const uint8_t row) {
 }
 #endif
 
-#if ENABLED(OPTION_TEST_MENU)
-static void Show_TestItem_String(const uint8_t row, const bool bHighlight){
-	switch(HMI_Value.test_item) {
-		default:
-		case TEST_ALL:
-			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("     All      "));
-		break;
-		
-		case TEST_SDCARD:
-			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("   SD Card    "));	
-		break;
-
-		case TEST_HEATERSANDFANS:
-			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("Heaters & FANs"));	
-		break;
-
-		case TEST_MOTORS:
-			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("    Motors    "));	
-		break;
-
-		case TEST_ENDSTOPS:
-			DWIN_Draw_MaskString_Default_Color(bHighlight?SELECT_COLOR : COLOR_WHITE, LBLX_INFO + 12*8, MBASE(row), PSTR("   ENDSTOPS   "));	
-		break;
-	}
-}
-
-static void Item_Info_Test(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Test item:"));
-	Show_TestItem_String(row, false);
-	Draw_Menu_Line(row);
-}
-
-void HMI_Adjust_Test_item() {
-	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-
-	if (encoder_diffState != ENCODER_DIFF_NO) {
-		if (Apply_Encoder_int8(encoder_diffState, &HMI_Value.test_item)) {
-			EncoderRate.enabled = false;
-			Show_TestItem_String(MROWS + INFO_CASE_TEST -DwinMenu_infor.index, false);
-			switch(HMI_Value.test_item) {
-				default:
-				case TEST_ALL:
-					autotest.HMI_StartTest(CHECK_START, true);
-				break;
-				
-				case TEST_SDCARD:
-					autotest.HMI_StartTest(CHECK_SD, false);
-				break;
-				
-				case TEST_HEATERSANDFANS:
-					autotest.HMI_StartTest(CHECK_PREPARE_HEAT, false);
-				break;
-				
-				case TEST_MOTORS:
-					autotest.HMI_StartTest(CHECK_XY_MOTOR, false);
-				break;
-				
-				case TEST_ENDSTOPS:
-					autotest.HMI_StartTest(CHECK_ENDSTOPS_PREPARE, false);
-				break;					
-			}
-	  }
-		else{		  
-			NOLESS(HMI_Value.test_item, TEST_ALL);
-			NOMORE(HMI_Value.test_item, TEST_ENDSTOPS);
-			Show_TestItem_String(MROWS + INFO_CASE_TEST-DwinMenu_infor.index, true);
-		}			
-		dwinLCD.UpdateLCD();
-	}
-}
-#endif				
-
-
 #define	STRING_PRODUCT_MODEL		"Model: " CUSTOM_MACHINE_NAME
 #if ENABLED(OPTION_GUIDE_QRCODE)
 void Popup_Window_UserGuideLink() {
@@ -278,10 +207,6 @@ void Popup_Window_FAQLink() {
 	DWIN_Draw_MaskString_Default_PopMenu((272-(strlen("Press the knob to exit")+1)*10)/2, 130+46*3+35, PSTR("Press the knob to exit"));
 }	
 #endif
-
-
-
-
 
 void Draw_Info_Menu() {
 	DwinMenuID = DWMENU_INFO;
@@ -336,9 +261,6 @@ void Draw_Info_Menu() {
 	if(ICVISI(INFO_CASE_HOTEND)) Item_Info_Hotend(ICSCROL(INFO_CASE_HOTEND)); 
 #if ENABLED(OPTION_REPEAT_PRINTING)
 	if(ICVISI(INFO_CASE_REPRINT)) Item_Info_RepeatPrint(ICSCROL(INFO_CASE_REPRINT));
-#endif
-#if ENABLED(OPTION_TEST_MENU)
-	if(ICVISI(INFO_CASE_TEST)) Item_Info_Test(ICSCROL(INFO_CASE_TEST));
 #endif
 */
 	if (DwinMenu_infor.now)	Draw_Menu_Cursor(ICSCROL(DwinMenu_infor.now));	
@@ -398,9 +320,6 @@ void HMI_Info() {
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
 				if(DwinMenu_infor.index == INFO_CASE_MODEL) Item_Info_Model(MROWS);				
-			#if ENABLED(OPTION_TEST_MENU)
-				else if(DwinMenu_infor.index == INFO_CASE_TEST) Item_Info_Test(MROWS);
-			#endif	
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index == INFO_CASE_VIEWGUIDE) Item_Info_Guide(MROWS);
 			#endif
@@ -470,9 +389,6 @@ void HMI_Info() {
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VIEWGUIDE) Item_Info_Guide(0);
 			#endif
-			#if ENABLED(OPTION_TEST_MENU)
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_TEST) Item_Info_Test(0);
-			#endif
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_MODEL) Item_Info_Model(0);							
 			}
 			else {
@@ -486,11 +402,20 @@ void HMI_Info() {
 				Draw_Main_Menu(false, MAIN_CASE_INFO);
 			break;
 			
+		#if ENABLED(SDCARD_TEST)
+			case INFO_CASE_MODEL:				
+				if(++testmode_click_times >= 5){
+					testmode_click_times = 0;					
+					SDtest.SDCardtest_Start();
+				}
+			break;
+		#endif
+		
 		#if ENABLED(DWIN_AUTO_TEST)
 			case INFO_CASE_DATE:				
 				if(++testmode_click_times >= 5){
 					testmode_click_times = 0;					
-					autotest.HMI_StartTest();
+					autotest.Autotest_Start();
 				}
 			break;
 		#endif
@@ -510,14 +435,6 @@ void HMI_Info() {
 		#if ENABLED(OPTION_FAQ_QRCODE)
 			case INFO_CASE_FAQ:
 				Popup_Window_FAQLink();
-			break;
-		#endif
-
-		#if BOTH(DWIN_AUTO_TEST, OPTION_TEST_MENU)
-		case INFO_CASE_TEST:
-			DwinMenuID = DWMENU_SET_TESTITEM;			
-			Show_TestItem_String(MROWS + INFO_CASE_TEST - DwinMenu_infor.index, true);
-	  	EncoderRate.enabled = true;
 			break;
 		#endif
 			

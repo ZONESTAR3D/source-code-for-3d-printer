@@ -99,8 +99,8 @@
 	#error "EXP1 has been used by LCD12864, it must disable PROBE_ON_EXP1"
 #endif
 
-#if BOTH(OPTION_TITAN, OPTION_BGM)
-	#error "You can only select one between OPTION_TITAN and OPTION_BGM"
+#if BOTH(OPTION_TITAN, OPTION_BMG) || BOTH(OPTION_TITAN, OPTION_BMG_LR) || BOTH(OPTION_BMG, OPTION_BMG_LR)
+	#error "You can only select one between OPTION_TITAN, OPTION_BMG and OPTION_BMG_LR"
 #endif
 
 #if BOTH(OPTION_TMC220X_XYZ, OPTION_TMC2225_XYZ)
@@ -1469,6 +1469,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    */
   #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
     #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
+	#elif GRID_MAX_POINTS_X > 7 || GRID_MAX_POINTS_Y > 7
+    #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 8 for ABL."
   #endif
 
 #elif ENABLED(MESH_BED_LEVELING)

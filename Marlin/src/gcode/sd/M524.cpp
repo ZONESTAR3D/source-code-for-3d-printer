@@ -27,13 +27,18 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 
+#if HAS_DWIN_LCD
+  #include "../../lcd/dwin/dwin_ui/dwin.h"
+#endif
+
 /**
  * M524: Abort the current SD print job (started with M24)
  */
 void GcodeSuite::M524() {
-
-  if (IS_SD_PRINTING())
+  if (IS_SD_PRINTING()){
+		TERN_(HAS_DWIN_LCD, DWIN_StopPrintFromSDCard());
     card.flag.abort_sd_printing = true;
+  }
   else if (card.isMounted())
     card.closefile();
 

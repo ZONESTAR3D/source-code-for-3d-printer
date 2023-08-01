@@ -70,12 +70,13 @@ _emDWINState DWIN_status = ID_SM_START;
 _emDWIN_MENUID_ DwinMenuID = DWMENU_MAIN;
 HMI_value_t HMI_Value;
 HMI_Flag_t HMI_flag;
+#if ENABLED(MIXING_EXTRUDER)
 MIXER_DIS MixerDis;
+#endif
 
 uint8_t DwinMenu::now;
 uint8_t DwinMenu::last;
 uint8_t DwinMenu::index;
-
 
 DwinMenu DwinMenu_main;
 //Prepare
@@ -106,12 +107,17 @@ DwinMenu DwinMenu_RandomMix;
 #if HAS_OFFSET_MENU
 DwinMenu DwinMenu_Homeoffset;
 #endif
-
+#if HAS_PROBE_XY_OFFSET
+DwinMenu DwinMenu_Probeoffset;
+#endif
 #if ENABLED(BLTOUCH)
 DwinMenu DwinMenu_bltouch;
 #endif
 #if ENABLED(FWRETRACT)
 DwinMenu DwinMenu_fwretract;
+#endif
+#if ENABLED(LIN_ADVANCE)
+DwinMenu DwinMenu_LinAdvance;
 #endif
 #if ENABLED(PID_EDIT_MENU)
 DwinMenu DwinMenu_PIDTune;
@@ -127,6 +133,9 @@ DwinMenu DwinMenu_PauseOption;
 DwinMenu DwinMenu_tune;
 //Infor
 DwinMenu DwinMenu_infor;
+//SDTest
+DwinMenu DwinMenu_SDTest;
+
 
 void set_status_msg_showtime(const uint16_t t){
 	HMI_flag.clean_status_delay = t;
@@ -152,59 +161,62 @@ inline void _check_kill_times_ElapsedTime(){
 	}
 }
 
-inline void _Update_printing_Timer(){	
-	if(card.isPrinting()){
-		// print process
-		uint8_t card_pct = card.percentDone();
-		static uint8_t last_cardpercentValue = 255;
-		#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-		if(ui.get_progress_percent() != 0) card_pct = ui.get_progress_percent();
+inline void _Update_printing_Timer(){		
+	static uint8_t last_cardpercentValue = 255;
+	static uint8_t last_Printtime = 0;
+	uint8_t card_pct = 0;
+	duration_t elapsed = 0;
+	if(!card.isPrinting()) return;
+	
+	card_pct = card.percentDone();
+	#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+	if(ui.get_progress_percent() != 0) card_pct = ui.get_progress_percent();		
+	#endif		
+
+	// Update Process	Bar
+	if(last_cardpercentValue != card_pct){
+		last_cardpercentValue = card_pct;			
+		if(card_pct){
+			//Updata Process Percent	
+			HMI_Value.Percentrecord = card_pct;							
+			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
+
+			//Updata Remaining time per percent
+		#if HAS_PRINT_PROGRESS_PERMYRIAD
+			HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value;				
+		#else
+			HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value;					
 		#endif
-		// Print time so far
-		duration_t elapsed = print_job_timer.duration();
-		HMI_Value.elapsed_value = elapsed.value;
-		static uint8_t last_Printtime = 0;
-		if (last_Printtime != (uint8_t)(elapsed.value%60)) { // 1 second update
-			last_Printtime = (uint8_t)(elapsed.value%60);
-
-			//Updata Print time per second
-			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
-
-			//Updata Remaining time per minute
-			if(last_Printtime == 0 && card_pct > 0) {
-			#if HAS_PRINT_PROGRESS_PERMYRIAD
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value; 			
-			#else
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value; 				
-			#endif			
-			#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
-				if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
-			#endif		
-				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
-			}
+		
+		#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
+			if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
+		#endif
+			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
 		}
+		return;
+	}		
+	
+	// Print time so far
+	elapsed = print_job_timer.duration(); //seconds
+	HMI_Value.elapsed_value = elapsed.value;		
+	if (last_Printtime != (uint8_t)(elapsed.value%60)) { // 1 second update
+		last_Printtime = (uint8_t)(elapsed.value%60);
 
-		// Update Process		
-		if(last_cardpercentValue != card_pct){			
-			last_cardpercentValue = card_pct;			
-			if(card_pct){
-				//Updata Process Percent	
-				HMI_Value.Percentrecord = card_pct;							
-				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ProgressBar();
+		//Updata Elapsed time per second
+		if(DwinMenuID == DWMENU_PRINTING) Draw_Print_ElapsedTime();
 
-				//Updata Remaining time per percent
-			#if HAS_PRINT_PROGRESS_PERMYRIAD
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value;				
-			#else
-				HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value;					
-			#endif
-			
-			#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
-				if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
-			#endif		
-				if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
-			}
-		}			
+		//Updata Remaining time per minute
+		if(last_Printtime == 0 && card_pct > 0) {
+		#if HAS_PRINT_PROGRESS_PERMYRIAD
+			HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?(elapsed.value - HMI_Value.dwin_heat_time) : elapsed.value) * 10000)/card.permyriadDone() - elapsed.value; 			
+		#else
+			HMI_Value.remain_time = ((elapsed.value > HMI_Value.dwin_heat_time?elapsed.value-HMI_Value.dwin_heat_time : elapsed.value) * 100)/card_pct - elapsed.value; 				
+		#endif			
+		#if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME) 	
+			if(ui.get_remaining_time() != 0) HMI_Value.remain_time = ui.get_remaining_time();
+		#endif		
+			if(DwinMenuID == DWMENU_PRINTING) Draw_Print_RemainTime();
+		}
 	}
 }
 
@@ -510,6 +522,7 @@ inline void DWIN_Update_Variable() {
 	/*Z postion*/
 	DWIN_Show_Z_Position(true);
 
+	//Extruder Bar
 	/*Mixing*/
 	TERN_(MIXING_EXTRUDER, DWIN_Show_Extruder_status());
 }
@@ -777,20 +790,33 @@ void DWIN_HandleScreen() {
 		case DWMENU_SET_UNRETRACT_MM:				HMI_UnRetract_MM(); break;
 		case DWMENU_SET_UNRETRACT_V:				HMI_UnRetract_V(); break;
 	#endif	
-
+	
+	#if ENABLED(LIN_ADVANCE) 
+		case DWMENU_SET_LINADVANCE:					HMI_LinearAdvance(); break;
+		case DWMENU_SET_LINADVANCE_E0:
+		case DWMENU_SET_LINADVANCE_E1:
+		case DWMENU_SET_LINADVANCE_E2:
+		case DWMENU_SET_LINADVANCE_E3:
+		case DWMENU_SET_LINADVANCE_E4:
+		case DWMENU_SET_LINADVANCE_E5:			HMI_Set_LinearAdvance(DwinMenuID-DWMENU_SET_LINADVANCE_E0); break;
+	#endif
+	
 	#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
 		case DWMENU_SET_CASELIGHTBRIGHTNESS: HMI_Adjust_Brightness();break;
 	#endif
 
 	#if HAS_OFFSET_MENU
-		case DWMENU_SET_HOMEOFFSET:						HMI_Adjust_HomeOffset(); break;
-		case DWMENU_SET_HOMEOFFSET_X:					HMI_Adjust_HomeOffset_X(); break;
-		case DWMENU_SET_HOMEOFFSET_Y:					HMI_Adjust_HomeOffset_Y(); break;
-		case DWMENU_SET_HOMEOFFSET_Z:					HMI_Adjust_HomeOffset_Z(); break;
+		case DWMENU_SET_HOMEOFFSET:					HMI_Adjust_HomeOffset(); break;
+		case DWMENU_SET_HOMEOFFSET_X:				HMI_Adjust_HomeOffset_X(); break;
+		case DWMENU_SET_HOMEOFFSET_Y:				HMI_Adjust_HomeOffset_Y(); break;
+		case DWMENU_SET_HOMEOFFSET_Z:				HMI_Adjust_HomeOffset_Z(); break;
 	#endif
-
-	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	  case DWMENU_SET_HOTENDMAXTEMP:			HMI_Adjust_hotend_MaxTemp(); break;
+	
+	#if HAS_PROBE_XY_OFFSET
+		case DWMENU_SET_PROBEOFFSET:				HMI_Adjust_ProbeOffset(); break;
+		case DWMENU_SET_PROBEOFFSET_X:			HMI_Adjust_ProbeOffset_X(); break;
+		case DWMENU_SET_PROBEOFFSET_Y:			HMI_Adjust_ProbeOffset_Y(); break;
+		case DWMENU_SET_PROBEOFFSET_Z:			HMI_Adjust_ProbeOffset_Z(); break;
 	#endif
 
 	#if ENABLED(PID_EDIT_MENU)
@@ -852,11 +878,7 @@ void DWIN_HandleScreen() {
  	#if ENABLED(BABYSTEPPING)
 		case DWMENU_TUNE_BABYSTEPS:					HMI_Pop_BabyZstep(); break;
 	#endif		
-	
-	#if ENABLED(OPTION_TEST_MENU)
-		case DWMENU_SET_TESTITEM:						HMI_Adjust_Test_item(); break;
-	#endif
-	
+		
 		case DWMENU_POP_WAITING:						HMI_Waiting(); break;
 
 	#if ENABLED(OPTION_NEWS_QRCODE)
@@ -998,28 +1020,12 @@ void EachMomentUpdate() {
 		old_DwinStatus = DWIN_status;
 	}
 	#endif
-
-	//variable update
-	DWIN_Update_Variable();
-	
-	//check auto power off
-	TERN_(OPTION_AUTOPOWEROFF, _check_autoshutdown());
-	
-	//check wifi feedback after turn on WiFi module
-	TERN_(OPTION_WIFI_MODULE, _check_wifi_feedback());
-
-	//clean the status bar if need
-	_check_clean_status_bar();
-	
+		
 	if(DWIN_status == ID_SM_START){
-		//check resume print when power on
-		DWIN_status = ID_SM_IDLE;
-		//TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
+			//check resume print when power on
+			DWIN_status = ID_SM_IDLE;
+			//TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 	}
-	else if(DWIN_status == ID_SM_IDLE){
-		TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
-	}
-#if ENABLED(POWER_LOSS_RECOVERY)
 	else if(DWIN_status == ID_SM_RETURN_MAIN){
 		if(!queue.has_commands_queued()){
 			DWIN_status = ID_SM_IDLE;
@@ -1027,78 +1033,89 @@ void EachMomentUpdate() {
 			Draw_Main_Menu(true);
 		}
 	}
-#endif
-	else if(DWIN_status == ID_SM_PRINTING){
-		TERN_(POWER_LOSS_RECOVERY,recovery.save(false));
-		_Update_printing_Timer();		
-		
-		if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_TUNE){
-			if(HMI_flag.autoreturntime > 0){
-				HMI_flag.autoreturntime--;
-				if(HMI_flag.autoreturntime == 0){
-					EncoderRate.enabled = false;	
-					Draw_Printing_Menu(PRINT_CASE_TUNE, true);
-				}
-			} 	
+	else{
+		//variable update
+		DWIN_Update_Variable();	
+		//check auto power off
+		TERN_(OPTION_AUTOPOWEROFF, _check_autoshutdown());	
+		//check wifi feedback after turn on WiFi module
+		TERN_(OPTION_WIFI_MODULE, _check_wifi_feedback());
+		//clean the status bar if need
+		_check_clean_status_bar();		
+		if(DWIN_status == ID_SM_IDLE){
+			TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 		}
-	}	
-	else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
-		_check_kill_times_ElapsedTime();
-		#if DISABLED(PARK_HEAD_ON_PAUSE)
-		if(HMI_flag.clean_status_delay == 0){			
-			if(DWIN_status == ID_SM_RESUMING && printingIsActive() && !runout.filament_ran_out && wait_for_heatup == false){
+		else if(DWIN_status == ID_SM_PRINTING){
+			TERN_(POWER_LOSS_RECOVERY,recovery.save(false));
+			_Update_printing_Timer();		
+		
+			if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_TUNE){
+				if(HMI_flag.autoreturntime > 0){
+					HMI_flag.autoreturntime--;
+					if(HMI_flag.autoreturntime == 0){
+						EncoderRate.enabled = false;	
+						Draw_Printing_Menu(PRINT_CASE_TUNE, true);
+					}
+				} 	
+			}
+		}	
+		else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
+			_check_kill_times_ElapsedTime();
+			#if DISABLED(PARK_HEAD_ON_PAUSE)
+			if(HMI_flag.clean_status_delay == 0){			
+				if(DWIN_status == ID_SM_RESUMING && printingIsActive() && !runout.filament_ran_out && wait_for_heatup == false){
+					DWIN_status = ID_SM_PRINTING;
+					Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
+				}			
+				else if(DWIN_status == ID_SM_PAUSING && printingIsPaused() && !planner.has_blocks_queued() && !runout.filament_ran_out && wait_for_heatup == false){
+					DWIN_status = ID_SM_PAUSED;
+					Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
+				}
+			}
+			#endif
+		}	
+		else if(DWIN_status == ID_SM_PAUSED){		
+			if(!printingIsPaused()){
 				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
-			}			
-			else if(DWIN_status == ID_SM_PAUSING && printingIsPaused() && !planner.has_blocks_queued() && !runout.filament_ran_out && wait_for_heatup == false){
-				DWIN_status = ID_SM_PAUSED;
 				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
 			}
 		}
+		else if(DWIN_status == ID_SM_STOPED){
+			Stop_and_return_mainmenu();
+		}
+		#if ENABLED(PID_AUTOTUNE_MENU)	
+		else if(DWIN_status == ID_SM_PIDAUTOTUNE){
+			if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - PID_FUNCTIONAL_RANGE){
+				sprintf_P(gcode_string,PSTR("M303 S%3d E0 C%1d U1\nM500"), HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
+				queue.inject(gcode_string);
+				DWIN_status = ID_SM_PIDAUTOTUNING;
+			}
+		}
 		#endif
-	}	
-	else if(DWIN_status == ID_SM_PAUSED){		
-		if(!printingIsPaused()){
-				DWIN_status = ID_SM_PRINTING;
-				Draw_Printing_Menu(PRINT_CASE_PAUSE, true);
-		}
 	}
-	else if(DWIN_status == ID_SM_STOPED){
-		Stop_and_return_mainmenu();
-	}
-#if ENABLED(PID_AUTOTUNE_MENU)	
-	else if(DWIN_status == ID_SM_PIDAUTOTUNE){
-		if(thermalManager.degHotend(0) <= HMI_Value.PIDAutotune_Temp - PID_FUNCTIONAL_RANGE){
-			sprintf_P(gcode_string,PSTR("M303 S%3d E0 C%1d U1\nM500"), HMI_Value.PIDAutotune_Temp, HMI_Value.PIDAutotune_cycles);
-			queue.inject(gcode_string);
-			DWIN_status = ID_SM_PIDAUTOTUNING;
-		}
-	}
-#endif
 	dwinLCD.UpdateLCD();
 }
 
-void DWIN_Update() {
-#if ENABLED(DWIN_AUTO_TEST)
-	if(HMI_flag.auto_test_flag == 0xaa){
-		if(autotest.DWIN_AutoTesting()){
-	#if ENABLED(OPTION_TEST_MENU)
-			if(!autotest.testflag.autorun)
-				Draw_Info_Menu();
-			else
-	#endif				
-				Draw_Main_Menu(true);				
-		}
+void DWIN_Update() {			
+#if ENABLED(DWIN_AUTO_TEST)	
+	if(DWIN_status == ID_SM_AUTOTESTING){
+		autotest.AutoTest_Loop();
 	}
 	else
-#endif		
-	{				
+#endif	
+#if ENABLED(SDCARD_TEST)
+	if(DWIN_status == ID_SM_SDCARDTESTING){
+		SDtest.SDTest_Loop();
+	}
+	else	
+#endif
+	{
 		EachMomentUpdate();  // Status update		
 		DWIN_HandleScreen(); // Rotary encoder update
 		HMI_SDCardUpdate();	 // SD card update
-#if BOTH(CASE_LIGHT_ENABLE, CASE_LIGHT_SMART)
+	#if BOTH(CASE_LIGHT_ENABLE, CASE_LIGHT_SMART)
 		SmartCaselightUpdate();
-#endif
+	#endif
 	}
 }
 

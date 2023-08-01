@@ -90,19 +90,23 @@
 //#define OPTION_Z2_ENDSTOP					//Dual Z driver motor(connect to E0 motor wire)
 
 //Motor drivers
-//#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
+#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
 //#define	OPTION_TMC220X_EXTRUDER 	//TMC220x be used to all extruder motor
+//#define	OPTION_TMC2225_XYZ  				//TMC2225 be used to XYZ motor
+//#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to all extruder motor
 
 //Extruders
 //#define	OPTION_TITAN							//Titan Extruder
 //#define	OPTION_BGM								//BGM Extruder
 
 //LCD screen
-#define	OPTION_LCD2004  						//default LCD screen
+//#define	OPTION_LCD2004  						//default LCD screen
 //#define	OPTION_LCD12864  					//128x64 dot LCD
-//#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
+#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
+#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
 
 //Bed leveling sensor
+#define DEFAULT_AUTO_LEVELING       true
 #define	OPTION_PL08N 								//default Probe use PL_08N
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
 //===========================================================================
@@ -166,9 +170,9 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if EITHER(OPTION_LCD12864, OPTION_LCDDWIN)
+#ifdef OPTION_LCD12864
 #define SERIAL_PORT_2 1
-#else
+#elif defined(OPTION_LCD2004)
 #define SERIAL_PORT_2 3		// EXP2 be used by LCD2004
 #endif
 /**
@@ -513,7 +517,7 @@
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   0
+#define HEATER_0_MINTEMP   5
 #define HEATER_1_MINTEMP   5
 #define HEATER_2_MINTEMP   5
 #define HEATER_3_MINTEMP   5
@@ -521,7 +525,7 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        0
+#define BED_MINTEMP        5
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -802,12 +806,25 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-
-#if ENABLED(OPTION_TITAN)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#if ENABLED(OPTION_TMC2225_XYZ)
+#define	DOUBLE_STEPS_XYZ	2
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 85 }
+#define	DOUBLE_STEPS_XYZ	1
 #endif
+	
+#if ENABLED(OPTION_TMC2225_EXTRUDER)
+#define	DOUBLE_STEPS_E		2
+#else
+#define	DOUBLE_STEPS_E		1
+#endif
+	
+#if EITHER(OPTION_TITAN,OPTION_BGM)
+#define	STEPS_GEAR_RATIO	5
+#else
+#define	STEPS_GEAR_RATIO	1
+#endif
+	
+#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1159,10 +1176,10 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
-#define INVERT_X_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ))
-#define INVERT_Y_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ))
-#define INVERT_Z_DIR (false ^ ENABLED(OPTION_TMC220X_XYZ))
-#define	EXTRUDER_DIR (true ^ ENABLED(OPTION_TMC220X_EXTRUDER) ^ ENABLED(OPTION_TITAN))
+#define INVERT_X_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Y_DIR (true ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define INVERT_Z_DIR (false ^ ENABLED(OPTION_TMC220X_XYZ)^ ENABLED(OPTION_TMC2225_XYZ))
+#define	EXTRUDER_DIR (true ^ ENABLED(OPTION_TITAN) ^ ENABLED(OPTION_TMC220X_EXTRUDER)^ ENABLED(OPTION_TMC2225_XYZ))
 
 // @section extruder
 
@@ -2402,7 +2419,7 @@
 //
 #if ENABLED(OPTION_LCDDWIN)
 #define ZONESTAR_DWIN_LCD
-#define	LCD_SERIAL_PORT				2		//D16=TXD2 D17=RXD2
+#define	LCD_SERIAL_PORT				1		//D16=TXD2 D17=RXD2
 #endif
 
 //

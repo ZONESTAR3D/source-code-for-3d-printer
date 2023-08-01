@@ -97,6 +97,7 @@ void HMI_TunePrintSpeed();
 #if ENABLED(OPTION_FLOWRATE_MENU)
 void HMI_TuneFlowrate();
 #endif
+void DWIN_StopPrintFromSDCard();
 void HMI_PauseOrStop();
 
 void HMI_Tune();

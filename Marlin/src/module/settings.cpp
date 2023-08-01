@@ -54,6 +54,9 @@
 
 #if HAS_DWIN_LCD
   #include "../lcd/dwin/dwin_ui/dwin.h"
+#ifndef DEFAULT_AUTO_LEVELING
+#define	DEFAULT_AUTO_LEVELING	false
+#endif
 #endif
 
 #include "../lcd/ultralcd.h"
@@ -304,10 +307,6 @@ typedef struct SettingsDataStruct {
 	#endif	
 	#if ENABLED(SPINDLE_FEATURE)
 	bool spindle_enabled;
-	#endif
-
-	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	int16_t max_hotendtemp;
 	#endif
 
 	#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -915,17 +914,6 @@ void MarlinSettings::postprocess() {
 			const bool spindle_enabled = cutter.Spindle_Enabled;			
      	EEPROM_WRITE(spindle_enabled);			
     }
-		#endif
-
-		//
-		//maxiums hotend temp
-		//
-		#if ENABLED(OPTION_HOTENDMAXTEMP)
-		{
-			_FIELD_TEST(max_hotendtemp);
-			const int16_t max_hotendtemp = thermalManager.hotend_maxtemp;
-			EEPROM_WRITE(max_hotendtemp);
-		}		
 		#endif
 
 		//
@@ -1896,17 +1884,6 @@ void MarlinSettings::postprocess() {
 			#endif
 
 			//
-			//maxiums hotend temp
-			//
-			#if ENABLED(OPTION_HOTENDMAXTEMP)
-			{
-				_FIELD_TEST(max_hotendtemp);
-				const int16_t &max_hotendtemp = thermalManager.hotend_maxtemp;				
-				EEPROM_READ(max_hotendtemp);				
-			}			
-			#endif
-
-			//
 			//mixing enabled
 			//			
 			#if BOTH(MIXING_EXTRUDER, OPTION_MIXING_SWITCH)
@@ -2863,11 +2840,6 @@ void MarlinSettings::reset() {
 	//
 	TERN_(OPTION_LASER,  Laser_Enabled = false);
 	TERN_(SPINDLE_FEATURE,  cutter.disable());
-
-	//
-	// maxiums hotend temp
-	//
-	TERN_(OPTION_HOTENDMAXTEMP,  thermalManager.hotend_maxtemp = HOTEND_WARNNING_TEMP);
 
 	//
 	// mixing enabled

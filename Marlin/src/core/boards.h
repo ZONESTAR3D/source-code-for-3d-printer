@@ -323,9 +323,10 @@
 #define BOARD_CREALITY_V427           4035  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_TRIGORILLA_PRO          4036  // Trigorilla Pro (STM32F103ZET6)
 #define BOARD_FLY_MINI                4037  // FLY MINI (STM32F103RCT6)
-#define	BOARD_ZONESTAR_ZM3E2		  4038  // STM32F103RCT6 controller
-#define	BOARD_ZONESTAR_ZM3E4		  4039  // STM32F103VCT6 controller
-#define	BOARD_ZONESTAR_ZM3E4V2		  4040  // STM32F103VCT6 controller
+#define	BOARD_ZONESTAR_ZM3E2		  		4038  // STM32F103RCT6 controller
+#define	BOARD_ZONESTAR_ZM3E4		  		4039  // STM32F103VET6 controller
+#define	BOARD_ZONESTAR_ZM3E4V2		  	4040  // STM32F103VCT6 controller
+#define	BOARD_ZONESTAR_ZM3E4V3		  	4041  // STM32F103VET6 controller
 
 //
 // ARM Cortex-M4F

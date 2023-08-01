@@ -162,9 +162,6 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTEND_TEMPS]; // = { 0 }
 	const uint16_t Temperature::heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
-	#if ENABLED(OPTION_HOTENDMAXTEMP)
-	int16_t Temperature::hotend_maxtemp = HOTEND_WARNNING_TEMP;
-	#endif	
 #endif
 
 #if ENABLED(AUTO_POWER_E_FANS)

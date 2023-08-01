@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.3.1"
-#define	STRING_DISTRIBUTION_DATE  "2023-04-26"
+#define	FIRMWARE_VERSION					"V3.3.2"
+#define	STRING_DISTRIBUTION_DATE  "2023-05-19"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -106,7 +106,7 @@
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //#define	OPTION_BGM									//BGM extruder
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
@@ -125,7 +125,7 @@
 #define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
 #endif
 #if ENABLED(OPTION_FAQ_QRCODE)
-#define	STRING_FAQ_LINK						"http://bit.ly/3IUwBnP"
+#define	STRING_FAQ_LINK						"https://bit.ly/3IUwBnP"
 #endif
 //===========================================================================
 //UART port
@@ -639,7 +639,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 1000
+#define EXTRUDE_MAXLENGTH 				1000
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================

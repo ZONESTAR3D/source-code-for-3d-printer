@@ -204,10 +204,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       #endif
     #endif
 
-		#if ENABLED(MIXING_EXTRUDER)
-			HOTEND_LOOP() info.target_temperature[0] = thermalManager.temp_hotend[0].target;
-    #elif EXTRUDERS
-      HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+		#if EXTRUDERS
+			#if ENABLED(MIXING_EXTRUDER)							
+				HOTEND_LOOP() info.target_temperature[0] = thermalManager.temp_hotend[0].target;
+    	#else
+      	HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+			#endif
     #endif
 
     TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
@@ -221,12 +223,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       info.fade = TERN0(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height);
     #endif
 
-		#if ENABLED(MIXING_EXTRUDER)
+		#if ENABLED(MIXING_EXTRUDER)		
 			memcpy(&info.percentmix, &mixer.percentmix, sizeof(info.percentmix));
-	    TERN_(GRADIENT_MIX, memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient)));
-			TERN_(RANDOM_MIX, memcpy(&info.random_mix, &mixer.random_mix, sizeof(info.random_mix)));
-		#endif		
-
+  		TERN_(GRADIENT_MIX, memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient)));
+			TERN_(RANDOM_MIX, memcpy(&info.random_mix, &mixer.random_mix, sizeof(info.random_mix)));	
+		#endif
+		
     #if ENABLED(FWRETRACT)
       COPY(info.retract, fwretract.current_retract);
       info.retract_hop = fwretract.current_hop;

@@ -257,8 +257,10 @@ void menu_info_board() {
       #endif
     #endif
 	
-	#if ENABLED(OPTION_BGM)
-	  STATIC_ITEM_P(PSTR("BGM Extruder"));
+	#if ENABLED(OPTION_BMG)
+	  STATIC_ITEM_P(PSTR("BMG Extruder R"));
+	#elif ENABLED(OPTION_BMG_LR)
+	  STATIC_ITEM_P(PSTR("BMG Extruder L+R"));
 	#elif ENABLED(OPTION_TITAN)
 	  STATIC_ITEM_P(PSTR("TITAN Extruder"));
   #endif
