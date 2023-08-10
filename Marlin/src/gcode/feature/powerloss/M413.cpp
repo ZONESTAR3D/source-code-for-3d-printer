@@ -52,7 +52,7 @@ void GcodeSuite::M413() {
     if (parser.seen('P')) recovery.purge();
     if (parser.seen('D')) recovery.debug(PSTR("M413"));
     #if PIN_EXISTS(POWER_LOSS)
-      if (parser.seen('O')) recovery._outage();
+      if (parser.seen('O')) recovery.outage();
     #endif
     if (parser.seen('E')) serialprintPGM(recovery.exists() ? PSTR("PLR Exists\n") : PSTR("No PLR\n"));
     if (parser.seen('V')) serialprintPGM(recovery.valid() ? PSTR("Valid\n") : PSTR("Invalid\n"));

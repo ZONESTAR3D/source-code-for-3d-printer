@@ -394,6 +394,12 @@ class Temperature {
 
     TERN_(HAS_HOTEND, static temp_range_t temp_range[HOTENDS]);
 
+		#if HAS_HOTEND
+			#ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 
+			static uint8_t consecutive_low_temperature_error[HOTENDS];
+			#endif
+		#endif
+
     #if HAS_HEATED_BED
       TERN_(WATCH_BED, static bed_watch_t watch_bed);
       TERN(PIDTEMPBED,,static millis_t next_bed_check_ms);
@@ -403,6 +409,9 @@ class Temperature {
       #ifdef BED_MAXTEMP
         static int16_t maxtemp_raw_BED;
       #endif
+			#ifdef MAX_CONSECUTIVE_BED_HIGH_TEMPERATURE_ERROR_ALLOWED 
+			static uint8_t consecutive_bed_high_temperature_error;
+			#endif
     #endif
 
     #if HAS_HEATED_CHAMBER
@@ -414,10 +423,6 @@ class Temperature {
       #ifdef CHAMBER_MAXTEMP
         static int16_t maxtemp_raw_CHAMBER;
       #endif
-    #endif
-
-    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-      static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 
     #ifdef MILLISECONDS_PREHEAT_TIME

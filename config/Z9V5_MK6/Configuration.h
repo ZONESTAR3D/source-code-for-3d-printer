@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK6"
-#define	FIRMWARE_VERSION					  "V1.1.0"
-#define	STRING_DISTRIBUTION_DATE  	"2023-07-29"
+#define	FIRMWARE_VERSION					  "V1.2.0"
+#define	STRING_DISTRIBUTION_DATE  	"2023-08-05"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -530,14 +530,14 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 315
-#define HEATER_1_MAXTEMP 315
-#define HEATER_2_MAXTEMP 315
-#define HEATER_3_MAXTEMP 315
-#define HEATER_4_MAXTEMP 315
-#define HEATER_5_MAXTEMP 315
-#define HEATER_6_MAXTEMP 315
-#define HEATER_7_MAXTEMP 315
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      125
 
 //===========================================================================

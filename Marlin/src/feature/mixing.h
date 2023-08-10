@@ -95,6 +95,102 @@ typedef struct {
 }randommix_t;
 #endif
 
+#if (MIXING_STEPPERS <= 4 )
+constexpr uint8_t INIT_MIX_RATE[16][MIXING_STEPPERS] PROGMEM = {
+#if (MIXING_STEPPERS == 2)
+	{5, 0},
+	{0, 5},
+	{5, 5},
+	{9, 1},
+	{17,3},
+	{4, 1},
+	{3, 1},
+	{7, 3},
+	{13, 7},
+	{6, 4},
+	{4, 6},
+	{7, 13},
+	{3, 7},
+	{1, 3},
+	{1, 4},
+	{1, 9}
+#elif (MIXING_STEPPERS == 3)
+	#if ENABLED(DEFAULT_MIX_CMY)
+	{5,	0, 0},	//Cyan
+	{0, 5, 0},	//Magenta
+	{0, 0, 5},	//Yellow
+	{0,	1, 5},	//
+	{5,	1, 0},	//Ocean-blue
+	{1,	1, 0},	//Blue
+	{1,	5, 0},	//Violet
+	{0,	5, 1},	//Red
+	{0,	1, 1},	//Orange
+	{1,	0, 5},	//Spring-Green
+	{1,	0, 1},	//Green
+	{5,	0, 1},	//Turquoise
+	{2,	1, 1},	//Cyan-Brown
+	{1,	2, 1},	//Magenta-Brown
+	{1,	1, 2},	//Yellow-Brown
+	{1,	1, 1}		//Brown	
+	#else			
+	{ 5, 0, 0},
+	{ 0, 5, 0},
+	{ 0, 0, 5},
+	{ 1, 1, 1},
+	{ 1, 1, 0},
+	{ 1, 0, 1},
+	{ 0, 1, 1},
+	{ 2, 1, 1},
+	{ 1, 2, 1},
+	{ 1, 1, 2},
+	{14, 3, 3},
+	{ 3,14, 3},
+	{ 3, 3,14},
+	{11, 3, 6},
+	{11, 6, 3},
+	{ 3, 6,11}	
+	#endif
+#elif (MIXING_STEPPERS == 4)
+	#if ENABLED(DEFAULT_MIX_CMY)
+	{5,	0, 0, 0},	//White
+	{0,	5, 0, 0},	//Cyan
+	{0,	0, 5, 0},	//Magenta
+	{0,	0, 0, 5},	//Yellow	
+	{0,	5, 1, 0},	//Ocean-blue
+	{0,	1, 1, 0},	//Blue
+	{0,	1, 5, 0},	//Violet
+	{0,	0, 5, 1},	//Red
+	{0,	0, 1, 1},	//Orange
+	{0,	1, 0, 5},	//Spring-Green
+	{0,	1, 0, 1},	//Green
+	{0,	5, 0, 1},	//Turquoise
+	{0,	2, 1, 1},	//Cyan-Brown
+	{0,	1, 2, 1},	//Magenta-Brown
+	{0,	1, 1, 2},	//Yellow-Brown
+	{0,	1, 1, 1}	//Brown	
+	#else
+	{5,	0, 0, 0},	//White
+	{0,	5, 0, 0},	//Red
+	{0,	0, 5, 0},	//Green
+	{0,	0, 0, 5},	//Blue
+	{1,	1, 1, 1},	//
+	{5,	5, 0, 0},	//
+	{5,	0, 5, 0},	//
+	{5,	0, 0, 5},	//
+	{0,	5, 5, 0},	//
+	{0,	5, 0, 5},	//
+	{1,	4, 0, 0},	//
+	{1,	0, 4, 0},	//
+	{1,	0, 0, 4},	//
+	{4,	1, 0, 0},	//
+	{4,	0, 1, 0},	//
+	{4,	0, 0, 1}
+	#endif
+#endif
+};
+#endif
+
+
 /**
  * @brief Mixer class
  * @details Contains data and behaviors for a Mixing Extruder
@@ -128,17 +224,32 @@ class Mixer {
 	
   //
   static void normalize(const uint8_t tool_index);
-  FORCE_INLINE static void normalize() { normalize(selected_vtool); }
+  static void normalize() { normalize(selected_vtool); }
 
   FORCE_INLINE static uint8_t get_current_vtool() { return selected_vtool; }
+	static void update_mix_from_vtool(const uint8_t j = selected_vtool);
+  static void T(const uint_fast8_t c);
+	
+ 	static float mix_prev_z;
+	
+  #ifdef GRADIENT_MIX
+  static gradient_t gradient;   
+	static void gradientmix_reset();
+  static void gradient_control(const float z);
+  static void update_mix_from_gradient();
+  // Refresh the gradient after a change
+  static void refresh_gradient();
+  #endif // GRADIENT_MIX
+  
+  #ifdef RANDOM_MIX
+	static randommix_t random_mix;
+	static void randommix_reset();
+	static void randommix_control(const float z);
+  // Refresh the random after a change
+  static void refresh_random_mix();
+  #endif
 
-  FORCE_INLINE static void T(const uint_fast8_t c) {
-    selected_vtool = c;
-    TERN_(GRADIENT_VTOOL, refresh_gradient());
-    update_mix_from_vtool();		
-  }
-
-  // Used when dealing with blocks
+	// Used when dealing with blocks
   FORCE_INLINE static void populate_block(mixer_comp_t b_color[MIXING_STEPPERS]) {
     #if ENABLED(GRADIENT_MIX)
     if (gradient.enabled) {
@@ -153,147 +264,10 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  static inline void copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
-  	 normalize_mixer_percent(&percentmix[0]);
-    // Scale each component to the largest one in terms of COLOR_A_MASK
-    // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
-    const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
-      LIST_N(MIXING_STEPPERS, percentmix[0], percentmix[1], percentmix[2], percentmix[3], percentmix[4], percentmix[5])
-    ));
-
-    // Scale all values so their maximum is COLOR_A_MASK
-    MIXER_STEPPER_LOOP(i) tcolor[i] = percentmix[i] * scale;
-
-    #ifdef MIXER_NORMALIZER_DEBUG
-    SERIAL_ECHOLNPGM("copy_percentmix_to_color >> ");
-      SERIAL_ECHOPGM("Percentmix [ ");
-      SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmix[3]), int(percentmix[4]), int(percentmix[5]));
-      SERIAL_ECHOPGM(" ] to Color [ ");
-      SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(tcolor[0]), int(tcolor[1]), int(tcolor[2]), int(tcolor[3]), int(tcolor[4]), int(tcolor[5]));
-      SERIAL_ECHOLNPGM(" ]");
-    #endif
-  }
-
-  static void update_mix_from_vtool(const uint8_t j=selected_vtool) {
-    float ctot = 0;
-    MIXER_STEPPER_LOOP(i) ctot += color[j][i];
-    MIXER_STEPPER_LOOP(i) percentmix[i] = (mixer_perc_t)(100.0f * color[j][i] / ctot);	  
-	  normalize_mixer_percent(&percentmix[0]);	
-
-    #ifdef MIXER_NORMALIZER_DEBUG
-	  	SERIAL_ECHOLNPGM("update_mix_from_vtool");
-	  	SERIAL_EOL();		
-      SERIAL_ECHOPAIR("V-tool ", int(j), " [ ");
-      SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(color[j][0]), int(color[j][1]), int(color[j][2]), int(color[j][3]), int(color[j][4]), int(color[j][5]));
-      SERIAL_ECHOPGM(" ] to Percentmix [ ");
-      SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmix[3]), int(percentmix[4]), int(percentmix[5]));
-      SERIAL_ECHOLNPGM(" ]");
-			SERIAL_EOL();
-    #endif
-		copy_percentmix_to_collector();
-  }
-
- 	static float mix_prev_z;
-	
-  #if ENABLED(GRADIENT_MIX)
-  static gradient_t gradient; 
-  // Update the current mix from the gradient for a given Z
-  static void update_gradient_for_z(const float z, const bool force = false);
-  static void update_gradient_for_planner_z(const bool force = false);
-	static void gradientmix_reset(){
-		 	gradient.enabled = false;
-			gradient.start_z = 0.0;
-			gradient.end_z = 0.0;
-			gradient.start_vtool= 0;
-			gradient.end_vtool = 1;
-	 }
-  static inline void gradient_control(const float z){
-	  if (gradient.enabled && did_pause_print == 0) {
-	    if (z >= gradient.end_z){
-	      T(gradient.end_vtool);
-			#if DISABLED(GRADIENT_VTOOL)
-			  gradientmix_reset();
-			#endif
-	    }
-	    else{
-	      update_gradient_for_z(z);
-	    }
-	  }
-	}
-
-  static inline void update_mix_from_gradient() {
-    float ctot = 0;
-    MIXER_STEPPER_LOOP(i) ctot += gradient.color[i];
-    MIXER_STEPPER_LOOP(i) percentmix[i] = (mixer_perc_t)CEIL(100.0f * gradient.color[i] / ctot);
-  #ifdef MIXER_NORMALIZER_DEBUG
-		SERIAL_ECHOLNPGM("update_mix_from_gradient");
-		SERIAL_EOL();
-		SERIAL_ECHOPGM("Gradient [ ");
-		SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(gradient.color[0]), int(gradient.color[1]), int(gradient.color[2]), int(gradient.color[3]), int(gradient.color[4]), int(gradient.color[5]));
-		SERIAL_ECHOPGM(" ] to Mix [ ");
-		SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmixmix[3]), int(percentmix[4]), int(percentmix[5]));
-		SERIAL_ECHOLNPGM(" ]");
-		SERIAL_EOL();
-  #endif
-  }
-
-  // Refresh the gradient after a change
-  static void refresh_gradient() {
-    #if ENABLED(GRADIENT_VTOOL)
-      const bool is_grd = (gradient.vtool_index == -1 || selected_vtool == (uint8_t)gradient.vtool_index);
-    #else
-      constexpr bool is_grd = true;
-    #endif
-    gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
-    if (gradient.enabled) {			
-      //mixer_perc_t mix_bak[MIXING_STEPPERS];
-      //COPY(mix_bak, percentmix);
-      update_mix_from_vtool(gradient.start_vtool);
-      COPY(gradient.start_mix, percentmix);
-      update_mix_from_vtool(gradient.end_vtool);
-      COPY(gradient.end_mix, percentmix);
-      update_gradient_for_planner_z(true);
-      //COPY(percentmix, mix_bak);
-			mix_prev_z = -999.9;
-    }
-  }
-  #endif // GRADIENT_MIX
-  
-  #if ENABLED(RANDOM_MIX)
-		static randommix_t random_mix;
-		static void update_randommix_for_z(const float z, const bool force = false);
-		static void update_randommix_for_planner_z(const bool force = false);  
-		static void randommix_reset(){
-			random_mix.enabled = false;
-			random_mix.start_z = 0.0;
-			random_mix.end_z = 0.0;
-			random_mix.height= 0.2;
-			random_mix.extruders = MIXING_STEPPERS;
-		}		 
-		static inline void randommix_control(const float z){
-			if (random_mix.enabled && did_pause_print == 0) {
-				if (z <= random_mix.end_z)
-					update_randommix_for_z(z);
-				else
-					randommix_reset();
-			}
-		}
-	 
-  // Refresh the random after a change
-  static void refresh_random_mix() {
-    random_mix.enabled = (random_mix.start_z < random_mix.end_z) ;
-    if (random_mix.enabled) {
-	  	selected_vtool = 0;			
-			mix_prev_z = -999.9;
-			update_randommix_for_planner_z(true);
-    }
-  }
-  #endif
-
   // Used in Stepper
   FORCE_INLINE static uint8_t get_stepper() { return runner; }
   FORCE_INLINE static uint8_t get_next_stepper() {
-    for (;;) {
+    MIXER_STEPPER_LOOP(i) {
       if (--runner < 0) runner = MIXING_STEPPERS - 1;
       accu[runner] += s_color[runner];
       if (
@@ -307,6 +281,7 @@ class Mixer {
         return runner;
       }
     }
+		return 0;
   }
 
   private:
@@ -318,6 +293,20 @@ class Mixer {
   static int_fast8_t  runner;
   static mixer_comp_t s_color[MIXING_STEPPERS];
   static mixer_accu_t accu[MIXING_STEPPERS];
+
+	static inline void copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]);
+		
+	#if ENABLED(GRADIENT_MIX)
+	// Update the current mix from the gradient for a given Z
+  static void update_gradient_for_z(const float z);
+  static void update_gradient_for_planner_z();	
+	#endif
+	
+	#if ENABLED(RANDOM_MIX)
+	// Update the current mix randomly for a given Z
+	static void update_randommix_for_z(const float z);
+	static void update_randommix_for_planner_z();  
+	#endif
 
 };
 

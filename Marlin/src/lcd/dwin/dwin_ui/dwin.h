@@ -94,12 +94,14 @@
 #define	DWIN_FEEDBACK_TICK()				do{buzzer.tone( 10,  500);} while(0)
 #define	DWIN_FEEDBACK_TIPS()				do{buzzer.tone( 10, 3000);} while(0)
 #define	DWIN_FEEDBACK_CONFIRM()			do{buzzer.tone( 50, 3000);buzzer.tone( 50, 0);buzzer.tone( 50, 1000);} while(0)
-#define	DWIN_FEEDBACK_WARNNING()		do{buzzer.tone(200, 4000);buzzer.tone(150, 0);buzzer.tone(200, 4000);} while(0)
+#define	DWIN_FEEDBACK_WARNNING()		do{buzzer.tone(200, 4000);buzzer.tone(100, 0);buzzer.tone(200, 4000);} while(0)
+#define	DWIN_FEEDBACK_WARNNING2()		do{buzzer.tone(400, 4000);buzzer.tone(400, 2000);} while(0)
 #else
-#define	DWIN_FEEDBACK_TICK()
-#define	DWIN_FEEDBACK_TIPS()
-#define	DWIN_FEEDBACK_CONFIRM()
-#define	DWIN_FEEDBACK_WARNNING()
+#define	DWIN_FEEDBACK_TICK()				NOOP
+#define	DWIN_FEEDBACK_TIPS()				NOOP
+#define	DWIN_FEEDBACK_CONFIRM()			NOOP
+#define	DWIN_FEEDBACK_WARNNING()		NOOP
+#define	DWIN_FEEDBACK_WARNNING2()		NOOP
 #endif
 
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL 	10000
@@ -550,7 +552,9 @@ typedef struct {
    			lcd_sd_status:1,
    			Is_purged:1,
    			Is_retracted:1,
-   			Is_shutdown:1
+   			Is_shutdown:1,
+   			Is_temperror:1,
+   			needshutdown:1
    			
 		#if ENABLED(OPTION_GUIDE_QRCODE)
 			 ,first_power_on:1
@@ -583,6 +587,7 @@ typedef struct {
   
 	uint8_t killtimes = 0;
 	uint8_t killElapsedTime = 0;
+	int8_t temperrorBeepTimes = 0;
  	
   #if ENABLED(OPTION_AUTOPOWEROFF)
 		uint16_t free_close_timer_rg = POWERDOWN_MACHINE_TIMER;
@@ -675,7 +680,23 @@ void _reset_shutdown_timer();
 #endif
 void set_status_msg_showtime(const uint16_t t);
 uint8_t get_title_picID();
-void Popup_Temperature_Runaway(const char *msg, int8_t heaterid);
+
+typedef enum{	
+	ERROR_MAX_TEMP = 0
+	,ERROR_THERMAL_RUNAWAY
+	,ERROR_HEATING_FAILED
+	,ERROR_MIN_TEMP	
+#if HAS_PID_HEATING
+	,ERROR_PID_TEMP_TOO_HIGH
+	,ERROR_PID_TIMEOUT
+#endif	
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+	,ERROR_REDUNDANT_TEMP
+#endif
+	,ERROR_NOOP
+}_emTempErrorID;
+
+void Popup_Temperature_Runaway(heater_id_t heaterid, _emTempErrorID errorid);
 void Stop_and_return_mainmenu();
 void Abort_SD_Printing();
 void HMI_DWIN_Init();

@@ -1169,7 +1169,7 @@ void HMI_Tune() {
 				}
 				Babysteps_timer_first = 0;
 			#endif
-		 		TERN_(POWER_LOSS_RECOVERY,recovery.save(true));	
+		 		//TERN_(POWER_LOSS_RECOVERY,recovery.save(true));	
 		  	DwinMenu_print.reset();
 		  	Draw_Printing_Menu();
 		 		break;

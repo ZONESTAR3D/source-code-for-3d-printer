@@ -116,7 +116,9 @@ void Draw_Main_Menu(const bool with_update, const uint8_t MenuItem) {
 	TERN_(OPTION_WIFI_MODULE,Draw_ICON_WIFI());
 	Draw_Status_Area();
 	EncoderRate.enabled = false;
+	#ifdef SLOW_MAINMENU	
 	EncoderRate.encoderPlusePerStep = (ENCODER_PULSES_PER_STEP*2);
+	#endif
 	if(with_update) dwinLCD.UpdateLCD();
 }
 
@@ -134,7 +136,9 @@ void HMI_MainMenu() {
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		switch (DwinMenu_main.now) {
 			case MAIN_CASE_PRINT: // Print File
+			#ifdef SLOW_MAINMENU	
 			EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
+			#endif
 			if(card.isMounted()){				
 				HMI_SDCardInit();
 				Draw_File_Menu();
@@ -145,22 +149,28 @@ void HMI_MainMenu() {
 			}
 		break;
 
-		case MAIN_CASE_PREPARE: // Prepare
-			EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
-			Draw_Prepare_Menu();
-		break;
+			case MAIN_CASE_PREPARE: // Prepare			
+			#ifdef SLOW_MAINMENU	
+				EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
+			#endif			
+				Draw_Prepare_Menu();
+			break;
 
-		case MAIN_CASE_CONTROL: // Control
-			EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
-			Draw_Control_Menu();
-		break;
+			case MAIN_CASE_CONTROL: // Control			
+			#ifdef SLOW_MAINMENU	
+				EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
+			#endif			
+				Draw_Control_Menu();
+			break;
 
-		case MAIN_CASE_INFO: // Leveling or Info
-			EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;			
-			Draw_Info_Menu();
-		break;
+			case MAIN_CASE_INFO: // Leveling or Info			
+			#ifdef SLOW_MAINMENU	
+				EncoderRate.encoderPlusePerStep = ENCODER_PULSES_PER_STEP;
+			#endif			
+				Draw_Info_Menu();
+			break;
 
-		default: break;
+			default: break;
 		}
 	}
 	dwinLCD.UpdateLCD();

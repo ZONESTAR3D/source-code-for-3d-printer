@@ -65,7 +65,6 @@ void _lcd_mixer_gradient_z_edit(const bool isend) {
         mixer.gradient.start_z = zvar;
       else if (!isend && zvar > mixer.gradient.end_z)
         mixer.gradient.end_z = zvar;
-  		TERN_(RANDOM_MIX, mixer.randommix_reset());
       mixer.refresh_gradient();
       ui.goto_previous_screen();
     }
@@ -148,8 +147,7 @@ void _lcd_mixer_random_z_edit(const bool isend) {
       if (isend && zvar < mixer.random_mix.start_z)
         mixer.random_mix.start_z = zvar;
       else if (!isend && zvar > mixer.random_mix.end_z)
-        mixer.random_mix.end_z = zvar;
-			TERN_(GRADIENT_MIX, mixer.gradientmix_reset());
+        mixer.random_mix.end_z = zvar;			
       mixer.refresh_random_mix();
       ui.goto_previous_screen();
     }

@@ -772,7 +772,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (endstops.tmc_spi_homing.any
       && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
     ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+    if (endstops.tmc_spi_homing_check()) break;
   #endif
 
   // Handle SD Card insert / remove
@@ -857,15 +857,6 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
-
-	#if HAS_DWIN_LCD
-	if(marlin_state == MF_KILLED){
-		LOOP_L_N(i, 5){
-			watchdog_refresh();		
-			for(int j=2000; j--;) DELAY_US(500);
-		}
-	}
-	#endif
 	
   minkill(steppers_off);	
 }

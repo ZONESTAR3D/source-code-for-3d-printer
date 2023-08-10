@@ -29,6 +29,7 @@
 #include "dwin_comm.h"
 #include "dwin.h"
 
+//#define		SLOW_MAINMENU
 enum{
 	MAIN_CASE_PRINT = 0,
 	MAIN_CASE_PREPARE,

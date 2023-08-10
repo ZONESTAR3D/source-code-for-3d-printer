@@ -83,7 +83,7 @@
 #define CUSTOM_MACHINE_NAME 			"Z9V5"
 #endif
 #define	FIRMWARE_VERSION					"V3.4.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-05-10"
+#define	STRING_DISTRIBUTION_DATE  "2023-08-05"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
@@ -110,9 +110,9 @@
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				//Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE					//Show a QRcode while WiFi is connected to help vist Web3D
-#define	OPTION_LASERPWMUSEDFANPIN		//Used the FAN pin as laser PWM pin
-#define	OPTION_SPINDLEUSEDBEDPIN		//Used the heat bed pin as Spindle PWM pin
-//#define	OPTION_BGM								//BGM extruder
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
+//#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
+//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_TMC2225_EXTRUDER		//TMC2225 be used to extruder motors
 //#define	OPTION_TMC2209_ALL_MOTOR	//TMC2209 be used to all motor
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
@@ -409,7 +409,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -1229,20 +1228,35 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
-#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_BGM) ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define EXTRUDER_DIR_BMG (true ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-
+#ifdef OPTION_BMG
+//All E0/E1/E2/E3 used Right hand BMG extruders  
+#define INVERT_E0_DIR EXTRUDER_DIR_BMG
+#define INVERT_E1_DIR EXTRUDER_DIR_BMG
+#define INVERT_E2_DIR EXTRUDER_DIR_BMG
+#define INVERT_E3_DIR EXTRUDER_DIR_BMG
+#elif defined(OPTION_BMG_LR)
+//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
+#define INVERT_E0_DIR EXTRUDER_DIR_BMG
+#define INVERT_E1_DIR EXTRUDER_DIR_BMG
+#define INVERT_E2_DIR EXTRUDER_DIR
+#define INVERT_E3_DIR EXTRUDER_DIR
+#else
 #define INVERT_E0_DIR EXTRUDER_DIR
 #define INVERT_E1_DIR EXTRUDER_DIR
 #define INVERT_E2_DIR EXTRUDER_DIR
 #define INVERT_E3_DIR EXTRUDER_DIR
-#define INVERT_E4_DIR EXTRUDER_DIR
-#define INVERT_E5_DIR EXTRUDER_DIR
-#define INVERT_E6_DIR EXTRUDER_DIR
-#define INVERT_E7_DIR EXTRUDER_DIR
+#endif
+
+//#define INVERT_E4_DIR EXTRUDER_DIR
+//#define INVERT_E5_DIR EXTRUDER_DIR
+//#define INVERT_E6_DIR EXTRUDER_DIR
+//#define INVERT_E7_DIR EXTRUDER_DIR
 
 // @section homing
 
@@ -2465,7 +2479,6 @@
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 //#define DWIN_CREALITY_LCD
-
 
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper

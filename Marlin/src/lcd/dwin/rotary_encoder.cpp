@@ -47,11 +47,17 @@
 _stENCODER_Rate_ EncoderRate;
 
 // Buzzer
+#if USE_BEEPER
+#ifdef SPEAKER
+#define	Encoder_tick DWIN_FEEDBACK_TIPS
+#else
 void Encoder_tick(void) {
   WRITE(BEEPER_PIN, 1);
   delay(10);
   WRITE(BEEPER_PIN, 0);
 }
+#endif
+#endif
 
 // Encoder initialization
 void Encoder_Configuration(void) {
@@ -70,22 +76,29 @@ void Encoder_Configuration(void) {
 }
 
 // Analyze encoder value and return state
+#define	CLICK_DEBOUNCE_TIME								5
+#define	ALLOWED_TIMEGAP_BETWEEN_2CLICK		(50*CLICK_DEBOUNCE_TIME)
 ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   const millis_t now = millis();
   static unsigned char lastEncoderBits;
   unsigned char newbutton = 0;
   static signed char temp_diff = 0;
-
+	static millis_t next_click_update_ms;
   ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(EN1)) newbutton |= 0x01;
   if (BUTTON_PRESSED(EN2)) newbutton |= 0x02;
-  if (BUTTON_PRESSED(ENC)) {
-    static millis_t next_click_update_ms;
+  if (BUTTON_PRESSED(ENC)) {    
+		#ifdef CLICK_DEBOUNCE_TIME
+		static millis_t debounce_click_update_ms;
+		if (ELAPSED(now, debounce_click_update_ms)){
+			 debounce_click_update_ms = millis() + CLICK_DEBOUNCE_TIME;
+			if(!BUTTON_PRESSED(ENC)) return ENCODER_DIFF_NO;
+		}
+		#endif		
     if (ELAPSED(now, next_click_update_ms)) {
-      next_click_update_ms = millis() + 300;
-      //Encoder_tick();
-      DWIN_FEEDBACK_TIPS();
-	  
+      next_click_update_ms = millis() + ALLOWED_TIMEGAP_BETWEEN_2CLICK;
+      Encoder_tick();
+
       const bool was_waiting = wait_for_user;
       wait_for_user = false;
       return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;

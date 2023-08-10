@@ -71,10 +71,9 @@ void GcodeSuite::M166() {
   #endif
 
   if (parser.seen('S')) mixer.gradient.enabled = parser.value_bool();
-	TERN_(RANDOM_MIX, mixer.randommix_reset());
   mixer.refresh_gradient();
 
-#if 1
+#if 0
   SERIAL_ECHOPGM("Gradient Mix ");
   serialprint_onoff(mixer.gradient.enabled);
   

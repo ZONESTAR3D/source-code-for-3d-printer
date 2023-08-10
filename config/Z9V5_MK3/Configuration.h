@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.3.2"
-#define	STRING_DISTRIBUTION_DATE  "2023-05-19"
+#define	FIRMWARE_VERSION					"V3.4.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-08-05"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
@@ -89,7 +89,7 @@
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #define	DWINLCD_MENU_VERSION			3		//Used DWIN LCD MENU V3
 #define	OPTION_AUTOPOWEROFF						//Power off after printer
-#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor driver)
+#define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_ZLSENSOR								//Probe use ZLSENSOR
 #define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
@@ -99,7 +99,7 @@
 #define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
 #define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	false		//Default Auto leveling feature is off
+#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
 //===========================================================================
 //optional feature
@@ -107,7 +107,8 @@
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 #define	OPTION_LASER									//Used the FAN pin as laser PWM pin
-//#define	OPTION_BGM									//BGM extruder
+//#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
+//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //#define OPTION_MAXSIZE              //Upgrade 500x500
@@ -504,7 +505,7 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+//#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
@@ -639,7 +640,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 				1000
+#define EXTRUDE_MAXLENGTH 1000
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -801,7 +802,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -1171,20 +1172,35 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
-#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_BGM) ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define	EXTRUDER_DIR (false ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
+#define EXTRUDER_DIR_BMG (true ^ ENABLED(OPTION_TMC2225_EXTRUDER) ^ ENABLED(OPTION_TMC2209_ALL_MOTOR))
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-
+#ifdef OPTION_BMG
+//All E0/E1/E2/E3 used Right hand BMG extruders  
+#define INVERT_E0_DIR EXTRUDER_DIR_BMG
+#define INVERT_E1_DIR EXTRUDER_DIR_BMG
+#define INVERT_E2_DIR EXTRUDER_DIR_BMG
+#define INVERT_E3_DIR EXTRUDER_DIR_BMG
+#elif defined(OPTION_BMG_LR)
+//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
+#define INVERT_E0_DIR EXTRUDER_DIR_BMG
+#define INVERT_E1_DIR EXTRUDER_DIR_BMG
+#define INVERT_E2_DIR EXTRUDER_DIR
+#define INVERT_E3_DIR EXTRUDER_DIR
+#else
 #define INVERT_E0_DIR EXTRUDER_DIR
 #define INVERT_E1_DIR EXTRUDER_DIR
 #define INVERT_E2_DIR EXTRUDER_DIR
 #define INVERT_E3_DIR EXTRUDER_DIR
-#define INVERT_E4_DIR EXTRUDER_DIR
-#define INVERT_E5_DIR EXTRUDER_DIR
-#define INVERT_E6_DIR EXTRUDER_DIR
-#define INVERT_E7_DIR EXTRUDER_DIR
+#endif
+
+//#define INVERT_E4_DIR EXTRUDER_DIR
+//#define INVERT_E5_DIR EXTRUDER_DIR
+//#define INVERT_E6_DIR EXTRUDER_DIR
+//#define INVERT_E7_DIR EXTRUDER_DIR
 
 // @section homing
 

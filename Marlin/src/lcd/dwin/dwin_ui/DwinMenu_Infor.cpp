@@ -145,19 +145,17 @@ static void Item_Info_LevelSensor(const uint8_t row) {
 }
 
 static void Item_Info_Thermistor(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Thermistor: NTC 100KOHM B3960"));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Thermistor: NTC 100K B3960"));
 	Draw_Menu_Line(row);
 }
 
 static void Item_Info_Bed(const uint8_t row) {
-	#define _BED_MAXYEMP (BED_MAXTEMP - BED_OVERSHOOT)
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MINTEMP:" STRINGIFY(BED_MINTEMP) " MAXTEMP:" STRINGIFY(BED_MAXTEMP - BED_OVERSHOOT)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MINP:" STRINGIFY(BED_MINTEMP) " MAX:" STRINGIFY(BED_MAXTEMP - BED_OVERSHOOT)));
 	Draw_Menu_Line(row);
 }
 
 static void Item_Info_Hotend(const uint8_t row) {
-	#define _HOTEND_MAXYEMP (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MINTEMP:" STRINGIFY(HEATER_0_MINTEMP) " MAXTEMP:" STRINGIFY(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MIN:" STRINGIFY(HEATER_0_MINTEMP) " MAX:" STRINGIFY(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
 	Draw_Menu_Line(row);
 }
 

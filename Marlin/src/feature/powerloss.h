@@ -40,13 +40,15 @@
 
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
-#define SAVE_INFO_INTERVAL_MS 5000
+//#define SAVE_INFO_INTERVAL_MS 5000
 
 typedef struct {
   uint8_t valid_head;
 
   // Machine state
   xyze_pos_t current_position;
+  uint16_t feedrate;
+
   float zraise;
 
   #if HAS_HOME_OFFSET
@@ -55,8 +57,6 @@ typedef struct {
   #if HAS_POSITION_SHIFT
     xyz_pos_t position_shift;
   #endif
-
-  uint16_t feedrate;
 
   #if HAS_MULTI_EXTRUDER || ENABLED(MIXING_EXTRUDER)
     uint8_t active_extruder;
@@ -80,7 +80,6 @@ typedef struct {
   #endif
 
   #if HAS_LEVELING
-    bool leveling;
     float fade;
   #endif
 
@@ -99,9 +98,6 @@ typedef struct {
     #endif
   #endif
 
-  // Relative axis modes
-  uint8_t axis_relative;
-
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];
   volatile uint32_t sdpos;
@@ -109,10 +105,19 @@ typedef struct {
   // Job elapsed time
   millis_t print_job_elapsed;
 
+  // Relative axis modes
+  uint8_t axis_relative;
+
   // Misc. Marlin flags
   struct {
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
+    #if HAS_LEVELING
+      bool leveling:1;            // M420 S
+    #endif
+    #if DISABLED(NO_VOLUMETRICS)
+      bool volumetric_enabled:1;  // M200 S D
+    #endif
   } flag;
 	
 #if (HAS_LCD_MENU || HAS_DWIN_LCD)

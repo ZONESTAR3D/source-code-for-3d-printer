@@ -48,6 +48,8 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
+//
+float Mixer::mix_prev_z = 0.0;
 void Mixer::normalize(const uint8_t tool_index) {
   float cmax = 0;
   float csum = 0;
@@ -106,100 +108,45 @@ void Mixer::normalize(const uint8_t tool_index) {
 #endif
 }
 
-#if (MIXING_STEPPERS <= 4 )
-constexpr uint8_t INIT_MIX_RATE[16][MIXING_STEPPERS] PROGMEM = {
-#if (MIXING_STEPPERS == 2)
-	{5, 0},
-	{0, 5},
-	{5, 5},
-	{9, 1},
-	{17,3},
-	{4, 1},
-	{3, 1},
-	{7, 3},
-	{13, 7},
-	{6, 4},
-	{4, 6},
-	{7, 13},
-	{3, 7},
-	{1, 3},
-	{1, 4},
-	{1, 9}
-#elif (MIXING_STEPPERS == 3)
-	#if ENABLED(DEFAULT_MIX_CMY)
-	{5,	0, 0},	//Cyan
-	{0, 5, 0},	//Magenta
-	{0, 0, 5},	//Yellow
-	{0,	1, 5},	//
-	{5,	1, 0},	//Ocean-blue
-	{1,	1, 0},	//Blue
-	{1,	5, 0},	//Violet
-	{0,	5, 1},	//Red
-	{0,	1, 1},	//Orange
-	{1,	0, 5},	//Spring-Green
-	{1,	0, 1},	//Green
-	{5,	0, 1},	//Turquoise
-	{2,	1, 1},	//Cyan-Brown
-	{1,	2, 1},	//Magenta-Brown
-	{1,	1, 2},	//Yellow-Brown
-	{1,	1, 1}		//Brown	
-	#else			
-	{ 5, 0, 0},
-	{ 0, 5, 0},
-	{ 0, 0, 5},
-	{ 1, 1, 1},
-	{ 1, 1, 0},
-	{ 1, 0, 1},
-	{ 0, 1, 1},
-	{ 2, 1, 1},
-	{ 1, 2, 1},
-	{ 1, 1, 2},
-	{14, 3, 3},
-	{ 3,14, 3},
-	{ 3, 3,14},
-	{11, 3, 6},
-	{11, 6, 3},
-	{ 3, 6,11}	
-	#endif
-#elif (MIXING_STEPPERS == 4)
-	#if ENABLED(DEFAULT_MIX_CMY)
-	{5,	0, 0, 0},	//White
-	{0,	5, 0, 0},	//Cyan
-	{0,	0, 5, 0},	//Magenta
-	{0,	0, 0, 5},	//Yellow	
-	{0,	5, 1, 0},	//Ocean-blue
-	{0,	1, 1, 0},	//Blue
-	{0,	1, 5, 0},	//Violet
-	{0,	0, 5, 1},	//Red
-	{0,	0, 1, 1},	//Orange
-	{0,	1, 0, 5},	//Spring-Green
-	{0,	1, 0, 1},	//Green
-	{0,	5, 0, 1},	//Turquoise
-	{0,	2, 1, 1},	//Cyan-Brown
-	{0,	1, 2, 1},	//Magenta-Brown
-	{0,	1, 1, 2},	//Yellow-Brown
-	{0,	1, 1, 1}	//Brown	
-	#else
-	{5,	0, 0, 0},	//White
-	{0,	5, 0, 0},	//Red
-	{0,	0, 5, 0},	//Green
-	{0,	0, 0, 5},	//Blue
-	{1,	1, 1, 1},	//
-	{5,	5, 0, 0},	//
-	{5,	0, 5, 0},	//
-	{5,	0, 0, 5},	//
-	{0,	5, 5, 0},	//
-	{0,	5, 0, 5},	//
-	{1,	4, 0, 0},	//
-	{1,	0, 4, 0},	//
-	{1,	0, 0, 4},	//
-	{4,	1, 0, 0},	//
-	{4,	0, 1, 0},	//
-	{4,	0, 0, 1}
-	#endif
-#endif
-};
-#endif
+void Mixer::copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
+	 normalize_mixer_percent(&percentmix[0]);
+  // Scale each component to the largest one in terms of COLOR_A_MASK
+  // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
+  const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
+    LIST_N(MIXING_STEPPERS, percentmix[0], percentmix[1], percentmix[2], percentmix[3], percentmix[4], percentmix[5])
+  ));
+
+  // Scale all values so their maximum is COLOR_A_MASK
+  MIXER_STEPPER_LOOP(i) tcolor[i] = percentmix[i] * scale;
+
+  #ifdef MIXER_NORMALIZER_DEBUG
+  SERIAL_ECHOLNPGM("copy_percentmix_to_color >> ");
+    SERIAL_ECHOPGM("Percentmix [ ");
+    SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmix[3]), int(percentmix[4]), int(percentmix[5]));
+    SERIAL_ECHOPGM(" ] to Color [ ");
+    SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(tcolor[0]), int(tcolor[1]), int(tcolor[2]), int(tcolor[3]), int(tcolor[4]), int(tcolor[5]));
+    SERIAL_ECHOLNPGM(" ]");
+  #endif
+}
+
+void Mixer::update_mix_from_vtool(const uint8_t j/*=selected_vtool*/) {
+  float ctot = 0;
+  MIXER_STEPPER_LOOP(i) ctot += color[j][i];
+  MIXER_STEPPER_LOOP(i) percentmix[i] = (mixer_perc_t)(100.0f * color[j][i] / ctot);	  
+  normalize_mixer_percent(&percentmix[0]);	
+
+  #ifdef MIXER_NORMALIZER_DEBUG
+  	SERIAL_ECHOLNPGM("update_mix_from_vtool");
+  	SERIAL_EOL();		
+    SERIAL_ECHOPAIR("V-tool ", int(j), " [ ");
+    SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(color[j][0]), int(color[j][1]), int(color[j][2]), int(color[j][3]), int(color[j][4]), int(color[j][5]));
+    SERIAL_ECHOPGM(" ] to Percentmix [ ");
+    SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmix[3]), int(percentmix[4]), int(percentmix[5]));
+    SERIAL_ECHOLNPGM(" ]");
+		SERIAL_EOL();
+  #endif
+	copy_percentmix_to_collector();
+}
 
 void Mixer::init_collector(const uint8_t index) {
 	MIXER_STEPPER_LOOP(i) 
@@ -397,7 +344,12 @@ void Mixer::copy_collector_to_percentmix() {
 }  
 #endif
 
-float Mixer::mix_prev_z = 0.0;
+void Mixer::T(const uint_fast8_t c) {
+  selected_vtool = c;
+  TERN_(GRADIENT_VTOOL, refresh_gradient());
+  update_mix_from_vtool();		
+}
+
 
 #if ENABLED(GRADIENT_MIX)
 gradient_t Mixer::gradient = {
@@ -411,24 +363,82 @@ gradient_t Mixer::gradient = {
   #endif
 };
 
-void Mixer::update_gradient_for_z(const float z, const bool force/* = false*/) {
-  if (z - mix_prev_z < 0.05 && !force) return;
+void Mixer::gradientmix_reset(){
+		gradient.enabled = false;
+		gradient.start_z = 0.0;
+		gradient.end_z = 0.0;
+		gradient.start_vtool= 0;
+		gradient.end_vtool = 1;
+}
+
+void Mixer::gradient_control(const float z){
+	if (gradient.enabled && did_pause_print == 0) {
+		if (z >= gradient.end_z){
+			T(gradient.end_vtool);
+		}
+		else{
+			update_gradient_for_z(z);
+		}
+	}
+}
+
+void Mixer::update_mix_from_gradient() {
+	float ctot = 0;
+	MIXER_STEPPER_LOOP(i) ctot += gradient.color[i];
+	MIXER_STEPPER_LOOP(i) percentmix[i] = (mixer_perc_t)CEIL(100.0f * gradient.color[i] / ctot);
+#ifdef MIXER_NORMALIZER_DEBUG
+	SERIAL_ECHOLNPGM("update_mix_from_gradient");
+	SERIAL_EOL();
+	SERIAL_ECHOPGM("Gradient [ ");
+	SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(gradient.color[0]), int(gradient.color[1]), int(gradient.color[2]), int(gradient.color[3]), int(gradient.color[4]), int(gradient.color[5]));
+	SERIAL_ECHOPGM(" ] to Mix [ ");
+	SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmixmix[3]), int(percentmix[4]), int(percentmix[5]));
+	SERIAL_ECHOLNPGM(" ]");
+	SERIAL_EOL();
+#endif
+}
+
+// Refresh the gradient after a change
+void Mixer::refresh_gradient() {
+	TERN_(RANDOM_MIX, randommix_reset());	
+	#if ENABLED(GRADIENT_VTOOL)
+		const bool is_grd = (gradient.vtool_index == -1 || selected_vtool == (uint8_t)gradient.vtool_index);
+	#else
+		constexpr bool is_grd = true;
+	#endif
+	gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
+	if (gradient.enabled) { 		
+		//mixer_perc_t mix_bak[MIXING_STEPPERS];
+		//COPY(mix_bak, percentmix);
+		update_mix_from_vtool(gradient.start_vtool);
+		COPY(gradient.start_mix, percentmix);
+		update_mix_from_vtool(gradient.end_vtool);
+		COPY(gradient.end_mix, percentmix);
+		mix_prev_z = -999.9;
+		update_gradient_for_planner_z();
+		//COPY(percentmix, mix_bak);		
+	}
+}
+
+
+void Mixer::update_gradient_for_z(const float z) {
+	if(z == mix_prev_z) return;
   mix_prev_z = z;
-	int16_t pct = 0;
+	const float slice = gradient.end_z - gradient.start_z;
 	if(z >= gradient.start_z){
-		pct = (int16_t)(((z - gradient.start_z) / (gradient.end_z - gradient.start_z))*100);
-    NOLESS(pct, 0); 
-		NOMORE(pct, 100);
+		float pct = (z - gradient.start_z) / slice;
+    NOLESS(pct, 0.0f); 
+		NOMORE(pct, 1.0f);
 		MIXER_STEPPER_LOOP(i) {
     	const mixer_perc_t sm = gradient.start_mix[i];
-    	percentmix[i] = sm + (mixer_perc_t)(((gradient.end_mix[i] - sm) * pct)/100);
+    	percentmix[i] = sm + (gradient.end_mix[i] - sm) * pct;
   	}
   	copy_percentmix_to_color(gradient.color);		
 	}
 }
 
-void Mixer::update_gradient_for_planner_z(const bool force/* = false*/) {
-  update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS), force);
+void Mixer::update_gradient_for_planner_z() {
+  update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
 }
 
 #endif // GRADIENT_MIX
@@ -441,8 +451,36 @@ randommix_t Mixer::random_mix = {
     MIXING_STEPPERS
 };
 
-void Mixer::update_randommix_for_z(const float z, const bool force/* = false*/) {	
-	if (z - mix_prev_z < (random_mix.height - 0.05) && !force) return;	
+void Mixer::randommix_reset(){
+	random_mix.enabled = false;
+	random_mix.start_z = 0.0;
+	random_mix.end_z = 0.0;
+	random_mix.height= 0.2;
+	random_mix.extruders = MIXING_STEPPERS;
+}
+
+void Mixer::randommix_control(const float z){
+	if (random_mix.enabled && did_pause_print == 0) {
+		if (z <= random_mix.end_z)
+			update_randommix_for_z(z);
+		else
+			randommix_reset();
+	}
+}
+ 
+// Refresh the random after a change
+void Mixer::refresh_random_mix() {
+	TERN_(GRADIENT_MIX, gradientmix_reset());
+	random_mix.enabled = (random_mix.start_z < random_mix.end_z) ;
+	if (random_mix.enabled) {
+		selected_vtool = 0; 		
+		mix_prev_z = -999.9;
+		update_randommix_for_planner_z();
+	}
+}
+
+void Mixer::update_randommix_for_z(const float z) {	
+	if (z == mix_prev_z) return;	
 	if(z >= random_mix.start_z && z <= random_mix.end_z){
 		mix_prev_z = z;
 		if(random_mix.extruders == 1){
@@ -467,8 +505,8 @@ void Mixer::update_randommix_for_z(const float z, const bool force/* = false*/) 
   }
 }
 
-void Mixer::update_randommix_for_planner_z(const bool force/* = false*/) {
-    update_randommix_for_z(planner.get_axis_position_mm(Z_AXIS), force);
+void Mixer::update_randommix_for_planner_z() {
+    update_randommix_for_z(planner.get_axis_position_mm(Z_AXIS));
 }
 
 #endif//RANDOM_MIX

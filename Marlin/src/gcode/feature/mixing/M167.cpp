@@ -51,8 +51,7 @@ void GcodeSuite::M167() {
 	if (parser.seenval('E')){
 		const uint8_t extruders = parser.value_byte();
 		if(extruders >= 1 && extruders <= MIXING_STEPPERS) mixer.random_mix.extruders = extruders;
-	}
-	TERN_(GRADIENT_MIX, mixer.gradientmix_reset());
+	}	
   mixer.refresh_random_mix();
 
 #if 0

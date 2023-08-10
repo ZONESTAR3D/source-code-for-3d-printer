@@ -562,36 +562,35 @@ void HMI_Adjust_Gradient_VTool_End() {
 	}
 }
 
-void HMI_Mixer_Gradient() {
- ENCODER_DiffState encoder_diffState = get_encoder_state();
- if (encoder_diffState == ENCODER_DIFF_NO) return;
+void HMI_Mixer_Gradient() {	
+ 	ENCODER_DiffState encoder_diffState = get_encoder_state();
+ 	if (encoder_diffState == ENCODER_DIFF_NO) return;
  
- // Avoid flicker by updating only the previous menu
- if (encoder_diffState == ENCODER_DIFF_CW) {
-  if (DwinMenu_GradientMix.inc(GRADIENT_CASE_END)) {
-   if (DwinMenu_GradientMix.now > MROWS && DwinMenu_GradientMix.now > DwinMenu_GradientMix.index) {
-    DwinMenu_GradientMix.index = DwinMenu_GradientMix.now;
-		Scroll_Menu(DWIN_SCROLL_UP);
-   }
-   else 
-    Move_Highlight(1, DwinMenu_GradientMix.now + MROWS - DwinMenu_GradientMix.index);
-  }
- }
- else if (encoder_diffState == ENCODER_DIFF_CCW) {
-  if (DwinMenu_GradientMix.dec()) {
-   if (DwinMenu_GradientMix.now < DwinMenu_GradientMix.index - MROWS) {
-    DwinMenu_GradientMix.index--;
-    Scroll_Menu(DWIN_SCROLL_DOWN);
-   }
-   else 
-    Move_Highlight(-1, DwinMenu_GradientMix.now + MROWS - DwinMenu_GradientMix.index);   
-  }
+ 	// Avoid flicker by updating only the previous menu
+ 	if (encoder_diffState == ENCODER_DIFF_CW) {
+  	if (DwinMenu_GradientMix.inc(GRADIENT_CASE_END)) {
+   		if (DwinMenu_GradientMix.now > MROWS && DwinMenu_GradientMix.now > DwinMenu_GradientMix.index) {
+    		DwinMenu_GradientMix.index = DwinMenu_GradientMix.now;
+				Scroll_Menu(DWIN_SCROLL_UP);
+   		}
+   		else 
+    		Move_Highlight(1, DwinMenu_GradientMix.now + MROWS - DwinMenu_GradientMix.index);
+		}	
+	}
+ 	else if (encoder_diffState == ENCODER_DIFF_CCW) {
+  	if (DwinMenu_GradientMix.dec()) {
+   		if (DwinMenu_GradientMix.now < DwinMenu_GradientMix.index - MROWS) {
+    		DwinMenu_GradientMix.index--;
+    		Scroll_Menu(DWIN_SCROLL_DOWN);
+   		}
+   		else 
+    		Move_Highlight(-1, DwinMenu_GradientMix.now + MROWS - DwinMenu_GradientMix.index);   
+  	}
  }
  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
   switch (DwinMenu_GradientMix.now) {
-	 case 0: 						// Back	 
-	 	TERN_(RANDOM_MIX, mixer.randommix_reset());
-	 	mixer.refresh_gradient();
+	 case 0: 						// Back	 	 	
+	 	mixer.refresh_gradient();			
     Draw_Mixer_Menu(MIXER_CASE_GRADIENT);
     break;
 		
@@ -803,8 +802,7 @@ void HMI_Mixer_Random() {
  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
   switch (DwinMenu_RandomMix.now) {
 	 case 0: 						// Back
-	  TERN_(GRADIENT_MIX, mixer.gradientmix_reset());
-	 	mixer.refresh_random_mix();
+	 	mixer.refresh_random_mix();		
     Draw_Mixer_Menu(MIXER_CASE_RANDOM);
    break;
 		
@@ -3524,6 +3522,7 @@ void HMI_Config() {
 			case CONFIG_CASE_POWERLOSS:  			// POWERLOSS	 		
 				DwinMenuID = DWMENU_CONFIG;
 				recovery.enabled = !recovery.enabled;
+				//recovery.changed();
 			#if HAS_ONOFF_ICON
 				Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_POWERLOSS, recovery.enabled);
 			#else
@@ -4056,6 +4055,8 @@ void HMI_Control() {
 				if(card.isMounted()){
 					card.closefile();
 					card.removeFile("/old_fw.bin");
+					// Purge the recovery file
+  				TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 				}
 				settings.reset();
 				HMI_AudioFeedback(settings.save());

@@ -527,31 +527,106 @@ inline void DWIN_Update_Variable() {
 	TERN_(MIXING_EXTRUDER, DWIN_Show_Extruder_status());
 }
 
-void Popup_Temperature_Runaway(const char *msg, int8_t heaterid) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
-	Draw_Popup_Bkgd_105();
-	DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 140);
-	DwinMenuID = DWMENU_POP_HEATRUNAWAY;
+static heater_id_t old_heaterid = H_E7;
+static _emTempErrorID old_errorid = ERROR_NOOP;
+void Popup_Temperature_Runaway(heater_id_t heaterid, _emTempErrorID errorid) {	
+	bool need_updata = false;
+	if(DWIN_status == ID_SM_START || DWIN_status == ID_SM_AUTOTESTING) return;
 	
-	if(heaterid == -1)
-		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10 )/2, 220, PSTR("HEATBED "));
-	else
-		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+7)*10)/2, 220, PSTR("HOTEND "));
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - (strlen(msg)+8)*10)/2 + 8*10, 220, (char*)msg);
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 245, PSTR("Please check it!"));
-	dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 19*10)/2, 270, PSTR("Click knob to exit."));
-	dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 300);
-	
-	DWIN_FEEDBACK_WARNNING();
-	dwinLCD.UpdateLCD();
+	if(DwinMenuID != DWMENU_POP_HEATRUNAWAY)
+	{
+		DwinMenuID = DWMENU_POP_HEATRUNAWAY;	
+		Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);		
+		Draw_Popup_Bkgd_105();
+		DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 130);		
+		old_heaterid = H_E7;
+		old_errorid = ERROR_NOOP;
+		need_updata = true;
+	}
+	//
+	if(old_heaterid != heaterid){
+		old_heaterid = heaterid;
+		need_updata = true;	
+		dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 14, 210, 258, 230);
+		if(heaterid >= 0)
+			dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 14*10)/2, 210, PSTR("HOTEND Error:"));
+		#if HAS_HEATED_BED
+		else if(heaterid == H_BED)
+			dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 14*10)/2, 210, PSTR("HEATBED Error:"));
+		#endif
+		#if HAS_HEATED_CHAMBER
+		else if(heaterid == H_CHAMBER)
+			dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 14*10)/2, 210, PSTR("CHAMBER Error:"));
+		#endif
+		#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+		else if(heaterid == H_REDUNDANT)
+			dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 210, PSTR("REDUNDANT Error:"));
+		#endif
+	}
+	//
+	if(old_errorid != errorid){
+		old_errorid = errorid;
+		need_updata = true;	
+		dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 14, 230, 258, 250);
+		switch(errorid){
+			case ERROR_MAX_TEMP:
+				HMI_flag.needshutdown = true;
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 230, PSTR("Max Temperature!"));
+				break;
+			case ERROR_MIN_TEMP:
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 230,  PSTR("Min Temperature!"));
+				break;
+		#if HAS_PID_HEATING			
+			case ERROR_PID_TEMP_TOO_HIGH:
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 21*10)/2, 230,  PSTR("Temperature too high!"));
+				break;
+			case ERROR_PID_TIMEOUT:
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 18*10)/2, 230,  PSTR("PID Tune Time out!"));
+				break;
+		#endif
+			case ERROR_HEATING_FAILED:			
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 15*10)/2, 230,  PSTR("Heating failed!"));
+				break;
+			case ERROR_THERMAL_RUNAWAY:
+				HMI_flag.needshutdown = true;
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 230,  PSTR("Thermal runaway!"));
+				break;
+		#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+			case ERROR_REDUNDANT_TEMP:
+				dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 22*10)/2, 230,  PSTR("Difference is too big!"));
+				break;
+		#endif
+			default: 
+				break;
+		}
+	}
+	if(HMI_flag.needshutdown){
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 11*10)/2, 255, PSTR("!!WARNING!!"));
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 20*10)/2, 280, PSTR("Shutdown to protect."));
+	}
+	else{
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 16*10)/2, 255, PSTR("Please check it!"));
+		dwinLCD.Draw_String(false, true, font10x20, COLOR_RED, COLOR_BG_WINDOW, (272 - 19*10)/2, 280, PSTR("Click knob to exit."));
+		dwinLCD.ICON_Show(ICON_IMAGE_ID,ICON_CONFIRM_E, 86, 310);
+	}
+	if(!HMI_flag.Is_temperror){
+		HMI_flag.Is_temperror = true;		
+		need_updata = true;	
+		HMI_flag.temperrorBeepTimes = 5;
+	}
+	if(need_updata) dwinLCD.UpdateLCD();
 }
 
 void HMI_Temperature_Runaway(){
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();	
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
-	else if(encoder_diffState == ENCODER_DIFF_ENTER){
-		DWIN_status = ID_SM_IDLE;
-		Draw_Main_Menu(true);
+	else if(encoder_diffState == ENCODER_DIFF_ENTER){		
+		if(!HMI_flag.needshutdown){
+			DWIN_status = ID_SM_IDLE;
+			HMI_flag.Is_temperror = false;
+			HMI_flag.temperrorBeepTimes = 0;
+			Draw_Main_Menu(true);
+		}
 	}
 }
 
@@ -681,6 +756,9 @@ void Stop_and_return_mainmenu() {
 	HMI_Value.print_speed = feedrate_percentage = 100;
 	DWIN_status = ID_SM_IDLE;
 	Draw_Main_Menu();
+	if(HMI_flag.Is_temperror){
+		Popup_Temperature_Runaway(old_heaterid, old_errorid);
+	}		
 }
 
 void DWIN_HandleScreen() {	
@@ -1005,6 +1083,28 @@ uint8_t get_title_picID(){
 	}
 }
 
+inline void _check_temperature_error(){
+	if(HMI_flag.Is_temperror){
+		if(HMI_flag.temperrorBeepTimes > 0){			
+			#if USE_BEEPER
+			if(HMI_flag.needshutdown)
+				DWIN_FEEDBACK_WARNNING2();
+			else 
+				DWIN_FEEDBACK_WARNNING();
+			#endif
+			HMI_flag.temperrorBeepTimes--;
+			if(HMI_flag.temperrorBeepTimes == 0 && HMI_flag.needshutdown) 
+				minkill();
+		}
+		#if ENABLED(SDSUPPORT)
+		if(!HMI_flag.needshutdown && (IS_SD_PRINTING() || IS_SD_PAUSED())){
+			Abort_SD_Printing();
+		}
+		#endif
+	}
+}
+
+
 void EachMomentUpdate() {	
 	char gcode_string[50]={0};
 	static millis_t next_rts_update_ms = 0;
@@ -1025,6 +1125,7 @@ void EachMomentUpdate() {
 			//check resume print when power on
 			DWIN_status = ID_SM_IDLE;
 			//TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
+			HMI_flag.Is_temperror = false;
 	}
 	else if(DWIN_status == ID_SM_RETURN_MAIN){
 		if(!queue.has_commands_queued()){
@@ -1033,15 +1134,17 @@ void EachMomentUpdate() {
 			Draw_Main_Menu(true);
 		}
 	}
-	else{
+	else{		
 		//variable update
-		DWIN_Update_Variable();	
+		DWIN_Update_Variable();			
 		//check auto power off
 		TERN_(OPTION_AUTOPOWEROFF, _check_autoshutdown());	
 		//check wifi feedback after turn on WiFi module
 		TERN_(OPTION_WIFI_MODULE, _check_wifi_feedback());
 		//clean the status bar if need
 		_check_clean_status_bar();		
+		//Check temperature error
+		_check_temperature_error();
 		if(DWIN_status == ID_SM_IDLE){
 			TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 		}
