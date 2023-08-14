@@ -62,8 +62,8 @@ enum MixTool {
   , NR_USER_VIRTUAL_TOOLS
   , MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS
   #if HAS_MIXER_SYNC_CHANNEL
-    , MIXER_AUTORETRACT_TOOL
-  #endif
+  , MIXER_AUTORETRACT_TOOL
+  #endif	
   , NR_MIXING_VIRTUAL_TOOLS
 };
 
@@ -230,8 +230,6 @@ class Mixer {
 	static void update_mix_from_vtool(const uint8_t j = selected_vtool);
   static void T(const uint_fast8_t c);
 	
- 	static float mix_prev_z;
-	
   #ifdef GRADIENT_MIX
   static gradient_t gradient;   
 	static void gradientmix_reset();
@@ -290,6 +288,7 @@ class Mixer {
   //static mixer_comp_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
 
   // Used in Stepper
+  static float mix_prev_z;	
   static int_fast8_t  runner;
   static mixer_comp_t s_color[MIXING_STEPPERS];
   static mixer_accu_t accu[MIXING_STEPPERS];
@@ -298,14 +297,15 @@ class Mixer {
 		
 	#if ENABLED(GRADIENT_MIX)
 	// Update the current mix from the gradient for a given Z
-  static void update_gradient_for_z(const float z);
-  static void update_gradient_for_planner_z();	
+  static void update_gradient_for_z(const float z, const bool force = false);
+  static void update_gradient_for_planner_z(const bool force = false);	
 	#endif
 	
 	#if ENABLED(RANDOM_MIX)
-	// Update the current mix randomly for a given Z
-	static void update_randommix_for_z(const float z);
-	static void update_randommix_for_planner_z();  
+	static int8_t backup_vtool;
+	// Update the current mix randomly for a given Z	
+	static void update_randommix_for_z(const float z, const bool force = false);
+	static void update_randommix_for_planner_z(const bool force = false);  
 	#endif
 
 };

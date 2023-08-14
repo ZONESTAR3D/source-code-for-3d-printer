@@ -80,8 +80,7 @@ void GcodeSuite::M24() {
       host_action_resume();
     #endif
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("Resuming SD"), DISMISS_STR));
-  #endif
-
+  #endif	
 	TERN(HAS_DWIN_LCD, Draw_Printing_Menu(true), ui.reset_status());  
 }
 

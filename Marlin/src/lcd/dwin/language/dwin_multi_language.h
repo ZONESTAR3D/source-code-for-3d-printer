@@ -359,7 +359,8 @@ enum{
 
 #if ENABLED(MIXING_EXTRUDER)	  
 	//mixer
-  MTSTRING_MIX,
+  //MTSTRING_MIX,
+  MTSTRING_SET,
   MTSTRING_MIX_GRADIENT,
   MTSTRING_MIX_RANDOM,
   MTSTRING_MIX_CURRENT,
@@ -514,11 +515,12 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{  2,167, 77,183},										//steps/mm 
 #if ENABLED(MIXING_EXTRUDER)				
 		//mixer
-		{222, 76,251, 89},										//mix
+		//{222, 76,251, 89},									//mix		
+		{ 50, 57, 76, 73},										//set
 		{179,166,248,179},										//gradient 
 		{  3,185, 68,198},										//random 
 		{  2,217, 61,228},										//current  
-		{ 67,217,128,228},										//V-TOOL
+		{ 67,216,128,228},										//V-TOOL
 		//Mix 
 		{131,216,179,230},										//comit
 		{185,216,237,230},										//vtool
@@ -660,7 +662,8 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{  2,191, 86,203},										//steps/mm 
 #if ENABLED(MIXING_EXTRUDER)				
 		//mixer
-		{  2,124, 60,136},										//mix
+		//{  2,124, 60,136},										//mix
+		{ 65, 55,118,72},											//set
 		{ 90,191,179,207},										//gradient 
 		{  1,274, 76,287},										//random 
 		{167,227,235,239},										//current
@@ -806,7 +809,8 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{ 80,190,188,204},										//steps/mm 
 #if ENABLED(MIXING_EXTRUDER)				
 		//mixer
-		{109,103,204,115},										//mix
+		//{109,103,204,115},										//mix
+		{ 74, 68,163, 83},										//set	
 		{191,191,268,205},										//gradient 
 		{  2,208,109,224},										//random 
 		{167,245,240,261},										//current
@@ -952,7 +956,8 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{125,101,186,113},										//steps/mm 
 #if ENABLED(MIXING_EXTRUDER)				
 		//mixer
-		{177, 36,229, 48},										//mix
+		//{177, 36,229, 48},										//mix
+		{221,219,246,231},										//set
 		{116,165,183,183},										//gradient 
 		{185,165,251,179},										//random 
 		{  2,232, 92,246},										//current
@@ -1098,7 +1103,8 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{  1,142, 86,154},										//steps/mm 
 #if ENABLED(MIXING_EXTRUDER)		
 		//mixer
-		{  1, 55, 60, 68},										//mix
+		//{  1, 55, 60, 68},									//mix
+		{190,260,243,277},										//set
 		{  2,212, 80,225},										//gradient 
 		{ 80,212,156,225},										//random 
 		{ 50,275, 91,288},										//current
@@ -1116,7 +1122,7 @@ constexpr uint16_t MULTILANGSTR_COORDINATE[LANG_NUMBER][MTSTRING_NUMBER][4] PROG
 		{175,245,261,257},										//self-test
 		{  1,227, 96,240},										//stow 
 		{ 99,227,230,240},										//deploy
-	  {  1,260, 81,272},									//sw-mode
+	  {  1,260, 81,272},										//sw-mode
 #endif
 		//PLA&ABS settings
 		{136,276,193,288},										//nozzle

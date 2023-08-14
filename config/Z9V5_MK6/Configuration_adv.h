@@ -369,10 +369,9 @@
 
 // The number of consecutive low temperature errors that can occur
 // before a min_temp_error is triggered. (Shouldn't be more than 10.)
-#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 					3
-#define	MAX_CONSECUTIVE_HIGH_TEMPERATURE_ERROR_ALLOWED					3
-#define	BED_MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED				3
-#define	BED_MAX_CONSECUTIVE_HIGH_TEMPERATURE_ERROR_ALLOWED			3
+//#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
+#define MAX_CONSECUTIVE_BED_HIGH_TEMPERATURE_ERROR_ALLOWED	10
+
 
 // The number of milliseconds a hotend will preheat before starting to check
 // the temperature. This value should NOT be set to the time it takes the
@@ -1251,7 +1250,7 @@
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss. Set to -1 to disable default pin on boards without module.
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
-    #define POWER_LOSS_PURGE_LEN   20 // (mm) Length of filament to purge on resume
+    #define POWER_LOSS_PURGE_LEN   10 // (mm) Length of filament to purge on resume
     //#define POWER_LOSS_RETRACT_LEN 10 // (mm) Length of filament to retract on fail. Requires backup power.
 
     // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
@@ -2053,7 +2052,7 @@
   #define RETRACT_RECOVER_FEEDRATE 	  	25   	 	// (mm/s) Default feedrate for recovering from retraction
   #define RETRACT_RECOVER_FEEDRATE_SWAP 30 			// (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
-    #define RETRACT_SYNC_MIXING         				// Retract and restore all mixing steppers simultaneously
+    //#define RETRACT_SYNC_MIXING         				// Retract and restore all mixing steppers simultaneously
   #endif
 #endif
 
@@ -3176,7 +3175,7 @@
 /**
  * Disable all Volumetric extrusion options
  */
-//#define NO_VOLUMETRICS
+#define NO_VOLUMETRICS
 
 #if DISABLED(NO_VOLUMETRICS)
   /**

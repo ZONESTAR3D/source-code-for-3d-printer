@@ -70,14 +70,20 @@ typedef struct {
 	float first;
 	float current;
 	float last;
+	float changed;
 } baby_step_t;
 #endif
+
+#if ENABLED(BABYSTEPPING)
+extern baby_step_t babyzoffset;
+#endif 
 
 #if ENABLED(MIXING_EXTRUDER)
 void DWIN_Refresh_ExtruerFAN_State();
 #endif
 
 void Redraw_SD_List();
+void DWIN_start_SDPrint();
 void Draw_Printing_Menu(const uint8_t MenuItem = 0, const bool with_update = false);
 void Draw_Print_ProgressBar();
 void Draw_Print_ElapsedTime();

@@ -1837,7 +1837,7 @@ void homeaxis(const AxisEnum axis) {
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
-    workspace_offset[axis] = home_offset[axis] + position_shift[axis];
+    workspace_offset[axis] = TERN0(HAS_HOME_OFFSET,home_offset[axis]) + TERN0(HAS_POSITION_SHIFT, position_shift[axis]);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
   }
 #endif

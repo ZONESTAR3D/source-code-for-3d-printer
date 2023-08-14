@@ -146,6 +146,7 @@ void PrintJobRecovery::prepare() {
   cmd_sdpos = 0;
 }
 
+
 /**
  * Save the current machine state to the power-loss recovery file
  */
@@ -352,6 +353,8 @@ void PrintJobRecovery::resume() {
   // Apply the dry-run flag if enabled
   if (info.flag.dryrun) marlin_debug_flags |= MARLIN_DEBUG_DRYRUN;
 
+	enabled = false;
+
   // Restore cold extrusion permission
   TERN_(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude = info.flag.allow_cold_extrusion);
 
@@ -456,8 +459,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore the previously active tool (with no_move)
-  #if (HAS_MULTI_EXTRUDER || ENABLED(MIXING_EXTRUDER))
+  #if (HAS_MULTI_EXTRUDER)
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
+    gcode.process_subcommands_now(cmd);	
+	#elif ENABLED(MIXING_EXTRUDER)
+		sprintf_P(cmd, PSTR("T%i"), info.active_extruder);
     gcode.process_subcommands_now(cmd);	
   #endif
 
@@ -517,37 +523,70 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("G12"));
   #endif
 
-	// Move back to the saved Z
+	// Move back to the saved Z + POWER_LOSS_RESUME_ZRAISE
   #if (HAS_LCD_MENU || HAS_DWIN_LCD)  
-  if(info.current_IS_lcd_pause == 0){
-  	dtostrf(info.current_position.z, 1, 3, str_1);
-  	#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    	sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
-  	#else
-    	gcode.process_subcommands_now_P(PSTR("G28 Z"));
-	    sprintf_P(cmd, PSTR("G1 Z%s F300"), str_1);
-  	#endif
-  	gcode.process_subcommands_now(cmd);
-  }
-  else{
-  	dtostrf(info.current_lcd_Pause_Zpos, 1, 3, str_1);
+  if(info.current_IS_lcd_pause == 1){
+		#ifdef POWER_LOSS_RESUME_ZRAISE
+  	const float zpos1 = info.current_lcd_Pause_Zpos + info.home_offset.z + POWER_LOSS_RESUME_ZRAISE;
+		dtostrf(zpos1, 1, 3, str_1);
+		#else
+		dtostrf(info.current_lcd_Pause_Zpos, 1, 3, str_1);
+		#endif
   	#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
     	sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   	#else 
-			gcode.process_subcommands_now_P(PSTR("G28 Z0"));
-	    sprintf_P(cmd, PSTR("G1 Z%s F300"), str_1);
+			gcode.process_subcommands_now_P(PSTR("G28 Z"));
+	    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   	#endif
-  	gcode.process_subcommands_now(cmd);
   }
-  #endif
-   
+	else
+	#endif
+	{
+		#ifdef POWER_LOSS_RESUME_ZRAISE
+			const float zpos2 = info.current_position.z + info.home_offset.z + POWER_LOSS_RESUME_ZRAISE;
+			dtostrf(zpos2, 1, 3, str_1);
+		#else		
+			dtostrf(info.current_position.z, 1, 3, str_1);
+		#endif
+		#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
+  		sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+		#else
+  		gcode.process_subcommands_now_P(PSTR("G28 Z"));
+    	sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+		#endif
+	}
+	gcode.process_subcommands_now(cmd);
+     
   // Move back to the saved XY
   sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
-  	dtostrf(info.current_position.x, 1, 3, str_1),
-  	dtostrf(info.current_position.y, 1, 3, str_2)
+  	dtostrf(info.current_position.x + info.home_offset.x, 1, 3, str_1),
+  	dtostrf(info.current_position.y + info.home_offset.y, 1, 3, str_2)
   );
   gcode.process_subcommands_now(cmd);
 
+	#if ((HAS_LCD_MENU || HAS_DWIN_LCD) && POWER_LOSS_RESUME_ZRAISE)
+  if(info.current_IS_lcd_pause == 1){	
+		const float z_resume1 = info.current_lcd_Pause_Zpos + info.home_offset.z;
+		dtostrf(z_resume1, 1, 3, str_1);
+	#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
+    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+	#else 
+	  sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+	#endif  	
+  }
+	else
+	#endif
+	{	
+		const float z_resume2 = info.current_position.z + info.home_offset.z;
+  	dtostrf(z_resume2, 1, 3, str_1);
+	#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
+    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+	#else    	
+	  sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+	#endif
+  }
+	gcode.process_subcommands_now(cmd);
+  
   // Restore the feedrate
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);

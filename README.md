@@ -71,13 +71,6 @@
 2. Install the PlatformIO IDE extension: Head over to the [***Get PlatformIO IDE***](https://platformio.org/install/ide?install=vscode) page to learn how to install PlatformIO IDE extension in Visual Studio Code.  
 **More detail, please refer to** [***Install marlin compilation environment***](https://marlinfw.org/docs/basics/install_platformio_vscode.html)  
 
-#### :warning:ATTENTION PLEASE:warning:
-This source code can't be builed on "PlatformIO core V1.6.7" or last version, when you build the firmware,visual studio will download a newest version PlatformIO IDE extenstion, please:
-1. Find the PlatformIO IDE in installed extension, return to version V2.5.0.
-![](1.jpg)    
-![](2.jpg)    
-2. Download [PlatformIO core V6.1.6](./patch/platformio-core-6.1.6.zip) and unzip it, and then replace the "platformio" directory in "C:\Users\\{YourPCname}\\.platformio\penv\Lib\site-packages\platformio".
-
 ### 2. Prepare firmware source code
 1. Download firmware source code to your PC and unzip it.  
 ![](./config/download.jpg)    

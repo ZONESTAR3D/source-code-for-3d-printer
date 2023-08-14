@@ -578,17 +578,18 @@ volatile bool Temperature::raw_temps_ready = false;
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
                 next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
-                temp_change_ms = ms + SEC_TO_MS(watch_temp_period);     // - move the expiration timer up
+                temp_change_ms = ms + SEC_TO_MS(watch_temp_period);   // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
               else if (ELAPSED(ms, temp_change_ms)){                   // Watch timer expired
+              	TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_HEATING_FAILED));
                 _temp_error(heater_id, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
-								TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_HEATING_FAILED));
+								
               }
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)){ // Heated, then temperature fell too far?
-              _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
-							TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_THERMAL_RUNAWAY));
+            	TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_THERMAL_RUNAWAY));
+              _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));							
             }
           }
         #endif
@@ -843,13 +844,13 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
 }
 
 void Temperature::max_temp_error(const heater_id_t heater_id) {	
-  _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 	TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_MAX_TEMP));
+  _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));	
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {  
-  _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 	TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(heater_id, ERROR_MIN_TEMP));
+  _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));	
 }
 
 #if HAS_HOTEND
@@ -1086,7 +1087,7 @@ void Temperature::manage_heater() {
         // Make sure temperature is increasing
         //if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
         if(watch_hotend[e].elapsed(ms)){																				// Time to check this extruder?
-          if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
+          if(degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
 						TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway((heater_id_t)e, ERROR_HEATING_FAILED));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
@@ -1097,7 +1098,7 @@ void Temperature::manage_heater() {
 
       #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
         // Make sure measured temperatures are close together
-        if (ABS(temp_hotend[0].celsius - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF){
+        if(ABS(temp_hotend[0].celsius - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF){
 					TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway(H_E0, ERROR_REDUNDANT_TEMP));
           _temp_error(H_E0, PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
         }

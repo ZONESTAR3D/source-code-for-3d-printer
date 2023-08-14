@@ -1561,7 +1561,7 @@ void MarlinUI::update() {
   }
 
   void MarlinUI::resume_print() {
-    #if ENABLED(POWER_LOSS_RECOVERY)
+  #if ENABLED(POWER_LOSS_RECOVERY)
 		ui.IS_lcd_pause = false;
 	#endif
 

@@ -212,8 +212,11 @@ void Mixer::init() {
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i) color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
-
-  ZERO(collector);
+	MIXER_STEPPER_LOOP(i) { 
+		if(i==0) (color[MIXER_DIRECT_SET_TOOL][i] = COLOR_A_MASK); 
+		else color[MIXER_DIRECT_SET_TOOL][i] = 0;
+	}
+  ZERO(collector);  
   
   update_mix_from_vtool(); 
 
@@ -368,17 +371,17 @@ void Mixer::gradientmix_reset(){
 		gradient.start_z = 0.0;
 		gradient.end_z = 0.0;
 		gradient.start_vtool= 0;
-		gradient.end_vtool = 1;
+		gradient.end_vtool = 1;		
 }
 
 void Mixer::gradient_control(const float z){
 	if (gradient.enabled && did_pause_print == 0) {
 		if (z >= gradient.end_z){
+			gradient.enabled = false;
 			T(gradient.end_vtool);
 		}
-		else{
+		else
 			update_gradient_for_z(z);
-		}
 	}
 }
 
@@ -399,51 +402,52 @@ void Mixer::update_mix_from_gradient() {
 }
 
 // Refresh the gradient after a change
-void Mixer::refresh_gradient() {
-	TERN_(RANDOM_MIX, randommix_reset());	
+void Mixer::refresh_gradient() {	
 	#if ENABLED(GRADIENT_VTOOL)
 		const bool is_grd = (gradient.vtool_index == -1 || selected_vtool == (uint8_t)gradient.vtool_index);
 	#else
 		constexpr bool is_grd = true;
 	#endif
 	gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
-	if (gradient.enabled) { 		
-		//mixer_perc_t mix_bak[MIXING_STEPPERS];
-		//COPY(mix_bak, percentmix);
+	if (gradient.enabled) {
+		TERN_(RANDOM_MIX, randommix_reset());		
 		update_mix_from_vtool(gradient.start_vtool);
 		COPY(gradient.start_mix, percentmix);
 		update_mix_from_vtool(gradient.end_vtool);
 		COPY(gradient.end_mix, percentmix);
 		mix_prev_z = -999.9;
-		update_gradient_for_planner_z();
-		//COPY(percentmix, mix_bak);		
-	}
+		update_gradient_for_planner_z(true);
+	}	
 }
 
-
-void Mixer::update_gradient_for_z(const float z) {
-	if(z == mix_prev_z) return;
-  mix_prev_z = z;
+void Mixer::update_gradient_for_z(const float z, const bool force/* = false*/) {
+	int16_t pct = 0;
 	const float slice = gradient.end_z - gradient.start_z;
-	if(z >= gradient.start_z){
-		float pct = (z - gradient.start_z) / slice;
-    NOLESS(pct, 0.0f); 
-		NOMORE(pct, 1.0f);
+	if(slice < 0.1) return;
+	
+  if (z - mix_prev_z < 0.05 && !force) return;		
+  mix_prev_z = z;	
+	
+	if(z >= gradient.start_z  && z <= gradient.end_z){
+		pct = (int16_t)(((z - gradient.start_z) / slice)*100);
+    NOLESS(pct, 0);
+		NOMORE(pct, 100);
 		MIXER_STEPPER_LOOP(i) {
     	const mixer_perc_t sm = gradient.start_mix[i];
-    	percentmix[i] = sm + (gradient.end_mix[i] - sm) * pct;
+    	percentmix[i] = sm + (mixer_perc_t)(((gradient.end_mix[i] - sm) * pct)/100);
   	}
   	copy_percentmix_to_color(gradient.color);		
 	}
 }
 
-void Mixer::update_gradient_for_planner_z() {
-  update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS));
+void Mixer::update_gradient_for_planner_z(const bool force/* = false*/) {
+  update_gradient_for_z(planner.get_axis_position_mm(Z_AXIS), force);
 }
 
 #endif // GRADIENT_MIX
 
 #if ENABLED(RANDOM_MIX)
+int8_t Mixer::backup_vtool = 0;
 randommix_t Mixer::random_mix = {
     false,    // enabled
     0, 0,     // start_z, end_z
@@ -457,32 +461,38 @@ void Mixer::randommix_reset(){
 	random_mix.end_z = 0.0;
 	random_mix.height= 0.2;
 	random_mix.extruders = MIXING_STEPPERS;
+	T(backup_vtool);
 }
 
 void Mixer::randommix_control(const float z){
 	if (random_mix.enabled && did_pause_print == 0) {
-		if (z <= random_mix.end_z)
-			update_randommix_for_z(z);
+		if (z > random_mix.end_z){
+			random_mix.enabled = false;
+			T(backup_vtool);
+		}
 		else
-			randommix_reset();
+			update_randommix_for_z(z);
 	}
 }
  
 // Refresh the random after a change
-void Mixer::refresh_random_mix() {
-	TERN_(GRADIENT_MIX, gradientmix_reset());
+void Mixer::refresh_random_mix() {	
 	random_mix.enabled = (random_mix.start_z < random_mix.end_z) ;
 	if (random_mix.enabled) {
-		selected_vtool = 0; 		
+		TERN_(GRADIENT_MIX, gradientmix_reset());		
+		if(selected_vtool != MIXER_DIRECT_SET_TOOL && selected_vtool != backup_vtool) 
+			backup_vtool = selected_vtool;
 		mix_prev_z = -999.9;
-		update_randommix_for_planner_z();
+		update_randommix_for_planner_z(true);
 	}
+	else 
+		T(backup_vtool);
 }
 
-void Mixer::update_randommix_for_z(const float z) {	
-	if (z == mix_prev_z) return;	
-	if(z >= random_mix.start_z && z <= random_mix.end_z){
-		mix_prev_z = z;
+void Mixer::update_randommix_for_z(const float z, const bool force/* = false*/) {	
+	if(z - mix_prev_z < random_mix.height && !force) return;	
+	mix_prev_z = z;
+	if(z >= random_mix.start_z && z <= random_mix.end_z + random_mix.height){		
 		if(random_mix.extruders == 1){
 			uint8_t cur_ext = random(100)%MIXING_STEPPERS;			
 			MIXER_STEPPER_LOOP(i){
@@ -498,15 +508,19 @@ void Mixer::update_randommix_for_z(const float z) {
 					collector[i] = 0.0;
 			}
 		}
-		//collector==>color, it is for printing
-		normalize(selected_vtool);
 		//collector==>percentmix,it is for display
-		TERN_(USE_PRECENT_MIXVALUE,copy_collector_to_percentmix());
+		TERN_(USE_PRECENT_MIXVALUE, copy_collector_to_percentmix());
+		//collector==>color, it is for printing
+		if(selected_vtool != MIXER_DIRECT_SET_TOOL){
+			backup_vtool = selected_vtool;
+			selected_vtool = MIXER_DIRECT_SET_TOOL;
+		}
+		normalize(MIXER_DIRECT_SET_TOOL);		
   }
 }
 
-void Mixer::update_randommix_for_planner_z() {
-    update_randommix_for_z(planner.get_axis_position_mm(Z_AXIS));
+void Mixer::update_randommix_for_planner_z(const bool force/* = false*/) {
+    update_randommix_for_z(planner.get_axis_position_mm(Z_AXIS), force);
 }
 
 #endif//RANDOM_MIX

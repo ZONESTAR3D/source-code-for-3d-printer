@@ -645,7 +645,10 @@ G29_TYPE GcodeSuite::G29() {
 			}
 			SERIAL_ECHOLNPAIR("max_offsetz = ", max_offsetz);
 			SERIAL_ECHOLNPAIR("min_offsetz = ", min_offsetz);
-			if(ABS(max_offsetz - min_offsetz) > 2.0){			
+			#ifndef MAX_PROBE_ZOFFSET
+			#define	MAX_PROBE_ZOFFSET	2.0
+			#endif
+			if(ABS(max_offsetz - min_offsetz) > MAX_PROBE_ZOFFSET){			
 				TERN_(HAS_LCD_MENU,LCD_MESSAGEPGM_P(PSTR("Over range, manual level!")));
 				TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_CATCH_FAIL2));
 				G29_RETURN(false);

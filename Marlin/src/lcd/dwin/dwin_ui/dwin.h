@@ -200,12 +200,12 @@ typedef enum {
   DWMENU_SET_ZOFFSET,
 
 	//Control>>Mixer
-	DWMENU_MIXER_MANUAL = 60,
+	DWMENU_MIXER_SETVTOOL = 60,
 	DWMENU_MIXER_GRADIENT,
 	DWMENU_MIXER_RANDOM,
 	DWMENU_MIXER_VTOOL,
 	//Control>>Mixer>>manual
-	DWMENU_MANUALMIXER_VTOOL,
+	DWMENU_SETVTOOL_VTOOL,
 	DWMENU_MIXER_EXT1,
 	DWMENU_MIXER_EXT2,
 	DWMENU_MIXER_EXT3,
@@ -215,12 +215,13 @@ typedef enum {
 	DWMENU_MIXER_GRADIENT_ZEND,
 	DWMENU_MIXER_GRADIENT_TSTAR,
 	DWMENU_MIXER_GRADIENT_TEND,	
+	DWMENU_MIXER_GRADIENT_STOP,	
 	//Control>>Mixer>>Random
 	DWMENU_MIXER_RANDOM_ZSTART,
 	DWMENU_MIXER_RANDOM_ZEND,
 	DWMENU_MIXER_RANDOM_HEIGHT,
 	DWMENU_MIXER_RANDOM_EXTN,	
-	
+	DWMENU_MIXER_RANDOM_STOP,	
  	//config
  	DWMENU_SET_BLTOUCH  = 80,
  	DWMENU_SET_RETRACT,
@@ -521,7 +522,7 @@ typedef struct {
 	int8_t old_mix_mode = -1;
 	int16_t Current_EAll_Scale    = 0;
 	float Last_EAll_Coordinate    = 0;
-	int8_t current_vtool = MIXING_STEPPERS+1;
+	int8_t current_vtool = 0;
 	mixer_perc_t mix_percent[MIXING_STEPPERS] = {0};
 	#endif
   #endif

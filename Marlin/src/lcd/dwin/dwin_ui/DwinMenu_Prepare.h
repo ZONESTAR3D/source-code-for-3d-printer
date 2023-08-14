@@ -166,6 +166,9 @@ void HMI_Move_Extr(uint8_t extr);
 void HMI_Move_AllExtr(); 
 #endif
 #endif
+#if ENABLED(BABYSTEPPING)
+inline void _init_baby_zoffset();
+#endif
 void HMI_Filament_PretHeat();
 void HMI_Filament_Extuder();
 void HMI_Filament_FeedLength();

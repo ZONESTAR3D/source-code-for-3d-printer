@@ -232,8 +232,21 @@ void Erase_Menu_Text(const uint8_t line){
 
 //updata Z position
 void DWIN_Show_Z_Position(bool bshowICON){	
-	static float last_z_pos = -9999.99;	
-	const float current_z_pos = (current_position.z + home_offset.z >= 0.1)?(current_position.z + home_offset.z):0.0;
+		static float last_z_pos = -9999.99;	
+	
+	#if ENABLED(BABYSTEPPING)
+		if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_SET_ZOFFSET)	return;		
+		#if HAS_HOME_OFFSET
+		const float current_z_pos = current_position.z + home_offset.z - (babyzoffset.first - babyzoffset.last);
+		#else
+		const float current_z_pos = current_position.z - (babyzoffset.first - babyzoffset.last);
+		#endif
+	#elif HAS_HOME_OFFSET
+		const float current_z_pos = current_position.z + home_offset.z;
+	#else
+		const float current_z_pos = current_position.z;
+	#endif		
+		
 	if(bshowICON) DWIN_Show_ICON(ICON_HOME_Z, State_icon_Zoffset_X, State_icon_Zoffset_Y);
 	if(TEST(axis_known_position, Z_AXIS)){
 		if(last_z_pos != current_z_pos || bshowICON){

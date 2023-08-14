@@ -39,6 +39,7 @@
 #define COLOR_WHITE       0xFFFF
 #define COLOR_YELLOW      0xFF0F
 #define COLOR_GREEN       0x07E0
+#define COLOR_GREY       	0x4208	//0x7BEF
 #define COLOR_RED         0xF00F  // Red background color
 #define COLOR_BLUE        0x001F  // 
 #define COLOR_BG_WINDOW   0x31E8  //
@@ -147,7 +148,9 @@ enum{
 	TEMP_CASE_END
 	
 };
+
 #define	TEMP_CASE_TOTAL (0+HAS_HOTEND*4+HAS_HEATED_BED+HAS_FAN)
+#define	COLOR_FLEX_ITEM		((IS_SD_PRINTING() || IS_SD_PAUSED() || IS_SD_FILE_OPEN())?COLOR_GREY:COLOR_WHITE)
 
 #define	DWIN_Draw_Small_Float21(x,y,v)							dwinLCD.Draw_SignedFloatValue(font8x16, COLOR_WHITE, COLOR_BG_BLACK, 2, 1, x, y, v)
 #define	DWIN_Draw_Small_Float22(x,y,v)							dwinLCD.Draw_SignedFloatValue(font8x16, COLOR_WHITE, COLOR_BG_BLACK, 2, 2, x, y, v)
@@ -170,6 +173,7 @@ enum{
 #define	DWIN_Draw_UnMaskString_FONT10(x,y,s) 				dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_UnMaskString_FONT10_TITLE(x,y,s) 	dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLUE, x, y, s)
 #define	DWIN_Draw_IntValue_Default(n,x,y,v) 				dwinLCD.Draw_IntValue(true, true, 0, font8x16, COLOR_WHITE, COLOR_BG_BLACK, n, x, y, v)
+#define	DWIN_Draw_IntValue_Default_Color(c, n,x,y,v) 	dwinLCD.Draw_IntValue(true, true, 0, font8x16, c, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_Select_IntValue_Default(n,x,y,v)	dwinLCD.Draw_IntValue(true, true, 0, font8x16, SELECT_COLOR, COLOR_BG_BLACK, n, x, y, v)
 #define	DWIN_Draw_IntValue_Default_Color(c,n,x,y,v) dwinLCD.Draw_IntValue(true, true, 0, font8x16, c, COLOR_BG_BLACK, n, x, y, v)
 #define DWIN_Draw_IntValue_PopMenu(n,x,y,v)					dwinLCD.Draw_IntValue(true, true, 0, font10x20, POP_TEXT_COLOR, COLOR_BG_WINDOW, n, x, y, v)

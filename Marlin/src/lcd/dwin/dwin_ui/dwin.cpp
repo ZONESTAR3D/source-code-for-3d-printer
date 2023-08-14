@@ -309,11 +309,9 @@ inline void _check_Powerloss_resume(){
 			}
 			TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 		}
-		HMI_flag.show_mode = SHOWED_TUNE;
-		DWIN_status = ID_SM_PRINTING;
+		HMI_flag.show_mode = SHOWED_TUNE;		
 		queue.inject_P(PSTR("M1000"));
-		DwinMenu_print.reset();
-		Draw_Printing_Menu(PRINT_CASE_TUNE, true);
+		DWIN_start_SDPrint();
 	}
 }
 #endif//(ENABLED(POWER_LOSS_RECOVERY))
@@ -630,7 +628,6 @@ void HMI_Temperature_Runaway(){
 	}
 }
 
-
 #if ENABLED(OPTION_AUTOPOWEROFF)
 inline void Draw_Freedown_Machine(){
 	dwinLCD.Draw_Rectangle(1, (DwinMenuID==DWMENU_MAIN)?COLOR_BG_BLACK : COLOR_BG_BLUE, 230, 7, 256, 23);
@@ -833,11 +830,11 @@ void DWIN_HandleScreen() {
 		//Control>>Mixer		
 	#if ENABLED(MIXING_EXTRUDER)
 		case DWMENU_MIXER:     							HMI_Mixer(); break;
-		case DWMENU_MIXER_MANUAL: 					HMI_Mixer_Manual(); break;
+		case DWMENU_MIXER_SETVTOOL: 				HMI_Mixer_SetVtool(); break;
 		case DWMENU_MIXER_GRADIENT: 				HMI_Mixer_Gradient(); break;
 		case DWMENU_MIXER_RANDOM: 					HMI_Mixer_Random(); break;
 		case DWMENU_MIXER_VTOOL:						HMI_Adjust_Mixer_Vtool(); break;
-		case DWMENU_MANUALMIXER_VTOOL:			HMI_Adjust_Mixer_Manual_Vtool(); break;
+		case DWMENU_SETVTOOL_VTOOL:					HMI_Adjust_Mixer_SetVtool_Vtool(); break;
 		case DWMENU_MIXER_EXT1: 						HMI_Adjust_Ext_Percent(0); break;
 		case DWMENU_MIXER_EXT2: 						HMI_Adjust_Ext_Percent(1); break;
 	#if(MIXING_STEPPERS > 2)		
@@ -1055,7 +1052,12 @@ void HMI_DWIN_Init() {
 	}
 	HMI_SetLanguage_PicCache();	
 	#if BOTH(EEPROM_SETTINGS, OPTION_GUIDE_QRCODE)
-	if(HMI_flag.first_power_on){
+	#if ENABLED(POWER_LOSS_RECOVERY)
+	if(HMI_flag.first_power_on && !recovery.enabled)
+	#else
+	if(HMI_flag.first_power_on)
+	#endif
+	{
 		Draw_Info_Menu();
 		Popup_Window_UserGuideLink();		
 		return;
@@ -1149,7 +1151,6 @@ void EachMomentUpdate() {
 			TERN_(POWER_LOSS_RECOVERY, _check_Powerloss_resume());
 		}
 		else if(DWIN_status == ID_SM_PRINTING){
-			TERN_(POWER_LOSS_RECOVERY,recovery.save(false));
 			_Update_printing_Timer();		
 		
 			if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_TUNE){
@@ -1159,7 +1160,7 @@ void EachMomentUpdate() {
 						EncoderRate.enabled = false;	
 						Draw_Printing_Menu(PRINT_CASE_TUNE, true);
 					}
-				} 	
+				}
 			}
 		}	
 		else if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
