@@ -71,14 +71,14 @@
 // @section info
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V3
+  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 				"Z9V5-MK6"
-#define	FIRMWARE_VERSION					  "V1.0"
-#define	STRING_DISTRIBUTION_DATE  	"2023-08-12"
+#define CUSTOM_MACHINE_NAME 				"Z9V5-MK5"
+#define	FIRMWARE_VERSION					  "V1.2.2"
+#define	STRING_DISTRIBUTION_DATE  	"2023-08-15"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -92,6 +92,7 @@
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N									//Probe use PL-08N
+#define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
@@ -106,7 +107,6 @@
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 #define	OPTION_LASER									//Used the FAN pin as laser PWM pin
-//#define	OPTION_TMC2225_EXTRUDER				//TMC2225 be used to extruder motors
 //#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
 //#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
@@ -509,7 +509,7 @@
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          3  // (degC) Temperature proximity considered "close enough" to the target
+#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
 #define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
@@ -746,18 +746,18 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-//#define X_DRIVER_TYPE  TMC2208
-//#define Y_DRIVER_TYPE  TMC2208
-//#define Z_DRIVER_TYPE  TMC2208
+//#define X_DRIVER_TYPE  TMC2225
+//#define Y_DRIVER_TYPE  TMC2225
+//#define Z_DRIVER_TYPE  TMC2225
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
-//#define Z2_DRIVER_TYPE TMC2208
+//#define Z2_DRIVER_TYPE TMC2225
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-//#define E0_DRIVER_TYPE A4988
-//#define E1_DRIVER_TYPE A4988
-//#define E2_DRIVER_TYPE A4988
-//#define E3_DRIVER_TYPE A4988
+//#define E0_DRIVER_TYPE TMC2225
+//#define E1_DRIVER_TYPE TMC2225
+//#define E2_DRIVER_TYPE TMC2225
+//#define E3_DRIVER_TYPE TMC2225
 //#define E4_DRIVER_TYPE A4988
 //#define E5_DRIVER_TYPE A4988
 //#define E6_DRIVER_TYPE A4988
@@ -809,7 +809,15 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400, 400, 400, 400}
+
+#if ENABLED(OPTION_TMC2225_EXTRUDER)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 800 }
+#elif ENABLED(OPTION_TMC2209_ALL_MOTOR)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400 }
+#else
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 400 }
+#endif
+
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203

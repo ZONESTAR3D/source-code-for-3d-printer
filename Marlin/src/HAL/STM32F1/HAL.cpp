@@ -274,10 +274,8 @@ void HAL_idletask() {
       // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
       /* copy from lpc1768 framework, should be fixed later for process HAS_SHARED_MEDIA*/
     #endif
-    #ifdef USB_MASS_STORAGE
     // process USB mass storage device class loop
     MarlinMSC.loop();
-	#endif
   #endif
 }
 

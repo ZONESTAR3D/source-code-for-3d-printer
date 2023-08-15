@@ -92,9 +92,9 @@ const temp_entry_t temptable_56[] PROGMEM = {
   { OV(1022),  -15}
 #elif (MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V2) 
 	// correct in 2023-07-11
-  //{  OV(  17), 315},
- 	//{  OV(  19), 310},
-  //{  OV(  21), 305},
+  {  OV(  17), 315},
+ 	{  OV(  19), 310},
+  {  OV(  21), 305},
   {  OV(  23), 300},
   {  OV(  25), 295},
 	{  OV(  27), 290},

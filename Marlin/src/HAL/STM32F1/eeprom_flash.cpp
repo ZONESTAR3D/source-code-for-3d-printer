@@ -72,8 +72,6 @@ bool PersistentStore::access_finish() {
     // Or, instead of checking at this point, turn eeprom_dirty into an array of bool the size of number
     // of pages. Inside write_data, we set the flag to true at that time if something in that
     // page changes...either way, something to look at later.
-
-		//TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 		cli(); // Stop interrupts
     
     FLASH_Unlock();

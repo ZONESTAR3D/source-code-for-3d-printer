@@ -211,11 +211,11 @@
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 		90     	// Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 5     		// Degrees Celsius
+  #define THERMAL_PROTECTION_HYSTERESIS 5     	// Degrees Celsius
 
-  #define ADAPTIVE_FAN_SLOWING              		// Slow part cooling fan if temperature drops
+  //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
   #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
-    #define NO_FAN_SLOWING_IN_PID_TUNING    		// Don't slow fan speed during M303
+    //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
 
   /**

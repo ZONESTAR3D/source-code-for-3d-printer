@@ -36,10 +36,7 @@ public:
   #endif
 };
 
-#ifdef USB_MASS_STORAGE
 extern USBMassStorage MarlinMSC;
-#endif
-
 extern MarlinUSBCompositeSerial MarlinCompositeSerial;
 
 void MSC_SD_init();

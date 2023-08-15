@@ -273,7 +273,9 @@
   extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
 
   #ifdef SERIAL_PORT_2
+
     extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
+
   #endif
 
 #endif // !USBCON
@@ -296,6 +298,7 @@
 #endif
 
 #ifdef LCD_SERIAL_PORT
+
   template <uint8_t serial>
   struct LCDSerialCfg {
     static constexpr int PORT                 = serial;
@@ -315,7 +318,7 @@
     #else
       static constexpr unsigned int RX_SIZE   = 64;
       static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false;
+      static constexpr bool RX_OVERRUNS       = false
     #endif
   };
 
@@ -324,6 +327,6 @@
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if BOTH(IS_AT90USB, BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif
