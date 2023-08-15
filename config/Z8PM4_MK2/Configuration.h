@@ -566,7 +566,7 @@
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
 #define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
+#define TEMP_HYSTERESIS          4  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
 #define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer

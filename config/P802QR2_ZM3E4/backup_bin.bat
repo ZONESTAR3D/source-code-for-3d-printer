@@ -12,7 +12,7 @@ set "lj=%~p0"
 set "lj=%lj:\= %"
 for %%a in (%lj%) do set wjj=%%a
 
-copy /Y ..\..\.pio\build\ZM3E4V2\firmware.bin .
+copy /Y ..\..\.pio\build\ZM3E4_STM32F103VE_USB\firmware.bin .
 
 if exist firmware.bin (copy /Y firmware.bin .\bin\%dst%\.) else (@echo Oops! firmware file doesn't exist!)
 if exist firmware.bin del firmware.bin
