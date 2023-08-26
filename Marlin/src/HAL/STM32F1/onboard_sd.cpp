@@ -16,7 +16,6 @@
 #include "../../inc/MarlinConfig.h"
 
 #if SD_CONNECTION_IS(ONBOARD)
-
 #include "onboard_sd.h"
 #include "SPI.h"
 #include "fastio.h"

@@ -161,7 +161,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
 #if HAS_HOTEND
   hotend_info_t Temperature::temp_hotend[HOTEND_TEMPS]; // = { 0 }
-	const uint16_t Temperature::heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
+  const uint16_t Temperature::heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP, HEATER_6_MAXTEMP, HEATER_7_MAXTEMP);
 #endif
 
 #if ENABLED(AUTO_POWER_E_FANS)
@@ -406,39 +406,39 @@ volatile bool Temperature::raw_temps_ready = false;
 
     const bool isbed = (heater_id == H_BED);
 
-  #if HAS_PID_FOR_BOTH
-    #define GHV(B,H) (isbed ? (B) : (H))
-    #define SHV(B,H) do{ if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater_id].soft_pwm_amount = H; }while(0)
-    #define ONHEATINGSTART() (isbed ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
-    #define ONHEATING(S,C,T) (isbed ? printerEventLEDs.onBedHeating(S,C,T) : printerEventLEDs.onHotendHeating(S,C,T))
-  #elif ENABLED(PIDTEMPBED)
-    #define GHV(B,H) B
-    #define SHV(B,H) (temp_bed.soft_pwm_amount = B)
-    #define ONHEATINGSTART() printerEventLEDs.onBedHeatingStart()
-    #define ONHEATING(S,C,T) printerEventLEDs.onBedHeating(S,C,T)
-  #else
-    #define GHV(B,H) H
-    #define SHV(B,H) (temp_hotend[heater_id].soft_pwm_amount = H)
-    #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
-    #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
-  #endif
+    #if HAS_PID_FOR_BOTH
+      #define GHV(B,H) (isbed ? (B) : (H))
+      #define SHV(B,H) do{ if (isbed) temp_bed.soft_pwm_amount = B; else temp_hotend[heater_id].soft_pwm_amount = H; }while(0)
+      #define ONHEATINGSTART() (isbed ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
+      #define ONHEATING(S,C,T) (isbed ? printerEventLEDs.onBedHeating(S,C,T) : printerEventLEDs.onHotendHeating(S,C,T))
+    #elif ENABLED(PIDTEMPBED)
+      #define GHV(B,H) B
+      #define SHV(B,H) (temp_bed.soft_pwm_amount = B)
+      #define ONHEATINGSTART() printerEventLEDs.onBedHeatingStart()
+      #define ONHEATING(S,C,T) printerEventLEDs.onBedHeating(S,C,T)
+    #else
+      #define GHV(B,H) H
+      #define SHV(B,H) (temp_hotend[heater_id].soft_pwm_amount = H)
+      #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
+      #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
+    #endif
     #define WATCH_PID BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP)
 
-  #if WATCH_PID
-    #if ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED)
-      #define GTV(B,H) (isbed ? (B) : (H))
-    #elif BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
-      #define GTV(B,H) (H)
-    #else
-      #define GTV(B,H) (B)
+    #if WATCH_PID
+      #if ALL(THERMAL_PROTECTION_HOTENDS, PIDTEMP, THERMAL_PROTECTION_BED, PIDTEMPBED)
+        #define GTV(B,H) (isbed ? (B) : (H))
+      #elif BOTH(THERMAL_PROTECTION_HOTENDS, PIDTEMP)
+        #define GTV(B,H) (H)
+      #else
+        #define GTV(B,H) (B)
+      #endif
+      const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
+      const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
+      const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
+      millis_t temp_change_ms = next_temp_ms + SEC_TO_MS(watch_temp_period);
+      float next_watch_temp = 0.0;
+      bool heated = false;
     #endif
-    const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
-    const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
-    const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
-    millis_t temp_change_ms = next_temp_ms + SEC_TO_MS(watch_temp_period);
-    float next_watch_temp = 0.0;
-    bool heated = false;
-  #endif
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
 
@@ -457,10 +457,10 @@ volatile bool Temperature::raw_temps_ready = false;
 
     SHV(bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
-  #if ENABLED(PRINTER_EVENT_LEDS)
-    const float start_temp = GHV(temp_bed.celsius, temp_hotend[heater_id].celsius);
-    LEDColor color = ONHEATINGSTART();
-  #endif
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      const float start_temp = GHV(temp_bed.celsius, temp_hotend[heater_id].celsius);
+      LEDColor color = ONHEATINGSTART();
+    #endif
 
     TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
@@ -469,14 +469,15 @@ volatile bool Temperature::raw_temps_ready = false;
     while (wait_for_heatup) {
 
       const millis_t ms = millis();
+
       if (raw_temps_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
+
         // Get the current temperature and constrain it
         current_temp = GHV(temp_bed.celsius, temp_hotend[heater_id].celsius);
-
-				NOLESS(maxT, current_temp);
+        NOLESS(maxT, current_temp);
         NOMORE(minT, current_temp);
-				
+
         #if ENABLED(PRINTER_EVENT_LEDS)
           ONHEATING(start_temp, current_temp, target);
         #endif
@@ -660,7 +661,7 @@ volatile bool Temperature::raw_temps_ready = false;
       TERN_(HAL_IDLETASK, HAL_idletask());
 
       // Run UI update
-      ui.update();
+      TERN(HAS_DWIN_LCD, DWIN_Update(), ui.update());
     }
     wait_for_heatup = false;
 
@@ -790,7 +791,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
 inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
-  #if USE_BEEPER
+  #if (USE_BEEPER && DISABLED(SPEAKER))
     for (uint8_t i = 20; i--;) {
       WRITE(BEEPER_PIN, HIGH); delay(25);
       WRITE(BEEPER_PIN, LOW); delay(80);
@@ -818,7 +819,6 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   }
 
   disable_all_heaters(); // always disable (even for bogus temp)
-  wait_for_heatup = false;
 
   #if BOGUS_TEMPERATURE_GRACE_PERIOD
     const millis_t ms = millis();
@@ -1085,9 +1085,8 @@ void Temperature::manage_heater() {
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
-        //if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
-        if(watch_hotend[e].elapsed(ms)){																				// Time to check this extruder?
-          if(degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
+        if (watch_hotend[e].next_ms && ELAPSED(ms, watch_hotend[e].next_ms)) {  // Time to check this extruder?
+          if (degHotend(e) < watch_hotend[e].target) {                          // Failed to increase enough?
 						TERN_(HAS_DWIN_LCD, Popup_Temperature_Runaway((heater_id_t)e, ERROR_HEATING_FAILED));
             _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
           }
@@ -1124,6 +1123,7 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_HEATED_BED
+
     #if ENABLED(THERMAL_PROTECTION_BED)
       if (degBed() > BED_MAXTEMP){ 
 				#ifdef MAX_CONSECUTIVE_BED_HIGH_TEMPERATURE_ERROR_ALLOWED
@@ -1933,16 +1933,15 @@ void Temperature::init() {
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
-
     #define _TEMP_MAX_E(NR) do{ \
-			const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
+      const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, TERN(HEATER_##NR##_USER_THERMISTOR, 2000, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1)); \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
-	
+
     #define _MINMAX_TEST(N,M) (HOTENDS > N && THERMISTOR_HEATER_##N && THERMISTOR_HEATER_##N != 998 && THERMISTOR_HEATER_##N != 999 && defined(HEATER_##N##_##M##TEMP))
-	
+
     #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
     #endif
@@ -2432,7 +2431,7 @@ void Temperature::readings_ready() {
         const bool heater_on = (temp_hotend[e].target > 0
           || TERN0(PIDTEMP, temp_hotend[e].soft_pwm_amount) > 0
         );
-       	if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error((heater_id_t)e);				 
+        if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error((heater_id_t)e);
         if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
           #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
             if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
@@ -2445,6 +2444,7 @@ void Temperature::readings_ready() {
         #endif
       }
     }
+
   #endif // HAS_HOTEND
 
   #if HAS_HEATED_BED

@@ -35,22 +35,21 @@
  *       either sets a Sane Default, or results in No Change to the existing value.
  */
 
-// Change EEPROM version if the structure changes
-#if 0//ndef EEPROM_VERSION
-#define EEPROM_VERSION "V82"
-#endif
-#define EEPROM_OFFSET 100
-
 // Check the integrity of data offsets.
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
 
 #include "settings.h"
-
 #include "endstops.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+// Change EEPROM version if the structure changes
+#ifndef EEPROM_VERSION
+#define EEPROM_VERSION "V82"
+#endif
+#define EEPROM_OFFSET 100
 
 #if HAS_DWIN_LCD
   #include "../lcd/dwin/dwin_ui/dwin.h"

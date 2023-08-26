@@ -462,7 +462,7 @@ typedef struct {
 	TERN_(PID_AUTOTUNE_MENU,	uint8_t PIDAutotune_cycles = PID_AUTOTUNE_CYCLES);
   int16_t print_speed     	= 100;
 	int16_t flowrate     			= 100;
-  int16_t Max_Feedspeed     = 0;
+  int16_t Max_Feedrate     = 0;
   int16_t Max_Acceleration  = 0;
   int16_t Max_Jerk          = 0;
   int16_t Steps_per_mm      = 0;
@@ -537,6 +537,7 @@ typedef struct {
 	uint32_t elapsed_value = 0;
 	
 	TERN_(SWITCH_EXTRUDER_MENU, int8_t switchExtruder = SE_DEFAULT);
+
 } HMI_value_t;
 extern HMI_value_t HMI_Value;
 

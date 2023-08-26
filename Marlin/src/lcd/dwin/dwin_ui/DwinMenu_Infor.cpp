@@ -135,7 +135,7 @@ static void Item_Info_Protocol(const uint8_t row) {
 
 static void Item_Info_LevelSensor(const uint8_t row) {	
 #if ENABLED(OPTION_3DTOUCH)	
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Level Sensor: 3D-Touch"));	
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Level Sensor: 3D Touch"));	
 #elif ENABLED(OPTION_ZLSENSOR)
 	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("Level Sensor: ZL-Sensor"));
 #else
@@ -150,12 +150,12 @@ static void Item_Info_Thermistor(const uint8_t row) {
 }
 
 static void Item_Info_Bed(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MINP:" STRINGIFY(BED_MINTEMP) " MAX:" STRINGIFY(BED_MAXTEMP - BED_OVERSHOOT)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotBed: MIN:" STRINGIFY(BED_MINTEMP) " MAX:" STRINGIFY(BED_MAXTEMP)));
 	Draw_Menu_Line(row);
 }
 
 static void Item_Info_Hotend(const uint8_t row) {
-	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MIN:" STRINGIFY(HEATER_0_MINTEMP) " MAX:" STRINGIFY(HEATER_0_MAXTEMP - HOTEND_OVERSHOOT)));
+	DWIN_Draw_UnMaskString_Default(LBLX_INFO, MBASE(row), PSTR("HotEnd: MIN:" STRINGIFY(HEATER_0_MINTEMP) " MAX:" STRINGIFY(HEATER_0_MAXTEMP)));
 	Draw_Menu_Line(row);
 }
 

@@ -161,7 +161,7 @@ void HMI_Move_X();
 void HMI_Move_Y(); 
 void HMI_Move_Z(); 
 #if HAS_HOTEND
-void HMI_Move_Extr(uint8_t extr); 
+void HMI_Move_Extruder(uint8_t extr); 
 #if ENABLED(MIXING_EXTRUDER)
 void HMI_Move_AllExtr(); 
 #endif

@@ -764,7 +764,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if(printJobOngoing()) recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -772,7 +772,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (endstops.tmc_spi_homing.any
       && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
     ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-    if (endstops.tmc_spi_homing_check()) break;
+        if (endstops.tmc_spi_homing_check()) break;
   #endif
 
   // Handle SD Card insert / remove
@@ -791,8 +791,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(USE_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  ui.update();
-  
+  TERN(HAS_DWIN_LCD, DWIN_Update(), ui.update());
+
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
@@ -828,8 +828,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
 	TERN_(OPTION_REPEAT_PRINTING, ReprintManager.RepeatPrinting_process());
 
-  // Refresh watchdog
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 }
 
 /**
@@ -857,8 +855,8 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
-	
-  minkill(steppers_off);	
+
+  minkill(steppers_off);
 }
 
 void minkill(const bool steppers_off/*=false*/) {
@@ -869,7 +867,7 @@ void minkill(const bool steppers_off/*=false*/) {
   cli(); // Stop interrupts
 
   // Wait to ensure all interrupts stopped
-  for (int i = 1000; i--;) DELAY_US(200);
+  for (int i = 1000; i--;) DELAY_US(250);
 
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
@@ -880,18 +878,24 @@ void minkill(const bool steppers_off/*=false*/) {
   steppers_off ? disable_all_steppers() : disable_e_steppers();
 
   TERN_(PSU_CONTROL, PSU_OFF());
-	
+
   TERN_(HAS_SUICIDE, suicide());
 
   #if HAS_KILL
+
     // Wait for kill to be released
     while (kill_state()) watchdog_refresh();
+
     // Wait for kill to be pressed
     while (!kill_state()) watchdog_refresh();
+
     void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
     resetFunc();                  // Jump to address 0
+
   #else
+
     for (;;) watchdog_refresh();  // Wait for reset
+
   #endif
 }
 
@@ -965,7 +969,6 @@ inline void tmc_standby_setup() {
     SET_INPUT_PULLDOWN(E7_STDBY_PIN);
   #endif
 }
-
 
 /**
  * Marlin entry-point: Set up before the program loop
@@ -1095,6 +1098,8 @@ void setup() {
     SETUP_RUN(tmc_serial_begin());
   #endif
 
+  SETUP_RUN(setup_powerhold());
+
   #if HAS_STEPPER_RESET
     SETUP_RUN(disableStepperDrivers());
   #endif
@@ -1135,7 +1140,7 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-	SETUP_RUN(setup_powerhold());
+	//SETUP_RUN(setup_powerhold());
 	
   // Init buzzer pin(s)
   #if USE_BEEPER
@@ -1350,7 +1355,7 @@ void setup() {
 	
 	TERN_(HAS_DWIN_LCD,HMI_DWIN_Init());
 			
-  #if HAS_SERVICE_INTERVALS && DISABLED(HAS_DWIN_LCD)
+  #if HAS_SERVICE_INTERVALS && !HAS_DWIN_LCD
     ui.reset_status(true);  // Show service messages or keep current status
   #endif
 
@@ -1377,7 +1382,6 @@ void setup() {
 
   SETUP_LOG("setup() completed.");
 }
-
 
 /**
  * The main Marlin program loop

@@ -670,7 +670,7 @@ void HMI_Move_Z() {
 
 #if HAS_HOTEND
 char gcode_string[50] = {0};
-void HMI_Move_Extr(uint8_t extr) {	
+void HMI_Move_Extruder(uint8_t extr) {	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Current_E_Scale[extr])) {			

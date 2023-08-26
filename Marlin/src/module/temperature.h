@@ -299,15 +299,17 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 
 #endif
 
+#if HAS_HOTEND
+#define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
+#endif
 
 class Temperature {
 
   public:
 
-    #if HAS_HOTEND
-      #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
+    #if HAS_HOTEND      
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-			static const uint16_t heater_maxtemp[HOTENDS];
+      static const uint16_t heater_maxtemp[HOTENDS];
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
@@ -595,7 +597,8 @@ class Temperature {
     #endif
 
     #if HAS_HOTEND
-		    static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
+
+      static void setTargetHotend(const int16_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #ifdef MILLISECONDS_PREHEAT_TIME
           if (celsius == 0)
@@ -603,7 +606,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());				
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }

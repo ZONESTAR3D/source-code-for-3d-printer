@@ -799,15 +799,15 @@ void DWIN_HandleScreen() {
 	  case DWMENU_MOVEZ:     							HMI_Move_Z(); break;
 #if HAS_HOTEND
 		case DWMENU_SET_ETMP: 							HMI_ETemp(); break;
-		case DWMENU_MOVE_EXT1:							HMI_Move_Extr(0); break;
+		case DWMENU_MOVE_EXT1:							HMI_Move_Extruder(0); break;
 	#if(E_STEPPERS > 1)
-		case DWMENU_MOVE_EXT2:							HMI_Move_Extr(1); break;
+		case DWMENU_MOVE_EXT2:							HMI_Move_Extruder(1); break;
 	#endif
 	#if(E_STEPPERS > 2)
-		case DWMENU_MOVE_EXT3:							HMI_Move_Extr(2); break;
+		case DWMENU_MOVE_EXT3:							HMI_Move_Extruder(2); break;
 	#endif
 	#if(E_STEPPERS > 3)
-		case DWMENU_MOVE_EXT4:							HMI_Move_Extr(3); break;
+		case DWMENU_MOVE_EXT4:							HMI_Move_Extruder(3); break;
 	#endif
 	#if ENABLED(MIXING_EXTRUDER)
 		case DWMENU_MOVE_EXTALL:						HMI_Move_AllExtr(); break;	
@@ -935,15 +935,14 @@ void DWIN_HandleScreen() {
 	
 		//Control>>Motion
 		case DWMENU_MOTION:    							HMI_Motion(); break;			
-	  case DWMENU_SET_MAXSPEED: 					HMI_MaxSpeed(); break;
+	  case DWMENU_SET_MAXSPEED: 					HMI_MaxFeedrate(); break;
 	  case DWMENU_SET_MAXACC: 						HMI_MaxAcceleration(); break;
 	  case DWMENU_SET_MAXJERK:  					HMI_MaxJerk(); break;
 	  case DWMENU_SET_STEPPREMM:					HMI_StepPermm(); break;	  
-	  case DWMENU_SET_MAXSPEED_VALUE: 		HMI_MaxFeedspeedXYZE(); break;
-	  case DWMENU_SET_MAXACC_VALUE: 			HMI_MaxAccelerationXYZE(); break;
-	  case DWMENU_SET_MAXJERK_VALUE: 			HMI_MaxJerkXYZE(); break;
-	  case DWMENU_SET_STEPPREMM_VALUE: 		HMI_StepXYZE(); break;
-
+	  case DWMENU_SET_MAXSPEED_VALUE: 		HMI_Adjust_MaxFeedrate(); break;
+	  case DWMENU_SET_MAXACC_VALUE: 			HMI_Adjust_MaxAcceleration(); break;
+	  case DWMENU_SET_MAXJERK_VALUE: 			HMI_Adjust_MaxJerk(); break;
+	  case DWMENU_SET_STEPPREMM_VALUE: 		HMI_Adjust_Steppermm(); break;
 	#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 		case DWMENU_POP_FROD_OPTION:				HMI_Filament_Runout_Option(); break;
 		case DWMENU_POP_FROD_INSERT:				HMI_Filament_Runout_Confirm(); break;

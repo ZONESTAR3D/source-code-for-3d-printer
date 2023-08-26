@@ -76,13 +76,13 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 			"Z9V5-MK3"
-#define	FIRMWARE_VERSION					"V3.4.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-08-05"
-#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
-#define WEBSITE_URL 							"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)"
-#define EEPROM_VERSION 			    	"V83"
+#define CUSTOM_MACHINE_NAME 			  "Z9V5-MK3"
+#define	FIRMWARE_VERSION					  "V3.4.1"
+#define	STRING_DISTRIBUTION_DATE    "2023-08-23"
+#define SHORT_BUILD_VERSION 			  "Marlin-2.0.8"
+#define WEBSITE_URL 							  "www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR      "(ZONESTAR, Hally)"
+#define EEPROM_VERSION 			  		  "V84"		//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default feature, usually keep it enable
 #define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
@@ -137,6 +137,10 @@
 #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
 #if ENABLED(OPTION_3DTOUCH)
 #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
+#endif
+//===========================================================================
+#if ENABLED(OPTION_3DTOUCH)
+#undef OPTION_ZLSENSOR
 #endif
 //===========================================================================
 /**
@@ -746,18 +750,18 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-//#define X_DRIVER_TYPE  A4988
-//#define Y_DRIVER_TYPE  A4988
-//#define Z_DRIVER_TYPE  A4988
+//#define X_DRIVER_TYPE  TMC2225
+//#define Y_DRIVER_TYPE  TMC2225
+//#define Z_DRIVER_TYPE  TMC2225
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
-//#define Z2_DRIVER_TYPE A4988
+//#define Z2_DRIVER_TYPE TMC2225
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-//#define E0_DRIVER_TYPE A4988
-//#define E1_DRIVER_TYPE A4988
-//#define E2_DRIVER_TYPE A4988
-//#define E3_DRIVER_TYPE A4988
+//#define E0_DRIVER_TYPE TMC2225
+//#define E1_DRIVER_TYPE TMC2225
+//#define E2_DRIVER_TYPE TMC2225
+//#define E3_DRIVER_TYPE TMC2225
 //#define E4_DRIVER_TYPE A4988
 //#define E5_DRIVER_TYPE A4988
 //#define E6_DRIVER_TYPE A4988
@@ -802,7 +806,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-#define DISTINCT_E_FACTORS
+//#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -1070,7 +1074,6 @@
  *     O-- FRONT --+
  */
 #define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
-
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 		35
@@ -1401,6 +1404,11 @@
   #define PROBING_MARGIN_BACK		PROBING_MARGIN
 
   #define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
+  #if ENABLED(OPTION_MAXSIZE)
+	#define	MAX_PROBE_ZOFFSET			4.0
+	#else
+	#define	MAX_PROBE_ZOFFSET			2.0
+	#endif
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1604,9 +1612,9 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-//#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
-//#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
+#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
 // G20/G21 Inch mode support

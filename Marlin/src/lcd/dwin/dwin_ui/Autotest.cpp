@@ -256,10 +256,10 @@ void Autotest::AutoTest_Loop() {
 					DWIN_FEEDBACK_WARNNING();
 					break;
 				}
-				thermalManager.setTargetHotend(max(test_temp_hotend_first + 20, 80), 0);
+				thermalManager.setTargetHotend(_MAX(test_temp_hotend_first + 20, 80), 0);
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_ETEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_ETEMP_INFO)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_ETEMP_INFO), PSTR("Hot end Heating..."));
-				thermalManager.setTargetBed(max(test_temp_hotbed_first + 20, 60));
+				thermalManager.setTargetBed(_MAX(test_temp_hotbed_first + 20, 60));
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_WINDOW, 0, YPOS(ID_LINE_BTEMP_INFO), DWIN_WIDTH, YPOS(ID_LINE_BTEMP_INFO)+ROW_GAP);
 				DRAW_STRING_FONT12(COLOR_WHITE, COLOR_BG_WINDOW, LSTART, YPOS_MSG(ID_LINE_BTEMP_INFO), PSTR("Hot bed Heating..."));				
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, YPOS(ID_LINE_SD1), DWIN_WIDTH, YPOS(ID_LINE_SD1)+ROW_GAP);

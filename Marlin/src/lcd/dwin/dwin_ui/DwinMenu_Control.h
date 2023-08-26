@@ -384,16 +384,19 @@ void HMI_LinearAdvance();
 void HMI_Adjust_Brightness();
 #endif
 
-void HMI_MaxSpeed();
-void HMI_MaxFeedspeedXYZE(); 
-void HMI_MaxAccelerationXYZE(); 
+void HMI_Adjust_MaxFeedrate(); 
+void HMI_MaxFeedrate();
+
+
+void HMI_Adjust_MaxAcceleration(); 
 void HMI_MaxAcceleration(); 
 
-void HMI_MaxJerkXYZE(); 
+void HMI_Adjust_MaxJerk(); 
 void HMI_MaxJerk(); 
 
-void HMI_StepXYZE(); 
+void HMI_Adjust_Steppermm(); 
 void HMI_StepPermm(); 
+
 void HMI_Motion();
 
 

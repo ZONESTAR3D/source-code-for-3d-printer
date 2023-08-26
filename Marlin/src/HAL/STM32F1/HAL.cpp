@@ -130,7 +130,7 @@ const uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
-  #if HAS_ADC_BUTTONS
+  #if ENABLED(ADC_KEYPAD)
     ADC_KEYPAD_PIN,
   #endif
   #if HAS_JOY_ADC_X
@@ -187,7 +187,7 @@ enum TempPinIndex : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-  #if HAS_ADC_BUTTONS
+  #if ENABLED(ADC_KEYPAD)
     ADC_KEY,
   #endif
   #if HAS_JOY_ADC_X
@@ -389,7 +389,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
     #endif
-    #if HAS_ADC_BUTTONS
+    #if ENABLED(ADC_KEYPAD)
       case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
     #endif
     #if ENABLED(POWER_MONITOR_CURRENT)

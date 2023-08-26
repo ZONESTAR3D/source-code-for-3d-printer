@@ -14,7 +14,6 @@
  *
  */
 #if defined(__STM32F1__) && defined(USE_USB_COMPOSITE)
-
 #include "msc_sd.h"
 #include "SPI.h"
 

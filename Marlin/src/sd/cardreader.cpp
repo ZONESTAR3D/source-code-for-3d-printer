@@ -396,7 +396,7 @@ void CardReader::mount() {
       ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
   #endif
 
-  TERN_(HAS_LCD_MENU, ui.refresh());
+  ui.refresh();
 }
 
 /**

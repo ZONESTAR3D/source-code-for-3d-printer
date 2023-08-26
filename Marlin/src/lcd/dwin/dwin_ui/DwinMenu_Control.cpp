@@ -2282,11 +2282,11 @@ inline void Item_Feedrate_MaxE(uint8_t row, uint8_t e = 0){
 #if ENABLED(DISTINCT_E_FACTORS)			
 	x += get_MultiLanguageString_Width(MTSTRING_E);
 	DWIN_Show_MultiLanguage_String(MTSTRING_1 + e, x, MBASE(row));
-#endif
+#endif	
 	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), planner.settings.max_feedrate_mm_s[E_AXIS + e]);	
 }
 
-inline void Draw_Max_Speed_Menu() {
+inline void Draw_Max_Feedrate_Menu() {
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	DwinMenu_feedrate.reset();
 
@@ -2317,31 +2317,32 @@ constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 #define MIN_MAXJERK           0.1
 #define MIN_STEP              1
 
-void HMI_MaxFeedspeedXYZE() {
+void HMI_Adjust_MaxFeedrate() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
-		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Feedspeed)) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Feedrate)) {
 			DwinMenuID = DWMENU_SET_MAXSPEED;
 			EncoderRate.enabled = false;
-			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
-				planner.set_max_feedrate(HMI_flag.axis, HMI_Value.Max_Feedspeed);
-			DWIN_Draw_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedspeed);
+			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)){
+				planner.set_max_feedrate(HMI_flag.axis, HMI_Value.Max_Feedrate);				
+			}
+			DWIN_Draw_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedrate);
 		}
 		else {
 			// MaxFeedspeed limit
 			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
-				NOMORE(HMI_Value.Max_Feedspeed, default_max_feedrate[HMI_flag.axis]*2);
-			if (HMI_Value.Max_Feedspeed < MIN_MAXFEEDSPEED) 
-				HMI_Value.Max_Feedspeed = MIN_MAXFEEDSPEED;
+				NOMORE(HMI_Value.Max_Feedrate, default_max_feedrate[HMI_flag.axis]*2);
+			if (HMI_Value.Max_Feedrate < MIN_MAXFEEDSPEED) 
+				HMI_Value.Max_Feedrate = MIN_MAXFEEDSPEED;
 			// MaxFeedspeed value
-			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedspeed);
+			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedrate);
 		}
 		dwinLCD.UpdateLCD();
 	}
 }
 
 /* Max Speed */
-void HMI_MaxSpeed() {
+void HMI_MaxFeedrate() {
 	ENCODER_DiffState encoder_diffState = get_encoder_state();
 	if (encoder_diffState == ENCODER_DIFF_NO) return;
 
@@ -2382,8 +2383,8 @@ void HMI_MaxSpeed() {
 		if (WITHIN(DwinMenu_feedrate.now, MAXFEEDRATE_CASE_X, MAXFEEDRATE_CASE_TOTAL)) {
 			DwinMenuID = DWMENU_SET_MAXSPEED_VALUE;
 			HMI_flag.axis = AxisEnum(DwinMenu_feedrate.now - 1);
-			HMI_Value.Max_Feedspeed = planner.settings.max_feedrate_mm_s[HMI_flag.axis];
-			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedspeed);
+			HMI_Value.Max_Feedrate = planner.settings.max_feedrate_mm_s[HMI_flag.axis];
+			DWIN_Draw_Select_IntValue_Default(3, CONFIGVALUE_X+8, MBASE(DwinMenu_feedrate.now + MROWS - DwinMenu_feedrate.index), HMI_Value.Max_Feedrate);
 			EncoderRate.enabled = true;
 		}
 		else { // Back   
@@ -2460,14 +2461,13 @@ inline void Draw_Max_Accel_Menu() {
 	if (DwinMenu_accel.now) Draw_Menu_Cursor(DwinMenu_accel.now);
 }
 
-void HMI_MaxAccelerationXYZE() {
+void HMI_Adjust_MaxAcceleration() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Acceleration)) {
 			DwinMenuID = DWMENU_SET_MAXACC;
 			EncoderRate.enabled = false;
-			if(WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)) 
-				planner.set_max_acceleration(HMI_flag.axis, HMI_Value.Max_Acceleration);		
+			if(WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)) planner.set_max_acceleration(HMI_flag.axis, HMI_Value.Max_Acceleration);
 			DWIN_Draw_IntValue_Default(5, CONFIGVALUE_X-8, MBASE(DwinMenu_accel.now + MROWS - DwinMenu_accel.index), HMI_Value.Max_Acceleration);
 		}
 		else {
@@ -2592,7 +2592,7 @@ inline void Draw_Max_Jerk_Menu() {
 }
 
 
-void HMI_MaxJerkXYZE() {
+void HMI_Adjust_MaxJerk() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Jerk)) {
@@ -2685,7 +2685,9 @@ inline void Item_Steps_E(uint8_t row, uint8_t e = 0){
 inline void Draw_Steps_Menu() {
 	DwinMenu_step.reset();
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
-
+	HMI_flag.axis = X_AXIS;
+	HMI_Value.Steps_per_mm = planner.settings.axis_steps_per_mm[0] * MINUNITMULT;
+	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_STEP, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
@@ -2704,7 +2706,7 @@ inline void Draw_Steps_Menu() {
 	if (DwinMenu_step.now) Draw_Menu_Cursor(DwinMenu_step.now);
 }
 
-void HMI_StepXYZE() {
+void HMI_Adjust_Steppermm() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Steps_per_mm)) {
@@ -2712,13 +2714,13 @@ void HMI_StepXYZE() {
 			EncoderRate.enabled = false;
 			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
 				planner.settings.axis_steps_per_mm[HMI_flag.axis] = (float)HMI_Value.Steps_per_mm / MINUNITMULT;
-				DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now + MROWS - DwinMenu_step.index), HMI_Value.Steps_per_mm);
+			DWIN_Draw_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now + MROWS - DwinMenu_step.index), HMI_Value.Steps_per_mm);
 		}
 		else {
 			// Step/mm limit
 			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N)){
-				NOMORE(HMI_Value.Steps_per_mm, default_axis_steps_per_unit[HMI_flag.axis]*4*MINUNITMULT);
-				NOLESS(HMI_Value.Steps_per_mm, default_axis_steps_per_unit[HMI_flag.axis]*0.1*MINUNITMULT);
+				NOMORE(HMI_Value.Steps_per_mm, default_axis_steps_per_unit[HMI_flag.axis < E_AXIS?HMI_flag.axis : E_AXIS]*4*MINUNITMULT);
+				NOLESS(HMI_Value.Steps_per_mm, default_axis_steps_per_unit[HMI_flag.axis < E_AXIS?HMI_flag.axis : E_AXIS]);
 			}
 			// Step/mm value
 			DWIN_Draw_Selected_Small_Float41(CONFIGVALUE_X-8, MBASE(DwinMenu_step.now + MROWS - DwinMenu_step.index), HMI_Value.Steps_per_mm);
@@ -2806,7 +2808,7 @@ void HMI_Motion() {
 		case MOTION_CASE_FEEDRATE:  // Max speed
 			DwinMenuID = DWMENU_SET_MAXSPEED;
 			DwinMenu_feedrate.reset();
-			Draw_Max_Speed_Menu();
+			Draw_Max_Feedrate_Menu();
 		break;
 		
 		case MOTION_CASE_ACCEL: 		// Max acceleration
