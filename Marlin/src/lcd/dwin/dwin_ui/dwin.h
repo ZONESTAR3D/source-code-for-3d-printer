@@ -231,14 +231,12 @@ typedef enum {
  	DWMENU_SET_RETRACT_ZHOP,
  	DWMENU_SET_UNRETRACT_MM,
  	DWMENU_SET_UNRETRACT_V,	 	
+#if ENABLED(LIN_ADVANCE) 	
  	///config>>Linear Advance
  	DWMENU_SET_LINADVANCE,
  	DWMENU_SET_LINADVANCE_E0,
- 	DWMENU_SET_LINADVANCE_E1,
- 	DWMENU_SET_LINADVANCE_E2,
- 	DWMENU_SET_LINADVANCE_E3,
- 	DWMENU_SET_LINADVANCE_E4,
- 	DWMENU_SET_LINADVANCE_E5,
+ 	DWMENU_SET_LINADVANCE_EN = (DWMENU_SET_LINADVANCE_E0 + EXTRUDERS - 1),
+#endif
  	///config>>Home Offset
  	DWMENU_SET_HOMEOFFSET,
  	DWMENU_SET_HOMEOFFSET_X,
@@ -496,7 +494,7 @@ typedef struct {
 	#endif
 
 	#if ENABLED(LIN_ADVANCE)
-	int16_t extruder_advance_K[E_STEPPERS];
+	int16_t extruder_advance_K[EXTRUDERS];
 	#endif
 	
 	#if ENABLED(PID_EDIT_MENU) 	
@@ -646,7 +644,7 @@ extern DwinMenu DwinMenu_bltouch;
 #if ENABLED(FWRETRACT)
 extern DwinMenu DwinMenu_fwretract;
 #endif
-#if ENABLED(LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE) && (EXTRUDERS > 1)
 extern DwinMenu DwinMenu_LinAdvance;
 #endif
 #if ENABLED(PID_EDIT_MENU)

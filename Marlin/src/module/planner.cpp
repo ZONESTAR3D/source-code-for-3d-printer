@@ -2693,7 +2693,18 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   // If we are cleaning, do not accept queuing of movements
   if (cleaning_buffer_counter) return false;
 
-  // When changing extruders recalculate steps corresponding to the E position
+	#if BOTH(MIXING_EXTRUDER, DISTINCT_E_FACTORS)
+	// The target position of the tool in absolute steps
+  // Calculate target position in absolute steps
+  abce_long_t target = {
+    int32_t(LROUND(a * settings.axis_steps_per_mm[A_AXIS])),
+    int32_t(LROUND(b * settings.axis_steps_per_mm[B_AXIS])),
+    int32_t(LROUND(c * settings.axis_steps_per_mm[C_AXIS])),
+    int32_t(LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)]))
+  };
+	target.e = LROUND(mixer.recalculate_e_steps(e));
+	#else
+	// When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
     if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS_N(last_extruder)]) {
       position.e = LROUND(position.e * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS_N(last_extruder)]);
@@ -2709,6 +2720,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
     int32_t(LROUND(c * settings.axis_steps_per_mm[C_AXIS])),
     int32_t(LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(extruder)]))
   };
+	#endif
 
   #if HAS_POSITION_FLOAT
     const xyze_pos_t target_float = { a, b, c, e };

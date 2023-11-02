@@ -354,6 +354,7 @@ void _lcd_onoffWiFi(){
 	settings.save();
 	ui.return_to_status();	
 	WIFI_onoff();
+	queue.wifi_Handshake_ok = false;
 	if(WiFi_Enabled)
 		LCD_MESSAGEPGM_P(PSTR("WiFi ON..."));
 	else 

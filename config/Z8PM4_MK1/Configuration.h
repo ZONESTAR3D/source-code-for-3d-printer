@@ -74,52 +74,44 @@
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
 #endif
 
-//#define	OPTION_Z8PM3 							//M3 + LCD12864
 //#define	OPTION_Z8PM4 							//M4 + LCD12864
-//#define	OPTION_Z8PM3_PRO 					//M3 + DWIN LCD 
 #define	OPTION_Z8PM4_PRO 						//M4 + DWIN LCD 
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#if ENABLED(OPTION_Z8PM3)
-#define CUSTOM_MACHINE_NAME 			"Z8PM3"
-#elif  ENABLED(OPTION_Z8PM3)
+#ifdef OPTION_Z8PM4
 #define CUSTOM_MACHINE_NAME 			"Z8PM4"
-#elif  ENABLED(OPTION_Z8PM3_PRO)
-#define CUSTOM_MACHINE_NAME 			"Z8PM3Pro"
-#elif  ENABLED(OPTION_Z8PM4_PRO)
+#elif  defined(OPTION_Z8PM4_PRO)
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
 #endif
-#define	FIRMWARE_VERSION		  		"V3.1.0"
-#define	STRING_DISTRIBUTION_DATE  "2022-10-18"
+#define	FIRMWARE_VERSION		  		"V3.4.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-09-09"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
 #define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
-#if EITHER(OPTION_Z8PM3_PRO, OPTION_Z8PM4_PRO)
-#define OPTION_LCDDWIN							//
-#endif
 #define OPTION_TITAN									//TITAN Extruder
-#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define OPTION_Z2_ENDSTOP							//Dual Z driver motor(connect to Z2- connector)
 #define	OPTION_PL08N 			    				//Probe use PL_08N
 #define	OPTION_TMC2225_XYZ 						//TMC2225 be used to XYZ
+#ifdef OPTION_Z8PM4_PRO
+#define OPTION_LCDDWIN							//
+#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_MIXING_SWITCH					//Enable/disable mixing feature on LCD MENU
 #define	OPTION_GUIDE_QRCODE           //Add a User Guide link QRcode on first power on
 #define	OPTION_NEWS_QRCODE						//Add a Update News QRcode on Info Menu
 #define	SWITCH_EXTRUDER_MENU					//Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
 #define	DEFAULT_MIXING_SWITCH	true		//Default mixing feature is on
+#define	DEFAULT_AUTO_LEVELING	true		//Auto leveling feature is on
+#endif
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
-#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
-//#define	OPTION_HOTENDMAXTEMP				//set the max hotend temperature
+#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
@@ -127,35 +119,41 @@
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR
 //#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+
+#ifdef OPTION_Z8PM4_PRO
+#define	OPTION_WIFI_BAUDRATE					//Option WiFi baudrate
+#define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
+#define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament while abort printing (only for nox mixing color hotend)
 #if (DWINLCD_MENU_VERSION == 3)
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #endif
+#endif
 //===========================================================================
 //HOME OFFSET
-#define	DEFAULT_HOMEX_OFFSET	-10.0			//default home X offset
-#define	DEFAULT_HOMEY_OFFSET	-5.0			//default home Y offset
-#define	DEFAULT_HOMEZ_OFFSET	-1.0			//default home Z offset
+#define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
+#define	DEFAULT_HOMEY_OFFSET	0.0			//default home Y offset
+#define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
 
-#if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://github.com/ZONESTAR3D/Z8P"
+#ifdef OPTION_GUIDE_QRCODE
+#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
 #endif
-#if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://github.com/ZONESTAR3D/Z8P/tree/main/UpdateNews"
+#ifdef OPTION_NEWS_QRCODE
+#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
 #endif
 //===========================================================================
 //UART port
-#if ENABLED(OPTION_WIFI_MODULE)
+#ifdef OPTION_WIFI_MODULE
 #define WIFI_LINK_CHECK_TIME		30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
 #endif
 	
-#if ENABLED(OPTION_LCDDWIN)
+#ifdef OPTION_LCDDWIN
   #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
-  #if ENABLED(OPTION_3DTOUCH)
+  #ifdef OPTION_3DTOUCH
   #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
   #endif
 #else															//LCD12864 connect to EXP1																	
-	#if ENABLED(OPTION_3DTOUCH)
+	#ifdef OPTION_3DTOUCH
 	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
 	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
 	#else
@@ -180,7 +178,7 @@
  */
 #define LCD_LANGUAGE en
 
-#if ENABLED(OPTION_LCDDWIN)
+#ifdef OPTION_LCDDWIN
 #undef LCD_LANGUAGE
 #endif
 
@@ -259,7 +257,7 @@
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
-#if ENABLED(SINGLENOZZLE)
+#ifdef SINGLENOZZLE
   //#define SINGLENOZZLE_STANDBY_TEMP
   //#define SINGLENOZZLE_STANDBY_FAN
 #endif
@@ -275,7 +273,7 @@
  * Additional options to configure custom E moves are pending.
  */
 //#define MK2_MULTIPLEXER
-#if ENABLED(MK2_MULTIPLEXER)
+#ifdef MK2_MULTIPLEXER
   // Override the default DIO selector pins here, if needed.
   // Some pins files may provide defaults for these pins.
   //#define E_MUX0_PIN 40  // Always Required
@@ -408,11 +406,7 @@
  */
 #define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
-	#if EITHER(OPTION_Z8PM4, OPTION_Z8PM4_PRO)
   #define MIXING_STEPPERS 			4  		// Number of steppers in your mixing extruder
-  #else
-	#define MIXING_STEPPERS 			3  		// Number of steppers in your mixing extruder
-	#endif
   #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
   #define USE_PRECENT_MIXVALUE				// Use percent mix data on LCD setting and gcode command
   #define MIX_STATUS_SCREEN_IMAGE			// show mix rate ICON and data in LCD (only applied in LCD12864)
@@ -425,6 +419,9 @@
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
+	#endif
 #endif
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -552,26 +549,26 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+//#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          4  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      4  // (degC) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
+#define HEATER_1_MINTEMP   0
+#define HEATER_2_MINTEMP   0
+#define HEATER_3_MINTEMP   0
+#define HEATER_4_MINTEMP   0
+#define HEATER_5_MINTEMP   0
+#define HEATER_6_MINTEMP   0
+#define HEATER_7_MINTEMP   0
 #define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
@@ -594,9 +591,9 @@
 
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-#define PID_K1 0.95      // Smoothing factor within any PID loop
+#define BANG_MAX 	255     	// Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 	BANG_MAX 	// Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_K1 		0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
   #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
@@ -611,9 +608,10 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  50.10// 30.30
-    #define DEFAULT_Ki   2.81//  1.41
-    #define DEFAULT_Kd 161.40//162.77
+    //=================common===M4V4=====M4V6=======E4=======
+    #define DEFAULT_Kp  22.20	// 17.50		// 14.50		// 12.80
+    #define DEFAULT_Ki   1.08	//  0.50		//  0.70		//	  0.60
+    #define DEFAULT_Kd 114.00	//150.00		// 75.00		// 70.00
   #endif
 #endif // PIDTEMP
 
@@ -846,7 +844,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -872,14 +870,14 @@
 #define	STEPS_GEAR_RATIO	1
 #endif
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
+#define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (80*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 12, 60 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1125,13 +1123,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-
-#if EITHER(OPTION_Z8PM4, OPTION_Z8PM4_PRO)
 #define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
-#else
-#define NOZZLE_TO_PROBE_OFFSET { 35, 0, 0 }
-#endif
-
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 		35
@@ -1272,9 +1264,9 @@
 #define Y_BED_SIZE 310
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
+#define X_MIN_POS -15
+#define Y_MIN_POS -5
+#define Z_MIN_POS -1
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400
@@ -1641,9 +1633,9 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-//#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
-//#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
+#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
 // G20/G21 Inch mode support
@@ -2303,7 +2295,6 @@
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
-
 //
 // DGUS Touch Display with DWIN OS. (Choose one.)
 // ORIGIN : https://www.aliexpress.com/item/32993409517.html
@@ -2493,6 +2484,7 @@
 //
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
+
 
 //=============================================================================
 //=============================== Extra Features ==============================

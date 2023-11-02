@@ -497,4 +497,20 @@ void DWIN_Show_Status_Message(const uint16_t color, PGM_P string, const uint16_t
 	set_status_msg_showtime(show_seconds);
 }
 
+#if 0//ENABLED(MIXING_EXTRUDER)
+void DEBUG_DWIN_Show_Mix_parameters(uint8_t item){	
+	char statusbar_str[40]={0};
+	if(item == 0)
+		sprintf_P(statusbar_str, PSTR("steps/mm:%3.1f-%3.1f-%3.1f-%3.1f"), planner.settings.axis_steps_per_mm[E0_AXIS],  planner.settings.axis_steps_per_mm[E1_AXIS],  planner.settings.axis_steps_per_mm[E2_AXIS],  planner.settings.axis_steps_per_mm[E3_AXIS]);
+	else if(item == 1)
+		sprintf_P(statusbar_str, PSTR("color:0x%x-0x%x-0x%x-0x%x"), mixer.color[mixer.selected_vtool][0],  mixer.color[mixer.selected_vtool][1], mixer.color[mixer.selected_vtool][2], mixer.color[mixer.selected_vtool][3]);
+	else if(item == 2)
+		sprintf_P(statusbar_str, PSTR("collector:%.2f-%.2f-%.2f-%.2f"), mixer.collector[0],  mixer.collector[1], mixer.collector[2], mixer.collector[3]);
+	else if(item == 3)
+		sprintf_P(statusbar_str, PSTR("percent: %2d-%2d-%2d-%2d"), mixer.percentmix[0],  mixer.percentmix[1], mixer.percentmix[2], mixer.percentmix[3]);
+	DWIN_Show_Status_Message(COLOR_BLUE, statusbar_str, 0);
+}
+#endif
+
+
 #endif // HAS_DWIN_LCD

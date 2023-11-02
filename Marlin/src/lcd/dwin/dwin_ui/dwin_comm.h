@@ -235,5 +235,8 @@ void Draw_ONOFF_Icon(const uint8_t line, const bool onoff, const uint16_t x = ME
 
 void ICON_YESorNO(uint8_t Option);
 
+#if 0//ENABLED(MIXING_EXTRUDER)
+void DEBUG_DWIN_Show_Mix_parameters(uint8_t item);
+#endif
 
 #endif

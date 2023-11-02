@@ -179,13 +179,13 @@ enum {
 #define	RETRACT_CASE_TOTAL	(5 + ENABLED(FWRETRACT_AUTORETRACT))
 #endif
 
-#if ENABLED(LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE) && (EXTRUDERS > 1)
 enum {
 	LINADVANCE_CASE_BACK = 0,
-	LINADVANCE_CASE_E,
-	LINADVANCE_CASE_END = LINADVANCE_CASE_E + E_STEPPERS
+	LINADVANCE_CASE_E0,
+	LINADVANCE_CASE_END = LINADVANCE_CASE_E0 + E_STEPPERS
 };
-#define	LINADVANCE_CASE_TOTAL	(E_STEPPERS+1)
+#define	LINADVANCE_CASE_TOTAL	E_STEPPERS
 #endif
 
 
@@ -375,8 +375,12 @@ void HMI_Retract();
 #endif
 
 #if ENABLED(LIN_ADVANCE)
+#if (EXTRUDERS > 1)
 void HMI_Set_LinearAdvance(uint8_t e);
 void HMI_LinearAdvance();
+#else
+void HMI_Set_LinearAdvance();
+#endif
 #endif
 
 

@@ -50,21 +50,50 @@ mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
 //
 float Mixer::mix_prev_z = 0.0;
-void Mixer::normalize(const uint8_t tool_index) {
-  float cmax = 0;
-  float csum = 0;
-  MIXER_STEPPER_LOOP(i) {
-    const float v = collector[i];
-    NOLESS(cmax, v);
-    csum += v;
-  }
-	if(csum < 1.0){
-		MIXER_STEPPER_LOOP(i){
-			collector[i] = 0.0;
-		}
-		cmax = collector[0] = 1.0;
+void Mixer::collector_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {  
+	float cmax = 0.0;
+  float csum = 0.0;
+	MIXER_STEPPER_LOOP(i) {
+		NOLESS(cmax, collector[i]);
+		csum += collector[i];
 	}
-  #ifdef MIXER_NORMALIZER_DEBUG
+	//if(csum < 1.0 || cmax < 1.0)
+	{
+		MIXER_STEPPER_LOOP(i) collector[i] = collector[i]/cmax;
+		MIXER_STEPPER_LOOP(i) NOLESS(cmax, collector[i]);
+	}
+#if ENABLED(DISTINCT_E_FACTORS)		
+	// Add the difference in steps/mm to the collector
+	float new_collector[MIXING_STEPPERS];	
+	cmax = 0.0;	
+	MIXER_STEPPER_LOOP(i) NOLESS(cmax, planner.settings.axis_steps_per_mm[E_AXIS + i]);
+	MIXER_STEPPER_LOOP(i) new_collector[i] = collector[i] * planner.settings.axis_steps_per_mm[E_AXIS + i]/cmax;
+	cmax = 0.0;
+	csum = 0.0;
+	MIXER_STEPPER_LOOP(i) {    
+    NOLESS(cmax, new_collector[i]);
+    csum += new_collector[i];
+  }
+	//if(csum < 1.0 || cmax < 1.0)
+	{ 
+		MIXER_STEPPER_LOOP(i) new_collector[i] = new_collector[i]/cmax;
+		MIXER_STEPPER_LOOP(i) NOLESS(cmax, new_collector[i]);
+	}
+	// Covert collector to color
+	// Scale all values so their maximum is COLOR_A_MASK
+  const float scale = float(COLOR_A_MASK) / cmax;
+  MIXER_STEPPER_LOOP(i) tcolor[i] = new_collector[i] * scale;
+#else
+	// Scale all values so their maximum is COLOR_A_MASK
+	const float scale = float(COLOR_A_MASK) / cmax;
+	MIXER_STEPPER_LOOP(i) tcolor[i] = collector[i] * scale;
+#endif
+}
+
+
+void Mixer::normalize(const uint8_t tool_index) {
+  collector_to_color(color[tool_index]);
+#ifdef MIXER_NORMALIZER_DEBUG
 	SERIAL_ECHOLNPGM("normalize");
 	SERIAL_EOL();
 	SERIAL_ECHOLNPAIR("tool_index=",uint16_t(tool_index));
@@ -72,14 +101,10 @@ void Mixer::normalize(const uint8_t tool_index) {
 	MIXER_STEPPER_LOOP(i) {
 		SERIAL_ECHO_F(collector[i] / csum, 3);
 		SERIAL_ECHOPGM(", ");
-  }
-  SERIAL_ECHOLNPGM("]");
+	}
+	SERIAL_ECHOLNPGM("]");
 	SERIAL_EOL();
-  #endif
-
-  // Scale all values so their maximum is COLOR_A_MASK  
-  const float scale = float(COLOR_A_MASK) / cmax;
-  MIXER_STEPPER_LOOP(i) color[tool_index][i] = collector[i] * scale;
+#endif
 
 #ifdef MIXER_NORMALIZER_DEBUG
   csum = 0;
@@ -108,6 +133,7 @@ void Mixer::normalize(const uint8_t tool_index) {
 #endif
 }
 
+#if DISABLED(DISTINCT_E_FACTORS)
 void Mixer::copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
 	 normalize_mixer_percent(&percentmix[0]);
   // Scale each component to the largest one in terms of COLOR_A_MASK
@@ -128,12 +154,14 @@ void Mixer::copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]) {
     SERIAL_ECHOLNPGM(" ]");
   #endif
 }
+#endif
 
 void Mixer::update_mix_from_vtool(const uint8_t j/*=selected_vtool*/) {
   float ctot = 0;
   MIXER_STEPPER_LOOP(i) ctot += color[j][i];
   MIXER_STEPPER_LOOP(i) percentmix[i] = (mixer_perc_t)(100.0f * color[j][i] / ctot);	  
-  normalize_mixer_percent(&percentmix[0]);	
+  normalize_mixer_percent(&percentmix[0]);
+	copy_percentmix_to_collector();
 
   #ifdef MIXER_NORMALIZER_DEBUG
   	SERIAL_ECHOLNPGM("update_mix_from_vtool");
@@ -144,8 +172,7 @@ void Mixer::update_mix_from_vtool(const uint8_t j/*=selected_vtool*/) {
     SERIAL_ECHOLIST_N(MIXING_STEPPERS, int(percentmix[0]), int(percentmix[1]), int(percentmix[2]), int(percentmix[3]), int(percentmix[4]), int(percentmix[5]));
     SERIAL_ECHOLNPGM(" ]");
 		SERIAL_EOL();
-  #endif
-	copy_percentmix_to_collector();
+  #endif	
 }
 
 void Mixer::init_collector(const uint8_t index) {
@@ -225,33 +252,43 @@ void Mixer::init() {
 }
 
 void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=selected_vtool*/, float (&c)[MIXING_STEPPERS]/*=collector*/) {
-  float csum = 0, cmax = 0;
+	float cmax = 0.0;
+#if ENABLED(DISTINCT_E_FACTORS)		
+  MIXER_STEPPER_LOOP(i) NOLESS(cmax, color[t][i]);    
+	const float inv_prop = proportion / cmax;
+  MIXER_STEPPER_LOOP(i) c[i] = color[t][i] * inv_prop;
+#else
+  float csum = 0.0;
   MIXER_STEPPER_LOOP(i) {
-    const float v = color[t][i];
-    cmax = _MAX(cmax, v);
-    csum += v;
+		NOLESS(cmax, color[t][i]);
+    csum += color[t][i];
   }
+	const float inv_prop = proportion / csum;
+  MIXER_STEPPER_LOOP(i) c[i] = color[t][i] * inv_prop;
+#endif
 
-  #ifdef MIXER_NORMALIZER_DEBUG
+#ifdef MIXER_NORMALIZER_DEBUG
   SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", int(t), ") cmax=", cmax, "  csum=", csum, "	color");
-  #endif
-  
-  const float inv_prop = proportion / csum;
-  MIXER_STEPPER_LOOP(i) {
-    c[i] = color[t][i] * inv_prop;
-	#ifdef MIXER_NORMALIZER_DEBUG
-		SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", c[i], ")	");
-	#endif
-  }
-  #ifdef MIXER_NORMALIZER_DEBUG
+	MIXER_STEPPER_LOOP(i) SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", c[i], ")	");
   SERIAL_EOL();
-  #endif
+#endif
 }
 
+#if ENABLED(DISTINCT_E_FACTORS)
+float Mixer::recalculate_e_steps(float e){	
+	float max_steps_per_mm = 0.0;
+	float c2[MIXING_STEPPERS];
+	refresh_collector(1.0, selected_vtool, c2);
+	MIXER_STEPPER_LOOP(i) NOLESS(max_steps_per_mm, planner.settings.axis_steps_per_mm[E_AXIS + i] * c2[i]);
+	return (e * max_steps_per_mm);
+}
+#endif
 
 void Mixer::copy_percentmix_to_collector() {
   MIXER_STEPPER_LOOP(i){
-  	collector[i] = (float)percentmix[i]/10.0;
+  	collector[i] = (float)percentmix[i]/100.0;
+		NOMORE(collector[i], 1.0);
+		if(collector[i] < 0.01) collector[i] = 0;
   }
   #ifdef MIXER_NORMALIZER_DEBUG
     SERIAL_ECHOPGM("copy_percentmix_to_collector");
@@ -309,23 +346,12 @@ void Mixer::normalize_mixer_percent(mixer_perc_t mix[MIXING_STEPPERS]){
 	}	
 
 void Mixer::copy_collector_to_percentmix() {
-	bool need_mux = false;
-	float sum_collector = 0.0;
-	MIXER_STEPPER_LOOP(i) sum_collector += collector[i];
-	if(sum_collector <= 20) 
-		need_mux = true;
-	else {
-		MIXER_STEPPER_LOOP(i)	{
-			if(collector[i] > 0.0 && collector[i] <= 1.0) {
-				need_mux = true;
-				break;
-			}
-		}
+	float cmax = 0.0;
+	MIXER_STEPPER_LOOP(i) NOLESS(cmax, collector[i]);		
+	MIXER_STEPPER_LOOP(i) {
+		percentmix[i] = (mixer_perc_t)(collector[i]*100/cmax);
+		NOMORE(percentmix[i], 100);
 	}
-	if(need_mux)
-		MIXER_STEPPER_LOOP(i)	percentmix[i] = (mixer_perc_t)(collector[i]*10);
-	else
-  	MIXER_STEPPER_LOOP(i)	percentmix[i] = (mixer_perc_t)(collector[i]);
   normalize_mixer_percent(&percentmix[0]);
   
 #ifdef MIXER_NORMALIZER_DEBUG
@@ -436,7 +462,12 @@ void Mixer::update_gradient_for_z(const float z, const bool force/* = false*/) {
     	const mixer_perc_t sm = gradient.start_mix[i];
     	percentmix[i] = sm + (mixer_perc_t)(((gradient.end_mix[i] - sm) * pct)/100);
   	}
+	#if ENABLED(DISTINCT_E_FACTORS)
+		copy_percentmix_to_collector();
+		collector_to_color(gradient.color);
+	#else
   	copy_percentmix_to_color(gradient.color);		
+	#endif
 	}
 }
 

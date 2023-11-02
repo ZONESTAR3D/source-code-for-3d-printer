@@ -209,7 +209,7 @@ class Mixer {
 
   // Used up to Planner level
   FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = _MAX(f, 0.0f); }
-  FORCE_INLINE static void set_Percentmix(const uint8_t c, const uint8_t d) { percentmix[c] = d; }
+  //FORCE_INLINE static void set_Percentmix(const uint8_t c, const uint8_t d) { percentmix[c] = d; }
   FORCE_INLINE static void reset_collector(const uint8_t t){
   	MIXER_STEPPER_LOOP(i) set_collector(i, i == t ? 1.0 : 0.0);
 	}
@@ -282,6 +282,10 @@ class Mixer {
 		return 0;
   }
 
+	#if ENABLED(DISTINCT_E_FACTORS)
+	static float recalculate_e_steps(float e);
+	#endif
+
   private:
   // Used up to Planner level
   //static uint_fast8_t selected_vtool;
@@ -291,10 +295,13 @@ class Mixer {
   static float mix_prev_z;	
   static int_fast8_t  runner;
   static mixer_comp_t s_color[MIXING_STEPPERS];
-  static mixer_accu_t accu[MIXING_STEPPERS];
-
+  static mixer_accu_t accu[MIXING_STEPPERS];	
+	
+	static inline void collector_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]);
+	#if DISABLED(DISTINCT_E_FACTORS)
 	static inline void copy_percentmix_to_color(mixer_comp_t (&tcolor)[MIXING_STEPPERS]);
-		
+	#endif
+
 	#if ENABLED(GRADIENT_MIX)
 	// Update the current mix from the gradient for a given Z
   static void update_gradient_for_z(const float z, const bool force = false);

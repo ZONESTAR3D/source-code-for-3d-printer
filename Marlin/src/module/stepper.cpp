@@ -1708,7 +1708,7 @@ void Stepper::pulse_phase_isr() {
       i2s_push_sample();
     #endif
 
-    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
+    /// TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
     #if ISR_MULTI_STEPS
       START_HIGH_PULSE();
       AWAIT_HIGH_PULSE();

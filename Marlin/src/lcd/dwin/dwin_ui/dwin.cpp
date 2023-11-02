@@ -116,7 +116,7 @@ DwinMenu DwinMenu_bltouch;
 #if ENABLED(FWRETRACT)
 DwinMenu DwinMenu_fwretract;
 #endif
-#if ENABLED(LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE) && (EXTRUDERS > 1)
 DwinMenu DwinMenu_LinAdvance;
 #endif
 #if ENABLED(PID_EDIT_MENU)
@@ -867,13 +867,13 @@ void DWIN_HandleScreen() {
 	#endif	
 	
 	#if ENABLED(LIN_ADVANCE) 
-		case DWMENU_SET_LINADVANCE:					HMI_LinearAdvance(); break;
-		case DWMENU_SET_LINADVANCE_E0:
-		case DWMENU_SET_LINADVANCE_E1:
-		case DWMENU_SET_LINADVANCE_E2:
-		case DWMENU_SET_LINADVANCE_E3:
-		case DWMENU_SET_LINADVANCE_E4:
-		case DWMENU_SET_LINADVANCE_E5:			HMI_Set_LinearAdvance(DwinMenuID-DWMENU_SET_LINADVANCE_E0); break;
+	  #if (EXTRUDERS > 1)		
+		case DWMENU_SET_LINADVANCE:					HMI_LinearAdvance(); break;		
+		case DWMENU_SET_LINADVANCE_E0...(DWMENU_SET_LINADVANCE_E0 + EXTRUDERS - 1): 
+																				HMI_Set_LinearAdvance(DwinMenuID - DWMENU_SET_LINADVANCE_E0); break;	 
+		#else
+		case DWMENU_SET_LINADVANCE:					HMI_Set_LinearAdvance(); break;	
+		#endif
 	#endif
 	
 	#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)

@@ -685,7 +685,7 @@ static void Item_Mixer_Random_Height(const uint8_t row) {
 #if (DWINLCD_MENU_VERSION >= 2)	
 		DWIN_Show_MultiLanguage_String(MTSTRING_RANDOM_HEIGTH, LBLX, MBASE(row));
 #else
-		DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Height:"));
+		DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Height"));
 #endif
 		HMI_Value.Random_Height = mixer.random_mix.height*MINUNITMULT;	
 		DWIN_Draw_Small_Float31(MENUVALUE_X, MBASE(row), HMI_Value.Random_Height);
@@ -696,7 +696,7 @@ static void Item_Mixer_Random_Extruders(const uint8_t row) {
 #if (DWINLCD_MENU_VERSION >= 2)		
 	DWIN_Show_MultiLanguage_String(MTSTRING_RANDOM_EXTRUDERS, LBLX, MBASE(row));
 #else
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Extruders:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Extruders"));
 #endif	
 	DWIN_Draw_IntValue_Default(1, MENUVALUE_X+4*8, MBASE(row), mixer.random_mix.extruders);
 	Draw_Menu_Line(row, ICON_CURSOR);
@@ -999,13 +999,24 @@ static void Item_Config_Retract(const uint8_t row) {
 	Draw_More_Icon(row);
 }
 #endif
+
 #if ENABLED(LIN_ADVANCE) 
+#if EXTRUDERS > 1
 static void Item_Config_LinearAdvance(const uint8_t row) {	
-	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("Linear Advance"));
+	DWIN_Draw_MaskString_Default_Color(COLOR_WHITE, LBLX, MBASE(row), PSTR("Linear Advance"));
 	Draw_Menu_Line(row,ICON_CURSOR);
 	Draw_More_Icon(row);
 }
+#else
+static void Item_Config_LinearAdvance(const uint8_t row) {	
+	DWIN_Draw_MaskString_Default_Color(COLOR_WHITE, LBLX, MBASE(row), PSTR("Linear Advance K"));
+	Draw_Menu_Line(row,ICON_CURSOR);
+	HMI_Value.extruder_advance_K[0] = (int16_t)(planner.extruder_advance_K[0]*MAXUNITMULT);
+	DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(row), HMI_Value.extruder_advance_K[0]);	
+}
+#endif
 #endif 
+
 #if ENABLED(OPTION_REPEAT_PRINTING) 
 static void Item_Config_Reprint(const uint8_t row){
 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("Repeat print"));
@@ -1013,6 +1024,7 @@ static void Item_Config_Reprint(const uint8_t row){
 	Draw_More_Icon(row);
 }
 #endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 static void Item_Config_FilamentRunOut(const uint8_t row) {
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Runout Sensor"));
@@ -1421,11 +1433,11 @@ inline void switch_extruder_sequence(){
 static void Item_Config_SwitchExtruder(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
 	if(!mixer.mixing_enabled){
-	 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row),PSTR("Extr.Sequence:"));
+	 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row),PSTR("Extr.Sequence"));
 		DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, 216-12*MIXING_STEPPERS, MBASE(row), _getString_SwitchExtruder()); 
 	}
 	else{
-		DWIN_Draw_MaskString_Default_Color(COLOR_GREY, LBLX, MBASE(row),PSTR("Extr.Sequence:"));
+		DWIN_Draw_MaskString_Default_Color(COLOR_GREY, LBLX, MBASE(row),PSTR("Extr.Sequence"));
 		DWIN_Draw_MaskString_Default_Color(COLOR_GREY, 216-12*MIXING_STEPPERS, MBASE(row), _getString_SwitchExtruder()); 
 	} 	
 }
@@ -1435,7 +1447,7 @@ static void Item_Config_SwitchExtruder(const uint8_t row) {
 
 #if ABL_GRID
 static void Item_Config_Leveling(const uint8_t row) {
-	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("Auto Leveling:"));	
+	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("Auto Leveling"));	
 	Draw_Menu_Line(row,ICON_CURSOR);	
 #if HAS_ONOFF_ICON  	
 	Draw_ONOFF_Icon(row, HMI_flag.Leveling_Menu_Fg);
@@ -1445,7 +1457,7 @@ static void Item_Config_Leveling(const uint8_t row) {
 }
 static void Item_Config_ActiveLevel(const uint8_t row) {	
 	Draw_Menu_Line(row,ICON_CURSOR);	
-	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM : COLOR_GREY, LBLX, MBASE(row), PSTR("Active Autolevel:"));		
+	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM : COLOR_GREY, LBLX, MBASE(row), PSTR("Active Autolevel"));		
 #if HAS_ONOFF_ICON  		
 	Draw_ONOFF_Icon(row, planner.leveling_active);
 #else
@@ -1476,7 +1488,7 @@ static void Item_Config_PIDTune(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_CURSOR);
 	Draw_More_Icon(row);
 #else
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune"));
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.PIDAutotune_Temp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 #endif
@@ -1616,35 +1628,35 @@ static void Item_Retract_Retract_Enabled(const uint8_t row) {
 
 static void Item_Retract_Retract_mm(const uint8_t row) {
 	HMI_Value.Retract_MM_scale = fwretract.settings.retract_length*MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract MM:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract MM"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(row), HMI_Value.Retract_MM_scale);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_Retract_V(const uint8_t row) {
 	HMI_Value.Retract_V_scale = fwretract.settings.retract_feedrate_mm_s*MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract V:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract V"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(row), HMI_Value.Retract_V_scale);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_Retract_ZHop(const uint8_t row) {
 	HMI_Value.Retract_ZHOP_scale = fwretract.settings.retract_zraise*MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract ZHop:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Retract ZHop"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(row), HMI_Value.Retract_ZHOP_scale);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_UnRetract_mm(const uint8_t row) {
 	HMI_Value.unRetract_MM_scale = fwretract.settings.retract_recover_extra*MAXUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract MM:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract MM"));
 	DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(row), HMI_Value.unRetract_MM_scale);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_Retract_UnRetract_V(const uint8_t row) {	
 	HMI_Value.unRetract_V_scale = fwretract.settings.retract_recover_feedrate_mm_s*MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract V:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("UnRetract V"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X-8, MBASE(row),  HMI_Value.unRetract_V_scale);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
@@ -1874,12 +1886,13 @@ void HMI_Retract() {
 
 
 #if ENABLED(LIN_ADVANCE) 
+#if (EXTRUDERS > 1)
 inline void Item_LinearAdvance_K(uint8_t row, uint8_t e = 0){		
-	Draw_Menu_Line(row, ICON_EXTRUDER1);
+	Draw_Menu_Line(row, ICON_EXTRUDER1+e);
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Advance K E"));	
-	DWIN_Draw_IntValue_Default(1,LBLX+88, MBASE(row), e);
+	DWIN_Draw_IntValue_Default(1,LBLX+88, MBASE(row), (e+1));
 	HMI_Value.extruder_advance_K[e] = (int16_t)(planner.extruder_advance_K[e]*MAXUNITMULT);
-	DWIN_Draw_IntValue_Default(4,CONFIGVALUE_X, MBASE(row), HMI_Value.extruder_advance_K[e]);	
+	DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(row), HMI_Value.extruder_advance_K[e]);	
 }
 
 inline void Draw_LinearAdvance_Menu() {
@@ -1889,7 +1902,7 @@ inline void Draw_LinearAdvance_Menu() {
 	DWIN_Draw_UnMaskString_Default(14, 7, PSTR("Linear Advance")); 
 	Draw_Back_First(DwinMenu_LinAdvance.now == LINADVANCE_CASE_BACK);	
 	LOOP_L_N(i, E_STEPPERS){
-		if(WITHIN(i, 0, MROWS))	Item_LinearAdvance_K(MAXFEEDRATE_CASE_E + i, i);
+		if(WITHIN(i, 0, MROWS))	Item_LinearAdvance_K(LINADVANCE_CASE_E0 + i, i);
 	}
 	if (DwinMenu_LinAdvance.now) Draw_Menu_Cursor(DwinMenu_LinAdvance.now);
 }
@@ -1898,15 +1911,16 @@ void HMI_Set_LinearAdvance(uint8_t e) {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.extruder_advance_K[e])) {
-			DwinMenuID = DWMENU_SET_RETRACT;
+			DwinMenuID = DWMENU_SET_LINADVANCE;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E + e), HMI_Value.extruder_advance_K[e]);
-			planner.extruder_advance_K[e] = (float)HMI_Value.extruder_advance_K[e]/MAXUNITMULT;			
+			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E0 + e), HMI_Value.extruder_advance_K[e]);
+			planner.extruder_advance_K[e] = (float)HMI_Value.extruder_advance_K[e]/MAXUNITMULT;	
+			HMI_AudioFeedback(settings.save());
 		}
 		else {
 			NOLESS(HMI_Value.extruder_advance_K[e], 0);
-			NOMORE(HMI_Value.extruder_advance_K[e], 999);		
-			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E + e), HMI_Value.extruder_advance_K[e]);
+			NOMORE(HMI_Value.extruder_advance_K[e], 200);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E0 + e), HMI_Value.extruder_advance_K[e]);
 		}
 		dwinLCD.UpdateLCD();
 	}
@@ -1928,27 +1942,46 @@ void HMI_LinearAdvance() {
 		}
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {		
+		uint8_t e = DwinMenu_LinAdvance.now - LINADVANCE_CASE_E0;
 		switch (DwinMenu_LinAdvance.now) {
 			case 0: 									// Back				
 				Draw_Config_Menu(CONFIG_CASE_LINADVANCE);
 				HMI_AudioFeedback(settings.save());
 			break;
 
-			default:				
-				uint8_t e = DwinMenu_LinAdvance.now - LINADVANCE_CASE_E;
-				NOLESS(e, 0);
-				NOMORE(e, E_STEPPERS);
+			case LINADVANCE_CASE_E0...(LINADVANCE_CASE_E0 + E_STEPPERS -1):			
 				DwinMenuID = (_emDWIN_MENUID_)(DWMENU_SET_LINADVANCE_E0 + e);
 				HMI_Value.extruder_advance_K[e] = planner.extruder_advance_K[e]*MAXUNITMULT;
-				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E + e), HMI_Value.extruder_advance_K[e]);
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_LinAdvance.index + LINADVANCE_CASE_E0 + e), HMI_Value.extruder_advance_K[e]);
 				EncoderRate.enabled = true;
 			break;
-  }
+			
+			default: break;
+  	}
  }
  dwinLCD.UpdateLCD();
 }
-#endif
-
+#else
+void HMI_Set_LinearAdvance() {
+	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+	if (encoder_diffState != ENCODER_DIFF_NO) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.extruder_advance_K[0])) {
+			DwinMenuID = DWMENU_CONFIG;
+			EncoderRate.enabled = false;
+			DWIN_Draw_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_LINADVANCE), HMI_Value.extruder_advance_K[0]);
+			planner.extruder_advance_K[0] = (float)HMI_Value.extruder_advance_K[0]/MAXUNITMULT;	
+			HMI_AudioFeedback(settings.save());
+		}
+		else {
+			NOLESS(HMI_Value.extruder_advance_K[0], 0);
+			NOMORE(HMI_Value.extruder_advance_K[0], 200);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(MROWS -DwinMenu_configure.index + CONFIG_CASE_LINADVANCE), HMI_Value.extruder_advance_K[0]);
+		}
+		dwinLCD.UpdateLCD();
+	}
+}
+#endif //(EXTRUDERS > 1)
+#endif //ENABLED(LIN_ADVANCE)
 
 
 #if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
@@ -1984,28 +2017,28 @@ void HMI_Adjust_Brightness() {
 #if ENABLED(PID_EDIT_MENU)
 static void Item_PIDTune_KP(const uint8_t row) {
 	HMI_Value.PIDKp= thermalManager.temp_hotend[0].pid.Kp * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune P:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune P"));
 	DWIN_Draw_Small_Float31(MENUVALUE_X-8, MBASE(row), HMI_Value.PIDKp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_PIDTune_KI(const uint8_t row) {
 	HMI_Value.PIDKi= unscalePID_i(thermalManager.temp_hotend[0].pid.Ki) * MAXUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune I:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune I"));
 	DWIN_Draw_Small_Float22(MENUVALUE_X-8, MBASE(row), HMI_Value.PIDKi);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 static void Item_PIDTune_KD(const uint8_t row) {
 	HMI_Value.PIDKd= unscalePID_d(thermalManager.temp_hotend[0].pid.Kd) * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune D:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID Tune D"));
 	DWIN_Draw_Small_Float31(MENUVALUE_X-8, MBASE(row), HMI_Value.PIDKd);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
 
 #if ENABLED(PID_AUTOTUNE_MENU)
 static void Item_PIDTune_Auto(const uint8_t row) {
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune:"));	
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("PID auto tune"));	
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.PIDAutotune_Temp);
 	Draw_Menu_Line(row,ICON_CURSOR);
 }
@@ -2922,21 +2955,21 @@ void HMI_Option_Bltouch() {
 #if HAS_OFFSET_MENU
 static void Item_HomeOffset_X(const uint8_t row) {
 	HMI_Value.HomeOffsetX_scale = home_offset.x * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset X:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset X"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.HomeOffsetX_scale);
 	Draw_Menu_Line(row, ICON_HOME_X);
 }
 
 static void Item_HomeOffset_Y(const uint8_t row) {
 	HMI_Value.HomeOffsetY_scale = home_offset.y * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset Y:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset Y"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.HomeOffsetY_scale);
 	Draw_Menu_Line(row, ICON_HOME_Y);
 }
 
 static void Item_HomeOffset_Z(const uint8_t row) {
 	HMI_Value.HomeOffsetZ_scale = home_offset.z * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset Z:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset Z"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.HomeOffsetZ_scale);
 	Draw_Menu_Line(row, ICON_HOME_Z);
 }
@@ -3076,21 +3109,21 @@ void HMI_Adjust_HomeOffset(){
 #if HAS_PROBE_XY_OFFSET
 static void Item_ProbeOffset_X(const uint8_t row) {
 	HMI_Value.ProbeOffsetX_scale = probe.offset.x * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset X:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset X"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.ProbeOffsetX_scale);
 	Draw_Menu_Line(row, ICON_HOME_X);
 }
 
 static void Item_ProbeOffset_Y(const uint8_t row) {
 	HMI_Value.ProbeOffsetY_scale = probe.offset.y * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset Y:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset Y"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.ProbeOffsetY_scale);
 	Draw_Menu_Line(row, ICON_HOME_Y);
 }
 
 static void Item_ProbeOffset_Z(const uint8_t row) {
 	HMI_Value.ProbeOffsetZ_scale = probe.offset.z * MINUNITMULT;
-	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset Z:"));
+	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset Z"));
 	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.ProbeOffsetZ_scale);
 	Draw_Menu_Line(row, ICON_HOME_Z);
 }
@@ -3510,12 +3543,19 @@ void HMI_Config() {
   #endif
 
 	#if ENABLED(LIN_ADVANCE) 
-		case CONFIG_CASE_LINADVANCE: 				// Linear Advance						
-			if(_break_on_printing()) break;
-			DwinMenuID = DWMENU_SET_LINADVANCE;
-			DwinMenu_LinAdvance.index = MROWS;
-			Draw_LinearAdvance_Menu();
-		break;
+		#if (EXTRUDERS > 1)
+			case CONFIG_CASE_LINADVANCE: 				// Linear Advance
+				DwinMenuID = DWMENU_SET_LINADVANCE;
+				DwinMenu_LinAdvance.index = MROWS;
+				Draw_LinearAdvance_Menu();
+			break;
+		#else
+			case CONFIG_CASE_LINADVANCE: 				// Linear Advance	
+				DwinMenuID = DWMENU_SET_LINADVANCE;
+				HMI_Value.extruder_advance_K[0] = (int16_t)(planner.extruder_advance_K[0]*MAXUNITMULT);
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X-16, MBASE(CONFIG_CASE_LINADVANCE + MROWS - DwinMenu_configure.index), HMI_Value.extruder_advance_K[0]);
+			break;
+		#endif
 	#endif
 			 
   #if ENABLED(OPTION_REPEAT_PRINTING)
@@ -3608,7 +3648,7 @@ void HMI_Config() {
 				caselight.update(false);
 			#else
 				DwinMenuID = DWMENU_SET_CASELIGHTBRIGHTNESS;
-				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X + 8, MBASE(CONFIG_CASE_BACKLIGHT + MROWS - DwinMenu_configure.index), caselight.brightness);								
+				DWIN_Draw_Select_IntValue_Default(3, MENUVALUE_X + 8, MBASE(CONFIG_CASE_BACKLIGHT + MROWS - DwinMenu_configure.index), caselight.brightness);
 			#endif			
 			break;
   #endif  
@@ -3695,7 +3735,9 @@ void HMI_Config() {
 					DWIN_Show_Status_Message(COLOR_RED, PSTR("CAUTION! Require Non-mixing HOTEND"));
 				}
 				if(WITHIN(MROWS - DwinMenu_configure.index + CONFIG_CASE_SWITCHEXTRUDER, 0, MROWS)) Item_Config_SwitchExtruder(MROWS - DwinMenu_configure.index + CONFIG_CASE_SWITCHEXTRUDER);
+			#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
 				if(WITHIN(MROWS - DwinMenu_configure.index + CONFIG_CASE_FILAMENTAUTOUNLOAD, 0, MROWS)) Item_Config_FilamentAutoUnload(MROWS - DwinMenu_configure.index + CONFIG_CASE_FILAMENTAUTOUNLOAD);
+			#endif
 				HMI_AudioFeedback(settings.save());
 			break;
 			

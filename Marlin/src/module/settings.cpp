@@ -4010,7 +4010,7 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if HAS_MULTI_EXTRUDER
+    #if HAS_MULTI_EXTRUDER && FEATURE_TOOL_CHANGE
       CONFIG_ECHO_HEADING("Tool-changing:");
       CONFIG_ECHO_START();
       M217_report(true);

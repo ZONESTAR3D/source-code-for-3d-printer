@@ -67,8 +67,8 @@
 // config/examples/SCARA and customize for your machine.
 //
 
+//===========================================================================
 // @section info
-
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
@@ -77,20 +77,23 @@
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define SHORT_BUILD_VERSION 		  	"marlin-2.0.8"
 #define CUSTOM_MACHINE_NAME 		  	"P802QR2"
-#define	FIRMWARE_VERSION			    	"V4.2.0"
-#define	STRING_DISTRIBUTION_DATE  	"2022-04-07"
-#define EEPROM_VERSION 			  			"V83"						//modify it if need auto inilize EEPROM after upload firmware
-#define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)" 	// Who made the changes.
+#define	FIRMWARE_VERSION			    	"V4.3.0"
+#define	STRING_DISTRIBUTION_DATE    "2023-09-22"
+#define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 				    		"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)" 	// Who made the changes.
+#define EEPROM_VERSION 			  		  "V84"		//modify it if need auto initlize EEPROM after upload firmware
 
 //===========================================================================
 #define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
 //#define OPTION_Z2_ENDSTOP					//Dual Z driver motor(connect to E0 motor wire)
 
+//WiFi feature
+#define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
+
 //Motor drivers
-#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
+//#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
 //#define	OPTION_TMC220X_EXTRUDER 	//TMC220x be used to all extruder motor
 //#define	OPTION_TMC2225_XYZ  				//TMC2225 be used to XYZ motor
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to all extruder motor
@@ -100,15 +103,17 @@
 //#define	OPTION_BGM								//BGM Extruder
 
 //LCD screen
-//#define	OPTION_LCD2004  						//default LCD screen
-//#define	OPTION_LCD12864  					//128x64 dot LCD
-#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
-#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
+//#define	OPTION_LCD2004  					//default LCD screen
+#define	OPTION_LCD12864  						//128x64 dot LCD
+//#define	OPTION_LCDDWIN  					//TFT_LCD 4.3INCH with knob
 
 //Bed leveling sensor
-#define DEFAULT_AUTO_LEVELING       true
 #define	OPTION_PL08N 								//default Probe use PL_08N
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+
+#ifdef OPTION_LCDDWIN
+//#define	DWINLCD_MENU_VERSION		3			//DWIN LCD MENU Version
+#endif
 //===========================================================================
 
 /**
@@ -126,10 +131,11 @@
    'pt_br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 
    'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
  */
-#ifndef OPTION_LCDDWIN
 #define LCD_LANGUAGE en
-#endif
 
+#if ENABLED(OPTION_LCDDWIN)
+#undef LCD_LANGUAGE
+#endif
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -171,7 +177,7 @@
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 #ifdef OPTION_LCD12864
-#define SERIAL_PORT_2 1
+//#define SERIAL_PORT_2 1				//2nd host
 #elif defined(OPTION_LCD2004)
 #define SERIAL_PORT_2 3		// EXP2 be used by LCD2004
 #endif
@@ -184,7 +190,9 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 				115200
+#define WIFI_BAUDRATE   115200
+
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -494,7 +502,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 57
+#define TEMP_SENSOR_BED 56
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 
@@ -505,27 +513,27 @@
 // Use temp sensor 1 as a redundant sensor with sensor 0. If the readings
 // from the two sensors differ too much the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+//#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define TEMP_RESIDENCY_TIME     10  // (seconds) Time to wait for hotend to "settle" in M109
-#define TEMP_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_HYSTERESIS          5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_WINDOW              1  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_HYSTERESIS          5  // (degC) Temperature proximity considered "close enough" to the target
 
 #define TEMP_BED_RESIDENCY_TIME 10  // (seconds) Time to wait for bed to "settle" in M190
-#define TEMP_BED_WINDOW          1  // (°C) Temperature proximity for the "temperature reached" timer
-#define TEMP_BED_HYSTERESIS      5  // (°C) Temperature proximity considered "close enough" to the target
+#define TEMP_BED_WINDOW          2  // (degC) Temperature proximity for the "temperature reached" timer
+#define TEMP_BED_HYSTERESIS      5  // (degC) Temperature proximity considered "close enough" to the target
 
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
-#define HEATER_0_MINTEMP   5
-#define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        5
+#define HEATER_0_MINTEMP   0
+#define HEATER_1_MINTEMP   0
+#define HEATER_2_MINTEMP   0
+#define HEATER_3_MINTEMP   0
+#define HEATER_4_MINTEMP   0
+#define HEATER_5_MINTEMP   0
+#define HEATER_6_MINTEMP   0
+#define HEATER_7_MINTEMP   0
+#define BED_MINTEMP        0
 
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
@@ -564,9 +572,10 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    //=================common===M4V4=====M4V6=======E4=======
+    #define DEFAULT_Kp  22.20	// 17.50		// 14.50		// 12.80
+    #define DEFAULT_Ki   1.08	//  0.50		//  0.70		//	  0.60
+    #define DEFAULT_Kd 114.00	//150.00		// 75.00		// 70.00
   #endif
 #endif // PIDTEMP
 
@@ -613,7 +622,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  //#define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -630,7 +639,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 //#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP   170
+#define EXTRUDE_MINTEMP   				170
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -657,7 +666,7 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-//#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 //#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 
 //===========================================================================
@@ -806,24 +815,25 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
+
 #if ENABLED(OPTION_TMC2225_XYZ)
 #define	DOUBLE_STEPS_XYZ	2
 #else
 #define	DOUBLE_STEPS_XYZ	1
 #endif
-	
+
 #if ENABLED(OPTION_TMC2225_EXTRUDER)
 #define	DOUBLE_STEPS_E		2
 #else
 #define	DOUBLE_STEPS_E		1
 #endif
-	
+
 #if EITHER(OPTION_TITAN,OPTION_BGM)
 #define	STEPS_GEAR_RATIO	5
 #else
 #define	STEPS_GEAR_RATIO	1
 #endif
-	
+
 #define DEFAULT_AXIS_STEPS_PER_UNIT  {(80*DOUBLE_STEPS_XYZ), (80*DOUBLE_STEPS_XYZ), (400*DOUBLE_STEPS_XYZ), (85*STEPS_GEAR_RATIO*DOUBLE_STEPS_E)}
 
 /**
@@ -1351,7 +1361,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -1606,13 +1616,13 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 190
+#define PREHEAT_1_TEMP_HOTEND 200
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 225
-#define PREHEAT_2_TEMP_BED    100
+#define PREHEAT_2_TEMP_HOTEND 230
+#define PREHEAT_2_TEMP_BED     85
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1627,7 +1637,6 @@
  *    P2  Raise the nozzle by Z-park amount, limited to Z_MAX_POS.
  */
 #define NOZZLE_PARK_FEATURE
-
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
   #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MIN_POS+5), 20 }

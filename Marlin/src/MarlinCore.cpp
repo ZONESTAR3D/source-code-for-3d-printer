@@ -1044,7 +1044,7 @@ void setup() {
 	#endif
 	  
   #if HAS_LCD_SERIAL
-    LCD_SERIAL.begin(BAUDRATE);
+    LCD_SERIAL.begin(115200);
     serial_connect_timeout = millis() + 1000UL;
     while (/*!LCD_SERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 	#endif
@@ -1162,10 +1162,10 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-  #if HAS_DWIN_LCD
+  #if HAS_DWIN_LCD		
     delay(800);   // Required delay (since boot?)
     SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (dwinLCD.Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+    if (dwinLCD.Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");		
     dwinLCD.Frame_SetDir(1); // Orientation 90°
     dwinLCD.UpdateLCD();     // Show bootscreen (first image)
   #else

@@ -669,19 +669,32 @@ void HMI_Move_Z() {
 
 
 #if HAS_HOTEND
-char gcode_string[50] = {0};
 void HMI_Move_Extruder(uint8_t extr) {	
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Current_E_Scale[extr])) {			
-			if(!planner.is_full()) {		 
+			if(!planner.is_full()) {
+				char gcode_string[50] = {0};
 				planner.synchronize();
 				ZERO(gcode_string);
 				float temp_E_Coordinate = (float)HMI_Value.Current_E_Scale[extr]/MINUNITMULT;
+			#if ENABLED(MIXING_EXTRUDER)
+				const uint8_t old_tool = mixer.selected_vtool;
+				MIXER_STEPPER_LOOP(i) mixer.set_collector(i, (extr == i?1.0:0.0));
+				mixer.normalize(MIXER_DIRECT_SET_TOOL);
+				mixer.T(MIXER_DIRECT_SET_TOOL);
+				//DEBUG_DWIN_Show_Mix_parameters(1);
 				if(temp_E_Coordinate < HMI_Value.Last_E_Coordinate[extr])
-					sprintf_P(gcode_string, PSTR("T%d\nG92 E0\nG1 E-%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));
+					sprintf_P(gcode_string, PSTR("G92 E0\nG1 E-%.1f F100\nG92 E0\nT%d"), ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]), old_tool);
 				else
-					sprintf_P(gcode_string, PSTR("T%1d\nG92 E0\nG1 E%.1f F100\nG92 E0"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]));				
+					sprintf_P(gcode_string, PSTR("G92 E0\nG1 E%.1f F100\nG92 E0\nT%d"), ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]), old_tool);				
+			#else
+				const uint8_t old_tool = active_extruder;
+				if(temp_E_Coordinate < HMI_Value.Last_E_Coordinate[extr])
+					sprintf_P(gcode_string, PSTR("T%1d\nG92 E0\nG1 E-%.1f F100\nG92 E0\nT%d"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]), old_tool);
+				else
+					sprintf_P(gcode_string, PSTR("T%1d\nG92 E0\nG1 E%.1f F100\nG92 E0\nT%d"), extr, ABS(temp_E_Coordinate - HMI_Value.Last_E_Coordinate[extr]), old_tool);				
+			#endif				
 				HMI_Value.Last_E_Coordinate[extr] = temp_E_Coordinate;
 				queue.inject(gcode_string);
 				
@@ -710,15 +723,18 @@ void HMI_Move_AllExtr() {
 	 	if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Current_EAll_Scale)) {	  	
 	  	if(!planner.is_full()) {
 		    planner.synchronize(); // Wait for planner moves to finish!
+		    char gcode_string[50] = {0};
 				ZERO(gcode_string);
 				float temp_E_Coordinate = (float)HMI_Value.Current_EAll_Scale/MINUNITMULT;
+				const uint8_t old_tool = mixer.selected_vtool;
 				MIXER_STEPPER_LOOP(i) mixer.set_collector(i, 1.0);
 				mixer.normalize(MIXER_DIRECT_SET_TOOL);
 				mixer.T(MIXER_DIRECT_SET_TOOL);
+				//DEBUG_DWIN_Show_Mix_parameters(1);
 				if(temp_E_Coordinate < HMI_Value.Last_EAll_Coordinate)
-			   	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E-%.2f F120\nG92 E0"),ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
+			   	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E-%.2f F120\nG92 E0\nT%d"), ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate) * MIXING_STEPPERS, old_tool);
 				else
-				 	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E%.2f F120\nG92 E0"),ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate));
+				 	sprintf_P(gcode_string, PSTR("G92 E0\nG1 E%.2f F120\nG92 E0\nT%d"), ABS(temp_E_Coordinate - HMI_Value.Last_EAll_Coordinate) * MIXING_STEPPERS, old_tool);
 				HMI_Value.Last_EAll_Coordinate = temp_E_Coordinate;
 				queue.inject(gcode_string);
 
@@ -948,7 +964,7 @@ static void Item_Filament_Purgelength(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_SLOWLY, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_LENGTH, LBLX+get_MultiLanguageString_Width(MTSTRING_SLOWLY)+5, MBASE(row));
 #else
-	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Slowly Length(mm):"));
+	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Slowly Length(mm)"));
 #endif
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.purgelength);
 	Draw_Menu_Line(row,ICON_CURSOR);	
@@ -959,7 +975,7 @@ static void Item_Filament_Feedlength(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_QUICKLY, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_LENGTH, LBLX+get_MultiLanguageString_Width(MTSTRING_QUICKLY)+5, MBASE(row));
 #else
-	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Quckly Length(mm):"));
+	DWIN_Draw_UnMaskString_Default(LBLX, MBASE(row), PSTR("Quckly Length(mm)"));
 #endif
 	DWIN_Draw_IntValue_Default(3, MENUVALUE_X+8, MBASE(row), HMI_Value.feedlength);
 	Draw_Menu_Line(row,ICON_CURSOR);	
@@ -1184,8 +1200,7 @@ static void Dwin_filament_action(uint8_t action){
 			sprintf_P(statusbar_str, PSTR("Loading, please wait %2d seconds..."), t);
 		else
 			sprintf_P(statusbar_str, PSTR("Loading, please wait %1dm%2ds ..."), t/60, t%60);
-			
-		
+					
 		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, t<2?2:t);
 		planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
 		planner.synchronize();

@@ -34,13 +34,13 @@
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
-#if ((!HAS_ADC_BUTTONS && IS_NEWPANEL) || BUTTONS_EXIST(EN1, EN2)) && !IS_TFTGLCD_PANEL
+#if ((!HAS_ADC_BUTTONS && ENABLED(NEWPANEL)) || BUTTONS_EXIST(EN1, EN2)) && !IS_TFTGLCD_PANEL
   #define HAS_ENCODER_WHEEL 1
 #endif
 #if HAS_ENCODER_WHEEL || ANY_BUTTON(ENC, BACK, UP, DWN, LFT, RT)
   #define HAS_DIGITAL_BUTTONS 1
 #endif
-#if !HAS_ADC_BUTTONS && (IS_RRW_KEYPAD || (HAS_WIRED_LCD && !IS_NEWPANEL))
+#if !HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_WIRED_LCD && DISABLED(NEWPANEL)))
   #define HAS_SHIFT_ENCODER 1
 #endif
 
@@ -106,7 +106,8 @@
 
 #endif // HAS_WIRED_LCD
 
-#if IS_RRW_KEYPAD
+// REPRAPWORLD_KEYPAD (and ADC_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD)
   #define BTN_OFFSET          0 // Bit offset into buttons for shift register values
 
   #define BLEN_KEYPAD_F3      0
@@ -135,7 +136,7 @@
     #define BUTTON_CLICK() RRK(EN_KEYPAD_MIDDLE)
   #endif
 
-#endif // IS_RRW_KEYPAD
+#endif
 
 #if HAS_DIGITAL_BUTTONS
 
@@ -628,7 +629,7 @@ public:
   #if HAS_ENCODER_ACTION
 
     static volatile uint8_t buttons;
-    #if IS_RRW_KEYPAD
+    #if ENABLED(REPRAPWORLD_KEYPAD)
       static volatile uint8_t keypad_buttons;
       static bool handle_keypad();
     #endif
