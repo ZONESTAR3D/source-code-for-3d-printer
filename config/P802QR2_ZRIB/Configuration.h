@@ -86,8 +86,8 @@
 #define WEBSITE_URL 				    		"www.zonestar3d.com"
 
 //===========================================================================
-#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
-//#define OPTION_Z2_ENDSTOP					//Dual Z driver motor(connect to E0 motor wire)
+//#define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to E0 motor wire)
+//#define OPTION_Z2_ENDSTOP					//the 2nd Z ENDSTOP, connect to E0SW
 
 //Motor drivers
 //#define	OPTION_TMC220X_XYZ  			//TMC220x be used to XYZ motor
