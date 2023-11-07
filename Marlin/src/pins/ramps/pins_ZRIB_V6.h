@@ -409,6 +409,14 @@ EXP1_PIN10	D37										BEEPER_PIN
 #define X_MAX_PIN      18
 #endif
 
+#if ENABLED(SWAP_YN_YP)
+#undef Y_MIN_PIN
+#undef Y_MAX_PIN
+#define Y_MIN_PIN			15
+#define Y_MAX_PIN     14
+#endif
+
+
 #if HAS_MARLINUI_U8GLIB
 #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
 #define BOARD_ST7920_DELAY_2 DELAY_NS(250)

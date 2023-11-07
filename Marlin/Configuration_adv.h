@@ -115,7 +115,7 @@
 
 //
 // Hephestos 2 24V heated bed upgrade kit.
-// 
+// https://store.bq.com/en/heated-bed-kit-hephestos2
 //
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -138,9 +138,9 @@
 // Heated Chamber options
 //
 #if TEMP_SENSOR_CHAMBER
-  #define CHAMBER_MINTEMP             0
-  #define CHAMBER_MAXTEMP            80
-  #define TEMP_CHAMBER_HYSTERESIS     2   // (Â°C) Temperature proximity considered "close enough" to the target
+  #define CHAMBER_MINTEMP             5
+  #define CHAMBER_MAXTEMP            60
+  #define TEMP_CHAMBER_HYSTERESIS     1   // (Â°C) Temperature proximity considered "close enough" to the target
   //#define CHAMBER_LIMIT_SWITCHING
   //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
   //#define HEATER_CHAMBER_INVERTING false
@@ -186,7 +186,7 @@
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 	120     	// Seconds
+  #define THERMAL_PROTECTION_PERIOD 	120     // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 5     	// Degrees Celsius
 
   //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
@@ -505,7 +505,7 @@
  */
 //#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 				PB0                  // Override the default pin if needed
+  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT 			false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON 		true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
@@ -587,7 +587,7 @@
   #endif
   
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    #define Z2_USE_ENDSTOP	   	   		PD1	//If use Z2_SW_PIN as Z2 ENDSTOP, enable this option
+    #define Z2_USE_ENDSTOP	   	   		Z2_MIN_PIN	//If use Z2_SW_PIN as Z2 ENDSTOP, enable this option
     #define Z2_ENDSTOP_ADJUSTMENT   	0
     #if NUM_Z_STEPPER_DRIVERS >= 3
       #define Z3_USE_ENDSTOP        	_YMAX_
@@ -1064,7 +1064,7 @@
 // Change values more rapidly when the encoder is rotated faster
 #define ENCODER_RATE_MULTIPLIER
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
-  #define ENCODER_5X_STEPS_PER_SEC  	30  // (steps/s) Encoder rate for 5x speed
+  #define ENCODER_5X_STEPS_PER_SEC  30  // (steps/s) Encoder rate for 5x speed
   #define ENCODER_10X_STEPS_PER_SEC   80  // (steps/s) Encoder rate for 10x speed
   #define ENCODER_100X_STEPS_PER_SEC  130  // (steps/s) Encoder rate for 100x speed 
 #endif
@@ -1133,7 +1133,7 @@
 //#define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
-#define LCD_SET_PROGRESS_MANUALLY
+//#define LCD_SET_PROGRESS_MANUALLY
 
 // Show the E position (filament used) during printing
 //#define LCD_SHOW_E_TOTAL
@@ -1142,10 +1142,10 @@
   #define BOOTSCREEN_TIMEOUT 4000        // (ms) Total Duration to display the boot screen(s)
 #endif
 
-#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY) && ANY(HAS_DWIN_LCD, HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
-  #define SHOW_REMAINING_TIME       // Display estimated time to completion
+#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY) && ANY(HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
+  //#define SHOW_REMAINING_TIME       // Display estimated time to completion
   #if ENABLED(SHOW_REMAINING_TIME)
-    #define USE_M73_REMAINING_TIME  // Use remaining time from M73 command instead of estimation
+    //#define USE_M73_REMAINING_TIME  // Use remaining time from M73 command instead of estimation
     //#define ROTATE_PROGRESS_DISPLAY // Display (P)rogress, (E)lapsed, and (R)emaining time
   #endif
 
@@ -1186,12 +1186,8 @@
 
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
-	
   #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
-  
-#if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
-	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
-#endif
+
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
   #endif
@@ -1431,7 +1427,7 @@
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~ï¿?260 (or ~940) bytes of PROGMEM.
+  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~â€?260 (or ~940) bytes of PROGMEM.
 
   // Frivolous Game Options
   //#define MARLIN_BRICKOUT
@@ -1445,11 +1441,11 @@
 // Additional options for DGUS / DWIN displays
 //
 #if HAS_DGUS_LCD
-  #define LCD_SERIAL_PORT 				3
-  #define LCD_BAUDRATE 						115200
+  #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
 
-  #define DGUS_RX_BUFFER_SIZE 		128
-  #define DGUS_TX_BUFFER_SIZE 		48
+  #define DGUS_RX_BUFFER_SIZE 128
+  #define DGUS_TX_BUFFER_SIZE 48
   //#define SERIAL_STATS_RX_BUFFER_OVERRUNS  // Fix Rx overrun situation (Currently only for AVR)
 
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
@@ -1614,16 +1610,16 @@
  */
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
+  #define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   #define BABYSTEP_WITHOUT_HOMING
-  #define BABYSTEP_ALWAYS_AVAILABLE       	// Allow babystepping at all times (not just during movement).
+  #define BABYSTEP_ALWAYS_AVAILABLE       // Allow babystepping at all times (not just during movement).
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
   //#define BABYSTEP_MILLIMETER_UNITS       // Specify BABYSTEP_MULTIPLICATOR_(XY|Z) in mm instead of micro-steps
   #define BABYSTEP_MULTIPLICATOR_Z  5       // (steps or mm) Steps or millimeter distance for each Z babystep
   #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
   
-  #define DOUBLECLICK_FOR_Z_BABYSTEPPING  	// Double-click on the Status Screen for Z Babystepping.
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
@@ -1633,16 +1629,15 @@
     #endif
   #endif
   
-  #define BABYSTEP_DISPLAY_TOTAL          	// Display total babysteps since last G28 
-  //#define BABYSTEP_ZPROBE_OFFSET          	// Combine M851 Z and Babystepping
+  #define BABYSTEP_DISPLAY_TOTAL          	// Display total babysteps since last G28
+
+  //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
 
-	#ifdef SERIAL_PORT_2
   #define PROCESS_M290_ASAP				  	//Process M290 command as soon as possible
-  #endif
 #endif
 
 // @section extruder
@@ -1665,9 +1660,9 @@
 //#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.5     // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
-  #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
 
 // @section leveling
@@ -1903,7 +1898,7 @@
 #if BOTH(SDSUPPORT, DIRECT_STEPPING)
   #define BLOCK_BUFFER_SIZE  8
 #elif ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 32
+  #define BLOCK_BUFFER_SIZE 16
 #else
   #define BLOCK_BUFFER_SIZE 16
 #endif
@@ -1911,7 +1906,7 @@
 // @section serial
 
 // The ASCII buffer for serial input
-#define MAX_CMD_SIZE 128
+#define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
 // Transmission to Host Buffer Size
@@ -1921,7 +1916,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 256
+#define TX_BUFFER_SIZE 0
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -2041,7 +2036,7 @@
     // Load / Unload
     #define TOOLCHANGE_FS_LENGTH              12  // (mm) Load / Unload length
     #define TOOLCHANGE_FS_EXTRA_RESUME_LENGTH  0  // (mm) Extra length for better restart, fine tune by LCD/Gcode)
-    #define TOOLCHANGE_FS_RETRACT_SPEED   (35*60) // (mm/min) (Unloading)
+    #define TOOLCHANGE_FS_RETRACT_SPEED   (50*60) // (mm/min) (Unloading)
     #define TOOLCHANGE_FS_UNRETRACT_SPEED (25*60) // (mm/min) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
     // Longer prime to clean out a SINGLENOZZLE
@@ -2072,7 +2067,7 @@
      *   - Switch spools automatically on filament runout
      *   - Switch to a different nozzle on an extruder jam
      */
-    //#define TOOLCHANGE_MIGRATION_FEATURE
+    #define TOOLCHANGE_MIGRATION_FEATURE
 
   #endif
 
@@ -2106,7 +2101,7 @@
                                                   // This short retract is done immediately, before parking the nozzle.
   #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     20  // (mm/s) Unload filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_UNLOAD_LENGTH      500  // (mm) The length of filament for a complete unload.
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH      400  // (mm) The length of filament for a complete unload.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
                                                   //   Set to 0 for manual unloading.
@@ -2115,7 +2110,7 @@
                                                   // 0 to disable start loading and skip to fast load only
   #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  20  // (mm/s) Load filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   500  // (mm) Load length of filament, from extruder gear to nozzle.
+  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   400  // (mm) Load length of filament, from extruder gear to nozzle.
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
@@ -3579,8 +3574,6 @@
   //#define SERVICE_NAME_3      "Service 3"
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
-
-
 
 // @section develop
 

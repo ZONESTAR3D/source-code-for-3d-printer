@@ -89,7 +89,7 @@
 //#define OPTION_TITAN								//TITAN Extruder
 //#define	OPTION_AUTOPOWEROFF					//Power off after printer
 #define	OPTION_DUALZ_DRIVE  				//Dual Z driver motor(connect to Z2 motor connector)
-#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to Z2- connector)
+//#define OPTION_Z2_ENDSTOP						//Dual Z driver motor(connect to Z2- connector)
 #define	DEFAULT_AUTO_LEVELING	true	//Auto leveling feature is on
 #define	OPTION_PL08N 			    			//Probe use PL_08N
 //===========================================================================

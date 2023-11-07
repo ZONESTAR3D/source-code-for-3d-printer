@@ -63,6 +63,7 @@
 #else
   #define _Y_MIN
 #endif
+
 #if PIN_EXISTS(Y_MAX)
   #define _Y_MAX Y_MAX_PIN,
 #else

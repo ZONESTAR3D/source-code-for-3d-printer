@@ -105,6 +105,8 @@
 //Bed leveling sensor
 #define	OPTION_PL08N 								//default Probe use PL_08N
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
+
+#define	SWAP_YN_YP									//Exchange Y_MIN and Y_MAX pins
 //===========================================================================
 
 /**
