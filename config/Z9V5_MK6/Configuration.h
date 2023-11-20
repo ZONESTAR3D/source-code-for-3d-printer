@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK6"
-#define	FIRMWARE_VERSION					  "V1.0"
-#define	STRING_DISTRIBUTION_DATE    "2023-08-23"
+#define	FIRMWARE_VERSION					  "V1.0.1"
+#define	STRING_DISTRIBUTION_DATE    "2023-11-20"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -136,6 +136,14 @@
 #define LCD_SERIAL_PORT 1				//LCD DWIN connect to EXP2
 #if ENABLED(OPTION_3DTOUCH)
 #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
+#endif
+//===========================================================================
+#if ENABLED(OPTION_3DTOUCH)
+#undef OPTION_PL08N
+#endif
+#ifdef OPTION_MAXSIZE
+#undef CUSTOM_MACHINE_NAME
+#define CUSTOM_MACHINE_NAME 				"Z9V5MK6-MAX"
 #endif
 //===========================================================================
 /**

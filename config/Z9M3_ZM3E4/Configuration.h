@@ -101,6 +101,7 @@
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 //#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
+//#define OPTION_ZLSENSOR_EXP2				//ZLSENSOR connect to EXP2
 //#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
 //===========================================================================
 //optional feature for LCD_DWIN only
@@ -144,9 +145,7 @@
 #else															//LCD12864 connect to EXP1																	
 	#if ENABLED(OPTION_3DTOUCH)
 	#define SERIAL_PORT_2 3					//TFT-LCD35 connect to AUX1
-	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2
-	#else
-  #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
+	#define BLTOUCH_ON_EXP2 				//3DTouch connect to EXP2	
   #endif
 #endif
 //===========================================================================
@@ -215,9 +214,10 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#ifdef OPTION_LCD12864
-#define SERIAL_PORT_2 1
+#if ENABLED(OPTION_LCD12864) && DISABLED(OPTION_ZLSENSOR_EXP2)
+#define SERIAL_PORT_2 1			//TFT-LCD35 connect to EXP2
 #endif
+
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -993,6 +993,9 @@
 #if BOTH(OPTION_LCDDWIN, OPTION_ZLSENSOR)
 #define	Z_MIN_PROBE_PIN		PE14									//ZL_sensor connect to EXP1 pin 5
 #define	PROBE_GND_PIN			PE15									//ZL_sensor connect to EXP1 pin 3
+#elif ENABLED(OPTION_ZLSENSOR_EXP2)
+#define	Z_MIN_PROBE_PIN		PA15									//ZL_sensor connect to EXP2 pin 5
+#define	PROBE_GND_PIN			PB5										//ZL_sensor connect to EXP2 pin 3
 #else
 #define Z_MIN_PROBE_PIN 	PB13 									//Z_MAX_PIN as probe pin
 #endif

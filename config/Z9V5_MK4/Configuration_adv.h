@@ -876,7 +876,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#if ENABLED(OPTION_REPEAT_PRINTING)
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 #define DISABLE_INACTIVE_Z false  // Set 'false' if the nozzle could fall onto your printed part!
 #else
 #define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
@@ -1209,7 +1209,7 @@
   #define SD_PROCEDURE_DEPTH 1              // Increase if you need more nested M32 calls
 
   #define SD_FINISHED_STEPPERRELEASE true   // Disable steppers when SD Print is finished
-#if ENABLED(OPTION_REPEAT_PRINTING)  
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 	#define SD_FINISHED_RELEASECOMMAND "M84 XYE"  // Use "M84XYE" to keep Z enabled so your bed stays in place
 #else
   #define SD_FINISHED_RELEASECOMMAND "M84"  // Use "M84XYE" to keep Z enabled so your bed stays in place
@@ -1699,7 +1699,7 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
   #define LIN_ADVANCE_K 0       // Unit: mm compression per 1mm/s extruder speed

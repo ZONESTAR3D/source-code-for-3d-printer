@@ -139,6 +139,14 @@
 #define BLTOUCH_ON_EXP1 				//3DTouch connect to EXP1
 #endif
 //===========================================================================
+#if ENABLED(OPTION_3DTOUCH)
+#undef OPTION_PL08N
+#endif
+#ifdef OPTION_MAXSIZE
+#undef CUSTOM_MACHINE_NAME
+#define CUSTOM_MACHINE_NAME 				"Z9V5MK5-MAX"
+#endif
+//===========================================================================
 /**
  * *** VENDORS PLEASE READ ***
  *
