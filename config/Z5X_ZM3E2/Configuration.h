@@ -74,8 +74,8 @@
   #define MOTHERBOARD BOARD_ZONESTAR_ZM3E2
 #endif
 
-#define	Z5X
-//#define	Z5XM2
+//#define	Z5X
+#define	Z5XM2
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
@@ -84,8 +84,8 @@
 #elif defined(Z5XM2)
 #define CUSTOM_MACHINE_NAME 	  	"Z5XM2"
 #endif
-#define	FIRMWARE_VERSION		  	  "V1.3"
-#define	STRING_DISTRIBUTION_DATE  "2022-12-19"
+#define	FIRMWARE_VERSION		  	  "V1.4.1"
+#define	STRING_DISTRIBUTION_DATE  "2024-01-12"
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 			        "www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
@@ -102,12 +102,16 @@
 //#define OPTION_BGM									//BGM Extruder
 //#define	OPTION_TFTLCD  							//TFT_LCD 3.5INCH with touch screen (EXP1 connector)
 //#define	OPTION_ZLSENSOR							//Probe use ZLSENSOR (Z- connector)
-//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch (AUX2 connector)
+#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch (AUX2 connector)
 //===========================================================================
 //UART port
 #if ENABLED(OPTION_WIFI_MODULE)
 #define WIFI_LINK_CHECK_TIME					30//seconds for checking if wifi connected
 #define WIFI_SERIAL_PORT 2
+#endif
+//===========================================================================
+#if EITHER(OPTION_ZLSENSOR, OPTION_3DTOUCH)
+#undef OPTION_PL08N
 #endif
 //===========================================================================
 //Exchang motor drivers and ENDSTOP connector for fault motor driver issue
@@ -1094,7 +1098,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 30, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 30, 2.2, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.

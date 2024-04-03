@@ -1020,11 +1020,11 @@ inline void HMI_SDCardUpdate() {
 		HMI_flag.lcd_sd_status = card.isMounted();
 		// SERIAL_ECHOLNPAIR("HMI_SDCardUpdate: ", int(HMI_flag.lcd_sd_status));
 		if(HMI_flag.lcd_sd_status) {
-			if(DwinMenuID == DWMENU_FILE) { Redraw_SD_List(); dwinLCD.UpdateLCD();}
+			if(DwinMenuID == DWMENU_FILE) { Draw_FileList(); dwinLCD.UpdateLCD();}
 		}
 		else {
 		 // clean file icon
-		 if(DwinMenuID == DWMENU_FILE) { Redraw_SD_List();	dwinLCD.UpdateLCD();}
+		 if(DwinMenuID == DWMENU_FILE) { Draw_FileList();	dwinLCD.UpdateLCD();}
 		 else if(DwinMenuID == DWMENU_PRINTING || DwinMenuID == DWMENU_TUNE || printingIsActive()) {
 		  	/// TODO: Move card removed abort handling
 		  	// to CardReader::manage_media.		  	
@@ -1034,16 +1034,16 @@ inline void HMI_SDCardUpdate() {
 	}
 }
 
-void HMI_DWIN_Init() {
-	Encoder_Configuration();
-	
+void DWIN_Show_logo(){
 	dwinLCD.JPG_ShowAndCache(0);
-	HMI_SDCardInit();
-	
 	DWIN_Draw_MaskString_Default_Color(COLOR_WHITE, 15, 300, PSTR("Model: " CUSTOM_MACHINE_NAME));
 	DWIN_Draw_MaskString_Default_Color(COLOR_WHITE, 15, 324, PSTR("Firmware Version: " FIRMWARE_VERSION));
+}
 
-	for (uint16_t t = 0; t <= 100; t += 2) {
+void HMI_DWIN_Init() {
+	Encoder_Configuration();
+	HMI_SDCardInit();
+	for (uint16_t t = 0; t <= 100; t+= 5) {
 		DWIN_Show_ICON(ICON_BAR, 15, 260);
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 15 + t * 242 / 100, 260, 257, 280);
 		dwinLCD.UpdateLCD();

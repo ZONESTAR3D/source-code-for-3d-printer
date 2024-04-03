@@ -78,8 +78,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 		  "Z9M4"
-#define	FIRMWARE_VERSION					"V3.5.1"
-#define	STRING_DISTRIBUTION_DATE  "2023-11-15"
+#define	FIRMWARE_VERSION					"V3.6.0"
+#define	STRING_DISTRIBUTION_DATE  "2023-12-30"
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 				      "www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
@@ -87,17 +87,19 @@
 //===========================================================================
 //default
 #define OPTION_TITAN									//Titan Extruder
-#define	OPTION_AUTOPOWEROFF						//Power off after printer
 #define	OPTION_DUALZ_DRIVE  					//Dual Z driver motor(connect to Z2 motor connector)
 #define	OPTION_PL08N 			    				//leveling Probe use PL_08N
-#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
 //===========================================================================
 //optional feature
+#define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
+#define	OPTION_AUTOPOWEROFF						//Power off after printer
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //#define	OPTION_LCDDWIN				  		//4.3" LCD DWIN
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
-//#define	OPTION_BGM									//BGM extruder
+//#define	OPTION_BMG									//BMG extruder
+//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
-//#define	OPTION_TMC220X_EXTRUDER			//TMC220x be used to  extruder motors
+//#define	OPTION_TMC220X_EXTRUDER			//TMC220x be used to extruder motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
 //#define	OPTION_TMC2225_EXTRUDER			//TMC2225 be used to extruder motors
 //#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
@@ -106,7 +108,7 @@
 //#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
 //===========================================================================
 //optional feature for LCD_DWIN only
-#if ENABLED(OPTION_LCDDWIN)
+#ifdef OPTION_LCDDWIN
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #define	DWINLCD_MENU_VERSION		3     
 #define	OPTION_MIXING_SWITCH				  //Enable/disable mixing feature on LCD MENU
@@ -152,11 +154,19 @@
 #endif
 //===========================================================================
 //bed leveling sensor
-#if BOTH(OPTION_PL08N, OPTION_3DTOUCH) || BOTH(OPTION_PL08N, OPTION_ZLSENSOR)
+#if EITHER(OPTION_ZLSENSOR, OPTION_3DTOUCH)
 #undef OPTION_PL08N
 #endif
 #if BOTH(OPTION_ZLSENSOR, OPTION_3DTOUCH)
 #undef OPTION_ZLSENSOR
+#endif
+#if EITHER(OPTION_BMG, OPTION_BMG_LR)
+#ifdef OPTION_TITAN
+#undef OPTION_TITAN
+#endif
+#endif
+#if BOTH(OPTION_BMG, OPTION_BMG_LR)
+#undef OPTION_BMG
 #endif
 //===========================================================================
 /**
@@ -323,7 +333,6 @@
  *             https://youtu.be/Bqbcs0CU2FE
  */
 //#define MAGNETIC_PARKING_EXTRUDER
-
 #if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
 
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
@@ -401,7 +410,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -418,6 +426,9 @@
   #define RANDOM_MIX					// Support for random mixing with M167 and LCD
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       		// Add M166 T to use a V-tool index as a Gradient alias
+  #endif
+	#if ((MIXING_STEPPERS == 3) || (MIXING_STEPPERS == 4))
+	#define DEFAULT_MIX_CMY					//default mix rate is according to the filament Color Cyan-Magenta-Yellow
   #endif
 #endif
 
@@ -861,7 +872,7 @@
 #define	DOUBLE_STEPS_E		1
 #endif
 
-#if EITHER(OPTION_TITAN,OPTION_BGM)
+#if EITHER(OPTION_TITAN, OPTION_BMG)
 #define	STEPS_GEAR_RATIO	5
 #else
 #define	STEPS_GEAR_RATIO	1
@@ -1128,11 +1139,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 35, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { -35, 0, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 		35
+#define PROBING_MARGIN 		45
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_SPEED (133*60)

@@ -230,8 +230,8 @@
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
    * below 2.
    */
-  #define WATCH_TEMP_PERIOD 				90          // Seconds
-  #define WATCH_TEMP_INCREASE 			2           // Degrees Celsius
+  #define WATCH_TEMP_PERIOD 	120             // Seconds
+  #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 /**
@@ -534,7 +534,7 @@
   #define CASE_LIGHT_PIN 								PB0       // Override the default pin if needed
   #define INVERT_CASE_LIGHT 						false     // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON 				true      // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 100   			// Set default power-up brightness (0-255, requires PWM pin)
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
   //#define CASE_LIGHT_MAX_PWM 128            		// Limit pwm
   #define CASE_LIGHT_MENU                   			// Add Case Light options to the LCD menu
   #define	CASE_LIGHT_SMART												// Case Light smart control, can't work with "CASE_LIGHT_NO_BRIGHTNESS" and "CASE_LIGHT_USE_NEOPIXEL"
@@ -874,7 +874,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#if ENABLED(OPTION_REPEAT_PRINTING)
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 #define DISABLE_INACTIVE_Z false  // Set 'false' if the nozzle could fall onto your printed part!
 #else
 #define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
@@ -1207,7 +1207,7 @@
   #define SD_PROCEDURE_DEPTH 1              // Increase if you need more nested M32 calls
 
   #define SD_FINISHED_STEPPERRELEASE true   // Disable steppers when SD Print is finished
-#if ENABLED(OPTION_REPEAT_PRINTING)  
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 	#define SD_FINISHED_RELEASECOMMAND "M84 XYE"  // Use "M84XYE" to keep Z enabled so your bed stays in place
 #else
   #define SD_FINISHED_RELEASECOMMAND "M84"  // Use "M84XYE" to keep Z enabled so your bed stays in place
@@ -1222,7 +1222,7 @@
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
 	
-  #define EVENT_GCODE_SD_ABORT "G28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
   
 #if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
 	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
@@ -1382,7 +1382,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  #define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION ONBOARD	//LCD
 
 #endif // SDSUPPORT
 
@@ -2941,7 +2941,9 @@
  *
  * See https://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_FEATURE
+#ifdef OPTION_SPINDLE
+#define SPINDLE_FEATURE
+#endif
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_LASER_ACTIVE_STATE    HIGH    // Set to "HIGH" if the on/off function is active HIGH

@@ -317,6 +317,7 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHO_START()         serial_echo_start()
 #define SERIAL_ERROR_START()        serial_error_start()
 #define SERIAL_EOL()                SERIAL_CHAR('\n')
+//#define SERIAL_EOL()                do{ SERIAL_CHAR('\r'); SERIAL_CHAR('\n'); }while(0)
 
 #define SERIAL_ECHO_MSG(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
 #define SERIAL_ERROR_MSG(V...)      do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPAIR(V); }while(0)

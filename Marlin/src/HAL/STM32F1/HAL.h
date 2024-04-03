@@ -128,7 +128,7 @@
 		#define	HAS_WIFI_SERIAL	1
   #elif WITHIN(WIFI_SERIAL_PORT, 1, NUM_UARTS)
     #define WIFI_SERIAL MSERIAL(WIFI_SERIAL_PORT)
-	#define	HAS_WIFI_SERIAL	1
+		#define	HAS_WIFI_SERIAL	1
   #elif NUM_UARTS == 5
     #error "WIFI_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else

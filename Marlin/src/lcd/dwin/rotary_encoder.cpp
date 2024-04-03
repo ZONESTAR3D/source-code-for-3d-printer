@@ -85,6 +85,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   static signed char temp_diff = 0;
 	static millis_t next_click_update_ms;
   ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
+	static ENCODER_DiffState old_temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(EN1)) newbutton |= 0x01;
   if (BUTTON_PRESSED(EN2)) newbutton |= 0x02;
   if (BUTTON_PRESSED(ENC)) {    
@@ -128,15 +129,18 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     lastEncoderBits = newbutton;
   }
 
-  if (abs(temp_diff) >= EncoderRate.encoderPlusePerStep) {
+  if (abs(temp_diff) >= EncoderRate.encoderPlusePerStep) {		
     if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
     else temp_diffState = ENCODER_DIFF_CCW;
+		if(old_temp_diffState != temp_diffState){
+			old_temp_diffState = temp_diffState;
+			temp_diff = 0;
+		}
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
-
       millis_t ms = millis();
       int32_t encoderMultiplier = 1;
-
+			
       // if must encoder rati multiplier
       if (EncoderRate.enabled) {
         const float abs_diff = ABS(temp_diff),
@@ -156,8 +160,10 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     #endif // ENCODER_RATE_MULTIPLIER
 
     // EncoderRate.encoderMoveValue += (temp_diff * encoderMultiplier) / (EncoderRate.encoderPlusePerStep);
-    EncoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (EncoderRate.encoderPlusePerStep);
-    if (EncoderRate.encoderMoveValue < 0) EncoderRate.encoderMoveValue = -EncoderRate.encoderMoveValue;
+    //EncoderRate.encoderMoveValue = (temp_diff * encoderMultiplier) / (EncoderRate.encoderPlusePerStep);
+    //if (EncoderRate.encoderMoveValue < 0) EncoderRate.encoderMoveValue = -EncoderRate.encoderMoveValue;
+    EncoderRate.encoderMoveValue = (ABS(temp_diff) * encoderMultiplier) / (EncoderRate.encoderPlusePerStep);
+		if(EncoderRate.encoderMoveValue > 10) EncoderRate.encoderMoveValue = 10;
 
     temp_diff = 0;
   }

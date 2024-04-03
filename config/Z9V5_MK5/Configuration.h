@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK5"
-#define	FIRMWARE_VERSION					  "V1.2.4"
-#define	STRING_DISTRIBUTION_DATE    "2023-08-23"
+#define	FIRMWARE_VERSION					  "V1.3.0"
+#define	STRING_DISTRIBUTION_DATE    "2023-12-25"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -120,13 +120,13 @@
 //==========================================================================
 //Strings of QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://bit.ly/3KLDI2J"
+#define	STRING_GUIDE_LINK					"https://bit.ly/Z9V5MK5UserGuide"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
+#define	STRING_NEWS_LINK					"https://bit.ly/Z9V5News"
 #endif
 #if ENABLED(OPTION_FAQ_QRCODE)
-#define	STRING_FAQ_LINK						"https://bit.ly/3IUwBnP"
+#define	STRING_FAQ_LINK						"https://bit.ly/Z9V5FAQ"
 #endif
 //===========================================================================
 //UART port
@@ -1213,7 +1213,9 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#ifdef OPTION_MAXSIZE
+#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#endif
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1232,15 +1234,18 @@
 #ifdef OPTION_MAXSIZE
 #define X_BED_SIZE 500
 #define Y_BED_SIZE 500
+#define X_MIN_POS -6
+#define Y_MIN_POS -22
+#define Z_MIN_POS -2
 #else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
-#endif
-
-// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS -15
 #define Z_MIN_POS -1
+#endif
+
+// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400
@@ -1408,7 +1413,7 @@
   #define PROBING_MARGIN_BACK		PROBING_MARGIN
 
   #define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
-  #if ENABLED(OPTION_MAXSIZE)
+  #ifdef OPTION_MAXSIZE
 	#define	MAX_PROBE_ZOFFSET			4.0
 	#else
 	#define	MAX_PROBE_ZOFFSET			2.0

@@ -699,6 +699,7 @@ typedef enum{
 void Popup_Temperature_Runaway(heater_id_t heaterid, _emTempErrorID errorid);
 void Stop_and_return_mainmenu();
 void Abort_SD_Printing();
+void DWIN_Show_logo();
 void HMI_DWIN_Init();
 void DWIN_Update();
 void EachMomentUpdate();

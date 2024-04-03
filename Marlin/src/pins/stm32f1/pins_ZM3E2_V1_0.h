@@ -161,7 +161,11 @@
 #define SCK_PIN            PA5
 #define MISO_PIN           PA6
 #define MOSI_PIN           PA7
+#if SD_CONNECTION_IS(ONBOARD)
+#define ONBOARD_SD_CS_PIN	 PA4
+#else
 #define SS_PIN             PA4
+#endif
 
 //
 // LCD Pins

@@ -78,8 +78,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 		  "Z9M3-ZM3E4"
-#define	FIRMWARE_VERSION			    "V6.3.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-09-20"
+#define	FIRMWARE_VERSION			    "V6.4.0"
+#define	STRING_DISTRIBUTION_DATE  "2024-02-01"
 #define SHORT_BUILD_VERSION 		  "Marlin-2.0.8"
 #define WEBSITE_URL 				      "www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 	// Who made the changes.
@@ -93,9 +93,11 @@
 #define OPTION_TITAN									//Titan Extruder
 #define	OPTION_WIFI_MODULE					//Option WiFi module(ESP 01s)
 #define	OPTION_AUTOPOWEROFF					//Power off after printer
+#define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //#define	OPTION_LCDDWIN				  		//4.3" LCD DWIN
 //#define OPTION_Z2_ENDSTOP						//the second Z ENDSTOP
-//#define	OPTION_BGM									//BGM extruder
+//#define	OPTION_BMG									//BMG extruder
+//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_TMC220X_XYZ					//TMC220X be used to XYZ motors
 //#define	OPTION_TMC220X_EXTRUDER			 //TMC220x be used to  extruder motors
 //#define	OPTION_TMC2225_XYZ					//TMC2225 be used to XYZ motors
@@ -103,9 +105,10 @@
 //#define	OPTION_ZLSENSOR							//leveling Probe use ZLSENSOR
 //#define OPTION_ZLSENSOR_EXP2				//ZLSENSOR connect to EXP2
 //#define	OPTION_3DTOUCH							//leveling Probe use 3DTouch or BLTouch
+//#define	SWITCH_EXTRUDER_SQUENCY			//Exchanged 4 extruder squency
 //===========================================================================
 //optional feature for LCD_DWIN only
-#if ENABLED(OPTION_LCDDWIN)
+#ifdef OPTION_LCDDWIN
 #define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #define	DWINLCD_MENU_VERSION		3     
 #define	OPTION_MIXING_SWITCH				  //Enable/disable mixing feature on LCD MENU
@@ -150,11 +153,19 @@
 #endif
 //===========================================================================
 //bed leveling sensor
-#if BOTH(OPTION_PL08N, OPTION_3DTOUCH) || BOTH(OPTION_PL08N, OPTION_ZLSENSOR)
+#if EITHER(OPTION_ZLSENSOR, OPTION_3DTOUCH)
 #undef OPTION_PL08N
 #endif
 #if BOTH(OPTION_ZLSENSOR, OPTION_3DTOUCH)
 #undef OPTION_ZLSENSOR
+#endif
+#if EITHER(OPTION_BMG, OPTION_BMG_LR)
+#ifdef OPTION_TITAN
+#undef OPTION_TITAN
+#endif
+#endif
+#if BOTH(OPTION_BMG, OPTION_BMG_LR)
+#undef OPTION_BMG
 #endif
 //===========================================================================
 /**
@@ -400,7 +411,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -863,7 +873,7 @@
 #define	DOUBLE_STEPS_E		1
 #endif
 
-#if EITHER(OPTION_TITAN,OPTION_BGM)
+#if EITHER(OPTION_TITAN, OPTION_BMG)
 #define	STEPS_GEAR_RATIO	5
 #else
 #define	STEPS_GEAR_RATIO	1
@@ -876,7 +886,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 16, 100 }
+#define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 50 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)

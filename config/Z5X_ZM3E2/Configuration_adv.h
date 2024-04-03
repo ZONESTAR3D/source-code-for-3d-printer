@@ -115,7 +115,7 @@
 
 //
 // Hephestos 2 24V heated bed upgrade kit.
-// https://store.bq.com/en/heated-bed-kit-hephestos2
+// 
 //
 //#define HEPHESTOS2_HEATED_BED_KIT
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
@@ -186,7 +186,7 @@
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 	120     // Seconds
+  #define THERMAL_PROTECTION_PERIOD 	120     	// Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 5     	// Degrees Celsius
 
   //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
@@ -346,6 +346,8 @@
 // The number of consecutive low temperature errors that can occur
 // before a min_temp_error is triggered. (Shouldn't be more than 10.)
 //#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
+#define MAX_CONSECUTIVE_BED_HIGH_TEMPERATURE_ERROR_ALLOWED	10
+
 
 // The number of milliseconds a hotend will preheat before starting to check
 // the temperature. This value should NOT be set to the time it takes the
@@ -413,7 +415,7 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 500
 
 // Some coolers may require a non-zero "off" state.
 //#define FAN_OFF_PWM  1
@@ -430,7 +432,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 1
+#define FAN_MIN_PWM 0
 #define FAN_MAX_PWM 255
 
 /**
@@ -1209,7 +1211,7 @@
     //#define POWER_LOSS_PIN         44 // Pin to detect power loss. Set to -1 to disable default pin on boards without module.
     //#define POWER_LOSS_STATE     HIGH // State of pin indicating power loss
     //#define POWER_LOSS_PULL           // Set pullup / pulldown as appropriate
-    #define POWER_LOSS_PURGE_LEN   20 // (mm) Length of filament to purge on resume
+    #define POWER_LOSS_PURGE_LEN   10 // (mm) Length of filament to purge on resume
     //#define POWER_LOSS_RETRACT_LEN 10 // (mm) Length of filament to retract on fail. Requires backup power.
 
     // Without a POWER_LOSS_PIN the following option helps reduce wear on the SD card,
@@ -1343,7 +1345,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  #define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION ONBOARD	//LCD
 
 #endif // SDSUPPORT
 
@@ -1660,7 +1662,7 @@
 //#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.5     // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0       // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
@@ -1898,7 +1900,7 @@
 #if BOTH(SDSUPPORT, DIRECT_STEPPING)
   #define BLOCK_BUFFER_SIZE  8
 #elif ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16
+  #define BLOCK_BUFFER_SIZE 32
 #else
   #define BLOCK_BUFFER_SIZE 16
 #endif
@@ -1906,7 +1908,7 @@
 // @section serial
 
 // The ASCII buffer for serial input
-#define MAX_CMD_SIZE 96
+#define MAX_CMD_SIZE 128
 #define BUFSIZE 4
 
 // Transmission to Host Buffer Size
@@ -1916,7 +1918,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 256
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1999,18 +2001,18 @@
   #define FWRETRACT_AUTORETRACT           			// Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
     #define MIN_AUTORETRACT 0.02           			// (mm) Don't convert E moves under this length
-    #define MAX_AUTORETRACT 10.0         	 			// (mm) Don't convert E moves over this length
+    #define MAX_AUTORETRACT 20.0         	 			// (mm) Don't convert E moves over this length
   #endif
   #define RETRACT_LENGTH 								10 	 		// (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP 					15  		// (mm) Default swap retract length (positive value)
-  #define RETRACT_FEEDRATE      				40			// (mm/s) Default feedrate for retracting
+  #define RETRACT_LENGTH_SWAP 					12  		// (mm) Default swap retract length (positive value)
+  #define RETRACT_FEEDRATE      				30			// (mm/s) Default feedrate for retracting
   #define RETRACT_ZRAISE        				0   		// (mm) Default retract Z-raise
-  #define RETRACT_RECOVER_LENGTH 	  		0.01   	// (mm) Default additional recover length (added to retract length on recover)
-  #define RETRACT_RECOVER_LENGTH_SWAP 	0.02   	// (mm) Default additional swap recover length (added to retract length on recover from toolchange)
-  #define RETRACT_RECOVER_FEEDRATE 	  	30   	 	// (mm/s) Default feedrate for recovering from retraction
+  #define RETRACT_RECOVER_LENGTH 	  		0.00   	// (mm) Default additional recover length (added to retract length on recover)
+  #define RETRACT_RECOVER_LENGTH_SWAP 	0.00   	// (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+  #define RETRACT_RECOVER_FEEDRATE 	  	25   	 	// (mm/s) Default feedrate for recovering from retraction
   #define RETRACT_RECOVER_FEEDRATE_SWAP 30 			// (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
-    #define RETRACT_SYNC_MIXING         				// Retract and restore all mixing steppers simultaneously
+    //#define RETRACT_SYNC_MIXING         				// Retract and restore all mixing steppers simultaneously
   #endif
 #endif
 
@@ -2036,7 +2038,7 @@
     // Load / Unload
     #define TOOLCHANGE_FS_LENGTH              12  // (mm) Load / Unload length
     #define TOOLCHANGE_FS_EXTRA_RESUME_LENGTH  0  // (mm) Extra length for better restart, fine tune by LCD/Gcode)
-    #define TOOLCHANGE_FS_RETRACT_SPEED   (50*60) // (mm/min) (Unloading)
+    #define TOOLCHANGE_FS_RETRACT_SPEED   (35*60) // (mm/min) (Unloading)
     #define TOOLCHANGE_FS_UNRETRACT_SPEED (25*60) // (mm/min) (On SINGLENOZZLE or Bowden loading must be slowed down)
 
     // Longer prime to clean out a SINGLENOZZLE
@@ -2067,7 +2069,7 @@
      *   - Switch spools automatically on filament runout
      *   - Switch to a different nozzle on an extruder jam
      */
-    #define TOOLCHANGE_MIGRATION_FEATURE
+    //#define TOOLCHANGE_MIGRATION_FEATURE
 
   #endif
 
@@ -2903,14 +2905,16 @@
  *
  * See https://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_FEATURE
+#ifdef OPTION_SPINDLE
+#define SPINDLE_FEATURE
+#endif
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
-  #define SPINDLE_LASER_ACTIVE_STATE    LOW    // Set to "HIGH" if the on/off function is active HIGH
-  #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
+  #define SPINDLE_LASER_ACTIVE_STATE    HIGH    // Set to "HIGH" if the on/off function is active HIGH
+  #define SPINDLE_LASER_PWM             false  // Set to "true" if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      false  // Set to "true" if the speed/power goes up when you want it to go slower
 
-  #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
+  //#define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
   /**
    * Speed / Power can be set ('M3 S') and displayed in terms of:
@@ -2918,7 +2922,7 @@
    *  - PERCENT (S0 - S100)
    *  - RPM     (S0 - S50000)  Best for use with a spindle
    */
-  #define CUTTER_POWER_UNIT PWM255
+  #define CUTTER_POWER_UNIT RPM
 
   /**
    * Relative Cutter Power
@@ -2947,10 +2951,10 @@
      * Speed/Power = (PWMDC / 255 * 100 - SPEED_POWER_INTERCEPT) / SPEED_POWER_SLOPE
      * PWMDC = (spdpwr - SPEED_POWER_MIN) / (SPEED_POWER_MAX - SPEED_POWER_MIN) / SPEED_POWER_SLOPE
      */
-    #define SPEED_POWER_INTERCEPT         0    // (%) 0-100 i.e., Minimum power percentage
+    #define SPEED_POWER_INTERCEPT        50    // (%) 0-100 i.e., Minimum power percentage
     #define SPEED_POWER_MIN            5000    // (RPM)
-    #define SPEED_POWER_MAX           30000    // (RPM) SuperPID router controller 0 - 30,000 RPM
-    #define SPEED_POWER_STARTUP       25000    // (RPM) M3/M4 speed/power default (with no arguments)
+    #define SPEED_POWER_MAX           10000    // (RPM) SuperPID router controller 0 - 30,000 RPM
+    #define SPEED_POWER_STARTUP        8000    // (RPM) M3/M4 speed/power default (with no arguments)
 
   #else
 
@@ -3133,7 +3137,7 @@
 /**
  * Disable all Volumetric extrusion options
  */
-//#define NO_VOLUMETRICS
+#define NO_VOLUMETRICS
 
 #if DISABLED(NO_VOLUMETRICS)
   /**

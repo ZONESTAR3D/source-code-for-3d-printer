@@ -82,7 +82,7 @@ extern baby_step_t babyzoffset;
 void DWIN_Refresh_ExtruerFAN_State();
 #endif
 
-void Redraw_SD_List();
+void Draw_FileList();
 void DWIN_start_SDPrint();
 void Draw_Printing_Menu(const uint8_t MenuItem = 0, const bool with_update = false);
 void Draw_Print_ProgressBar();

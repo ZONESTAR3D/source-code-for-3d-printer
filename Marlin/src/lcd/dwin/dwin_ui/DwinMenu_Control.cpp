@@ -3671,7 +3671,9 @@ void HMI_Config() {
 					DwinMenuID = DWMENU_CONFIG;
 					WIFI_onoff();
 				}
+			#if ENABLED(OPTION_WIFI_BAUDRATE)
 				if(WITHIN(MROWS - DwinMenu_configure.index + CONFIG_CASE_WIFISPEED, 0, MROWS)) Item_Config_WifiBaudrate(MROWS - DwinMenu_configure.index + CONFIG_CASE_WIFISPEED);
+			#endif
 				HMI_AudioFeedback(settings.save());				
 			break;
 			

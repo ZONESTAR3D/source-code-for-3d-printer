@@ -227,6 +227,8 @@ void Draw_Info_Menu() {
 	if (ICVISI(INFO_CASE_BACK)) Draw_Back_First(DwinMenu_infor.now == INFO_CASE_BACK);	
 	
 	if(ICVISI(INFO_CASE_MODEL)) Item_Info_Model(ICSCROL(INFO_CASE_MODEL));
+	if(ICVISI(INFO_CASE_VERSION)) Item_Info_Version(ICSCROL(INFO_CASE_VERSION));
+	
 #if ENABLED(OPTION_GUIDE_QRCODE)
 	if(ICVISI(INFO_CASE_VIEWGUIDE)) Item_Info_Guide(ICSCROL(INFO_CASE_VIEWGUIDE));
 #endif
@@ -236,7 +238,7 @@ void Draw_Info_Menu() {
 #if ENABLED(OPTION_FAQ_QRCODE)	
 	if(ICVISI(INFO_CASE_FAQ)) Item_Info_FAQ(ICSCROL(INFO_CASE_FAQ));	
 #endif
-	if(ICVISI(INFO_CASE_VERSION)) Item_Info_Version(ICSCROL(INFO_CASE_VERSION));
+	
 	if(ICVISI(INFO_CASE_DATE)) Item_Info_Date(ICSCROL(INFO_CASE_DATE));	
 	if(ICVISI(INFO_CASE_WEBSITE)) Item_Info_Website(ICSCROL(INFO_CASE_WEBSITE));	
 	if(ICVISI(INFO_CASE_FIRMWARE)) Item_Info_Firmware(ICSCROL(INFO_CASE_FIRMWARE));
@@ -270,9 +272,12 @@ void HMI_Pop_UserGuideLink() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();	
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
 	else if(encoder_diffState == ENCODER_DIFF_ENTER){
-		HMI_flag.first_power_on = false;
-		settings.save();
-		Draw_Main_Menu(true);
+		if(HMI_flag.first_power_on){
+			HMI_flag.first_power_on = false;
+			settings.save();
+			Draw_Main_Menu(true);
+		}
+		else Draw_Info_Menu();
 	}
 }
 #endif
@@ -282,7 +287,7 @@ void HMI_Pop_NewsLink() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();	
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
 	else if(encoder_diffState == ENCODER_DIFF_ENTER){
-		Draw_Main_Menu(true);
+		Draw_Info_Menu();//Draw_Main_Menu(true);
 	}
 }
 #endif
@@ -292,7 +297,7 @@ void HMI_Pop_FAQLink() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze(); 
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
 	else if(encoder_diffState == ENCODER_DIFF_ENTER){
-		Draw_Main_Menu(true);
+		Draw_Info_Menu();//Draw_Main_Menu(true);
 	}
 }
 #endif
@@ -317,7 +322,8 @@ void HMI_Info() {
 
 				// Scroll up and draw a blank bottom line
 				Scroll_Menu(DWIN_SCROLL_UP);
-				if(DwinMenu_infor.index == INFO_CASE_MODEL) Item_Info_Model(MROWS);				
+				if(DwinMenu_infor.index == INFO_CASE_MODEL) Item_Info_Model(MROWS);
+				else if(DwinMenu_infor.index == INFO_CASE_VERSION) Item_Info_Version(MROWS);
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index == INFO_CASE_VIEWGUIDE) Item_Info_Guide(MROWS);
 			#endif
@@ -327,8 +333,7 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index == INFO_CASE_WEBSITE) Item_Info_Website(MROWS);
 			#if ENABLED(OPTION_FAQ_QRCODE)
 				else if(DwinMenu_infor.index == INFO_CASE_FAQ) Item_Info_FAQ(MROWS);
-			#endif
-				else if(DwinMenu_infor.index == INFO_CASE_VERSION) Item_Info_Version(MROWS);
+			#endif				
 				else if(DwinMenu_infor.index == INFO_CASE_DATE) Item_Info_Date(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_FIRMWARE) Item_Info_Firmware(MROWS);
 				else if(DwinMenu_infor.index == INFO_CASE_BOARD) Item_Info_Board(MROWS);
@@ -376,8 +381,7 @@ void HMI_Info() {
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_BOARD) Item_Info_Board(0);		
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_FIRMWARE) Item_Info_Firmware(0);
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_WEBSITE) Item_Info_Website(0);
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_DATE) Item_Info_Date(0);
-				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VERSION) Item_Info_Version(0);
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_DATE) Item_Info_Date(0);				
 			#if ENABLED(OPTION_FAQ_QRCODE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_FAQ) Item_Info_FAQ(0);	
 			#endif
@@ -387,6 +391,7 @@ void HMI_Info() {
 			#if ENABLED(OPTION_GUIDE_QRCODE)
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VIEWGUIDE) Item_Info_Guide(0);
 			#endif
+				else if(DwinMenu_infor.index - MROWS == INFO_CASE_VERSION) Item_Info_Version(0);
 				else if(DwinMenu_infor.index - MROWS == INFO_CASE_MODEL) Item_Info_Model(0);							
 			}
 			else {

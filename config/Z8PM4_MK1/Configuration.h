@@ -82,14 +82,14 @@
 #ifdef OPTION_Z8PM4
 #define CUSTOM_MACHINE_NAME 			"Z8PM4"
 #elif  defined(OPTION_Z8PM4_PRO)
-#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro"
+#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK1"
 #endif
-#define	FIRMWARE_VERSION		  		"V3.4.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-09-09"
+#define	FIRMWARE_VERSION		  		"V3.5.0"
+#define	STRING_DISTRIBUTION_DATE  "2024-01-06"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.
-#define EEPROM_VERSION 			  		"V83"										//modify it if need auto initlize EEPROM after upload firmware
+#define EEPROM_VERSION 			  		"V84"										//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default, factory default configuration
 #define OPTION_TITAN									//TITAN Extruder
@@ -111,8 +111,9 @@
 //===========================================================================
 //optional feature
 #define	OPTION_WIFI_MODULE						//Option WiFi module(ESP 01s)
-#define	OPTION_LASERPWMUSEDFANPIN			//Used the FAN pin as laser PWM pin
-//#define OPTION_BGM									//BGM Extruder
+#define	OPTION_LASER									//Laser faeture
+//#define	OPTION_SPINDLE								//Spindle faeture
+//#define OPTION_BMG									//BGM Extruder
 //#define	OPTION_TMC2225_EXTRUDER 		//TMC2225 be used to Extruder motor drivers
 //#define	OPTION_TMC220X_XYZ 					//TMC220X be used to XYZ axis motor drivers
 //#define	OPTION_TMC220X_EXTRUDER 		//TMC220X be used to Extruder motor drivers
@@ -129,17 +130,17 @@
 #endif
 #endif
 //===========================================================================
+#ifdef OPTION_3DTOUCH
+#undef OPTION_PL08N
+#endif
+#ifdef OPTION_BMG
+#undef OPTION_TITAN
+#endif
+//===========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	0.0			//default home Y offset
 #define	DEFAULT_HOMEZ_OFFSET	0.0			//default home Z offset
-
-#ifdef OPTION_GUIDE_QRCODE
-#define	STRING_GUIDE_LINK					"http://bit.ly/3EoYj8D"
-#endif
-#ifdef OPTION_NEWS_QRCODE
-#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
-#endif
 //===========================================================================
 //UART port
 #ifdef OPTION_WIFI_MODULE
@@ -160,6 +161,19 @@
   #define SERIAL_PORT_2 1					//TFT-LCD35 connect to EXP2
   #endif
 #endif
+//===========================================================================
+//Laser and Spindle
+#ifdef OPTION_LASER
+#define	 LASERPWM_USED_FANPIN			//Used the FAN pin as laser PWM pin, and use M106/M107 to control laser power
+#endif
+#ifdef OPTION_SPINDLE
+#define	SPINDLE_USED_BEDPIN		true
+#endif
+//===========================================================================
+//Links of QR code
+#define	STRING_GUIDE_LINK					"https://bit.ly/3EoYj8D"
+#define	STRING_NEWS_LINK					"https://bit.ly/3UPON5v"
+#define	STRING_FAQ_LINK						"https://bit.ly/44Fi9Zs"
 //===========================================================================
 /**
  * LCD LANGUAGE
@@ -257,7 +271,7 @@
 
 // Save and restore temperature and fan speed on tool-change.
 // Set standby for the unselected tool with M104/106/109 T...
-#ifdef SINGLENOZZLE
+#if ENABLED(SINGLENOZZLE)
   //#define SINGLENOZZLE_STANDBY_TEMP
   //#define SINGLENOZZLE_STANDBY_FAN
 #endif
@@ -273,7 +287,7 @@
  * Additional options to configure custom E moves are pending.
  */
 //#define MK2_MULTIPLEXER
-#ifdef MK2_MULTIPLEXER
+#if ENABLED(MK2_MULTIPLEXER)
   // Override the default DIO selector pins here, if needed.
   // Some pins files may provide defaults for these pins.
   //#define E_MUX0_PIN 40  // Always Required
@@ -401,7 +415,6 @@
  *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
- *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 #define MIXING_EXTRUDER
@@ -658,7 +671,7 @@
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
-  //#define PID_DEBUG             // Sends debug data to the serial port. Use 'M303 D' to toggle activation.
+  //#define PID_DEBUG             	// Sends debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
@@ -788,12 +801,12 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-//#define X_DRIVER_TYPE  A4988
-//#define Y_DRIVER_TYPE  A4988
-//#define Z_DRIVER_TYPE  A4988
+//#define X_DRIVER_TYPE  TMC2225
+//#define Y_DRIVER_TYPE  TMC2225
+//#define Z_DRIVER_TYPE  TMC2225
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
-//#define Z2_DRIVER_TYPE A4988
+//#define Z2_DRIVER_TYPE TMC2225
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
 //#define E0_DRIVER_TYPE A4988
@@ -844,7 +857,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-#define DISTINCT_E_FACTORS
+//#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -864,7 +877,7 @@
 #define	DOUBLE_STEPS_E		1
 #endif
 
-#if EITHER(OPTION_TITAN,OPTION_BGM)
+#if EITHER(OPTION_TITAN, OPTION_BMG)
 #define	STEPS_GEAR_RATIO	5
 #else
 #define	STEPS_GEAR_RATIO	1
@@ -2458,7 +2471,7 @@
 //
 // ZONESTAR DWIN LCD display with Rotary Encoder and beeper
 //
-#if ENABLED(OPTION_LCDDWIN)
+#ifdef OPTION_LCDDWIN
 #define ZONESTAR_DWIN_LCD
 #endif
 

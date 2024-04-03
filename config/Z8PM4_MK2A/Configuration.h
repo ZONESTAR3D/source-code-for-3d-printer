@@ -71,14 +71,14 @@
 // @section info
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
+  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V3
 #endif
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
-#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2"
-#define	FIRMWARE_VERSION		  		"V1.5.0"
-#define	STRING_DISTRIBUTION_DATE  "2023-12-25"
+#define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2A"
+#define	FIRMWARE_VERSION		  		"V1.5.1"
+#define	STRING_DISTRIBUTION_DATE  "2024-03-14"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.

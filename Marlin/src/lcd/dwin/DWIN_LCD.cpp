@@ -89,6 +89,7 @@ bool DWINLCD::Handshake(void) {
   size_t i = 0;
   DWIN_Byte(i, 0x00);
   DWIN_Send(i);
+	recnum = 0;
 
   while (LCD_SERIAL.available() > 0 && recnum < (signed)sizeof(databuf)) {
     databuf[recnum] = LCD_SERIAL.read();
@@ -100,7 +101,8 @@ bool DWINLCD::Handshake(void) {
       }
       continue;
     }
-    delay(10);
+    //delay(10);
+    delay(1);
     recnum++;
   }
 

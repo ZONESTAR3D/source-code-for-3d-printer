@@ -536,7 +536,8 @@
   #define CASE_LIGHT_DEFAULT_ON 		true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
   //#define CASE_LIGHT_MAX_PWM 128            // Limit pwm
-  //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
+  #define CASE_LIGHT_MENU                   			// Add Case Light options to the LCD menu
+  #define	CASE_LIGHT_SMART												// Case Light smart control, can't work with "CASE_LIGHT_NO_BRIGHTNESS" and "CASE_LIGHT_USE_NEOPIXEL"
   //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
   //#define CASE_LIGHT_USE_NEOPIXEL           // Use NeoPixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
@@ -873,7 +874,7 @@
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
-#if ENABLED(OPTION_REPEAT_PRINTING)
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 #define DISABLE_INACTIVE_Z false  // Set 'false' if the nozzle could fall onto your printed part!
 #else
 #define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
@@ -1206,7 +1207,7 @@
   #define SD_PROCEDURE_DEPTH 1              // Increase if you need more nested M32 calls
 
   #define SD_FINISHED_STEPPERRELEASE true   // Disable steppers when SD Print is finished
-#if ENABLED(OPTION_REPEAT_PRINTING)  
+#if EITHER(OPTION_MAXSIZE, OPTION_REPEAT_PRINTING)
 	#define SD_FINISHED_RELEASECOMMAND "M84 XYE"  // Use "M84XYE" to keep Z enabled so your bed stays in place
 #else
   #define SD_FINISHED_RELEASECOMMAND "M84"  // Use "M84XYE" to keep Z enabled so your bed stays in place
@@ -1224,7 +1225,7 @@
   #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
   
 #if ENABLED(OPTION_ABORT_UNLOADFILAMENT)
-	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28YX"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+	#define EVENT_GCODE_SD_ABORT_2 "G1 E-45 F1800\nG28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 #endif
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
@@ -1381,7 +1382,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  #define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION ONBOARD	//LCD
 
 #endif // SDSUPPORT
 
@@ -1699,7 +1700,7 @@
 //#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.5     // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0       // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
@@ -3172,7 +3173,7 @@
 /**
  * Disable all Volumetric extrusion options
  */
-//#define NO_VOLUMETRICS
+#define NO_VOLUMETRICS
 
 #if DISABLED(NO_VOLUMETRICS)
   /**

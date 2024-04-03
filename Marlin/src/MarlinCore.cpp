@@ -993,6 +993,10 @@ void setup() {
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
+#if((MOTHERBOARD == BOARD_ZONESTAR_ZM3E4 || MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V2 || MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V3))
+	Uart2_Remap_Enabled();
+#endif
+
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
@@ -1026,9 +1030,6 @@ void setup() {
 		#define	WIFI_BAUDRATE	115200
 	#endif
 	 
-	#if((WIFI_SERIAL_PORT == 2) && (MOTHERBOARD == BOARD_ZONESTAR_ZM3E4 || MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V2 || MOTHERBOARD == BOARD_ZONESTAR_ZM3E4V3))
-		Uart2_Remap_Enabled();
-	#endif
 	#if DISABLED(OPTION_WIFI_BAUDRATE)
 		WIFI_SERIAL.begin(WIFI_BAUDRATE);	
 		serial_connect_timeout = millis() + 1000UL;
@@ -1060,6 +1061,22 @@ void setup() {
 	SETUP_RUN(HAL_init());	
 
 	SETUP_RUN(setup_powerhold());
+
+	// UI must be initialized before EEPROM
+  // (because EEPROM code calls the UI).
+  #if HAS_DWIN_LCD		
+    //delay(800);   // Required delay (since boot?)    
+    SETUP_RUN(dwinLCD.Handshake());
+    dwinLCD.Frame_SetDir(1); // Orientation 90    
+    DWIN_Show_logo();
+		dwinLCD.UpdateLCD();     // Show bootscreen (first image)   
+  #else
+    SETUP_RUN(ui.init());
+    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
+      SETUP_RUN(ui.show_bootscreen());
+    #endif
+    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
 
 	SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
 
@@ -1158,22 +1175,6 @@ void setup() {
 
   #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
     SETUP_RUN(controllerFan.setup());
-  #endif
-
-  // UI must be initialized before EEPROM
-  // (because EEPROM code calls the UI).
-  #if HAS_DWIN_LCD		
-    delay(800);   // Required delay (since boot?)
-    SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (dwinLCD.Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");		
-    dwinLCD.Frame_SetDir(1); // Orientation 90°
-    dwinLCD.UpdateLCD();     // Show bootscreen (first image)
-  #else
-    SETUP_RUN(ui.init());
-    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
-      SETUP_RUN(ui.show_bootscreen());
-    #endif
-    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
@@ -1353,7 +1354,7 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif	
 	
-	TERN_(HAS_DWIN_LCD,HMI_DWIN_Init());
+	TERN_(HAS_DWIN_LCD, HMI_DWIN_Init());
 			
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_LCD
     ui.reset_status(true);  // Show service messages or keep current status

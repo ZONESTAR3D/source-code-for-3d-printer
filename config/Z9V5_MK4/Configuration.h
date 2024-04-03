@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
-#define	FIRMWARE_VERSION					  "V1.5.3"
-#define	STRING_DISTRIBUTION_DATE    "2023-09-20"
+#define	FIRMWARE_VERSION					  "V1.6.2"
+#define	STRING_DISTRIBUTION_DATE    "2024-03-16"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
@@ -102,16 +102,19 @@
 #define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
 #define	DEFAULT_MIXING_SWITCH		false	//Default mixing feature is off
 //===========================================================================
-//optional feature
+//optional features - Default ON
 #define	OPTION_WIFI_MODULE					  //Option WiFi module(ESP 01s)
 #define	OPTION_WIFI_BAUDRATE				  //Option WiFi baudrate
 #define	OPTION_WIFI_QRCODE						//Show a QRcode while WiFi connected
 #define	OPTION_LASER									//Used the FAN pin as laser PWM pin
-//#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
-//#define	OPTION_3DTOUCH							//Probe use 3DTouch or BLTouch
-//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
-//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+//===========================================================================
+//optional features - Default OFF
 //#define OPTION_MAXSIZE              //Upgrade 500x500
+//#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
+//#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
+//#define	OPTION_3DTOUCH							//Use 3DTouch or BLTouch Bed levling sensor
+//#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
+//#define OPTION_REPEAT_PRINTING        //Auto Repeat printing feature
 //==========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
@@ -120,13 +123,13 @@
 //==========================================================================
 //Strings of QRcode
 #if ENABLED(OPTION_GUIDE_QRCODE)
-#define	STRING_GUIDE_LINK					"https://bit.ly/3LdDEaF"
+#define	STRING_GUIDE_LINK					"https://bit.ly/Z9V5MK4UserGuide"
 #endif
 #if ENABLED(OPTION_NEWS_QRCODE)
-#define	STRING_NEWS_LINK					"https://bit.ly/3AqNKAQ"
+#define	STRING_NEWS_LINK					"https://bit.ly/Z9V5News"
 #endif
 #if ENABLED(OPTION_FAQ_QRCODE)
-#define	STRING_FAQ_LINK						"https://bit.ly/3IUwBnP"
+#define	STRING_FAQ_LINK						"https://bit.ly/Z9V5FAQ"
 #endif
 //===========================================================================
 //UART port
@@ -810,7 +813,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-#define DISTINCT_E_FACTORS
+//#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
@@ -1213,7 +1216,9 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#ifdef OPTION_MAXSIZE
+#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#endif
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1232,15 +1237,18 @@
 #ifdef OPTION_MAXSIZE
 #define X_BED_SIZE 500
 #define Y_BED_SIZE 500
+#define X_MIN_POS -6
+#define Y_MIN_POS -22
+#define Z_MIN_POS -2
 #else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
-#endif
-
-// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS -15
 #define Z_MIN_POS -1
+#endif
+
+// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400
@@ -1408,7 +1416,7 @@
   #define PROBING_MARGIN_BACK		PROBING_MARGIN
 
   #define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
-  #if ENABLED(OPTION_MAXSIZE)
+  #ifdef OPTION_MAXSIZE
 	#define	MAX_PROBE_ZOFFSET			4.0
 	#else
 	#define	MAX_PROBE_ZOFFSET			2.0

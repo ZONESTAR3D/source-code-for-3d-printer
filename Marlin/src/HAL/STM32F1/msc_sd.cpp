@@ -17,7 +17,7 @@
 #include "msc_sd.h"
 #include "SPI.h"
 
-#define PRODUCT_ID 0x04//0x29
+#define PRODUCT_ID 0x29//0x04
 
 USBMassStorage MarlinMSC;
 MarlinUSBCompositeSerial MarlinCompositeSerial;

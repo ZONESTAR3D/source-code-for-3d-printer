@@ -40,7 +40,7 @@
 #endif
 
 #if ENABLED(BABYSTEPPING)
-static millis_t Babysteps_timer_first;
+static millis_t Babystep_firstclicktime;
 baby_step_t babyzoffset;
 #endif 
 
@@ -62,6 +62,11 @@ static void Draw_Select_Highlight(const bool sel) {
 static uint16_t nr_sd_menu_items() {
 	return card.get_num_Files() + !card.flag.workDirIsRoot;
 }
+
+static bool printer_busy() {
+  return planner.movesplanned() || printingIsActive();
+}
+
 
 /**
  * Read and cache the working directory.
@@ -177,7 +182,7 @@ static void Draw_SDItem(const uint16_t item, int16_t row=-1) {
 
 
 // Redraw the first set of SD Files
-void Redraw_SD_List() {
+void Draw_FileList() {
 	DwinMenu_file.reset();
 
 	Clear_Dwin_Area(AREA_MENU); // Leave title bar unchanged
@@ -186,8 +191,10 @@ void Redraw_SD_List() {
 	if (card.isMounted()) {
 		//if (card.flag.mounted) {
 		// As many files as will fit
-		LOOP_L_N(i, (nr_sd_menu_items()>MROWS? MROWS : nr_sd_menu_items()))
-		Draw_SDItem(i, i+1);
+		
+		//LOOP_L_N(i, (nr_sd_menu_items()>MROWS? MROWS : nr_sd_menu_items()))
+		LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
+			Draw_SDItem(i, i+1);
 		TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
 	}
 	else {
@@ -198,13 +205,13 @@ void Redraw_SD_List() {
 
 inline void SDCard_Up() {
 	card.cdup();
-	Redraw_SD_List();
+	Draw_FileList();
 	HMI_flag.lcd_sd_status = true; // On next DWIN Update
 }
 
 inline void SDCard_Folder(char * const dirname) {
 	card.cd(dirname);
-	Redraw_SD_List();
+	Draw_FileList();
 	HMI_flag.lcd_sd_status = true; // On next DWIN Update
 }
 
@@ -340,7 +347,8 @@ void HMI_SelectFile() {
 			//
 			TERN_(OPTION_ABORT_UNLOADFILAMENT, sum_extrude = 0);
 
-			DWIN_status = ID_SM_PRINTING;			
+			//DWIN_status = ID_SM_PRINTING;			
+			set_all_unhomed();
 			DWIN_start_SDPrint();
 			return;
 		}
@@ -835,26 +843,29 @@ inline void save_Zoffset(){
 
 #endif
 
-inline void Draw_Babystep_Menu() {
+inline void Draw_Babystep_Menu() {	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 	dwinLCD.Draw_String(false, false, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 10, 160, PSTR("Babystep:"));
 	DWIN_Draw_Big_Float22(170, 160, HMI_Value.babyZoffset_Scale);
+	Babystep_firstclicktime = millis();
 }
 
 
 void HMI_Pop_BabyZstep() {
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
-		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.babyZoffset_Scale)) {
+		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.babyZoffset_Scale) 
+			&& (millis() >= Babystep_firstclicktime + DOUBLECLICK_MAX_INTERVAL)) {
 			EncoderRate.enabled = false;
 			HMI_flag.autoreturntime = 0;
 			Draw_Printing_Menu();
 			TERN_(SAVE_ZOFFSET_INTIME, save_Zoffset());
 		}
 		else {
+			Babystep_firstclicktime = millis() - DOUBLECLICK_MAX_INTERVAL;
 			HMI_flag.autoreturntime = 8;
 			NOLESS(HMI_Value.babyZoffset_Scale, -500);
 		 	NOMORE(HMI_Value.babyZoffset_Scale, 500); 	
@@ -1100,6 +1111,9 @@ void HMI_PauseOrStop() {
 	if(encoder_diffState == ENCODER_DIFF_NO) return;
 
 	if(encoder_diffState == ENCODER_DIFF_CW){
+#if 0//BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
+		Babystep_firstclicktime = 0;
+#endif
 #if (DWINLCD_MENU_VERSION >= 2)
 		DWIN_Show_ICON(ICON_CONFIRM_C, 26, 280);
 		DWIN_Show_ICON(ICON_CANCEL_E, 146, 280);
@@ -1107,13 +1121,26 @@ void HMI_PauseOrStop() {
 		Draw_Select_Highlight(false);
 	}
 	else if(encoder_diffState == ENCODER_DIFF_CCW){
+#if 0//BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
+		Babystep_firstclicktime = 0;
+#endif		
 #if (DWINLCD_MENU_VERSION >= 2)
 		DWIN_Show_ICON(ICON_CONFIRM_E, 26, 280);
 		DWIN_Show_ICON(ICON_CANCEL_C, 146, 280);
 #endif
 		Draw_Select_Highlight(true);
 	}
-	else if(encoder_diffState == ENCODER_DIFF_ENTER){
+	else if(encoder_diffState == ENCODER_DIFF_ENTER){		
+#if 0//BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
+		if((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy())){
+			if(millis() < Babystep_firstclicktime + (DOUBLECLICK_MAX_INTERVAL/2) && !axes_should_home()) {				
+				DwinMenuID = DWMENU_TUNE_BABYSTEPS; 		
+				Draw_Babystep_Menu();			
+				dwinLCD.UpdateLCD();
+				return;
+			}
+		}
+#endif
 		if(DwinMenu_print.now == PRINT_CASE_PAUSE){
 			if(HMI_flag.select_flag){
 				tempbed = thermalManager.degTargetBed();
@@ -1194,15 +1221,14 @@ void HMI_Tune() {
 		switch (DwinMenu_tune.now) {
 		 	case 0: // Back			 		
 			#if BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
-				if(millis() < Babysteps_timer_first + 1500 && !axes_should_home()) {
-					Babysteps_timer_first = 0;
-					//babyzoffset.current  = babyzoffset.last;
-					//HMI_Value.babyZoffset_Scale = babyzoffset.current *MAXUNITMULT;
-					DwinMenuID = DWMENU_TUNE_BABYSTEPS; 		
-					Draw_Babystep_Menu();
-					break;
+			  if((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy())){
+					if(millis() < Babystep_firstclicktime + DOUBLECLICK_MAX_INTERVAL && !axes_should_home()) {
+						DwinMenuID = DWMENU_TUNE_BABYSTEPS; 		
+						Draw_Babystep_Menu();
+						break;
+					}
 				}
-				Babysteps_timer_first = 0;
+				Babystep_firstclicktime = 0;
 			#endif
 		  	DwinMenu_print.reset();
 		  	Draw_Printing_Menu();
@@ -1255,7 +1281,7 @@ void HMI_Tune() {
 		#endif
 		
 		#if ENABLED(BABYSTEPPING)
-		 	case TUNE_CASE_ZOFF: // Z-offset
+		 	case TUNE_CASE_ZOFF: // Z-offset		 	
 		   	DwinMenuID = DWMENU_SET_ZOFFSET;
 		  	DWIN_Draw_Selected_Small_Float22(MENUVALUE_X, MBASE(TUNE_CASE_ZOFF + MROWS - DwinMenu_tune.index), HMI_Value.babyZoffset_Scale);
 		  	EncoderRate.enabled = true;
@@ -1610,12 +1636,12 @@ void HMI_Printing() {
 		if(DWIN_status == ID_SM_RESUMING || DWIN_status == ID_SM_PAUSING){
 			DWIN_Kill_Waiting();			
 		}
-		else{
+		else{			
 			switch (DwinMenu_print.now) {
-				case PRINT_CASE_TUNE: // Tune				
-				#if BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
-					Babysteps_timer_first = millis();
-				#endif
+				case PRINT_CASE_TUNE: // Tune					
+			#if BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
+					Babystep_firstclicktime = millis();
+			#endif
 					HMI_flag.show_mode = SHOWED_TUNE;
 					Draw_Tune_Menu();
 				break;
@@ -1654,10 +1680,25 @@ void HMI_Printing() {
 }
 
 void HMI_Stop_SDPrinting(){
-	ENCODER_DiffState encoder_diffState = get_encoder_state();
-	if (encoder_diffState == ENCODER_DIFF_ENTER){		
-			//Stop_and_return_mainmenu();		
-			DWIN_status = ID_SM_STOPED;
+	ENCODER_DiffState encoder_diffState = get_encoder_state();	
+#if 0//BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)	
+	if(encoder_diffState == ENCODER_DIFF_CW || encoder_diffState == ENCODER_DIFF_CCW ){
+		Babystep_firstclicktime = 0;
+	}
+	else
+#endif
+	if(encoder_diffState == ENCODER_DIFF_ENTER){		
+#if 0//BOTH(BABYSTEPPING, DOUBLECLICK_FOR_Z_BABYSTEPPING)
+		if((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy())){
+			if(millis() < Babystep_firstclicktime + (DOUBLECLICK_MAX_INTERVAL/2) && !axes_should_home()) {
+				DwinMenuID = DWMENU_TUNE_BABYSTEPS; 		
+				Draw_Babystep_Menu();
+				return;
+			}
+		}
+#endif		
+		//Stop_and_return_mainmenu();		
+		DWIN_status = ID_SM_STOPED;
 	}
 }
 

@@ -186,7 +186,7 @@
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 	120     // Seconds
+  #define THERMAL_PROTECTION_PERIOD 	120     	// Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 5     	// Degrees Celsius
 
   //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
@@ -346,6 +346,8 @@
 // The number of consecutive low temperature errors that can occur
 // before a min_temp_error is triggered. (Shouldn't be more than 10.)
 //#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
+#define MAX_CONSECUTIVE_BED_HIGH_TEMPERATURE_ERROR_ALLOWED	10
+
 
 // The number of milliseconds a hotend will preheat before starting to check
 // the temperature. This value should NOT be set to the time it takes the
@@ -413,7 +415,7 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 500
 
 // Some coolers may require a non-zero "off" state.
 //#define FAN_OFF_PWM  1
@@ -430,7 +432,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 1
+#define FAN_MIN_PWM 0
 #define FAN_MAX_PWM 255
 
 /**
@@ -2067,7 +2069,7 @@
      *   - Switch spools automatically on filament runout
      *   - Switch to a different nozzle on an extruder jam
      */
-    #define TOOLCHANGE_MIGRATION_FEATURE
+    //#define TOOLCHANGE_MIGRATION_FEATURE
 
   #endif
 

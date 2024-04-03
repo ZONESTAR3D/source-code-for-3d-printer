@@ -71,22 +71,22 @@
 // @section info
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V2
+  #define MOTHERBOARD BOARD_ZONESTAR_ZM3E4V3
 #endif
 #define OPTION_Z9V5_PRO				//Dwin LCD, Glass bed
 //===========================================================================
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #ifdef OPTION_Z9V5_PRO
-#define CUSTOM_MACHINE_NAME 			"Z9V5Pro-MK1(2)"
+#define CUSTOM_MACHINE_NAME 				"Z9V5Pro-MK1(2)"
 #else
-#define CUSTOM_MACHINE_NAME 			"Z9V5"
+#define CUSTOM_MACHINE_NAME 				"Z9V5"
 #endif
-#define	FIRMWARE_VERSION					  "V3.5.1"
-#define	STRING_DISTRIBUTION_DATE    "2023-08-23"
-#define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
-#define WEBSITE_URL 							"www.zonestar3d.com"
-#define STRING_CONFIG_H_AUTHOR    "(ZONESTAR, Hally)" 		// Who made the changes.
+#define	FIRMWARE_VERSION					  "V3.6.0"
+#define	STRING_DISTRIBUTION_DATE    "2024-02-01"
+#define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
+#define WEBSITE_URL 								"www.zonestar3d.com"
+#define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)" 		// Who made the changes.
 #define EEPROM_VERSION 			  		  "V84"		//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
 //default feature, usually keep it enable
@@ -132,10 +132,10 @@
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
 #define	DEFAULT_HOMEY_OFFSET	  0.0			//default home Y offset
 #if	ENABLED(OPTION_PL08N)
-#define	DEFAULT_HOMEZ_OFFSET	-3			//glass thickness
+#define	DEFAULT_HOMEZ_OFFSET	 -3.0			//default home Z offset = glass thickness
 #define	OPTION_GLASS_BED
 #else
-#define	DEFAULT_HOMEZ_OFFSET	  0.0			//default home Z offset
+#define	DEFAULT_HOMEZ_OFFSET	 -1.0			//default home Z offset
 #endif
 
 //User guide QRcode
@@ -1269,7 +1269,9 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#ifdef OPTION_MAXSIZE
+#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+#endif
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1288,15 +1290,18 @@
 #ifdef OPTION_MAXSIZE
 #define X_BED_SIZE 500
 #define Y_BED_SIZE 500
+#define X_MIN_POS -6
+#define Y_MIN_POS -22
+#define Z_MIN_POS -2
 #else
 #define X_BED_SIZE 310
 #define Y_BED_SIZE 310
-#endif
-
-// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS -15
 #define Z_MIN_POS -1
+#endif
+
+// Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 400
@@ -1464,7 +1469,7 @@
   #define PROBING_MARGIN_BACK		PROBING_MARGIN
 
   #define AUTO_UPDATA_PROBE_Z_OFFSET			//Add G29 N to catch the Probe Z offset
-  #if ENABLED(OPTION_MAXSIZE)
+  #ifdef OPTION_MAXSIZE
 	#define	MAX_PROBE_ZOFFSET			4.0
 	#else
 	#define	MAX_PROBE_ZOFFSET			2.0

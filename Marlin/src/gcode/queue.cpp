@@ -289,24 +289,24 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  *   B<int>  Block queue space remaining
  */
 void GCodeQueue::ok_to_send() {
-  #if HAS_MULTI_SERIAL
-    const int16_t pn = command_port();
-    if (pn < 0) return;
-    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
-  #endif
+#if HAS_MULTI_SERIAL
+  const int16_t pn = command_port();
+  if (pn < 0) return;
+  PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
+#endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(STR_OK);
-  #if ENABLED(ADVANCED_OK)
-    char* p = command_buffer[index_r];
-    if (*p == 'N') {
-      SERIAL_ECHO(' ');
+#if ENABLED(ADVANCED_OK)
+  char* p = command_buffer[index_r];
+  if (*p == 'N') {
+    SERIAL_ECHO(' ');
+    SERIAL_ECHO(*p++);
+    while (NUMERIC_SIGNED(*p))
       SERIAL_ECHO(*p++);
-      while (NUMERIC_SIGNED(*p))
-        SERIAL_ECHO(*p++);
-    }
-    SERIAL_ECHOPAIR_P(SP_P_STR, int(planner.moves_free()),
-                      SP_B_STR, int(BUFSIZE - length));
-  #endif
+  }
+  SERIAL_ECHOPAIR_P(SP_P_STR, int(planner.moves_free()),
+                    SP_B_STR, int(BUFSIZE - length));
+#endif
   SERIAL_EOL();
 }
 
@@ -370,12 +370,12 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
 
   if (sis == PS_EOL) return;    // EOL comment or overflow
 
-  #if ENABLED(PAREN_COMMENTS)
-    else if (sis == PS_PAREN) { // Inline comment
-      if (c == ')') sis = PS_NORMAL;
-      return;
-    }
-  #endif
+#if ENABLED(PAREN_COMMENTS)
+  else if (sis == PS_PAREN) { 	// Inline comment
+    if (c == ')') sis = PS_NORMAL;
+    return;
+  }
+#endif
 
   else if (sis >= PS_ESC)       // End escaped char
     sis -= PS_ESC;
@@ -385,27 +385,25 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     if (sis == PS_ESC) return;  // Keep if quoting
   }
 
-  #if ENABLED(GCODE_QUOTED_STRINGS)
-
-    else if (sis == PS_QUOTED) {
-      if (c == '"') sis = PS_NORMAL; // End quoted string
-    }
-    else if (c == '"')          // Start quoted string
-      sis = PS_QUOTED;
-
-  #endif
+#if ENABLED(GCODE_QUOTED_STRINGS)
+  else if (sis == PS_QUOTED) {
+    if (c == '"') sis = PS_NORMAL; // End quoted string
+  }
+  else if (c == '"')          	// Start quoted string
+    sis = PS_QUOTED;
+#endif
 
   else if (c == ';') {          // Start end-of-line comment
     sis = PS_EOL;
     return;
   }
 
-  #if ENABLED(PAREN_COMMENTS)
-    else if (c == '(') {        // Start inline comment
-      sis = PS_PAREN;
-      return;
-    }
-  #endif
+#if ENABLED(PAREN_COMMENTS)
+  else if (c == '(') {        	// Start inline comment
+    sis = PS_PAREN;
+    return;
+  }
+#endif
 
   // Backspace erases previous characters
   if (c == 0x08) {
@@ -440,28 +438,28 @@ void GCodeQueue::get_serial_commands() {
 
   static uint8_t serial_input_state[NUM_SERIAL] = { PS_NORMAL };
 
-  #if ENABLED(BINARY_FILE_TRANSFER)
-    if (card.flag.binary_mode) {
-      /**
-       * For binary stream file transfer, use serial_line_buffer as the working
-       * receive buffer (which limits the packet size to MAX_CMD_SIZE).
-       * The receive buffer also limits the packet size for reliable transmission.
-       */
-      binaryStream[card.transfer_port_index].receive(serial_line_buffer[card.transfer_port_index]);
-      return;
-    }
-  #endif
+	#if ENABLED(BINARY_FILE_TRANSFER)
+  if (card.flag.binary_mode) {
+    /**
+     * For binary stream file transfer, use serial_line_buffer as the working
+     * receive buffer (which limits the packet size to MAX_CMD_SIZE).
+     * The receive buffer also limits the packet size for reliable transmission.
+     */
+    binaryStream[card.transfer_port_index].receive(serial_line_buffer[card.transfer_port_index]);
+    return;
+  }
+	#endif
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
-  #if NO_TIMEOUTS > 0
-    static millis_t last_command_time = 0;
-    const millis_t ms = millis();
-    if (length == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
-      SERIAL_ECHOLNPGM(STR_WAIT);
-      last_command_time = ms;
-    }
-  #endif
+	#if NO_TIMEOUTS > 0
+  static millis_t last_command_time = 0;
+  const millis_t ms = millis();
+  if (length == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    SERIAL_ECHOLNPGM(STR_WAIT);
+    last_command_time = ms;
+  }
+	#endif
 
   /**
    * Loop while serial characters are incoming and the queue is not full
@@ -511,16 +509,15 @@ void GCodeQueue::get_serial_commands() {
 
           last_N[i] = gcode_N;
         }
-        #if ENABLED(SDSUPPORT)
-          // Pronterface "M29" and "M29 " has no line number
-          else if (card.flag.saving && !is_M29(command))
-            return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
-        #endif
+      #if ENABLED(SDSUPPORT)
+        // Pronterface "M29" and "M29 " has no line number
+        else if (card.flag.saving && !is_M29(command))
+          return gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), i);
+      #endif
 
         //
         // Movement commands give an alert when the machine is stopped
         //
-
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
