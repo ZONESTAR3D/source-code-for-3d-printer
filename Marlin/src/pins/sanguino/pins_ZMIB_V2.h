@@ -90,12 +90,7 @@
 //
 #define X_MIN_PIN                             21
 #define Y_MIN_PIN                             18
-
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define Z_MIN_PIN                           25
-#else
-  #define Z_MIN_PIN                           13
-#endif
+#define Z_MIN_PIN                           	13
 
 //
 // Steppers
@@ -108,24 +103,14 @@
 #define Y_DIR_PIN                             19
 #define Y_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define Z_STEP_PIN                          27
-  #define Z_DIR_PIN                           26
-#else
-  #define Z_STEP_PIN                          17
-  #define Z_DIR_PIN                           16
-#endif
 
+#define Z_STEP_PIN                          	17
+#define Z_DIR_PIN                           	16
 #define Z_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define E0_STEP_PIN                         15
-  #define E0_DIR_PIN                          14
-#else
-  #define E0_STEP_PIN                         27
-  #define E0_DIR_PIN                          26
-#endif
 
+#define E0_STEP_PIN                         	27
+#define E0_DIR_PIN                          	26
 #define E0_ENABLE_PIN                         24
 
 #define E1_STEP_PIN                           15
@@ -149,11 +134,8 @@
 //
 //filament run out sensor
 //
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
-  #define FIL_RUNOUT_PIN                      13
-#else
-  #define FIL_RUNOUT_PIN                      25  // Z-MIN
-#endif
+#define FIL_RUNOUT_PIN                      	25
+
 
 //
 // SD card
@@ -225,10 +207,47 @@
 //
 // All the above are also RRDSC with rotary encoder
 //
-#if IS_RRD_SC
+#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
   #define BTN_EN1                              2
   #define BTN_EN2                             12
   #define BTN_ENC                             29
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
 #endif
+
+#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#undef Z_MIN_PIN	
+#undef Z_STEP_PIN
+#undef Z_DIR_PIN
+#undef E0_STEP_PIN
+#undef E0_DIR_PIN
+#undef FIL_RUNOUT_PIN
+#define Z_MIN_PIN                           25
+#define Z_STEP_PIN                          27
+#define Z_DIR_PIN                           26
+#define E0_STEP_PIN                         15
+#define E0_DIR_PIN                          14
+#define FIL_RUNOUT_PIN                      13
+#endif
+
+#ifdef EXCHANGE_XM_E1M
+#undef X_MIN_PIN
+#undef X_STEP_PIN
+#undef X_DIR_PIN
+
+#undef FIL_RUNOUT_PIN
+#undef E0_STEP_PIN
+#undef E0_DIR_PIN
+
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+
+#define	X_MIN_PIN														25
+#define X_STEP_PIN                          27//23
+#define X_DIR_PIN                           26//22
+#define E0_STEP_PIN                        	15//27
+#define E0_DIR_PIN                          14//26
+#define E1_STEP_PIN                         23//15
+#define E1_DIR_PIN                          22//14
+#endif
+

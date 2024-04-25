@@ -291,22 +291,37 @@ EXP1_PIN10	D37										BEEPER_PIN
 #define LCD_PINS_ENABLE 23 // ST7920_DAT_PIN	LCD_PIN_R/W		(PIN5 of LCD module)
 #define LCD_PINS_D4	   	17 // ST7920_CLK_PIN	LCD_PIN_ENABLE	(PIN6 of LCD module)
 
+#define BTN_EN2 		25
+#define BTN_EN1 		27
+#define BTN_ENC 		29
+#define BEEPER_PIN 	37
+#define KILL_PIN 		35
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 #define	LCDSCREEN_NAME	"Reprap LCD12864"
 //USE EXP1 & EXP2 CONNECTOR
 #define LCD_PINS_RS    	16 // ST7920_CS_PIN	LCD_PIN_RS			//EXP1_PIN_7
 #define LCD_PINS_ENABLE 17 // ST7920_DAT_PIN	LCD_PIN_ENABLE	//EXP1_PIN_8
 #define LCD_PINS_D4	   	23 // ST7920_CLK_PIN	LCD_PIN_R/W 		//EXP1_PIN_6
-#endif
+
+#define BTN_EN1 		31		//EXP2_PIN8
+#define BTN_EN2 		33		//EXP2_PIN6
+#define BTN_ENC 		35		//EXP1_PIN9
+#define BEEPER_PIN 	37		//EXP1_PIN10
+#define KILL_PIN 		41		//EXP2_PIN3
 //================================================================================
 //OLED 128x64
 //================================================================================
-#if EITHER(ZONESTAR_12864OLED,ZONESTAR_12864OLED_SSD1306)
+#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
 #define	LCDSCREEN_NAME	"ZONESTAR 12864OLED "
-#define	LCD_SDSS		16
-#define LCD_PINS_RS    	23 				//RESET Pull low for 1s to init
-#define LCD_PINS_DC    	17 				//
-#define DOGLCD_CS       16				//CS
+#define	LCD_SDSS			16
+#define LCD_PINS_RS   23 				//RESET Pull low for 1s to init
+#define LCD_PINS_DC   17 				//
+#define DOGLCD_CS     16				//CS
+#define BTN_EN2 			25
+#define BTN_EN1 			27
+#define BTN_ENC 			29
+#define BEEPER_PIN 		-1
+#define KILL_PIN 			-1
 #if ENABLED(OLED_HW_IIC)
 //IIC
 #error "Oops!  must choose SW SPI for ZRIB board and connect the OLED screen to EXP1 connector"
@@ -315,17 +330,30 @@ EXP1_PIN10	D37										BEEPER_PIN
 #error "Oops!  must choose SW SPI for ZRIB board and connect the OLED screen to EXP1 connector"
 #else
 //SW_SPI
-#define DOGLCD_A0       LCD_PINS_DC		//DC
+#define DOGLCD_A0     LCD_PINS_DC		//DC
 #define	DOGLCD_MOSI		35				//SDA
 #define	DOGLCD_SCK		37				//SCK
 #endif
-#endif//OLED 128x64
-
 //================================================================================
 //LCD 2004
 //================================================================================
-#if EITHER(ZONESTAR_LCD2004_ADCKEY, ZONESTAR_LCD2004_KNOB)
+#elif ENABLED(ZONESTAR_LCD2004_KNOB)
 #define	LCDSCREEN_NAME	"ZONESTAR LCD2004 KNOB"
+#define LCD_PINS_RS 		16			//EXP1_PIN7
+#define LCD_PINS_ENABLE 17			//EXP1_PIN8
+#define LCD_PINS_D4 		23			//EXP1_PIN6
+#define LCD_PINS_D5 		25			//EXP1_PIN5
+#define LCD_PINS_D6 		27			//EXP1_PIN4
+#define LCD_PINS_D7 		29			//EXP1_PIN3
+
+#define BTN_EN1 		31
+#define BTN_EN2 		33
+#define BTN_ENC 		35
+#define BEEPER_PIN 	37
+#define KILL_PIN 		41
+#elif ENABLED(ZONESTAR_LCD2004_ADCKEY)
+#define	LCDSCREEN_NAME	"LCD2004 ADCKEY"
+#define	ADC_KEYPAD_PIN	10			//A10 for ADCKEY
 #define LCD_PINS_RS 		16			//EXP1_PIN7
 #define LCD_PINS_ENABLE 17			//EXP1_PIN8
 #define LCD_PINS_D4 		23			//EXP1_PIN6
@@ -340,52 +368,24 @@ EXP1_PIN10	D37										BEEPER_PIN
 #define LCD_PINS_D5 		25			//EXP1_PIN5
 #define LCD_PINS_D6 		27			//EXP1_PIN4
 #define LCD_PINS_D7 		29			//EXP1_PIN3
-#endif
 
-//================================================================================
-//	KEYPAD
-//================================================================================
-#if ENABLED(ZONESTAR_LCD2004_ADCKEY)
-#define	ADC_KEYPAD_PIN	10			//A10 for ADCKEY
-#undef LCDSCREEN_NAME
-#define	LCDSCREEN_NAME	"LCD2004 ADCKEY"
-#endif
-
-#if ENABLED(ZONESTAR_12864LCD) 
-#define BTN_EN2 		25
-#define BTN_EN1 		27
-#define BTN_ENC 		29
-#define BEEPER_PIN 	37
-#define KILL_PIN 		35
+#define BTN_EN1 		31		//EXP2_PIN8
+#define BTN_EN2 		33		//EXP2_PIN6
+#define BTN_ENC 		35		//EXP1_PIN9
+#define BEEPER_PIN 	37		//EXP1_PIN10
+#define KILL_PIN 		41		//EXP2_PIN3
 #elif ENABLED(ZONESTAR_DWIN_LCD)
 #define BTN_EN1 		27
 #define BTN_EN2 		29
 #define BTN_ENC 		23
 #define BEEPER_PIN 	25
 #define KILL_PIN 		37
-#elif EITHER(ZONESTAR_12864OLED,ZONESTAR_12864OLED_SSD1306)
-#define BTN_EN2 		25
-#define BTN_EN1 		27
-#define BTN_ENC 		29
-#define BEEPER_PIN 	-1
-#define KILL_PIN 		-1
-#elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER)
-#define BTN_EN1 		31		//EXP2_PIN8
-#define BTN_EN2 		33		//EXP2_PIN6
-#define BTN_ENC 		35		//EXP1_PIN9
-#define BEEPER_PIN 	37		//EXP1_PIN10
-#define KILL_PIN 		41		//EXP2_PIN3
-#elif ENABLED(ZONESTAR_LCD2004_KNOB) 
-#define BTN_EN1 		31
-#define BTN_EN2 		33
-#define BTN_ENC 		35
-#define BEEPER_PIN 	37
-#define KILL_PIN 		41
 #endif
-
 //================================================================================
 // End of LCD / Controller
 //================================================================================
+
+
 #if ENABLED(SWAP_E0T_E1T)
 #undef TEMP_0_PIN
 #undef TEMP_BED_PIN

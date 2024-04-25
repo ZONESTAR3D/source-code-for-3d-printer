@@ -106,7 +106,7 @@
 #define	OPTION_PL08N 								//default Probe use PL_08N
 //#define	OPTION_3DTOUCH						//Probe use 3DTouch or BLTouch
 
-#define	SWAP_YN_YP									//Exchange Y_MIN and Y_MAX pins
+//#define	SWAP_YN_YP									//Exchange Y_MIN and Y_MAX pins
 //===========================================================================
 
 /**
@@ -2212,7 +2212,8 @@
 // Zonestar OLED/LCD 128x64 FULL GRAPHICS CONTROLLER
 //
 #if ENABLED(OPTION_LCD12864)
-#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER	// Reprap 128x64 LCD screen
+//#define ZONESTAR_12864LCD           									// ZONESTAR 128x64 LCD screen
 #endif
 //#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
 //#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
@@ -2221,9 +2222,7 @@
 // Einstart S OLED SSD1306
 //
 //#define U8GLIB_SH1106_EINSTART
-
 //#define REPEAPDISCOUNT_12864LCD
-
 
 //
 // Overlord OLED display/controller with i2c buzzer and LEDs
