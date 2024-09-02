@@ -115,7 +115,7 @@ public:
   }
 
   FORCE_INLINE static bool valid_number(const char * const p) {
-    // TODO: With MARLIN_DEV_MODE allow HEX values starting with "x"
+    /// TODO: With MARLIN_DEV_MODE allow HEX values starting with "x"
     return valid_float(p);
   }
 

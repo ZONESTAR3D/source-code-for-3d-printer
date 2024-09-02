@@ -45,25 +45,30 @@ enum {
 	HOME_CASE_Z,
 	HOME_CASE_END
 };
-#define	HOME_CASE_TOTAL	4
+#define	HOME_CASE_TOTAL	(4-ENABLED(COMBINE_HOMEINGXY_MENU))
 
 enum {
 	LEVELING_CASE_BACK = 0,
+#if DISABLED(OPTION_NEWAUTOLEVELING)
 	LEVELING_CASE_POINT1,
 	LEVELING_CASE_POINT2,
 	LEVELING_CASE_POINT3,
 	LEVELING_CASE_POINT4,
+#endif
 	LEVELING_CASE_HOMEALL,
-#if ABL_GRID
+#if HAS_LEVELING
 #if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 	LEVELING_CASE_CATCHOFFSET,
 #endif
+#if ENABLED(OPTION_NEWAUTOLEVELING)
+	LEVELING_CASE_HOMEZOFFSET,
+#endif
 	LEVELING_CASE_PROBEZOFFSET,
 	LEVELING_CASE_ACTION,
-#endif 
+#endif
 	LEVELING_CASE_END
 };
-#define	LEVELING_CASE_TOTAL	(5 + ABL_GRID*2 + ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET))
+#define	LEVELING_CASE_TOTAL	(1 + HAS_LEVELING*2 + DISABLED(OPTION_NEWAUTOLEVELING)*4 + ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET) + ENABLED(OPTION_NEWAUTOLEVELING))
 
 enum {
 	AXISMOVE_CASE_BACK = 0,
@@ -175,7 +180,7 @@ void HMI_Filament_FeedLength();
 void HMI_Filament_PurgeLength();
 void HMI_Filament();
 void HMI_MoveAxis(); 
-void HMI_SetProbZoffset();
+void HMI_SetProbeZoffset();
 void HMI_BedLeveling(); 
 void HMI_SetLanguage_PicCache(); 
 void HMI_Language(); 
@@ -183,6 +188,18 @@ void HMI_Language();
 void HMI_Powerdown(); 
 #endif
 void HMI_Prepare(); 
+void DWIN_PopMenu_CatchProbeZOffset();
 
+
+#if ENABLED(OPTION_ZOFFSETWIZARD)
+void DWIN_PopMenu_ZOffsetWizard();
+void HMI_ZoffsetWizard();
+#endif
+
+#if ENABLED(OPTION_NEWAUTOLEVELING)
+void DWIN_PopMenu_HomeZOffsetSetup();
+void HMI_AdjustHomeZoffset();
+void HMI_SetHomeZoffset();
+#endif
 
 #endif

@@ -25,6 +25,9 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../lcd/ultralcd.h"
+#if HAS_DWIN_LCD
+	#include "../../lcd/dwin/dwin_ui/dwin_comm.h"
+#endif
 
 /**
  * M31: Get the time since the start of SD Print (or last M109)
@@ -34,6 +37,10 @@ void GcodeSuite::M31() {
   duration_t(print_job_timer.duration()).toString(buffer);
 
   ui.set_status(buffer);
+
+#if HAS_DWIN_LCD
+	DWIN_Show_Status_Message(COLOR_WHITE, buffer, 0);
+#endif
 
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPAIR("Print time: ", buffer);

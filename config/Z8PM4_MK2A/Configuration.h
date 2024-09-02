@@ -77,8 +77,8 @@
 // Name displayed in the LCD "Ready" message and Info menu
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 			"Z8PM4Pro-MK2A"
-#define	FIRMWARE_VERSION		  		"V1.5.1"
-#define	STRING_DISTRIBUTION_DATE  "2024-03-14"
+#define	FIRMWARE_VERSION		  		"V1.5.2"
+#define	STRING_DISTRIBUTION_DATE  "2024-06-11"
 #define SHORT_BUILD_VERSION 			"Marlin-2.0.8"
 #define WEBSITE_URL 							"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR		"(ZONESTAR, Hally)" 		// Who made the changes.

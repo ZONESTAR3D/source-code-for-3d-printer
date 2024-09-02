@@ -492,4 +492,16 @@
 #define TEMP_0_PIN					PC1
 #define TEMP_1_PIN					PC2
 #endif
+
+#if HAS_TMC220x
+#define	X_SERIAL_TX_PIN			PB10
+#define	Y_SERIAL_TX_PIN			PB10
+#define	Z_SERIAL_TX_PIN			PB10
+#define	Z2_SERIAL_TX_PIN		PB10
+#define	X_SERIAL_RX_PIN			PB11
+#define	Y_SERIAL_RX_PIN			PB11
+#define	Z_SERIAL_RX_PIN			PB11
+#define	Z2_SERIAL_RX_PIN		PB11
+#endif
+
 //===========================================

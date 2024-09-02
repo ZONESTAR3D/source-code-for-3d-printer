@@ -308,6 +308,7 @@ void GcodeSuite::G28() {
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
 		TERN_(OPTION_REPEAT_PRINTING, if(home_all && ReprintManager.enabled) ReprintManager.RepeatPrint_HomeArm(true));
+		TERN_(OPTION_NEWAUTOLEVELING, if(home_all && HMI_flag.AutoLeveling_Fg) HMI_flag.NeedAutoLeveling = true);
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 

@@ -1445,7 +1445,7 @@ static void Item_Config_SwitchExtruder(const uint8_t row) {
 
 #endif
 
-#if ABL_GRID
+#if HAS_LEVELING
 static void Item_Config_Leveling(const uint8_t row) {
 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("Auto Leveling"));	
 	Draw_Menu_Line(row,ICON_CURSOR);	
@@ -1455,6 +1455,18 @@ static void Item_Config_Leveling(const uint8_t row) {
 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, MENUONOFF_X, MBASE(row),F_STRING_ONOFF(HMI_flag.Leveling_Menu_Fg));	
 #endif
 }
+
+#if ENABLED(OPTION_NEWAUTOLEVELING)
+static void Item_Config_ActiveLevel(const uint8_t row) {	
+	Draw_Menu_Line(row,ICON_CURSOR);	
+	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM : COLOR_GREY, LBLX, MBASE(row), PSTR("Active Autolevel"));		
+#if HAS_ONOFF_ICON  		
+	Draw_ONOFF_Icon(row, HMI_flag.AutoLeveling_Fg);
+#else
+	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM: COLOR_GREY, MENUONOFF_X, MBASE(row), F_STRING_ONOFF(HMI_flag.AutoLeveling_Fg));	
+#endif
+}
+#else
 static void Item_Config_ActiveLevel(const uint8_t row) {	
 	Draw_Menu_Line(row,ICON_CURSOR);	
 	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM : COLOR_GREY, LBLX, MBASE(row), PSTR("Active Autolevel"));		
@@ -1464,6 +1476,9 @@ static void Item_Config_ActiveLevel(const uint8_t row) {
 	DWIN_Draw_MaskString_Default_Color(HMI_flag.Leveling_Menu_Fg?COLOR_FLEX_ITEM: COLOR_GREY, MENUONOFF_X, MBASE(row), F_STRING_ONOFF(planner.leveling_active));	
 #endif
 }
+#endif
+
+
 #if HAS_PROBE_XY_OFFSET
 static void Item_Config_ProbeOffset(const uint8_t row) { 
 	DWIN_Draw_MaskString_Default_Color(COLOR_FLEX_ITEM, LBLX, MBASE(row), PSTR("PROBE OFFSET"));	
@@ -1595,7 +1610,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	 if (COVISI(CONFIG_CASE_HOMEOFFSET)) 	Item_Config_HomeOffset(COSCROL(CONFIG_CASE_HOMEOFFSET));  	 				//Home offset
 	#endif
 
-	#if ABL_GRID 		
+	#if HAS_LEVELING 		
 	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 								// auto lelevling
 	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); 					// Active lelevling
 	 #if HAS_PROBE_XY_OFFSET
@@ -2340,17 +2355,17 @@ inline void Draw_Max_Feedrate_Menu() {
 		if (DwinMenu_feedrate.now) Draw_Menu_Cursor(DwinMenu_feedrate.now);
 }
 
-constexpr float default_max_feedrate[]    = DEFAULT_MAX_FEEDRATE;
-constexpr float default_max_acceleration[]  = DEFAULT_MAX_ACCELERATION;
-constexpr float default_max_jerk[]      = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
-constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
-// Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
-#define MIN_MAXFEEDSPEED      1
-#define MIN_MAXACCELERATION   10
-#define MIN_MAXJERK           0.1
-#define MIN_STEP              1
 
+constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+#define MIN_MAXFEEDSPEED      10
+#define MIN_MAXACCELERATION   100
+#define MIN_MAXJERK           0.1
 void HMI_Adjust_MaxFeedrate() {
+#if ENABLED(LIMITED_MAX_FR_EDITING)
+	constexpr float max_feedrate_edit[] 	 = MAX_FEEDRATE_EDIT_VALUES;
+#else
+	constexpr float max_feedrate_edit[] 	 = { 400, 400, 16, 100 };
+#endif
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Feedrate)) {
@@ -2364,7 +2379,7 @@ void HMI_Adjust_MaxFeedrate() {
 		else {
 			// MaxFeedspeed limit
 			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
-				NOMORE(HMI_Value.Max_Feedrate, default_max_feedrate[HMI_flag.axis]*2);
+				NOMORE(HMI_Value.Max_Feedrate, max_feedrate_edit[HMI_flag.axis]);
 			if (HMI_Value.Max_Feedrate < MIN_MAXFEEDSPEED) 
 				HMI_Value.Max_Feedrate = MIN_MAXFEEDSPEED;
 			// MaxFeedspeed value
@@ -2494,7 +2509,12 @@ inline void Draw_Max_Accel_Menu() {
 	if (DwinMenu_accel.now) Draw_Menu_Cursor(DwinMenu_accel.now);
 }
 
-void HMI_Adjust_MaxAcceleration() {
+void HMI_Adjust_MaxAcceleration() {	
+#if ENABLED(LIMITED_MAX_ACCEL_EDITING)
+	constexpr float max_accel_edit[]  = MAX_ACCEL_EDIT_VALUES;
+#else
+	constexpr float max_accel_edit[]  = { 20000, 20000, 200, 10000 };
+#endif
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Acceleration)) {
@@ -2506,7 +2526,7 @@ void HMI_Adjust_MaxAcceleration() {
 		else {
 			// Max Acceleration limit
 			if (WITHIN(HMI_flag.axis, X_AXIS, XYZE_N))
-				NOMORE(HMI_Value.Max_Acceleration, default_max_acceleration[HMI_flag.axis]*2);
+				NOMORE(HMI_Value.Max_Acceleration, max_accel_edit[HMI_flag.axis]);
 			if (HMI_Value.Max_Acceleration < MIN_MAXACCELERATION) 
 				HMI_Value.Max_Acceleration = MIN_MAXACCELERATION;
 			// Max Acceleration value
@@ -2626,6 +2646,11 @@ inline void Draw_Max_Jerk_Menu() {
 
 
 void HMI_Adjust_MaxJerk() {
+	#if ENABLED(LIMITED_JERK_EDITING)
+	constexpr float max_jerk_edit[]      = MAX_JERK_EDIT_VALUES;
+	#else
+	constexpr float max_jerk_edit[]      = { DEFAULT_XJERK*2, DEFAULT_YJERK*2, DEFAULT_ZJERK*2, DEFAULT_EJERK*2 };
+	#endif
 	ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
 	if (encoder_diffState != ENCODER_DIFF_NO) {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.Max_Jerk)) {
@@ -2638,7 +2663,7 @@ void HMI_Adjust_MaxJerk() {
 		else {
 			// Max Jerk limit
 			if (WITHIN(HMI_flag.axis, X_AXIS, E_AXIS)){
-				NOMORE(HMI_Value.Max_Jerk, default_max_jerk[HMI_flag.axis] * 2 * MINUNITMULT);
+				NOMORE(HMI_Value.Max_Jerk, max_jerk_edit[HMI_flag.axis] * MINUNITMULT);
 				NOLESS(HMI_Value.Max_Jerk, (MIN_MAXJERK) * MINUNITMULT);
 			}
 			// Max Jerk value
@@ -2968,9 +2993,9 @@ static void Item_HomeOffset_Y(const uint8_t row) {
 }
 
 static void Item_HomeOffset_Z(const uint8_t row) {
-	HMI_Value.HomeOffsetZ_scale = home_offset.z * MINUNITMULT;
+	HMI_Value.HomeOffsetZ_scale = home_offset.z * MAXUNITMULT;
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Home Offset Z"));
-	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.HomeOffsetZ_scale);
+	DWIN_Draw_Small_Float22(MENUVALUE_X+8, MBASE(row), HMI_Value.HomeOffsetZ_scale);
 	Draw_Menu_Line(row, ICON_HOME_Z);
 }
 
@@ -3031,14 +3056,14 @@ void HMI_Adjust_HomeOffset_Z() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.HomeOffsetZ_scale)) {
 			DwinMenuID = DWMENU_SET_HOMEOFFSET;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
-			home_offset.z = (float)HMI_Value.HomeOffsetZ_scale/MINUNITMULT;
+			DWIN_Draw_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
+			home_offset.z = (float)HMI_Value.HomeOffsetZ_scale/MAXUNITMULT;
 			HMI_AudioFeedback(settings.save());
 		}
 		else {
-			NOLESS(HMI_Value.HomeOffsetZ_scale, -20 * MINUNITMULT);
-			NOMORE(HMI_Value.HomeOffsetZ_scale, 20 * MINUNITMULT);		
-			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
+			NOLESS(HMI_Value.HomeOffsetZ_scale, -20 * MAXUNITMULT);
+			NOMORE(HMI_Value.HomeOffsetZ_scale, 20 * MAXUNITMULT);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
 		}
 		dwinLCD.UpdateLCD();
 	}
@@ -3094,8 +3119,8 @@ void HMI_Adjust_HomeOffset(){
 
 			case HOMEOFFSET_CASE_Z:  			// HOME OFFSET Z
 				DwinMenuID = DWMENU_SET_HOMEOFFSET_Z;
-				HMI_Value.HomeOffsetZ_scale = home_offset.z * MINUNITMULT;
-				DWIN_Draw_Selected_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
+				HMI_Value.HomeOffsetZ_scale = home_offset.z * MAXUNITMULT;
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Homeoffset.index + HOMEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
 				EncoderRate.enabled = true;
 			break;
 			
@@ -3122,9 +3147,9 @@ static void Item_ProbeOffset_Y(const uint8_t row) {
 }
 
 static void Item_ProbeOffset_Z(const uint8_t row) {
-	HMI_Value.ProbeOffsetZ_scale = probe.offset.z * MINUNITMULT;
+	HMI_Value.ProbeOffsetZ_scale = probe.offset.z * MAXUNITMULT;
 	DWIN_Draw_MaskString_Default(LBLX, MBASE(row), PSTR("Probe Offset Z"));
-	DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(row), HMI_Value.ProbeOffsetZ_scale);
+	DWIN_Draw_Small_Float22(MENUVALUE_X+8, MBASE(row), HMI_Value.ProbeOffsetZ_scale);
 	Draw_Menu_Line(row, ICON_HOME_Z);
 }
 
@@ -3185,14 +3210,14 @@ void HMI_Adjust_ProbeOffset_Z() {
 		if (Apply_Encoder_int16(encoder_diffState, &HMI_Value.ProbeOffsetZ_scale)) {
 			DwinMenuID = DWMENU_SET_PROBEOFFSET;
 			EncoderRate.enabled = false;
-			DWIN_Draw_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.ProbeOffsetZ_scale);
-			probe.offset.z = (float)HMI_Value.ProbeOffsetZ_scale/MINUNITMULT;
+			DWIN_Draw_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.ProbeOffsetZ_scale);
+			probe.offset.z = (float)HMI_Value.ProbeOffsetZ_scale/MAXUNITMULT;
 			HMI_AudioFeedback(settings.save());
 		}
 		else {
-			NOLESS(HMI_Value.ProbeOffsetZ_scale, -20 * MINUNITMULT);
-			NOMORE(HMI_Value.ProbeOffsetZ_scale, 20 * MINUNITMULT);		
-			DWIN_Draw_Selected_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.ProbeOffsetZ_scale);
+			NOLESS(HMI_Value.ProbeOffsetZ_scale, (-20) * MAXUNITMULT);
+			NOMORE(HMI_Value.ProbeOffsetZ_scale, (20) * MAXUNITMULT);		
+			DWIN_Draw_Selected_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.ProbeOffsetZ_scale);
 		}
 		dwinLCD.UpdateLCD();
 	}
@@ -3248,8 +3273,8 @@ void HMI_Adjust_ProbeOffset(){
 
 			case PROBEOFFSET_CASE_Z:  			// Probe OFFSET Z
 				DwinMenuID = DWMENU_SET_PROBEOFFSET_Z;
-				HMI_Value.HomeOffsetZ_scale = probe.offset.z * MINUNITMULT;
-				DWIN_Draw_Selected_Small_Float21(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.HomeOffsetZ_scale);
+				HMI_Value.ProbeOffsetZ_scale = probe.offset.z * MAXUNITMULT;
+				DWIN_Draw_Selected_Small_Float22(MENUVALUE_X+8, MBASE(MROWS -DwinMenu_Probeoffset.index + PROBEOFFSET_CASE_Z), HMI_Value.ProbeOffsetZ_scale);
 				EncoderRate.enabled = true;
 			break;
 			
@@ -3430,7 +3455,7 @@ void HMI_Config() {
 				else if(DwinMenu_configure.index == CONFIG_CASE_HOMEOFFSET) Item_Config_HomeOffset(MROWS);
 			#endif	
 			
-			#if ABL_GRID						
+			#if HAS_LEVELING						
 				#if HAS_PROBE_XY_OFFSET
 				else if(DwinMenu_configure.index == CONFIG_CASE_PROBEOFFSET) Item_Config_ProbeOffset(MROWS);
 				#endif
@@ -3506,7 +3531,7 @@ void HMI_Config() {
 				#endif
 			#endif
 			
-			#if ABL_GRID					
+			#if HAS_LEVELING					
 				#if HAS_PROBE_XY_OFFSET
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_PROBEOFFSET) Item_Config_ProbeOffset(0);
 				#endif
@@ -3768,7 +3793,7 @@ void HMI_Config() {
 		break;
 	#endif
  
-	#if ABL_GRID
+	#if HAS_LEVELING
 	  case CONFIG_CASE_LEVELING:
 			if(_break_on_printing()) break;
 
@@ -3787,14 +3812,24 @@ void HMI_Config() {
 		case CONFIG_CASE_ACTIVELEVEL:
 			if(_break_on_printing()) break;
 			
-			DwinMenuID = DWMENU_CONFIG;			
-			planner.leveling_active = !planner.leveling_active;			
+			DwinMenuID = DWMENU_CONFIG;
+	#if ENABLED(OPTION_NEWAUTOLEVELING)
+		HMI_flag.AutoLeveling_Fg = !HMI_flag.AutoLeveling_Fg;
+		#if HAS_ONOFF_ICON
+			Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_ACTIVELEVEL, HMI_flag.AutoLeveling_Fg);
+		#else
+			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_ACTIVELEVEL + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(HMI_flag.AutoLeveling_Fg));
+		#endif
+			HMI_AudioFeedback(settings.save());
+	#else
+		planner.leveling_active = !planner.leveling_active;	
 		#if HAS_ONOFF_ICON
 			Draw_ONOFF_Icon(MROWS - DwinMenu_configure.index + CONFIG_CASE_ACTIVELEVEL, planner.leveling_active);
 		#else
 			DWIN_Draw_MaskString_Default(MENUONOFF_X, MBASE(CONFIG_CASE_ACTIVELEVEL + MROWS - DwinMenu_configure.index), F_STRING_ONOFF(planner.leveling_active));
 		#endif
 			set_bed_leveling_enabled(planner.leveling_active);
+	#endif
 		break;
 		
 		#if HAS_PROBE_XY_OFFSET
@@ -3806,7 +3841,7 @@ void HMI_Config() {
 			Draw_ProbeOffset_Menu();
 		break;
 		#endif
-	#endif//ABL_GRID
+	#endif//HAS_LEVELING
 
  	#if EITHER(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
       case CONFIG_CASE_PIDTUNE:

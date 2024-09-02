@@ -904,7 +904,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           ubl.line_to_destination_cartesian(scaled_fr_mm_s, active_extruder); // UBL's motion routine needs to know about
           return true;                                                        // all moves, including Z-only moves.
-        #elif ENABLED(SEGMENT_LEVELED_MOVES)
+        #elif ENABLED(SEGMENT_LEVELED_MOVES)					
           segmented_line_to_destination(scaled_fr_mm_s);
           return false; // caller will update current_position
         #else

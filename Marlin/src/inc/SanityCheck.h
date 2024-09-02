@@ -119,6 +119,7 @@
 	#error "OPTION_Z2_ENDSTOP require OPTION_DUALZ_DRIVE"
 #endif
 
+
 /**
  * Warnings for old configurations
  */

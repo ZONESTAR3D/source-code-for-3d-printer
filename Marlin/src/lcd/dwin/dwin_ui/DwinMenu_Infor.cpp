@@ -275,7 +275,11 @@ void HMI_Pop_UserGuideLink() {
 		if(HMI_flag.first_power_on){
 			HMI_flag.first_power_on = false;
 			settings.save();
+		#if ENABLED(OPTION_ZOFFSETWIZARD)
+			DWIN_PopMenu_ZOffsetWizard();
+		#else
 			Draw_Main_Menu(true);
+		#endif
 		}
 		else Draw_Info_Menu();
 	}

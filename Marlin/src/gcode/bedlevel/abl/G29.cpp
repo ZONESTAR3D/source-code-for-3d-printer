@@ -262,8 +262,6 @@ G29_TYPE GcodeSuite::G29() {
 		float temp_z[5];
 	#endif
 
-	float sum_z_offset = 0.0;
-
   /**
    * On the initial G29 fetch command parameters.
    */
@@ -278,7 +276,7 @@ G29_TYPE GcodeSuite::G29() {
     abl_should_enable = planner.leveling_active;
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
+			// G29 Wxx
       const bool seen_w = parser.seen('W');
       if (seen_w) {
         if (!leveling_is_valid()) {
@@ -287,7 +285,7 @@ G29_TYPE GcodeSuite::G29() {
         }
 
         const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position.z;
-        if (!WITHIN(rz, -10, 10)) {
+        if (!WITHIN(rz, -20, 20)) {
           SERIAL_ERROR_MSG("Bad Z value");
           G29_RETURN(false);
         }
@@ -321,17 +319,20 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Jettison bed leveling data
+    // G29...  J
     if (!seen_w && parser.seen('J')) {
       reset_bed_level();
       G29_RETURN(false);
     }
 
+		// G29... Vxx
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
       SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
       G29_RETURN(false);
     }
 
+		// G29... Dx
     dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -359,13 +360,12 @@ G29_TYPE GcodeSuite::G29() {
       mean = 0;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
+			// G29... Zx
       zoffset = parser.linearval('Z');
-
     #endif
 
     #if ABL_GRID
-
+			// G29... Hx
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
       const float x_min = probe.min_x(), x_max = probe.max_x(),
@@ -382,7 +382,9 @@ G29_TYPE GcodeSuite::G29() {
           _MIN(probe_position_lf.y + size, y_max)
         );
       }
-      else {
+      else 
+			{
+				// G29... Lx Fx Rx Bx
         probe_position_lf.set(
           parser.seenval('L') ? RAW_X_POSITION(parser.value_linear_units()) : x_min,
           parser.seenval('F') ? RAW_Y_POSITION(parser.value_linear_units()) : y_min
@@ -435,7 +437,7 @@ G29_TYPE GcodeSuite::G29() {
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
-
+				
         // Initialize a grid with the given dimensions
         bilinear_grid_spacing = gridSpacing;
         bilinear_start = probe_position_lf;
@@ -592,10 +594,9 @@ G29_TYPE GcodeSuite::G29() {
 	  #endif // AUTO_BED_LEVELING_3POINT  
 	#else // !PROBE_MANUALLY
   {
-		const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
-
-		measured_z = 0;
-		float newz = 0.0;
+		const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;		
+		
+		measured_z = 0;		
 
 		#if ABL_GRID
 		#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
@@ -607,7 +608,7 @@ G29_TYPE GcodeSuite::G29() {
 			TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_CATCH_START));
 			
 			float max_offsetz = -10.0;
-			float min_offsetz = 10.0;
+			float min_offsetz = 10.0;			
 			LOOP_L_N(i, 4){
 			  switch(i)
 			  {
@@ -628,8 +629,9 @@ G29_TYPE GcodeSuite::G29() {
 			        probePos.y = (Y_BED_SIZE - PROBING_MARGIN);				
 				  	break;
 			  }
-			  probe.offset.z = 0;
-			  measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW, 4, true, false);
+			  probe.offset.z = 0;				
+			  //measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW, 4, true, false);
+			  measured_z = probe.probe_at_point(probePos, PROBE_PT_RAISE, 4, true, false);
 			  if(isnan(measured_z)){
 					TERN_(HAS_LCD_MENU,LCD_MESSAGEPGM_P(PSTR("Fail! Move down Probe.")));
 					TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_CATCH_FAIL1));
@@ -657,13 +659,15 @@ G29_TYPE GcodeSuite::G29() {
 			SERIAL_ECHOLNPAIR("probe.offset.z = ", probe.offset.z);
 			TERN_(EEPROM_SETTINGS,	settings.save());
 			TERN_(HAS_LCD_MENU,	ui.status_printf_P(0, PSTR("Offset catched!= %s"), ftostr42_52(probe.offset.z)));
-			TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_CATCH_DONE));		
+			TERN_(HAS_DWIN_LCD, DWIN_G29_Show_Messge(G29_CATCH_DONE));		
 			G29_RETURN(isnan(measured_z));
 		}
 		else	
 		#endif//ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)		
-		{	
+		{			
 	    bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+	    
+	    float sum_z_offset = 0.0;
 	    measured_z = 0;			
 	    xy_int8_t meshCount;
 			TERN_(HAS_DISPLAY,ui.return_to_status());
@@ -737,7 +741,7 @@ G29_TYPE GcodeSuite::G29() {
 	          incremental_LSF(&lsf_results, probePos, measured_z);
 
 	        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-					  newz = measured_z + zoffset;
+					  const float newz = measured_z + zoffset;
 	          z_values[meshCount.x][meshCount.y] = newz;
 						TERN_(HAS_DISPLAY,ui.status_printf_P(0, PSTR("Probing %i/%i= %s"), int(pt_index), int(abl_points), ftostr42_52(newz)));
 					  TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_MESH_VALUE,pt_index,abl_points,newz));
@@ -752,7 +756,7 @@ G29_TYPE GcodeSuite::G29() {
 			} // outer
 			//add in 2017-07-10
 			current_position.z += (sum_z_offset/(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y));
-			planner.set_machine_position_mm(current_position); 
+			planner.set_machine_position_mm(current_position);			
 		#endif//ABL_GRID
 		
 		#if ENABLED(AUTO_BED_LEVELING_3POINT)

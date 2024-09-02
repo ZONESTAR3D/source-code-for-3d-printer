@@ -1437,9 +1437,9 @@ static void Popup_window_Pause_Option(const PauseMode mode) {
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 11) / 2, 160, PSTR("Purge more?"));
 	DwinMenuID = DWMENU_POP_FROD_OPTION;
 	TERN_(FILAMENT_RUNOUT_SENSOR, HMI_flag.IS_cancel_runout = false);
-	ICON_YESorNO(DwinMenu_PauseOption.now);
-	
+	ICON_YESorNO(DwinMenu_RunoutOption.now);	
 }
+
 static void Popup_window_Pause_Resume(const PauseMode mode) {	
 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
@@ -1542,7 +1542,7 @@ inline void Popup_window_ask_Disable_Runout() {
 	Draw_Popup_Bkgd_60();
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 18) / 2, 140, PSTR("Sensor is still on"));
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 16) / 2, 180, PSTR("Disable Runout?"));
-	ICON_YESorNO(DwinMenu_PauseOption.now);
+	ICON_YESorNO(DwinMenu_RunoutOption.now);
 }
 
 /* Filament Runout Option window */
@@ -1551,14 +1551,14 @@ void HMI_Filament_Runout_Option() {
 	if (encoder_diffState == ENCODER_DIFF_NO) return;
 
 	if (encoder_diffState == ENCODER_DIFF_CW) {
-		if (DwinMenu_PauseOption.inc(2)) ICON_YESorNO(DwinMenu_PauseOption.now);
+		if (DwinMenu_RunoutOption.inc(2)) ICON_YESorNO(DwinMenu_RunoutOption.now);
 	}
 	else if (encoder_diffState == ENCODER_DIFF_CCW) {
-		if (DwinMenu_PauseOption.dec()) ICON_YESorNO(DwinMenu_PauseOption.now);
+		if (DwinMenu_RunoutOption.dec()) ICON_YESorNO(DwinMenu_RunoutOption.now);
 	}
 	else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 		if(HMI_flag.IS_cancel_runout){
-			switch (DwinMenu_PauseOption.now) {
+			switch (DwinMenu_RunoutOption.now) {
 				case 0: // say yes		
 						if(runout.enabled && runout.filament_ran_out){
 							runout.enabled = false;	
@@ -1575,7 +1575,7 @@ void HMI_Filament_Runout_Option() {
 			Draw_Printing_Menu();
 		}
 		else{
-			switch (DwinMenu_PauseOption.now) {
+			switch (DwinMenu_RunoutOption.now) {
 				case 0: // say yes					
 						pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
 				break;

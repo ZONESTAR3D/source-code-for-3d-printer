@@ -168,6 +168,8 @@ enum{
 #define	DWIN_Draw_MaskString_FONT12(a,b,x,y,s) 			dwinLCD.Draw_String(false, true, font12x24, a, b, x, y, s)
 #define	DWIN_Draw_MaskString_Default_PopMenu(x,y,s) dwinLCD.Draw_String(false, true, font10x20, POP_TEXT_COLOR, COLOR_BG_WINDOW, x, y, s)
 #define	DWIN_Draw_MaskString_PopMenu_Color(c,x,y,s) dwinLCD.Draw_String(false, true, font10x20, c, COLOR_BG_WINDOW, x, y, s)
+#define	DWIN_Draw_MaskString_Small_PopMenu(x,y,s) 	dwinLCD.Draw_String(false, true, font8x16, POP_TEXT_COLOR, COLOR_BG_WINDOW, x, y, s)
+#define	DWIN_Draw_MaskString_Small_PopMenu_Color(c, x,y,s) 	dwinLCD.Draw_String(false, true, font8x16, c, COLOR_BG_WINDOW, x, y, s)
 #define	DWIN_Draw_UnMaskString_Default(x,y,s) 			dwinLCD.Draw_String(false, false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_UnMaskString_Default_Color(c,x,y,s) 			dwinLCD.Draw_String(false, false, font8x16, c, COLOR_BG_BLACK, x, y, s)
 #define	DWIN_Draw_UnMaskString_FONT10(x,y,s) 				dwinLCD.Draw_String(false, false, font10x20, COLOR_WHITE, COLOR_BG_BLACK, x, y, s)

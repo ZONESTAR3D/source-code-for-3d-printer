@@ -216,7 +216,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
+#if (HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER))
 
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
@@ -240,6 +240,25 @@ void GcodeSuite::dwell(millis_t time) {
   }
 
 #endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+
+#if (HAS_LEVELING && ENABLED(OPTION_NEWAUTOLEVELING))
+	void GcodeSuite::G28_with_autoleveling()
+	{
+		if(IS_SD_PRINTING())
+		{
+			HMI_flag.NeedAutoLeveling = false;
+			G28();
+			if(HMI_flag.NeedAutoLeveling)
+			{
+				process_subcommands_now_P(PSTR("G29\n"));					
+			}
+		}
+		else
+		{
+			G28();
+		}
+	}
+#endif
 
 //
 // Placeholders for non-migrated codes
@@ -316,7 +335,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28: G28(); break;                                      // G28: Home one or more axes
+      case 28: 																										// G28: Home one or more axes
+      #if HAS_LEVELING && ENABLED(OPTION_NEWAUTOLEVELING)
+      	G28_with_autoleveling();
+			#else
+				G28(); 
+			#endif
+				break;                                      
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration

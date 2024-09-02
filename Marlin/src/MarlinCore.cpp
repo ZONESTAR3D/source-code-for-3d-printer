@@ -141,7 +141,7 @@
   #include "feature/encoder_i2c.h"
 #endif
 
-#if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
+#if (HAS_TRINAMIC_CONFIG || HAS_TMC_SPI) && DISABLED(PSU_DEFAULT_OFF)
   #include "feature/tmc_util.h"
 #endif
 
@@ -568,10 +568,10 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
 
         // Individual axes will be disabled if configured
-        if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
-        if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
-        if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
-        if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
+        TERN_(DISABLE_INACTIVE_X, DISABLE_AXIS_X());
+        TERN_(DISABLE_INACTIVE_X, DISABLE_AXIS_Y());
+        TERN_(DISABLE_INACTIVE_Z, DISABLE_AXIS_Z());
+        TERN_(DISABLE_INACTIVE_E, disable_e_steppers());
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
       }
@@ -691,6 +691,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       destination = current_position;
       prepare_line_to_destination();
+      planner.synchronize();
     }
   #endif
 

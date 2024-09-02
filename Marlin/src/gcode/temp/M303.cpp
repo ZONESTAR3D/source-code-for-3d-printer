@@ -33,8 +33,7 @@
 #endif
 
 #if HAS_DWIN_LCD
-#include "../../lcd/dwin/dwin_lcd.h"
-#include "../../lcd/dwin/dwin_ui/dwin.h"
+#include "../../lcd/dwin/dwin_ui/Dwin_comm.h"
 #endif
 
 /**
@@ -83,6 +82,11 @@ void GcodeSuite::M303() {
   #endif
 
   ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));	
+	
+#if HAS_DWIN_LCD
+	DWIN_Show_Status_Message(COLOR_WHITE,"PID Auto tune", 0);
+#endif
+
   thermalManager.PID_autotune(temp, e, c, u);
   ui.reset_status();	
 }

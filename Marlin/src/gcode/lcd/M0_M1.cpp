@@ -41,6 +41,11 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if HAS_DWIN_LCD
+	#include "../../lcd/dwin/dwin_ui/dwin_comm.h"
+#endif
+
+
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
@@ -74,8 +79,12 @@ void GcodeSuite::M0_M1() {
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(parser.string_arg);
     }
-
   #endif
+
+	
+#if HAS_DWIN_LCD
+	if (parser.string_arg)  DWIN_Show_Status_Message(COLOR_WHITE, parser.string_arg, 0);
+#endif
 
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 

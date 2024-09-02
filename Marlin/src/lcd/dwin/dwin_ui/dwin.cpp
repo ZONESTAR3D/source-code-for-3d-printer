@@ -87,6 +87,7 @@ DwinMenu DwinMenu_temp;
 DwinMenu DwinMenu_filament;
 DwinMenu DwinMenu_leveling;
 DwinMenu DwinMenu_powerdown;
+DwinMenu DwinMenu_HomeZoffsetWizard;
 DwinMenu DwinMenu_language;
 //control
 DwinMenu DwinMenu_control;
@@ -129,7 +130,7 @@ DwinMenu DwinMenu_reprint;
 //Print
 DwinMenu DwinMenu_print;
 DwinMenu DwinMenu_file;
-DwinMenu DwinMenu_PauseOption;
+DwinMenu DwinMenu_RunoutOption;
 DwinMenu DwinMenu_tune;
 //Infor
 DwinMenu DwinMenu_infor;
@@ -818,10 +819,25 @@ void DWIN_HandleScreen() {
 		case DWMENU_FILAMENT_EXTRUDER:			HMI_Filament_Extuder();  break;
 		case DWMENU_FILAMENT_FEEDLENGTH:  	HMI_Filament_FeedLength();  break;
 		case DWMENU_FILAMENT_PURGELENGTH: 	HMI_Filament_PurgeLength();  break;
-		case DWMENU_POP_LEVEL_CATCH:				HMI_BedLeveling(); break;
+	#if (HAS_OFFSET_MENU  && ENABLED(OPTION_GLASS_BED))
+		case DWMENU_POP_REMOVE_GLASS:				HMI_BedLeveling(); break;
+	#endif
+	
+	#if ENABLED(OPTION_ZOFFSETWIZARD)
+		case DWMENU_POP_ZOFFSETWIZARD:			HMI_ZoffsetWizard(); break;
+	#endif
+
+	#if ENABLED(OPTION_NEWAUTOLEVELING)
+		case DWMENU_LEVEL_SETHOMEOFFSET:		HMI_SetHomeZoffset(); break;		
+		case DWMENU_POP_ADJHOMEZOFFSET:			HMI_AdjustHomeZoffset(); break;
+	#endif
+	
 		case DWMENU_LEVELING:								HMI_BedLeveling(); break;
 		case DWMENU_LEVEL_DONECONFIRM:			HMI_BedLeveling(); break;
-		case DWMENU_LEVEL_SETOFFSET:    		HMI_SetProbZoffset(); break;		
+	#if HAS_LEVELING		
+		case DWMENU_LEVEL_SETPROBEOFFSET:   HMI_SetProbeZoffset(); break;		
+	#endif
+	
 		case DWMENU_LANGUAGE:								HMI_Language(); break;
 	#if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 		case DWMENU_POWERDOWN:							HMI_Powerdown(); break;		

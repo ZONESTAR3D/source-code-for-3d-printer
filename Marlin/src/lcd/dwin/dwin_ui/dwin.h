@@ -168,13 +168,14 @@ typedef enum {
 	DWMENU_FILAMENT_FEEDLENGTH,
 	DWMENU_FILAMENT_PURGELENGTH,
 	DWMENU_LEVELING,
-	DWMENU_LEVEL_CATCHOFFSET,
-	DWMENU_LEVEL_SETOFFSET,
+	DWMENU_LEVEL_CATCHPROBEZOFFSET,
+	DWMENU_LEVEL_SETHOMEOFFSET,
+	DWMENU_LEVEL_SETPROBEOFFSET,
 	DWMENU_LEVEL_BEDLEVELING,
 	DWMENU_LEVEL_DONECONFIRM,
 		
   //Control menu  
-  DWMENU_MIXER = 30,
+  DWMENU_MIXER = 31,
   DWMENU_CONFIG,
   DWMENU_MOTION,
   DWMENU_POWERDOWN,
@@ -272,7 +273,7 @@ typedef enum {
 
 	// Pop Menu
 	DWMENU_POP_HOME = 200,
-	DWMENU_POP_LEVEL_CATCH,	
+	DWMENU_POP_REMOVE_GLASS,
 	DWMENU_POP_STOPPRINT,
 	DWMENU_POP_FROD_OPTION,
 	DWMENU_POP_FROD_INSERT,
@@ -285,6 +286,8 @@ typedef enum {
 	DWMENU_POP_FAQLINK,
 	DWMENU_POP_WIFILINK,
 	DWMENU_POP_HEATRUNAWAY,
+	DWMENU_POP_ZOFFSETWIZARD,
+	DWMENU_POP_ADJHOMEZOFFSET,
 	
 	DWMENU_END
 }_emDWIN_MENUID_;
@@ -559,8 +562,10 @@ typedef struct {
 		#if ENABLED(OPTION_GUIDE_QRCODE)
 			 ,first_power_on:1
 		#endif		
-		#if (ABL_GRID)
-				,Leveling_Menu_Fg:1			
+		#if (HAS_LEVELING)
+				,Leveling_Menu_Fg:1
+				,AutoLeveling_Fg:1
+				,NeedAutoLeveling:1
 		#endif
 		#if ENABLED(OPTION_AUTOPOWEROFF)
 				,Autoshutdown_enabled:1
@@ -622,6 +627,7 @@ extern DwinMenu DwinMenu_temp;
 extern DwinMenu DwinMenu_filament;
 extern DwinMenu DwinMenu_leveling;
 extern DwinMenu DwinMenu_powerdown;
+extern DwinMenu DwinMenu_HomeZoffsetWizard;
 extern DwinMenu DwinMenu_language;
 
 extern DwinMenu DwinMenu_control;
@@ -654,7 +660,7 @@ extern DwinMenu DwinMenu_configure;
 
 extern DwinMenu DwinMenu_print;
 extern DwinMenu DwinMenu_file;
-extern DwinMenu DwinMenu_PauseOption;
+extern DwinMenu DwinMenu_RunoutOption;
 extern DwinMenu DwinMenu_tune;
 
 extern DwinMenu DwinMenu_infor;

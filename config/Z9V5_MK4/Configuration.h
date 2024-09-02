@@ -78,13 +78,13 @@
 //===========================================================================
 #define CUSTOM_MACHINE_NAME 				"Z9V5-MK4"
 #define	FIRMWARE_VERSION					  "V1.6.2"
-#define	STRING_DISTRIBUTION_DATE    "2024-03-16"
+#define	STRING_DISTRIBUTION_DATE    "2024-07-18"
 #define SHORT_BUILD_VERSION 				"Marlin-2.0.8"
 #define WEBSITE_URL 								"www.zonestar3d.com"
 #define STRING_CONFIG_H_AUTHOR    	"(ZONESTAR, Hally)"
 #define EEPROM_VERSION 			  		  "V84"		//modify it if need auto initlize EEPROM after upload firmware
 //===========================================================================
-//default feature, usually keep it enable
+//default features - ON
 #define	SWITCH_EXTRUDER_SQUENCY				//Z9V5 Exchanged extruder wiring squency
 //#define	OPTION_FLOWRATE_MENU					//Add a flowrate menu on LCD MENU
 #define	DWINLCD_MENU_VERSION		2			//Used DWIN LCD MENU V3
@@ -99,7 +99,7 @@
 #define	OPTION_FAQ_QRCODE							//Add a FAQ QRcode on Info Menu
 #define	OPTION_ABORT_UNLOADFILAMENT		//Auto unload filament when abort printing
 #define	SWITCH_EXTRUDER_MENU					//Add a Switch Extruder Menu
-#define	DEFAULT_AUTO_LEVELING		false	//Default Auto leveling feature is off
+#define	DEFAULT_AUTO_LEVELING		true	//Default Auto leveling feature is off
 #define	DEFAULT_MIXING_SWITCH		false	//Default mixing feature is off
 //===========================================================================
 //optional features - Default ON
@@ -109,12 +109,14 @@
 #define	OPTION_LASER									//Used the FAN pin as laser PWM pin
 //===========================================================================
 //optional features - Default OFF
-//#define OPTION_MAXSIZE              //Upgrade 500x500
+//#define OPTION_MAXSIZE              	//Upgrade 500x500
 //#define	OPTION_BMG									//All E0/E1/E2/E3 used Right hand BMG extruders  
 //#define	OPTION_BMG_LR									//Right-hand BMG extruders used on E0/E1 and Left-hand BMG extruders used on E2/E3 
 //#define	OPTION_3DTOUCH							//Use 3DTouch or BLTouch Bed levling sensor
 //#define	OPTION_TMC2209_ALL_MOTOR		//TMC2209 be used to all motor
 //#define OPTION_REPEAT_PRINTING        //Auto Repeat printing feature
+//#define	OPTION_NEWAUTOLEVELING				//
+//#define	OPTION_ZOFFSETWIZARD					//
 //==========================================================================
 //HOME OFFSET
 #define	DEFAULT_HOMEX_OFFSET	  0.0			//default home X offset
@@ -836,9 +838,9 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 200, 200, 8, 60 }
 
-//#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
+#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
-  #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 100 } // ...or, set your own edit limits
+  #define MAX_FEEDRATE_EDIT_VALUES    { 800, 800, 16, 200 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -847,10 +849,10 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 5000 }
+#define DEFAULT_MAX_ACCELERATION      { 5000, 5000, 80, 5000 }
 #define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 2000, 2000, 200, 10000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 20000, 20000, 160, 20000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -1083,10 +1085,10 @@
 #define NOZZLE_TO_PROBE_OFFSET { 0, -35, 0 }
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 		35
+#define PROBING_MARGIN 		45
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (133*60)
+#define XY_PROBE_SPEED (150*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z

@@ -275,11 +275,12 @@ typedef struct SettingsDataStruct {
 	#endif
   
   //
-  // language
+  // Settings for DWIN LCD MENU
   //
   #if HAS_DWIN_LCD
   uint8_t dwin_last_language;
 	bool dwin_autoLeveling_Menu;
+	bool dwin_autoLeveling;
 	bool dwin_autoshutdown;	
 	bool dwin_autounload;
 	bool first_power_on;
@@ -860,6 +861,10 @@ void MarlinSettings::postprocess() {
 			_FIELD_TEST(dwin_autoLeveling_Menu);
 			const bool dwin_autoLeveling_Menu = TERN(LCD_BED_LEVELING, HMI_flag.Leveling_Menu_Fg, false);
 			EEPROM_WRITE(dwin_autoLeveling_Menu);
+
+			_FIELD_TEST(dwin_autolevling);
+			const bool dwin_autolevling = TERN(OPTION_NEWAUTOLEVELING, HMI_flag.AutoLeveling_Fg, false);
+			EEPROM_WRITE(dwin_autolevling);
 
 			_FIELD_TEST(dwin_autoshutdown);
 			const bool dwin_autoshutdown = TERN(OPTION_AUTOPOWEROFF, HMI_flag.Autoshutdown_enabled, false);
@@ -1822,7 +1827,12 @@ void MarlinSettings::postprocess() {
 				_FIELD_TEST(dwin_autoLeveling_Menu);
 				bool dwin_autoLeveling_Menu = DEFAULT_AUTO_LEVELING;				
 				EEPROM_READ(dwin_autoLeveling_Menu);
-				HMI_flag.Leveling_Menu_Fg = dwin_autoLeveling_Menu;			
+				HMI_flag.Leveling_Menu_Fg = dwin_autoLeveling_Menu;
+
+				_FIELD_TEST(dwin_autoLeveling);
+				bool dwin_autoLeveling = true;				
+				EEPROM_READ(dwin_autoLeveling);
+				HMI_flag.AutoLeveling_Fg = dwin_autoLeveling;
 				
 				_FIELD_TEST(dwin_autoshutdown);												
 				bool dwin_autoshutdown = false;				
@@ -2821,6 +2831,7 @@ void MarlinSettings::reset() {
 #if HAS_DWIN_LCD
   HMI_flag.language = 0;
 	TERN_(LCD_BED_LEVELING,  HMI_flag.Leveling_Menu_Fg = DEFAULT_AUTO_LEVELING);
+	TERN_(OPTION_NEWAUTOLEVELING,  HMI_flag.AutoLeveling_Fg = true);
 	TERN_(OPTION_AUTOPOWEROFF,  HMI_flag.Autoshutdown_enabled = false);
 	TERN_(OPTION_GUIDE_QRCODE,  HMI_flag.first_power_on = true);
 	TERN_(PID_AUTOTUNE_MENU,  HMI_Value.PIDAutotune_Temp = 200);	

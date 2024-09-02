@@ -300,6 +300,11 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
+#if HAS_DWIN_LCD
+  #include "../lcd/dwin/dwin_ui/dwin.h"
+#endif
+
+
 #if IS_SCARA || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
@@ -443,8 +448,12 @@ private:
   TERN_(G26_MESH_VALIDATION, static void G26());
 
   TERN_(NOZZLE_PARK_FEATURE, static void G27());
-
+	
   static void G28();
+
+	#if (HAS_LEVELING && ENABLED(OPTION_NEWAUTOLEVELING))
+	static void G28_with_autoleveling();
+	#endif
 
   #if HAS_LEVELING
     #if ENABLED(G29_RETRY_AND_RECOVER)
