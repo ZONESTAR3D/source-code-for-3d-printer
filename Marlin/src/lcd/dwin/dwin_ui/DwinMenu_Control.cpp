@@ -120,7 +120,7 @@ void Draw_Control_Menu(const uint8_t MenuItem) {
 #endif
 	#define CCVISI(L) WITHIN(CCSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_CONTROL, TITLE_X, TITLE_Y);
@@ -165,7 +165,7 @@ void Draw_Mixer_Menu(const uint8_t MenuItem) {
 	DwinMenu_mixer.index = _MAX(DwinMenu_mixer.now, MROWS);
 	HMI_Value.old_mix_mode = -1;
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MIXER, TITLE_X, TITLE_Y);
@@ -261,7 +261,7 @@ static void Item_Mixer_SetVtool_Commit(const uint8_t row) {
 }
 
 inline void Draw_Mixer_SetVtool_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_manualmix.reset();
 	DwinMenuID = DWMENU_MIXER_SETVTOOL;
 
@@ -477,7 +477,7 @@ static void Draw_Mixer_Gradient_Menu() {
 	DwinMenuID = DWMENU_MIXER_GRADIENT;	
 	DwinMenu_GradientMix.reset();
 	mixer.gradient.enabled = false;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);	
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);	
 #if (GRADIENT_CASE_TOTAL > MROWS)
 	const int8_t scroll = MROWS - DwinMenu_GradientMix.index; // Scrolled-up lines
 	#define ACSCROL(L) (scroll + (L))
@@ -711,7 +711,7 @@ static void Draw_Mixer_Random_Menu() {
 	DwinMenuID = DWMENU_MIXER_RANDOM;
 	DwinMenu_RandomMix.reset();
 	mixer.random_mix.enabled = false;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	
 #if (RANDOM_CASE_TOTAL > MROWS)
 	const int8_t scroll = MROWS - DwinMenu_RandomMix.index; // Scrolled-up lines
@@ -1539,7 +1539,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 #endif
 	#define COVISI(L) WITHIN(COSCROL(L), 0, MROWS)
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);	
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);	
 #if (DWINLCD_MENU_VERSION >= 2)
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_CONFIGRE, TITLE_X, TITLE_Y);
@@ -1611,7 +1611,7 @@ void Draw_Config_Menu(const uint8_t MenuItem) {
 	#endif
 
 	#if HAS_LEVELING 		
-	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 								// auto lelevling
+	 if (COVISI(CONFIG_CASE_LEVELING)) Item_Config_Leveling(COSCROL(CONFIG_CASE_LEVELING));  	 								// auto lelevling	 
 	 if (COVISI(CONFIG_CASE_ACTIVELEVEL)) Item_Config_ActiveLevel(COSCROL(CONFIG_CASE_ACTIVELEVEL)); 					// Active lelevling
 	 #if HAS_PROBE_XY_OFFSET
 	 if (COVISI(CONFIG_CASE_PROBEOFFSET)) Item_Config_ProbeOffset(COSCROL(CONFIG_CASE_PROBEOFFSET)); 					// Probe offset
@@ -1677,7 +1677,7 @@ static void Item_Retract_UnRetract_V(const uint8_t row) {
 }
 
 inline void Draw_Retract_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_fwretract.reset();	
 	
 #if RETRACT_CASE_TOTAL > MROWS
@@ -1911,7 +1911,7 @@ inline void Item_LinearAdvance_K(uint8_t row, uint8_t e = 0){
 }
 
 inline void Draw_LinearAdvance_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_LinAdvance.reset(); 
 	//title
 	DWIN_Draw_UnMaskString_Default(14, 7, PSTR("Linear Advance")); 
@@ -2063,7 +2063,7 @@ static void Item_PIDTune_Auto(const uint8_t row) {
 void Draw_PIDTune_Menu() {
 	DwinMenuID = DWMENU_PID_TUNE;
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_PIDTune.reset();
 
 #if PIDTUNE_CASE_TOTAL > MROWS
@@ -2277,7 +2277,7 @@ static void Draw_Motion_Menu(const uint8_t MenuItem = 0) {
 	DwinMenu_motion.set(MenuItem);
   DwinMenu_motion.index = _MAX(DwinMenu_motion.now, MROWS);
 	 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MOTION, TITLE_X, TITLE_Y);
@@ -2335,7 +2335,7 @@ inline void Item_Feedrate_MaxE(uint8_t row, uint8_t e = 0){
 }
 
 inline void Draw_Max_Feedrate_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_feedrate.reset();
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
@@ -2488,7 +2488,7 @@ inline void Item_Accel_MaxE(uint8_t row, uint8_t e = 0){
 
 
 inline void Draw_Max_Accel_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_accel.reset();
 	//DwinMenu_accel.index = _MAX(DwinMenu_accel.now, MROWS);
 
@@ -2630,7 +2630,7 @@ inline void Item_Jerk_MaxE(uint8_t row){
 }
 
 inline void Draw_Max_Jerk_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_jerk.reset();
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
@@ -2742,7 +2742,7 @@ inline void Item_Steps_E(uint8_t row, uint8_t e = 0){
 
 inline void Draw_Steps_Menu() {
 	DwinMenu_step.reset();
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	HMI_flag.axis = X_AXIS;
 	HMI_Value.Steps_per_mm = planner.settings.axis_steps_per_mm[0] * MINUNITMULT;
 	
@@ -2905,7 +2905,7 @@ inline void Draw_Bltouch_Menu() {
 	DwinMenu_bltouch.reset();
 	//DwinMenu_bltouch.index = _MAX(DwinMenu_bltouch.now, MROWS);
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_BLTOUCH, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
@@ -3001,7 +3001,7 @@ static void Item_HomeOffset_Z(const uint8_t row) {
 
 inline void Draw_HomeOffset_Menu() {
 	DwinMenuID = DWMENU_SET_HOMEOFFSET;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_Homeoffset.reset();		
 	//title
 	DWIN_Draw_UnMaskString_Default(14, 7, PSTR("HOME OFFSET")); 
@@ -3155,7 +3155,7 @@ static void Item_ProbeOffset_Z(const uint8_t row) {
 
 inline void Draw_ProbeOffset_Menu() {
 	DwinMenuID = DWMENU_SET_PROBEOFFSET;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_Probeoffset.reset();		
 	//title
 	DWIN_Draw_UnMaskString_Default(14, 7, PSTR("PROBE OFFSET")); 
@@ -3535,7 +3535,7 @@ void HMI_Config() {
 				#if HAS_PROBE_XY_OFFSET
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_PROBEOFFSET) Item_Config_ProbeOffset(0);
 				#endif
-				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LEVELING) Item_Config_Leveling(0);
+				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_LEVELING) Item_Config_Leveling(0);				
 				else if(DwinMenu_configure.index - MROWS == CONFIG_CASE_ACTIVELEVEL) Item_Config_ActiveLevel(0);			
 			#endif			
 						
@@ -3875,7 +3875,7 @@ inline void Draw_SetPreHeatPLA_Menu(){
 	DwinMenu_PreheatPLA.reset();
 	//DwinMenu_PreheatPLA.index = _MAX(DwinMenu_PreheatPLA.now, MROWS);
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_PLA, TITLE_X, TITLE_Y);
@@ -3919,7 +3919,7 @@ inline void Draw_SetPreHeatABS_Menu(){
 	DwinMenu_PreheatABS.reset();
 	//DwinMenu_PreheatABS.index = _MAX(DwinMenu_PreheatABS.now, MROWS);
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_ABS, TITLE_X, TITLE_Y);

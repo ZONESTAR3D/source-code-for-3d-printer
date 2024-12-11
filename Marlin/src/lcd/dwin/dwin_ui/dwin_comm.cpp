@@ -193,7 +193,7 @@ void Scroll_Menu(const int8_t dir /*= DWIN_SCROLL_DOWN*/){
 
 
 void Clear_Dwin_Area(const uint8_t area){
-	if((area & AREA_TITAL) == AREA_TITAL)
+	if((area & AREA_TITEL) == AREA_TITEL)
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_BLUE, 0, TITAL_Y_START, DWIN_WIDTH, TITAL_Y_END);
 	if((area & AREA_MENU) == AREA_MENU)
 		dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, 0, MENU_Y_START, DWIN_WIDTH, MENU_Y_END);	
@@ -232,21 +232,23 @@ void Erase_Menu_Text(const uint8_t line){
 
 //updata Z position
 void DWIN_Show_Z_Position(bool bshowICON){	
-		static float last_z_pos = -9999.99;	
-	
+	static float last_z_pos = -999.9;	
+
 	#if ENABLED(BABYSTEPPING)
-		if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_SET_ZOFFSET)	return;		
+	if(DwinMenuID == DWMENU_TUNE_BABYSTEPS || DwinMenuID == DWMENU_SET_ZOFFSET)	return;		
 		#if HAS_HOME_OFFSET
 		const float current_z_pos = current_position.z + home_offset.z - (babyzoffset.first - babyzoffset.last);
 		#else
 		const float current_z_pos = current_position.z - (babyzoffset.first - babyzoffset.last);
 		#endif
-	#elif HAS_HOME_OFFSET
-		const float current_z_pos = current_position.z + home_offset.z;
 	#else
+		#if HAS_HOME_OFFSET
+		const float current_z_pos = current_position.z + home_offset.z;
+		#else
 		const float current_z_pos = current_position.z;
-	#endif		
-		
+		#endif
+	#endif	
+	
 	if(bshowICON) DWIN_Show_ICON(ICON_HOME_Z, State_icon_Zoffset_X, State_icon_Zoffset_Y);
 	if(TEST(axis_known_position, Z_AXIS)){
 		if(last_z_pos != current_z_pos || bshowICON){

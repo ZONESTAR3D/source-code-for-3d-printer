@@ -97,7 +97,7 @@ static void Draw_BigICON_MainMenu(){
 void Draw_File_Menu() {
 	DwinMenuID = DWMENU_FILE;
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_SDPRINT, TITLE_X, TITLE_Y);
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_FILE, TITLE_X+get_MultiLanguageString_Width(MTSTRING_TITLE_SDPRINT)+6, 7);

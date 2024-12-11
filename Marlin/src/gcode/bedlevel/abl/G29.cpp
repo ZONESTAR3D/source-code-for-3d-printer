@@ -629,7 +629,7 @@ G29_TYPE GcodeSuite::G29() {
 			        probePos.y = (Y_BED_SIZE - PROBING_MARGIN);				
 				  	break;
 			  }
-			  probe.offset.z = 0;				
+			  probe.offset.z = 0.0;				
 			  //measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW, 4, true, false);
 			  measured_z = probe.probe_at_point(probePos, PROBE_PT_RAISE, 4, true, false);
 			  if(isnan(measured_z)){
@@ -639,7 +639,7 @@ G29_TYPE GcodeSuite::G29() {
 			  }
 			  else{
 					#if HAS_DWIN_LCD
-					DWIN_G29_Show_Messge(G29_CATCH_NORMAL,i+1);
+					DWIN_G29_Show_Messge(G29_CATCH_NORMAL,i+1, 4);
 					#endif
 					if(measured_z > max_offsetz) max_offsetz = measured_z;
 				  if(measured_z < min_offsetz) min_offsetz = measured_z;
@@ -659,7 +659,7 @@ G29_TYPE GcodeSuite::G29() {
 			SERIAL_ECHOLNPAIR("probe.offset.z = ", probe.offset.z);
 			TERN_(EEPROM_SETTINGS,	settings.save());
 			TERN_(HAS_LCD_MENU,	ui.status_printf_P(0, PSTR("Offset catched!= %s"), ftostr42_52(probe.offset.z)));
-			TERN_(HAS_DWIN_LCD, DWIN_G29_Show_Messge(G29_CATCH_DONE));		
+			TERN_(HAS_DWIN_LCD, DWIN_G29_Show_Messge(G29_CATCH_DONE,0,0,probe.offset.z));		
 			G29_RETURN(isnan(measured_z));
 		}
 		else	
@@ -698,7 +698,7 @@ G29_TYPE GcodeSuite::G29() {
 	        // Avoid probing outside the round or hexagonal area
 	        if (TERN0(IS_KINEMATIC, !probe.can_reach(probePos))) continue;
 					if (verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", int(pt_index), "/", abl_points, ".");	
-				  TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_MESH_PROBING,int(pt_index),int(abl_points)));
+				  TERN_(HAS_DWIN_LCD,DWIN_G29_Show_Messge(G29_MESH_PROBING,int(pt_index),int(abl_points),probe.offset.z));
 					#ifdef DEBUG_LEVELING_PROBING	
 					float sum_z = 0.0;
 					uint8_t m = 0;

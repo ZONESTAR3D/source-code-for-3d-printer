@@ -755,7 +755,7 @@ void Draw_Tune_Menu(const uint8_t MenuItem){
 #endif
 	#define KCVISI(L) WITHIN(KCSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
@@ -844,7 +844,7 @@ inline void save_Zoffset(){
 #endif
 
 inline void Draw_Babystep_Menu() {	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TUNE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
@@ -949,7 +949,7 @@ void HMI_TuneFlowrate() {
 // Draw Popup Windows
 //
 void Popup_Window_Resume() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_POPMENU);
 	Draw_Popup_Bkgd_105();
 
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 14) / 2, 115, PSTR("Continue Print"));
@@ -964,7 +964,7 @@ void Popup_Window_Resume() {
 }
 
 static void Popup_window_PauseOrStop() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 
 	if (DwinMenu_print.now == PRINT_CASE_PAUSE) 
@@ -983,7 +983,7 @@ static void Popup_window_PauseOrStop() {
 }
 
 inline void Popup_Window_StopWaiting(){
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DwinMenuID = DWMENU_POP_WAITING;
 	HMI_flag.killtimes = 0;
@@ -1008,7 +1008,7 @@ void Draw_Printing_Menu(const uint8_t MenuItem, const bool with_update) {
 	DwinMenu_print.index = _MAX(DwinMenu_print.now, MROWS);
 	
 	DWIN_status = ID_SM_PRINTING;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_SDPRINT, TITLE_X, TITLE_Y);
@@ -1310,7 +1310,7 @@ void DWIN_Draw_PrintDone_Confirm(){
 #endif
 	// show print done confirm
 	DwinMenuID = DWMENU_POP_STOPPRINT;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_105();	
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272 - 11 * 12) / 2, 150, PSTR("Print Done,"));
 	//show print elapsed time
@@ -1356,7 +1356,7 @@ static void DRAW_Pause_Mode(const PauseMode mode){
 }
 
 static void Popup_window_Pause_Parking(const PauseMode mode) {
-	 Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	 Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	 Draw_Popup_Bkgd_60();
 	 DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	 DRAW_Pause_Mode(mode);
@@ -1364,7 +1364,7 @@ static void Popup_window_Pause_Parking(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Start(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1373,7 +1373,7 @@ static void Popup_window_Pause_Start(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Heating(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1383,7 +1383,7 @@ static void Popup_window_Pause_Heating(const PauseMode mode) {
 
 static void Popup_window_Pause_startHeat(const PauseMode mode) {
 	DwinMenuID = DWMENU_POP_FROD_HEAT;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DRAW_Pause_Mode(mode);
 	DWIN_Show_ICON(ICON_CONFIRM_E, 86, 168);
@@ -1394,7 +1394,7 @@ static void Popup_window_Pause_startHeat(const PauseMode mode) {
 
 static void Popup_window_Pause_Insert(const PauseMode mode) {
 	DwinMenuID = DWMENU_POP_FROD_INSERT;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DRAW_Pause_Mode(mode);
 	DWIN_Show_ICON(ICON_CONFIRM_E, 86, 168);
@@ -1404,7 +1404,7 @@ static void Popup_window_Pause_Insert(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Unload(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1413,7 +1413,7 @@ static void Popup_window_Pause_Unload(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Load(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1422,7 +1422,7 @@ static void Popup_window_Pause_Load(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Purge(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1431,7 +1431,7 @@ static void Popup_window_Pause_Purge(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Option(const PauseMode mode) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DRAW_Pause_Mode(mode);	
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 11) / 2, 160, PSTR("Purge more?"));
@@ -1441,7 +1441,7 @@ static void Popup_window_Pause_Option(const PauseMode mode) {
 }
 
 static void Popup_window_Pause_Resume(const PauseMode mode) {	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DRAW_Pause_Mode(mode);
@@ -1538,7 +1538,7 @@ void DWIN_Pause_Show_Message(const PauseMessage message,const PauseMode mode /*=
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 inline void Popup_window_ask_Disable_Runout() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 18) / 2, 140, PSTR("Sensor is still on"));
 	DWIN_Draw_String_FIL((DWIN_WIDTH - FIL_FONT_W * 16) / 2, 180, PSTR("Disable Runout?"));

@@ -535,7 +535,7 @@ void Popup_Temperature_Runaway(heater_id_t heaterid, _emTempErrorID errorid) {
 	if(DwinMenuID != DWMENU_POP_HEATRUNAWAY)
 	{
 		DwinMenuID = DWMENU_POP_HEATRUNAWAY;	
-		Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);		
+		Clear_Dwin_Area(AREA_TITEL|AREA_POPMENU);		
 		Draw_Popup_Bkgd_105();
 		DWIN_Show_ICON(ICON_TEMPTOOHIGH, 102, 130);		
 		old_heaterid = H_E7;

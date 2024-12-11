@@ -119,7 +119,7 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 #endif
 	#define PVISI(L) WITHIN(PSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_PREPARE, TITLE_X, TITLE_Y);
@@ -147,7 +147,7 @@ void Draw_Prepare_Menu(const uint8_t MenuItem) {
 //Prepare >> HOME
 //
 inline void Popup_Window_HomeAll(const bool parking=false) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing XYZ"));
@@ -156,7 +156,7 @@ inline void Popup_Window_HomeAll(const bool parking=false) {
 
 #if ENABLED(COMBINE_HOMEINGXY_MENU)
 inline void Popup_Window_HomeXY(const bool parking=false) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing X&Y"));
@@ -164,7 +164,7 @@ inline void Popup_Window_HomeXY(const bool parking=false) {
 }
 #else
 inline void Popup_Window_HomeX(const bool parking=false) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing X"));
@@ -172,7 +172,7 @@ inline void Popup_Window_HomeX(const bool parking=false) {
 }
 
 inline void Popup_Window_HomeY(const bool parking=false) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing Y"));
@@ -181,7 +181,7 @@ inline void Popup_Window_HomeY(const bool parking=false) {
 #endif
 
 inline void Popup_Window_HomeZ(const bool parking=false) {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_WAITING, 86, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * (parking ? 7 : 10)) / 2, 230, parking ? PSTR("Parking") : PSTR("Homing Z"));
@@ -234,7 +234,7 @@ void Draw_Home_Menu(bool reset_item) {
 #endif
 	#define HVISI(L) WITHIN(HSCROL(L), 0, MROWS)
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_HOME, TITLE_X, TITLE_Y);
@@ -375,7 +375,7 @@ void Draw_Temperature_Menu() {
 #endif
  	#define TCVISI(L) WITHIN(TCSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_TEMPERATURE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
@@ -579,7 +579,7 @@ void Draw_Move_Menu() {
 	#define MVISI(L) WITHIN(MSCROL(L), 0, MROWS)
 
 	_init_Move_Extr();
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_MOVE, TITLE_X, TITLE_Y);
@@ -721,7 +721,7 @@ void HMI_Move_Extruder(uint8_t extr) {
 			else if ((last_Extr_scale[extr] - HMI_Value.Current_E_Scale[extr]) > (EXTRUDE_MAXLENGTH) * MINUNITMULT)
 				HMI_Value.Current_E_Scale[extr] = last_Extr_scale[extr] - (EXTRUDE_MAXLENGTH) * MINUNITMULT;
 			DWIN_Draw_Selected_Small_Float31(MENUVALUE_X, MBASE(MROWS -DwinMenu_move.index + AXISMOVE_CASE_EX1 + extr), HMI_Value.Current_E_Scale[extr]);
-		}	
+		}
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1051,7 +1051,7 @@ void Draw_Filament_Menu() {
 #endif
 	#define FVISI(L) WITHIN(FSCROL(L), 0, MROWS)
 		
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	HMI_flag.Is_purged = false;
 	HMI_flag.Is_retracted = false;
 	HMI_Value.load_extruder = 1;
@@ -1248,8 +1248,7 @@ static void Dwin_filament_action(uint8_t action){
 		HMI_flag.Is_retracted = false;
 	}
 	else if(action == FILAMENT_CASE_UNLOAD){
-		//quickly unload
-		
+		//quickly unload		
 		//purge
 		if(!HMI_flag.Is_purged){
 			current_position.e += FILAMENT_UNLOAD_PURGE_LENGTH*mux;
@@ -1463,11 +1462,11 @@ static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16
 				dwinLCD.Draw_Rectangle(1, COLOR_BG_BLACK, x_start+1, y_start+1, x_start+BAR_WIDTH-1, y_start+BAR_HEIGTH-1);			
 				if(ABS(value) > 199)
 					dwinLCD.Draw_String(false, true, FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, x_start+STR_START_X,  y_start+STR_START_Y, PSTR("Error"));
-				else if(ABS(value) > 100)
+				else if(ABS(value) > 149)
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_RED, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
-				else if(ABS(value) > 60)
+				else if(ABS(value) > 100)
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_YELLOW, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);	
-				else if(ABS(value) > 30)
+				else if(ABS(value) > 50)
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_WHITE, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
 				else
 					dwinLCD.Draw_SignedFloatValue(FONT_G29TABLE, COLOR_GREEN, COLOR_BG_BLACK, 1, 2, x_start+STR_START_X,  y_start+STR_START_Y, value);
@@ -1492,20 +1491,19 @@ static void DWIN_G29_Show_ValueTable(bool bFrame, const uint8_t idx, const int16
 }
 
 void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,const int pt_index,const int all_points,const float fvalue){
+	char string_buf[60]={0};
 #if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 	if(DwinMenuID != DWMENU_LEVEL_CATCHPROBEZOFFSET) DwinMenuID = DWMENU_LEVEL_BEDLEVELING;
 #else
 	DwinMenuID = DWMENU_LEVEL_BEDLEVELING;
-#endif
+#endif	
 	switch(message){
-		case G29_CATCH_START:
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("To catch offset"));
+		case G29_CATCH_START:	
+			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("To catch offset"), 0);
 			break;
 		case G29_CATCH_NORMAL:
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Catch Point:  "));
-			DWIN_Draw_IntValue_Default(1, 12+13*8, 454, pt_index);
+			sprintf_P(string_buf, PSTR("Catch Point: %d/%d"), pt_index, all_points);
+			DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
 			break;
 		case G29_CATCH_FAIL1:
 			DWIN_Show_Status_Message(COLOR_RED, PSTR("Fail! Move down Probe"), 0);
@@ -1513,16 +1511,18 @@ void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,co
 		case G29_CATCH_FAIL2:
 			DWIN_Show_Status_Message(COLOR_RED, PSTR("Over range, manual level!"), 0);
 			break;
-		case G29_CATCH_DONE:
-			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Catched! Probe Z offset="));
-			DWIN_Draw_Selected_Small_Float22(12+25*8, 454, (probe.offset.z * MAXUNITMULT));			
+		case G29_CATCH_DONE:			
+			sprintf_P(string_buf, PSTR("Catched! Probe Z offset = %2.2f"), fvalue);
+			DWIN_Show_Status_Message(COLOR_GREEN, string_buf, 0);
 			break;			
-		case G29_MESH_START:			
-			Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Start Probing!"));
+		case G29_MESH_START:
+			DWIN_Show_Status_Message(COLOR_WHITE, PSTR("Start Probing!"), 0);
 			break;
 		case G29_MESH_READY:
-			Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+			Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
+			dwinLCD.JPG_CacheTo1(get_title_picID());
+			DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_LEVELING, TITLE_X, TITLE_Y);
+			dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
 			Draw_Popup_Bkgd_60();
 		#if (GRID_MAX_POINTS_X <= 7)
 			#if (GRID_MAX_POINTS_X > 4)
@@ -1536,23 +1536,19 @@ void DWIN_G29_Show_Messge(const _emDWIN_G29_MSG message/*=G29_LEVLE_DEFAULT*/,co
 		#endif
 			break;
 		case G29_MESH_PROBING:
-			//Clear_Dwin_Area(AREA_BOTTOM);
-			DWIN_Draw_MaskString_Default(12, 454,PSTR("Point:   /    "));			
-			DWIN_Draw_IntValue_Default(2, 12+7*8, 454, pt_index);
-			DWIN_Draw_IntValue_Default(2, 12+11*8, 454, all_points);
-			DWIN_Draw_MaskString_Default(12+15*8, 454,PSTR("Z offset= "));
-			DWIN_Draw_Small_Float22(12+25*8, 454, (probe.offset.z*MAXUNITMULT));
+			sprintf_P(string_buf, PSTR("Point:%d/%d; Z offset= %2.2f"), pt_index, all_points, fvalue);
+			DWIN_Show_Status_Message(COLOR_WHITE, string_buf, 0);
 			break;
 		case G29_MESH_VALUE:
 		#if (GRID_MAX_POINTS_X <= 7)
 			DWIN_G29_Show_ValueTable(false, pt_index, fvalue*MAXUNITMULT);
-		#else
-			DWIN_Draw_MaskString_Default_Color(COLOR_RED, 130, 454,PSTR("Z offset="));
-			dwinLCD.Draw_SignedFloatValue(font8x16, COLOR_RED, COLOR_BG_BLACK, 2, 2, 130+9*8, 454, (fvalue * MAXUNITMULT));			
+		#else			
+			sprintf_P(string_buf, PSTR("Z offset= %2.2f"), fvalue);
+			DWIN_Show_Status_Message(COLOR_RED, string_buf, 0);
 		#endif
 			break;
 		case G29_MESH_DONE:
-			DWIN_Show_Status_Message(COLOR_GREEN,PSTR("Bed Leveling finished!"));						
+			DWIN_Show_Status_Message(COLOR_GREEN, PSTR("Bed Leveling finished!"), 10);						
 			dwinLCD.UpdateLCD();
 			break;
 		default:
@@ -1589,7 +1585,7 @@ static void Item_Leveling_Home(const uint8_t row) {
 	Draw_Menu_Line(row,ICON_HOME_ALL);	
 }
 
-#if DISABLED(OPTION_NEWAUTOLEVELING)	
+#if ENABLED(LEVEL_BED_CORNERS)	
 static void Item_Leveling_Point1(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_POINT, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_1, LBLX+get_MultiLanguageString_Width(MTSTRING_POINT)+6, MBASE(row));	
@@ -1626,7 +1622,7 @@ static void Item_Leveling_CatchZoffset(const uint8_t row) {
 static void Item_Leveling_HomeZoffset(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_HOME, LBLX, MBASE(row));	
 	DWIN_Show_MultiLanguage_String(MTSTRING_Z_OFFSET, LBLX+get_MultiLanguageString_Width(MTSTRING_HOME)+5, MBASE(row));
-	DWIN_Draw_Small_Float21(MENUVALUE_X, MBASE(row), home_offset.z*MINUNITMULT);
+	DWIN_Draw_Small_Float22(MENUVALUE_X, MBASE(row), home_offset.z*MAXUNITMULT);
 	Draw_Menu_Line(row, ICON_LEVELING_SAVE);
 }
 
@@ -1647,11 +1643,10 @@ static void Item_Leveling_ProbeZoffset(const uint8_t row) {
 static void Item_Leveling_Action(const uint8_t row) {
 	DWIN_Show_MultiLanguage_String(MTSTRING_AUTO, LBLX, MBASE(row));
 	DWIN_Show_MultiLanguage_String(MTSTRING_LEVEL, LBLX+get_MultiLanguageString_Width(MTSTRING_AUTO)+6, MBASE(row));	
-
-	if(planner.leveling_active)
-		DWIN_Draw_MaskString_Default_Color(COLOR_GREEN, 196, MBASE(row), PSTR("Actived"));
-	else
-		DWIN_Draw_MaskString_Default_Color(COLOR_RED, 196, MBASE(row), PSTR(" --NA--"));
+	//if(planner.leveling_active)
+	//	DWIN_Draw_MaskString_Default_Color(COLOR_GREEN, 196, MBASE(row), PSTR("Actived"));
+	//else
+	//	DWIN_Draw_MaskString_Default_Color(COLOR_RED, 196, MBASE(row), PSTR(" --NA--"));
 	Draw_Menu_Line(row, ICON_LEVELING_SAVE);
 }
 #endif
@@ -1659,7 +1654,7 @@ static void Item_Leveling_Action(const uint8_t row) {
 #if ENABLED(LCD_BED_LEVELING)
 static void Popup_Window_Leveling() {
 	DwinMenuID = DWMENU_LEVEL_BEDLEVELING;
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 17) / 2, 230, PSTR("Bed auto leveling"));
@@ -1668,7 +1663,7 @@ static void Popup_Window_Leveling() {
 
 #if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 void DWIN_PopMenu_CatchProbeZOffset() {	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 23) / 2, 230, PSTR("Catching Probe Z Offset"));
@@ -1680,7 +1675,7 @@ void DWIN_PopMenu_CatchProbeZOffset() {
 
 #if ENABLED(OPTION_ZOFFSETWIZARD)
 void DWIN_PopMenu_ZOffsetWizard() {	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 85);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 21) / 2, 190, PSTR("Z Offset Setup Wizard"));
@@ -1741,7 +1736,7 @@ void HMI_ZoffsetWizard() {
 #if ENABLED(OPTION_NEWAUTOLEVELING)
 float old_posz = 0.0;
 void DWIN_PopMenu_HomeZOffsetSetup() {	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 	Draw_Popup_Bkgd_60();
 	DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 85);
 	DWIN_Draw_MaskString_Default_PopMenu( (272 - 10 * 21) / 2, 200, PSTR("Z Offset Setup Wizard"));
@@ -1754,7 +1749,7 @@ void DWIN_PopMenu_HomeZOffsetSetup() {
 	
 	planner.synchronize();
 	old_posz = current_position.z;
-	old_HomeZoffset_Scale = HMI_Value.HomeOffsetZ_scale = old_posz*MAXUNITMULT;
+	old_HomeZoffset_Scale = HMI_Value.HomeOffsetZ_scale = old_posz*MAXUNITMULT;	
 }
 
 void HMI_AdjustHomeZoffset() {	
@@ -1766,12 +1761,13 @@ void HMI_AdjustHomeZoffset() {
 			home_offset.z = (old_posz - current_position.z);
 			EncoderRate.enabled = false;
 			HMI_AudioFeedback(settings.save());
+			sprintf_P(statusbar_str, PSTR("Home Z Offset = %2.2f"), home_offset.z);
+			DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, 3);
 			
 			set_bed_leveling_enabled(false);
 			DWIN_PopMenu_CatchProbeZOffset();
 			DWIN_G29_Show_Messge(G29_CATCH_START);					
-			queue.inject_P(PSTR("G28\nG29 N\n"));
-			sprintf_P(statusbar_str, PSTR("home_offset.z = %2.1f"), home_offset.z);
+			queue.inject_P(PSTR("G28\nG29 N\n"));			
 		}
 		else
 		{
@@ -1781,9 +1777,9 @@ void HMI_AdjustHomeZoffset() {
 			old_HomeZoffset_Scale = HMI_Value.HomeOffsetZ_scale;			
 			planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_Z), 0);	
 			planner.synchronize();
-			sprintf_P(statusbar_str, PSTR("Z = %2.1f, Zoffset_Scale = %3d"), current_position.z, old_HomeZoffset_Scale);
+			sprintf_P(statusbar_str, PSTR("Current Z = %2.2f"), current_position.z);
+			DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, 3);
 		}
-		DWIN_Show_Status_Message(COLOR_WHITE, statusbar_str, 3);		
 		dwinLCD.UpdateLCD();
 	}
 }
@@ -1815,7 +1811,7 @@ void HMI_SetHomeZoffset() {
 static void Popup_Remove_Glass() {
 	DwinMenuID = DWMENU_POP_REMOVE_GLASS;
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_BOTTOM);
 	Draw_Popup_Bkgd_60();
 
 	DWIN_Show_ICON(ICON_AUTOLEVELING, 101, 105);
@@ -1839,7 +1835,7 @@ void Draw_Leveling_Menu(bool reset_item) {
 #endif
 	#define LEVISI(L) WITHIN(LESCROL(L), 0, MROWS)
 
- 	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS);
+ 	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS);
 #if HAS_LEVELING
 	 HMI_flag.Leveling_Case_Total = HMI_flag.Leveling_Menu_Fg?LEVELING_CASE_TOTAL : LEVELING_CASE_HOMEALL;
 #endif
@@ -1850,7 +1846,7 @@ void Draw_Leveling_Menu(bool reset_item) {
 
 	if(LEVISI(LEVELING_CASE_BACK)) Draw_Back_First(DwinMenu_leveling.now == LEVELING_CASE_BACK);    	// < Back 
 
-#if DISABLED(OPTION_NEWAUTOLEVELING)	
+#if ENABLED(LEVEL_BED_CORNERS)	
 	if(LEVISI(LEVELING_CASE_POINT1)) Item_Leveling_Point1(LESCROL(LEVELING_CASE_POINT1));   					// point 1
 	if(LEVISI(LEVELING_CASE_POINT2)) Item_Leveling_Point2(LESCROL(LEVELING_CASE_POINT2));   					// point 2
 	if(LEVISI(LEVELING_CASE_POINT3)) Item_Leveling_Point3(LESCROL(LEVELING_CASE_POINT3));   					// point 3
@@ -1863,11 +1859,11 @@ void Draw_Leveling_Menu(bool reset_item) {
 	#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 		if(LEVISI(LEVELING_CASE_CATCHOFFSET)) Item_Leveling_CatchZoffset(LESCROL(LEVELING_CASE_CATCHOFFSET));
 	#endif
+		if(LEVISI(LEVELING_CASE_ACTION)) Item_Leveling_Action(LESCROL(LEVELING_CASE_ACTION));
 	#if ENABLED(OPTION_NEWAUTOLEVELING)
 		if(LEVISI(LEVELING_CASE_HOMEZOFFSET)) Item_Leveling_HomeZoffset(LESCROL(LEVELING_CASE_HOMEZOFFSET));
 	#endif
-		if(LEVISI(LEVELING_CASE_PROBEZOFFSET)) Item_Leveling_ProbeZoffset(LESCROL(LEVELING_CASE_PROBEZOFFSET));
-		if(LEVISI(LEVELING_CASE_ACTION)) Item_Leveling_Action(LESCROL(LEVELING_CASE_ACTION));
+		if(LEVISI(LEVELING_CASE_PROBEZOFFSET)) Item_Leveling_ProbeZoffset(LESCROL(LEVELING_CASE_PROBEZOFFSET));		
 	}
 #endif 
 	if (DwinMenu_leveling.now) Draw_Menu_Cursor(LESCROL(DwinMenu_leveling.now));
@@ -1895,7 +1891,9 @@ void HMI_SetProbeZoffset() {
 }
 #endif // HAS_LEVELING
 
+#if ENABLED(LEVEL_BED_CORNERS)
 constexpr uint16_t lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
+#endif
 void HMI_BedLeveling() {
 #if DISABLED(OPTION_NEWAUTOLEVELING)	
 	char gcode_string[100]={0};
@@ -1909,17 +1907,17 @@ void HMI_BedLeveling() {
 			if (DwinMenu_leveling.now > MROWS && DwinMenu_leveling.now > DwinMenu_leveling.index) {
 				DwinMenu_leveling.index = DwinMenu_leveling.now;
 				Scroll_Menu(DWIN_SCROLL_UP);
-			#if HAS_LEVELING
-				if(DwinMenu_leveling.index == LEVELING_CASE_ACTION) Item_Leveling_Action(MROWS);
-				else if(DwinMenu_leveling.index == LEVELING_CASE_PROBEZOFFSET) Item_Leveling_ProbeZoffset(MROWS);				
+			#if HAS_LEVELING				
+				if(DwinMenu_leveling.index == LEVELING_CASE_PROBEZOFFSET) Item_Leveling_ProbeZoffset(MROWS);
 			#if ENABLED(OPTION_NEWAUTOLEVELING)
 				else if(DwinMenu_leveling.index == LEVELING_CASE_HOMEZOFFSET) Item_Leveling_HomeZoffset(MROWS);						
 			#endif
-				#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
+				else if(DwinMenu_leveling.index == LEVELING_CASE_ACTION) Item_Leveling_Action(MROWS);
+			#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 				else if(DwinMenu_leveling.index == LEVELING_CASE_CATCHOFFSET) Item_Leveling_CatchZoffset(MROWS);
-				#endif
+			#endif				
 				else if(DwinMenu_leveling.index == LEVELING_CASE_HOMEALL) Item_Leveling_Home(MROWS);
-				#if DISABLED(OPTION_NEWAUTOLEVELING)
+				#if ENABLED(LEVEL_BED_CORNERS)
 				else if(DwinMenu_leveling.index == LEVELING_CASE_POINT4) Item_Leveling_Point4(MROWS);
 				else if(DwinMenu_leveling.index == LEVELING_CASE_POINT3) Item_Leveling_Point3(MROWS);
 				else if(DwinMenu_leveling.index == LEVELING_CASE_POINT2) Item_Leveling_Point2(MROWS);
@@ -1940,7 +1938,7 @@ void HMI_BedLeveling() {
 				DwinMenu_leveling.index--;
 				Scroll_Menu(DWIN_SCROLL_DOWN);
 				if (DwinMenu_leveling.index - MROWS == LEVELING_CASE_BACK) Draw_Back_First();				
-			#if DISABLED(OPTION_NEWAUTOLEVELING)
+			#if ENABLED(LEVEL_BED_CORNERS)
 				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_POINT1) Item_Leveling_Point1(0);
 				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_POINT2) Item_Leveling_Point2(0);
 				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_POINT3) Item_Leveling_Point3(0);
@@ -1951,11 +1949,11 @@ void HMI_BedLeveling() {
 			#if ENABLED(AUTO_UPDATA_PROBE_Z_OFFSET)
 				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_CATCHOFFSET) Item_Leveling_CatchZoffset(0);
 			#endif			
+				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_ACTION) Item_Leveling_Action(0);
 			#if ENABLED(OPTION_NEWAUTOLEVELING)
 				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_HOMEZOFFSET) Item_Leveling_HomeZoffset(0);
 			#endif
-				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_PROBEZOFFSET) Item_Leveling_ProbeZoffset(0);
-				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_ACTION) Item_Leveling_Action(0);
+				else if(DwinMenu_leveling.index - MROWS == LEVELING_CASE_PROBEZOFFSET) Item_Leveling_ProbeZoffset(0);				
 			#endif
 			}
 			else {
@@ -1981,7 +1979,7 @@ void HMI_BedLeveling() {
 				Draw_Prepare_Menu(PREPARE_CASE_LEVELING);
 	    break;
 
-		#if DISABLED(OPTION_NEWAUTOLEVELING)		
+		#if ENABLED(LEVEL_BED_CORNERS)		
 			case LEVELING_CASE_POINT1: 										
 				DwinMenuID = DWMENU_LEVELING;								
 				Clear_Dwin_Area(AREA_BOTTOM);			
@@ -2057,7 +2055,7 @@ void HMI_BedLeveling() {
 			case LEVELING_CASE_CATCHOFFSET:
 				set_bed_leveling_enabled(false);				
 				home_offset.z = 0;
-				queue.inject_P(PSTR("G28\nG1 Z5 F300\nG1 X150 Y150 Z5 F3000\n"));
+				queue.inject_P(PSTR("G28\nG1 Z5 F300\nG1 X155 Y155 Z5 F3000\n"));
 				DwinMenuID = DWMENU_POP_ADJHOMEZOFFSET;
 				Popup_Window_HomeAll();
 			break;
@@ -2165,7 +2163,7 @@ inline void Draw_Language_Menu() {
 #endif
 	#define LAVISI(L) WITHIN(LASCROL(L), 0, MROWS)
 	
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_LANGUAGE, TITLE_X, TITLE_Y);
 	dwinLCD.JPG_CacheTo1(HMI_flag.language+1);
@@ -2257,7 +2255,7 @@ void HMI_Language() {
 //
 #if (HAS_SUICIDE || ENABLED(PSU_CONTROL))
 static void Popup_Window_Powerdown() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	Draw_Popup_Bkgd_60();	
 	DWIN_Show_MultiLanguage_String(MTSTRING_POWER_OUTAGE, TITLE_X, TITLE_Y);
 	DWIN_Show_ICON(ICON_POWER_DOWN, 86, 95);

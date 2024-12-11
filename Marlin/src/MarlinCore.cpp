@@ -569,7 +569,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
         // Individual axes will be disabled if configured
         TERN_(DISABLE_INACTIVE_X, DISABLE_AXIS_X());
-        TERN_(DISABLE_INACTIVE_X, DISABLE_AXIS_Y());
+        TERN_(DISABLE_INACTIVE_Y, DISABLE_AXIS_Y());
         TERN_(DISABLE_INACTIVE_Z, DISABLE_AXIS_Z());
         TERN_(DISABLE_INACTIVE_E, disable_e_steppers());
 

@@ -91,7 +91,7 @@ static void Item_RepeatPrint_PushArm(const uint8_t row) {
 
 
 void Draw_RepeatPrint_Menu() {
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU);
 	DwinMenu_reprint.reset();
 
 #if REPRINT_CASE_TOTAL > MROWS
@@ -349,7 +349,7 @@ void HMI_RepeatPrint() {
 void Popup_Window_RepeatPrint(){
 	DWIN_status = ID_SM_REPEATPRITING;
 	DwinMenuID = DWMENU_POP_REPEATPRINTING;
-	Clear_Dwin_Area(AREA_TITAL|AREA_POPMENU);
+	Clear_Dwin_Area(AREA_TITEL|AREA_POPMENU);
 	Draw_Popup_Bkgd_60();	//60_390
 	DWIN_Draw_UnMaskString_FONT10_TITLE(14 ,4, PSTR("Repeat Print"));
 	DWIN_Draw_MaskString_FONT12(POP_TEXT_COLOR, COLOR_BG_WINDOW, (272-12*15)/2, 90, PSTR("Repeat Printing"));

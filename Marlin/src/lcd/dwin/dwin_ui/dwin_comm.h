@@ -121,7 +121,7 @@
 #define	POP_Y_END					359
 
 typedef enum{
-	AREA_TITAL = 0x01,
+	AREA_TITEL = 0x01,
 	AREA_MENU = 0x02,
 	AREA_MIXVALUE = 0x04,	
 	AREA_STATUS  = 0x08,

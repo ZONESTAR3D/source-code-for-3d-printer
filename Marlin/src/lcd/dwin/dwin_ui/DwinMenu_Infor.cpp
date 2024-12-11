@@ -219,7 +219,7 @@ void Draw_Info_Menu() {
 	#define ICLINE(L) MBASE(ICSCROL(L))
 	#define ICVISI(L) WITHIN(ICSCROL(L), 0, MROWS)
 
-	Clear_Dwin_Area(AREA_TITAL|AREA_MENU|AREA_STATUS|AREA_BOTTOM);
+	Clear_Dwin_Area(AREA_TITEL|AREA_MENU|AREA_STATUS|AREA_BOTTOM);
 	
 	dwinLCD.JPG_CacheTo1(get_title_picID());
 	DWIN_Show_MultiLanguage_String(MTSTRING_TITLE_INFO, TITLE_X, TITLE_Y);
